@@ -1,0 +1,106 @@
+@props(['active' => 'dashboard'])
+
+@php
+    // Inactive takes 219px (mx-[1px] within 221px width)
+    $inactiveClass = "flex items-center gap-3 px-8 h-[35px] mx-[1px] w-[219px] text-[14px] font-medium text-[#333333] transition-colors cursor-pointer text-left hover:bg-[#E8E5E5]";
+    
+    // Active takes 207px (ml-[6px] mr-[8px]), rounded 5px
+    $activeClass = "flex items-center gap-3 px-8 h-[35px] mx-[6px] w-[207px] text-[14px] font-medium text-white bg-[#F48200] rounded-[5px] transition-colors cursor-pointer text-left";
+
+    // Dropdown items logic (similar to inactive but padded more)
+    $subInactiveClass = "block px-12 py-2 text-[14px] text-[#333333] transition-colors hover:bg-[#E8E5E5] w-[219px] mx-[1px]";
+    $subActiveClass = "block px-12 py-2 text-[14px] font-bold text-[#1A1A1A] transition-colors bg-[#E8E5E5] w-[219px] mx-[1px]";
+@endphp
+
+<!-- Dashboard -->
+<a href="{{ route('mahasiswa.dashboard') }}" class="{{ $active == 'dashboard' ? $activeClass : $inactiveClass }} mt-4 mb-2">
+    <svg class="w-[14px] h-[14px] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+    Dashboard
+</a>
+
+<!-- KP (Header/Separator) -->
+<div class="px-8 mt-2 mb-2 text-[14px] font-medium text-[#333333]">
+    KP
+</div>
+
+<!-- Pendaftaran KP -->
+<a href="{{ route('mahasiswa.dummy', 'pendaftaran-kp') }}" class="{{ $active == 'pendaftaran-kp' ? $activeClass : $inactiveClass }}">
+    <svg class="w-[14px] h-[14px] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+    Pendaftaran KP
+</a>
+
+<!-- Data KP Saya -->
+<a href="{{ route('mahasiswa.dummy', 'data-kp') }}" class="{{ $active == 'data-kp' ? $activeClass : $inactiveClass }}">
+    <svg class="w-[14px] h-[14px] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+    Data KP Saya
+</a>
+
+<!-- Log Bimbingan -->
+<div class="px-8 mt-2 mb-2 text-[14px] font-medium text-[#333333]">
+    Log Bimbingan
+</div>
+
+<a href="{{ route('mahasiswa.dummy', 'bimbingan-dosen') }}" class="{{ $active == 'bimbingan-dosen' ? $subActiveClass : $subInactiveClass }}">
+    Bimbingan Dosen
+</a>
+<a href="{{ route('mahasiswa.dummy', 'bimbingan-supervisor') }}" class="{{ $active == 'bimbingan-supervisor' ? $subActiveClass : $subInactiveClass }}">
+    Bimbingan Supervisior
+</a>
+
+<!-- Persetujuan Sidang KP -->
+<a href="{{ route('mahasiswa.dummy', 'persetujuan-sidang') }}" class="{{ $active == 'persetujuan-sidang' ? $activeClass : $inactiveClass }} mt-2">
+    <svg class="w-[14px] h-[14px] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+    Persetujuan Sidang KP
+</a>
+
+<!-- Sidang -->
+<div class="px-8 mt-2 mb-2 text-[14px] font-medium text-[#333333]">
+    Sidang
+</div>
+
+<a href="{{ route('mahasiswa.dummy', 'pendaftaran-sidang') }}" class="{{ $active == 'pendaftaran-sidang' ? $subActiveClass : $subInactiveClass }}">
+    Pendaftaran Sidang
+</a>
+<a href="{{ route('mahasiswa.dummy', 'jadwal-sidang') }}" class="{{ $active == 'jadwal-sidang' ? $subActiveClass : $subInactiveClass }}">
+    Jadwal Sidang
+</a>
+<a href="{{ route('mahasiswa.dummy', 'hasil-sidang') }}" class="{{ $active == 'hasil-sidang' ? $subActiveClass : $subInactiveClass }}">
+    Hasil Sidang
+</a>
+<a href="{{ route('mahasiswa.dummy', 'revisi') }}" class="{{ $active == 'revisi' ? $subActiveClass : $subInactiveClass }}">
+    Revisi
+</a>
+
+<!-- Nilai Akhir KP -->
+<a href="{{ route('mahasiswa.dummy', 'nilai-akhir') }}" class="{{ $active == 'nilai-akhir' ? $activeClass : $inactiveClass }} mt-2">
+    <svg class="w-[14px] h-[14px] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+    Nilai Akhir KP
+</a>
+
+<!-- Notifikasi -->
+<a href="{{ route('mahasiswa.dummy', 'notifikasi') }}" class="{{ $active == 'notifikasi' ? $activeClass : $inactiveClass }}">
+    <svg class="w-[14px] h-[14px] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg>
+    Nitifikasi
+</a>
+
+<div class="mt-8">
+    <!-- Profil -->
+    <a href="{{ route('mahasiswa.dummy', 'profil') }}" class="{{ $active == 'profil' ? $activeClass : $inactiveClass }}">
+        <svg class="w-[14px] h-[14px] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        Profil
+    </a>
+
+    <!-- Panduan Website -->
+    <a href="{{ route('mahasiswa.dummy', 'panduan') }}" class="{{ $active == 'panduan' ? $activeClass : $inactiveClass }}">
+        <svg class="w-[14px] h-[14px] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+        Panduan Website
+    </a>
+
+    <!-- Sign Out -->
+    <div class="mt-8">
+        <a href="#" class="flex items-center gap-3 px-8 h-[35px] mx-[1px] w-[219px] text-[12px] font-medium text-[#FF0000] hover:bg-[#E8E5E5] transition-colors cursor-pointer text-left">
+            <svg class="w-[14px] h-[14px] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+            Sign Out
+        </a>
+    </div>
+</div>
