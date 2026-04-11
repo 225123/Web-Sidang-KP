@@ -104,8 +104,11 @@
         <span x-show="sidebarOpen" x-transition>Panduan Website</span>
     </a>
 
-    <div class="mt-1">
-        <a href="#" class="flex items-center gap-3 px-6 h-[35px] mx-[1px] w-full max-w-[219px] overflow-hidden whitespace-nowrap rounded-[5px] text-[12px] font-bold text-[#FF0000] hover:bg-[#E8E5E5] transition-colors cursor-pointer text-left">
+    <div class="mt-1 pb-4">
+        <form method="POST" action="{{ route('logout') }}" id="sidebar-logout-form">
+            @csrf
+        </form>
+        <a href="#" onclick="event.preventDefault(); document.getElementById('sidebar-logout-form').submit();" class="flex items-center gap-3 px-6 h-[35px] mx-[1px] w-full max-w-[219px] overflow-hidden whitespace-nowrap rounded-[5px] text-[12px] font-bold text-[#FF0000] hover:bg-[#E8E5E5] transition-colors cursor-pointer text-left">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
             <span x-show="sidebarOpen" x-transition>Sign Out</span>
         </a>
