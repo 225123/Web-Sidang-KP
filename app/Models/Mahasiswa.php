@@ -15,6 +15,11 @@ class Mahasiswa extends Model
     // Disable timestamps since they are not in the schema level 1
     public $timestamps = false;
 
+    // Menjadikan NIM sebagai Primary Key
+    protected $primaryKey = 'nim';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     protected $fillable = [
         'user_id',
         'nim',

@@ -14,6 +14,11 @@ class Dosen extends Model
     // Disable timestamps since they are not in the schema level 1
     public $timestamps = false;
 
+    // Menjadikan NIDN sebagai Primary Key
+    protected $primaryKey = 'nidn';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     protected $fillable = [
         'user_id',
         'nidn',
