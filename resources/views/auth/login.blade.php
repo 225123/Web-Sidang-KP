@@ -12,7 +12,7 @@
 
         <!-- Username / NIM / NIDN -->
         <div>
-            <label for="login_id" class="block text-sm font-semibold text-gray-700">NIM / NIDN (Dosen/Koord)</label>
+            <label for="login_id" class="block text-sm font-semibold text-gray-700">NIM / NIDN /NIDK </label>
             <div class="mt-2 relative rounded-md shadow-sm">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
