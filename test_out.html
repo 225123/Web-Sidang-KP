@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="L2mU9vnL71vn6Hz92ZOxUpJbzR8yl5N8dhNfXbzc">
+    
+    <title>Laravel</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script type="module" src="http://[::1]:5173/@vite/client"></script><link rel="stylesheet" href="http://[::1]:5173/resources/css/app.css" /><script type="module" src="http://[::1]:5173/resources/js/app.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        .font-bree { font-family: 'Bree Serif', serif; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body x-data="{ sidebarOpen: true }" class="font-inter antialiased bg-[#F5F6F8] text-gray-900 flex flex-col min-h-screen">
+    
+    <header class="bg-[#D9D9D9] sticky top-0 z-50 shadow-[0px_4px_4px_rgba(0,0,0,0.25)] border-b border-gray-300 h-[76px]">
+        <div class="flex items-center justify-between px-9 h-full">
+            <div class="flex items-center gap-6 shrink-0">
+                <button @click="sidebarOpen = !sidebarOpen" class="p-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition-colors focus:outline-none">
+                    <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <h1 class="text-[20px] font-bold uppercase leading-tight text-black font-serif tracking-widest mt-2">
+                    KERJA<br/>PRAKTEK
+                </h1>
+            </div>
+            
+            <div class="flex items-center gap-6 mt-1">
+                <button class="relative p-2.5 bg-[#9F9F9F] rounded-full hover:bg-gray-500 transition-colors">
+                    <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    <span class="absolute top-0 right-0 bg-[#FF0000] text-white text-[11px] font-bold rounded-full h-[15px] w-[15px] flex items-center justify-center translate-x-1 -translate-y-1">
+                        3
+                    </span>
+                </button>
+
+                <div class="flex items-center gap-4">
+                    <div class="text-right flex flex-col justify-center">
+                        <span class="text-[17px] font-bree uppercase text-black font-normal">412023024</span>
+                        <span class="text-[17px] font-bree text-black font-normal">Mahasiswa Default</span>
+                    </div>
+                    <div class="h-[68px] w-[68px] rounded-full bg-[#140EBF] flex items-center justify-center text-white font-bold text-2xl border-4 border-[#D9D9D9]">
+                        M
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden relative z-0">
+        <aside :class="sidebarOpen ? 'w-[221px]' : 'w-[76px]'" class="bg-[#D9D9D9] flex-shrink-0 overflow-y-auto overflow-x-hidden min-h-screen pb-10 transition-all duration-300 ease-in-out relative group">
+            <div class="py-6 w-[221px]">
+                <a href="http://localhost/mahasiswa/dashboard" class="flex items-center gap-3 px-6 h-[35px] mx-[1px] text-[13px] font-medium text-[#333333] transition-colors cursor-pointer text-left hover:bg-[#E8E5E5] overflow-hidden whitespace-nowrap rounded-[5px] w-full max-w-[219px] mt-4 mb-2">
+    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+    <span x-show="sidebarOpen" x-transition>Dashboard</span>
+</a>
+
+<div x-data="{ open: localStorage.getItem('menu_kp') === 'true' }" class="mt-1">
+    <button @click="open = !open; localStorage.setItem('menu_kp', open)" class="flex items-center gap-3 px-6 h-[35px] mx-[1px] text-[13px] font-medium text-[#333333] transition-colors cursor-pointer text-left hover:bg-[#E8E5E5] overflow-hidden whitespace-nowrap rounded-[5px] w-full max-w-[219px] flex justify-between items-center outline-none">
+        <div class="flex items-center gap-3">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <span x-show="sidebarOpen" x-transition>KP</span>
+        </div>
+        <svg x-show="sidebarOpen" :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-transform duration-200 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+    </button>
+    
+    <div x-show="open" x-transition class="mt-0.5 bg-[#BBB8B8] w-full overflow-hidden flex flex-col divide-y divide-[#9E9B9B]">
+        <a href="http://localhost/mahasiswa/pendaftaran-kp" class="flex items-center gap-3 pl-10 pr-4 py-1.5 text-[12px] text-[#333333] transition-colors hover:bg-[#E8E5E5] w-full rounded-none whitespace-nowrap">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+            <span x-show="sidebarOpen" x-transition>Mendaftar KP</span>
+        </a>
+        <a href="http://localhost/mahasiswa/status-pendaftaran" class="flex items-center gap-3 pl-10 pr-4 py-1.5 text-[12px] font-medium text-white transition-colors bg-[#F48200] w-full rounded-none whitespace-nowrap">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"/></svg>
+            <span x-show="sidebarOpen" x-transition>Status Pendaftaran</span>
+        </a>
+    </div>
+</div>
+
+<div x-data="{ open: localStorage.getItem('menu_bimbingan') === 'true' }" class="mt-1">
+    <button @click="open = !open; localStorage.setItem('menu_bimbingan', open)" class="flex items-center gap-3 px-6 h-[35px] mx-[1px] text-[13px] font-medium text-[#333333] transition-colors cursor-pointer text-left hover:bg-[#E8E5E5] overflow-hidden whitespace-nowrap rounded-[5px] w-full max-w-[219px] flex justify-between items-center outline-none">
+        <div class="flex items-center gap-3">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+            <span x-show="sidebarOpen" x-transition>Log Bimbingan</span>
+        </div>
+        <svg x-show="sidebarOpen" :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-transform duration-200 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+    </button>
+    
+    <div x-show="open" x-transition class="mt-0.5 bg-[#BBB8B8] w-full overflow-hidden flex flex-col divide-y divide-[#9E9B9B]">
+        <a href="http://localhost/mahasiswa/bimbingan-dosen" class="flex items-center gap-3 pl-10 pr-4 py-1.5 text-[12px] text-[#333333] transition-colors hover:bg-[#E8E5E5] w-full rounded-none whitespace-nowrap">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0v6"/></svg>
+            <span x-show="sidebarOpen" x-transition>Bimbingan Dosen</span>
+        </a>
+        <a href="http://localhost/mahasiswa/persetujuan-sidang" class="flex items-center gap-3 pl-10 pr-4 py-1.5 text-[12px] text-[#333333] transition-colors hover:bg-[#E8E5E5] w-full rounded-none whitespace-nowrap">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+            <span x-show="sidebarOpen" x-transition>Persetujuan Sidang KP</span>
+        </a>
+    </div>
+</div>
+
+<div x-data="{ open: localStorage.getItem('menu_sidang') === 'true' }" class="mt-1">
+    <button @click="open = !open; localStorage.setItem('menu_sidang', open)" class="flex items-center gap-3 px-6 h-[35px] mx-[1px] text-[13px] font-medium text-[#333333] transition-colors cursor-pointer text-left hover:bg-[#E8E5E5] overflow-hidden whitespace-nowrap rounded-[5px] w-full max-w-[219px] flex justify-between items-center outline-none">
+        <div class="flex items-center gap-3">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+            <span x-show="sidebarOpen" x-transition>Sidang</span>
+        </div>
+        <svg x-show="sidebarOpen" :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-transform duration-200 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+    </button>
+    
+    <div x-show="open" x-transition class="mt-0.5 bg-[#BBB8B8] w-full overflow-hidden flex flex-col divide-y divide-[#9E9B9B]">
+        <a href="http://localhost/mahasiswa/pendaftaran-sidang" class="flex items-center gap-3 pl-10 pr-4 py-1.5 text-[12px] text-[#333333] transition-colors hover:bg-[#E8E5E5] w-full rounded-none whitespace-nowrap">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span x-show="sidebarOpen" x-transition>Pendaftaran Sidang</span>
+        </a>
+        <a href="http://localhost/mahasiswa/hasil-sidang" class="flex items-center gap-3 pl-10 pr-4 py-1.5 text-[12px] text-[#333333] transition-colors hover:bg-[#E8E5E5] w-full rounded-none whitespace-nowrap">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+            <span x-show="sidebarOpen" x-transition>Hasil Sidang</span>
+        </a>
+        <a href="http://localhost/mahasiswa/revisi" class="flex items-center gap-3 pl-10 pr-4 py-1.5 text-[12px] text-[#333333] transition-colors hover:bg-[#E8E5E5] w-full rounded-none whitespace-nowrap">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span x-show="sidebarOpen" x-transition>Revisi</span>
+        </a>
+    </div>
+</div>
+
+<a href="http://localhost/mahasiswa/nilai-akhir" class="flex items-center gap-3 px-6 h-[35px] mx-[1px] text-[13px] font-medium text-[#333333] transition-colors cursor-pointer text-left hover:bg-[#E8E5E5] overflow-hidden whitespace-nowrap rounded-[5px] w-full max-w-[219px] mt-1">
+    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+    <span x-show="sidebarOpen" x-transition>Nilai Akhir KP</span>
+</a>
+
+<a href="http://localhost/mahasiswa/notifikasi" class="flex items-center gap-3 px-6 h-[35px] mx-[1px] text-[13px] font-medium text-[#333333] transition-colors cursor-pointer text-left hover:bg-[#E8E5E5] overflow-hidden whitespace-nowrap rounded-[5px] w-full max-w-[219px]">
+    <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-1.707 1.707A1 1 0 003 14h14a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+    <span x-show="sidebarOpen" x-transition>Notifikasi</span>
+</a>
+
+<div class="mt-1">
+    <a href="http://localhost/mahasiswa/profil" class="flex items-center gap-3 px-6 h-[35px] mx-[1px] text-[13px] font-medium text-[#333333] transition-colors cursor-pointer text-left hover:bg-[#E8E5E5] overflow-hidden whitespace-nowrap rounded-[5px] w-full max-w-[219px]">
+        <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+        <span x-show="sidebarOpen" x-transition>Profil</span>
+    </a>
+
+    <a href="http://localhost/mahasiswa/panduan" class="flex items-center gap-3 px-6 h-[35px] mx-[1px] text-[13px] font-medium text-[#333333] transition-colors cursor-pointer text-left hover:bg-[#E8E5E5] overflow-hidden whitespace-nowrap rounded-[5px] w-full max-w-[219px] mt-1">
+        <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        <span x-show="sidebarOpen" x-transition>Panduan Website</span>
+    </a>
+
+    <div class="mt-1 pb-4">
+        <form method="POST" action="http://localhost/logout" id="sidebar-logout-form">
+            <input type="hidden" name="_token" value="L2mU9vnL71vn6Hz92ZOxUpJbzR8yl5N8dhNfXbzc" autocomplete="off">        </form>
+        <a href="#" onclick="event.preventDefault(); document.getElementById('sidebar-logout-form').submit();" class="flex items-center gap-3 px-6 h-[35px] mx-[1px] w-full max-w-[219px] overflow-hidden whitespace-nowrap rounded-[5px] text-[12px] font-bold text-[#FF0000] hover:bg-[#E8E5E5] transition-colors cursor-pointer text-left">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            <span x-show="sidebarOpen" x-transition>Sign Out</span>
+        </a>
+    </div>
+</div>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto p-8 bg-[#F5F6F8] pb-20 transition-all duration-300">
+                            <div class="mb-8 flex flex-col md:flex-row md:justify-between md:items-center gap-4 w-full">
+                    <h2 class="text-2xl font-bold font-inter text-black">Status Pendaftaran</h2>
+                                    </div>
+                        
+            <div class="mt-4 w-full">
+                <style>
+        .counter-body { counter-reset: row-number 0; }
+        .data-row .row-number-cell::before {
+            counter-increment: row-number;
+            content: counter(row-number);
+        }
+    </style>
+
+    <div class="mt-8 px-2 w-full max-w-[1240px] mx-auto pb-12" x-data="{ 
+        isSelectionMode: sessionStorage.getItem('kpSelectionMode') === 'true',
+        modalCatatanOpen: false,
+        modalFormEl: null,
+        modalPesan: '',
+        modalCatatanValue: '',
+        openModalCatatan(formElement, pesan) {
+            this.modalFormEl = formElement;
+            this.modalPesan = pesan;
+            this.modalCatatanValue = '';
+            this.modalCatatanOpen = true;
+        },
+        submitModalCatatan() {
+            let input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'catatan';
+            input.value = this.modalCatatanValue;
+            this.modalFormEl.appendChild(input);
+            this.modalFormEl.submit();
+        }
+    }">
+        
+        <div x-show="modalCatatanOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div @click.outside="modalCatatanOpen = false" class="bg-white rounded-[5px] shadow-xl w-[400px] p-6 text-center transform inline-block">
+                <h3 class="text-xl font-bold text-gray-800 mb-2 truncate" x-text="modalPesan"></h3>
+                <p class="text-[13px] text-gray-500 mb-4 leading-snug">Silakan buat catatan khusus (opsional) atau kosongkan apabila tidak ada.</p>
+                <textarea x-model="modalCatatanValue" class="w-full border border-gray-300 rounded-[5px] p-3 text-[13px] focus:outline-none focus:border-[#4285F4] mb-5 resize-none h-[100px]" placeholder="Ketik catatan di sini..."></textarea>
+                <div class="flex justify-center gap-3">
+                    <button @click="modalCatatanOpen = false" type="button" class="px-6 py-2 rounded-[5px] bg-gray-200 text-gray-700 font-bold text-[13px] hover:bg-gray-300 transition-colors">Batal</button>
+                    <button @click="submitModalCatatan()" type="button" class="px-6 py-2 rounded-[5px] text-white font-bold text-[13px] transition-colors bg-[#4285F4] hover:bg-blue-600">Simpan & Proses</button>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="bg-[#E6F0FA] border border-[#D0E3F5] rounded-[10px] p-4 lg:p-5 mb-6 flex items-start gap-4 shadow-sm">
+            <div class="w-6 h-6 rounded-full bg-[#4285F4] text-white flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
+                i
+            </div>
+            <p class="text-[14px] text-[#1A1A1A] font-medium leading-relaxed m-0 mt-0.5">
+                Pantau riwayat pendaftaran Kerja Praktik Anda. Gunakan fitur pencarian dan filter di bawah untuk memudahkan pemantauan.
+            </p>
+        </div>
+
+        <form method="GET" action="http://localhost" class="flex flex-col lg:flex-row justify-between items-center gap-4 mb-8">
+            
+            <div class="relative w-full lg:w-[400px]">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input type="text" name="search" value="" placeholder="Search ..." 
+                    x-on:keydown.enter="$el.closest('form').submit()"
+                    class="border border-[#CAC0C0] rounded-[5px] pl-10 pr-3 py-2 w-full text-[13px] focus:outline-none focus:border-black shadow-sm font-medium">
+            </div>
+
+            <div class="flex flex-wrap items-center gap-4 w-full lg:w-auto justify-start lg:justify-end">
+                
+                <div x-data="{ open: false, val: '' }" class="relative min-w-[155px]">
+                    <button @click="open = !open" @click.outside="open = false" type="button" class="w-full flex items-center justify-between gap-3 border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-2 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black">
+                        <span x-text="val === '' ? 'Semua Status' : val === 'pending' ? 'Menunggu' : val === 'approved' ? 'Disetujui' : 'Ditolak'"></span>
+                        <svg :class="open ? '-rotate-90' : 'rotate-0'" class="w-3.5 h-3.5 transition-transform duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <div x-show="open" x-transition style="display: none;" class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
+                        <ul class="py-1 text-[13px] font-medium text-black">
+                            <li><label class="block px-3 py-2 hover:bg-[#E8E5E5] cursor-pointer border-b border-[#CAC0C0]"><input type="radio" name="status" value="" class="hidden" x-model="val" @change="$el.closest('form').submit()">Semua Status</label></li>
+                            <li><label class="block px-3 py-2 hover:bg-[#E8E5E5] cursor-pointer"><input type="radio" name="status" value="pending" class="hidden" x-model="val" @change="$el.closest('form').submit()">Menunggu</label></li>
+                            <li><label class="block px-3 py-2 hover:bg-[#E8E5E5] cursor-pointer"><input type="radio" name="status" value="approved" class="hidden" x-model="val" @change="$el.closest('form').submit()">Disetujui</label></li>
+                            <li><label class="block px-3 py-2 hover:bg-[#E8E5E5] cursor-pointer"><input type="radio" name="status" value="rejected" class="hidden" x-model="val" @change="$el.closest('form').submit()">Ditolak</label></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div x-data="{ open: false, val: '' }" class="relative min-w-[155px]">
+                    <button @click="open = !open" @click.outside="open = false" type="button" class="w-full flex items-center justify-between gap-3 border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-2 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black">
+                        <span x-text="val === '' ? 'Semua Jenis KP' : val === 'internal' ? 'Internal' : 'External'"></span>
+                        <svg :class="open ? '-rotate-90' : 'rotate-0'" class="w-3.5 h-3.5 transition-transform duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <div x-show="open" x-transition style="display: none;" class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
+                        <ul class="py-1 text-[13px] font-medium text-black">
+                            <li><label class="block px-3 py-2 hover:bg-[#E8E5E5] cursor-pointer border-b border-[#CAC0C0]"><input type="radio" name="jenis" value="" class="hidden" x-model="val" @change="$el.closest('form').submit()">Semua Jenis KP</label></li>
+                            <li><label class="block px-3 py-2 hover:bg-[#E8E5E5] cursor-pointer"><input type="radio" name="jenis" value="internal" class="hidden" x-model="val" @change="$el.closest('form').submit()">Internal</label></li>
+                            <li><label class="block px-3 py-2 hover:bg-[#E8E5E5] cursor-pointer"><input type="radio" name="jenis" value="external" class="hidden" x-model="val" @change="$el.closest('form').submit()">External</label></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div x-data="{ open: false, val: '' }" class="relative min-w-[155px]">
+                    <button @click="open = !open" @click.outside="open = false" type="button" class="w-full flex items-center justify-between gap-3 border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-2 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black">
+                        <span x-text="val === '' ? 'Semua Periode' : val === 'ganjil' ? 'Ganjil' : 'Genap'"></span>
+                        <svg :class="open ? '-rotate-90' : 'rotate-0'" class="w-3.5 h-3.5 transition-transform duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <div x-show="open" x-transition style="display: none;" class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
+                        <ul class="py-1 text-[13px] font-medium text-black">
+                            <li><label class="block px-3 py-2 hover:bg-[#E8E5E5] cursor-pointer border-b border-[#CAC0C0]"><input type="radio" name="periode" value="" class="hidden" x-model="val" @change="$el.closest('form').submit()">Semua Periode</label></li>
+                            <li><label class="block px-3 py-2 hover:bg-[#E8E5E5] cursor-pointer"><input type="radio" name="periode" value="ganjil" class="hidden" x-model="val" @change="$el.closest('form').submit()">Ganjil</label></li>
+                            <li><label class="block px-3 py-2 hover:bg-[#E8E5E5] cursor-pointer"><input type="radio" name="periode" value="genap" class="hidden" x-model="val" @change="$el.closest('form').submit()">Genap</label></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <a href="http://localhost" class="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm">Clear</a>
+
+                <a href="http://localhost/mahasiswa/pendaftaran-kp" class="bg-[#FBEC04] hover:bg-yellow-400 transition-colors text-black px-6 py-2 rounded-[5px] text-[13px] font-bold shadow-sm flex items-center justify-center gap-2 whitespace-nowrap ml-auto lg:ml-0">
+                    <svg class="w-4 h-4" fill="none" stroke="black" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                    Mendaftar KP
+                </a>
+            </div>
+            <button type="submit" class="hidden">Search</button>
+        </form>
+
+        <h3 class="text-black font-bold text-[15px] mb-4">Riwayat Pendaftaran</h3>
+
+        <form id="deleteBulkForm" action="http://localhost/mahasiswa/pendaftaran-kp/bulk-delete" method="POST">
+            <input type="hidden" name="_token" value="L2mU9vnL71vn6Hz92ZOxUpJbzR8yl5N8dhNfXbzc" autocomplete="off">            <input type="hidden" name="_method" value="DELETE">            <div class="overflow-x-auto bg-white rounded-[10px] shadow-sm border border-[#EBEBEB]">
+                <table class="w-full text-center border-collapse">
+                <thead class="bg-[#EEEEEE] text-[13px] font-bold text-black uppercase tracking-wide">
+                    <tr>
+                        <th class="px-4 py-4 w-[5%] border-b border-[#EBEBEB]">No</th>
+                        <th class="px-4 py-4 w-[30%] border-b border-[#EBEBEB] border-l">Judul KP</th>
+                        <th class="px-4 py-4 w-[15%] border-b border-[#EBEBEB] border-l">Jenis KP</th>
+                        <th class="px-4 py-4 w-[15%] border-b border-[#EBEBEB] border-l">Periode</th>
+                        <th class="px-4 py-4 w-[15%] border-b border-[#EBEBEB] border-l">Status</th>
+                        <th class="px-4 py-4 w-[20%] border-b border-[#EBEBEB] border-l">Catatan Dosen</th>
+                    </tr>
+                </thead>
+                <tbody class="counter-body text-[13px] font-medium text-black">
+                                            <tr class="data-row border-b border-[#EBEBEB] hover:bg-gray-50 transition-colors h-[80px]">
+
+                            <td class="px-4 py-2 border-r border-[#EBEBEB] text-center">
+                                <span x-show="!isSelectionMode" class="row-number-cell text-gray-700 font-bold"></span>
+                                <div x-show="isSelectionMode" style="display: none;">
+                                                                            <input type="checkbox" disabled class="rounded shadow-sm border-gray-200 bg-gray-100 cursor-not-allowed opacity-50 w-4 h-4">
+                                                                    </div>
+                            </td>
+
+                            <td class="px-4 py-3 text-left">
+                                <div class="font-bold text-[14px] leading-tight mb-3 pl-2">Web Sidang KP</div>
+                                <div class="flex items-center gap-2 text-gray-400 text-[11px] font-normal pl-2">
+                                    <svg class="w-4 h-4 opacity-70" fill="currentColor" viewBox="0 0 24 24"><path d="M19 2H9c-1.1 0-2 .9-2 2v2H5c-1.1 0-2 .9-2 2v14h18V4c0-1.1-.9-2-2-2zM7 10h2v2H7v-2zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm10 0h-2v2h-2v-2h-2v2h-2v-2h-2v-6h12v6zm0-4h-2v2h-2v-2h-2v2h-2v-2h-2V4h10v10z"></path></svg>
+                                    Universitas Kristen Krida Wacana
+                                </div>
+                            </td>
+
+                            <td class="px-4 py-4 border-l border-[#EBEBEB]">
+                                Internal
+                            </td>
+
+                            <td class="px-4 py-4 border-l border-[#EBEBEB]">
+                                Genap/2026
+                            </td>
+
+                            <td class="px-4 py-4 border-l border-[#EBEBEB] align-middle">
+                                <div class="flex justify-center items-center">
+                                                                            <div class="inline-flex items-center justify-center bg-[#F3A5A1] text-[#711611] px-4 py-1.5 rounded-[20px] font-bold w-[120px] shadow-sm text-[11px] h-[32px]">
+                                            Ditolak
+                                        </div>
+                                                                    </div>
+                            </td>
+
+                            <td class="px-4 py-4 border-l border-[#EBEBEB] text-gray-500 italic max-w-[200px] break-words">
+                                -
+                            </td>
+                        </tr>
+                                            <tr class="data-row border-b border-[#EBEBEB] hover:bg-gray-50 transition-colors h-[80px]">
+
+                            <td class="px-4 py-2 border-r border-[#EBEBEB] text-center">
+                                <span x-show="!isSelectionMode" class="row-number-cell text-gray-700 font-bold"></span>
+                                <div x-show="isSelectionMode" style="display: none;">
+                                                                            <input type="checkbox" disabled class="rounded shadow-sm border-gray-200 bg-gray-100 cursor-not-allowed opacity-50 w-4 h-4">
+                                                                    </div>
+                            </td>
+
+                            <td class="px-4 py-3 text-left">
+                                <div class="font-bold text-[14px] leading-tight mb-3 pl-2">Web Sidang KP</div>
+                                <div class="flex items-center gap-2 text-gray-400 text-[11px] font-normal pl-2">
+                                    <svg class="w-4 h-4 opacity-70" fill="currentColor" viewBox="0 0 24 24"><path d="M19 2H9c-1.1 0-2 .9-2 2v2H5c-1.1 0-2 .9-2 2v14h18V4c0-1.1-.9-2-2-2zM7 10h2v2H7v-2zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm10 0h-2v2h-2v-2h-2v2h-2v-2h-2v-6h12v6zm0-4h-2v2h-2v-2h-2v2h-2v-2h-2V4h10v10z"></path></svg>
+                                    Universitas Kristen Krida Wacana
+                                </div>
+                            </td>
+
+                            <td class="px-4 py-4 border-l border-[#EBEBEB]">
+                                Internal
+                            </td>
+
+                            <td class="px-4 py-4 border-l border-[#EBEBEB]">
+                                Genap/2026
+                            </td>
+
+                            <td class="px-4 py-4 border-l border-[#EBEBEB] align-middle">
+                                <div class="flex justify-center items-center">
+                                                                            <div class="inline-flex items-center justify-center bg-[#A1DFAC] text-[#1D5E2D] px-4 py-1.5 rounded-[20px] font-bold w-[120px] shadow-sm text-[11px] h-[32px]">
+                                            Disetujui
+                                        </div>
+                                                                    </div>
+                            </td>
+
+                            <td class="px-4 py-4 border-l border-[#EBEBEB] text-gray-500 italic max-w-[200px] break-words">
+                                bisa bisa123
+                            </td>
+                        </tr>
+                                    </tbody>
+            </table>
+        </div>
+
+        <div class="flex flex-col lg:flex-row justify-between items-center mb-8 gap-4 mt-4">
+            <div class="flex gap-2 w-full lg:w-auto overflow-hidden transition-all duration-300" 
+                :class="isSelectionMode ? 'opacity-100 max-h-[50px] translate-y-0' : 'opacity-0 max-h-0 -translate-y-4 pointer-events-none'">
+                <button type="button" class="bg-[#EA4335] hover:bg-red-600 transition-colors text-white px-5 py-2 rounded-[5px] text-[13px] font-medium shadow flex items-center gap-2 cursor-pointer" onclick="if(confirm('Apakah Anda yakin ingin menghapus data yang dipilih?')) document.getElementById('deleteBulkForm').submit()">
+                    <svg class="w-3.5 h-3.5 rounded-full border border-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    Hapus Terpilih
+                </button>
+            </div>
+
+            <div class="flex items-center gap-2 text-[12px] font-medium text-gray-600 ml-auto">
+                <span class="mr-4 text-[13px]">1 - 2 dari 2 entri</span>
+                <div class="mt-2">
+                    
+                </div>
+            </div>
+        </div>
+        </form>
+    </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="bg-[#040404] text-white text-[11px] font-medium font-inter text-center py-5 w-full relative z-50 h-[93px] flex items-center justify-center gap-2">
+        <span>2026 Sidang KP | Universitas Kristen Krida Wacana</span>
+        <div class="w-[9px] h-[9px] rounded-full bg-black border border-white flex items-center justify-center text-[9px] italic ml-1">
+            <span class="leading-none transform -translate-y-px">c</span>
+        </div>
+    </footer>
+
+</body>
+</html>

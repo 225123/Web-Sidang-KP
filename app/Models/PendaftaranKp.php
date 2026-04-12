@@ -1,0 +1,49 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class PendaftaranKp extends Model
+{
+    use HasFactory;
+
+    protected $table = 'pendaftaran_kp';
+    
+    /**
+     * Disable the default updated_at since it's not in the PostgreSQL schema.
+     */
+    const UPDATED_AT = null;
+
+    protected $fillable = [
+        'mahasiswa_id',
+        'tahun_ajaran_id',
+        'judul_kp',
+        'jenis_proyek',
+        'instansi_nama',
+        'instansi_alamat',
+        'pembimbing_id',
+        'status_kp',
+        'is_lanjutan',
+        'pendaftaran_asal_id',
+        'jenis_instansi',
+        'supervisor_internal_id',
+        'tipe_kp',
+    ];
+
+    public function mahasiswa()
+    {
+        return $this->belongsTo(Mahasiswa::class, 'mahasiswa_id', 'user_id'); 
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'mahasiswa_id');
+    }
+
+    public function supervisorInstansi()
+    {
+        return $this->hasOne(SupervisorInstansi::class, 'pendaftaran_kp_id');
+    }
+}

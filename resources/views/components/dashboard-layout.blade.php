@@ -47,7 +47,20 @@
                 <div class="flex items-center gap-4">
                     <div class="text-right flex flex-col justify-center">
                         <span class="text-[17px] font-bree uppercase text-black font-normal">{{ $roleName ?? 'ROLE' }}</span>
-                        <span class="text-[17px] font-bree text-black font-normal">{{ $userName ?? '123456789' }}</span>
+                        <span class="text-[17px] font-bree text-black font-normal">
+                            @php
+                                $dUser = auth()->user();
+                                $dId = '';
+                                if ($dUser) {
+                                    if ($dUser->role === 'mahasiswa') {
+                                        $dId = optional($dUser->mahasiswa)->nim;
+                                    } elseif (in_array($dUser->role, ['dosen', 'koordinator_kp'])) {
+                                        $dId = optional($dUser->dosen)->nidn;
+                                    }
+                                }
+                            @endphp
+                            {{ $userName ?? 'User' }}{{ $dId ? ' - ' . $dId : '' }}
+                        </span>
                     </div>
                     <div class="h-[68px] w-[68px] rounded-full bg-[#140EBF] flex items-center justify-center text-white font-bold text-2xl border-4 border-[#D9D9D9]">
                         {{ substr($userName ?? 'R', 0, 1) }}
