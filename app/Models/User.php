@@ -73,4 +73,12 @@ class User extends Authenticatable
     {
         return $this->hasOne(Dosen::class);
     }
+
+    protected static function booted()
+    {
+        static::deleting(function ($user) {
+            $user->mahasiswa()->delete();
+            $user->dosen()->delete();
+        });
+    }
 }

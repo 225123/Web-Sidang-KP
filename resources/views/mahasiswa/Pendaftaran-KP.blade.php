@@ -118,12 +118,46 @@
                     </div>
 
                     <div class="w-full max-w-2xl mx-auto mt-4">
+                        @php
+                            $isInvited = isset($invitation) && $invitation ? 'true' : 'false';
+                            $initJenis = old('jenis_instansi', $invitation->jenis_instansi ?? '');
+                            $initInstansi = old('instansi_nama', $invitation->instansi_nama ?? '');
+                            $initPengerjaan = old('pengerjaan_kp', $invitation ? 'berkelompok' : 'sendiri');
+                            $oldAnggota = old('anggota_kelompok_ids', '[]');
+                        @endphp
                         <form action="{{ route('mahasiswa.pendaftaran-kp.store') }}" method="POST" x-data="{ 
-                    jenisKp: '{{ old('jenis_instansi', '') }}', 
-                    instansiNama: '{{ old('instansi_nama', '') }}',
-                    openJenis: false
-                }" x-effect="if(jenisKp === 'Internal') { instansiNama = 'Universitas Kristen Krida Wacana'; } else if(jenisKp === 'External' && instansiNama === 'Universitas Kristen Krida Wacana') { instansiNama = ''; }">
+                            jenisKp: '{{ $initJenis }}', 
+                            instansiNama: '{{ $initInstansi }}',
+                            openJenis: false,
+                            openPengerjaan: false,
+                            pengerjaanKp: '{{ $initPengerjaan }}',
+                            isInvited: {{ $isInvited }},
+                            searchAnggota: '',
+                            openAnggota: false,
+                            selectedAnggota: {{ $oldAnggota }},
+                            allMahasiswa: {{ $allMahasiswa->map(function($m) { return ['id' => (string)$m->id, 'label' => ($m->mahasiswa->nim ?? 'NIM') . ' - ' . $m->name]; })->values()->toJson() }},
+                            get filteredMahasiswa() {
+                                if(this.searchAnggota === '') return this.allMahasiswa.filter(m => !this.selectedAnggota.includes(m.id));
+                                return this.allMahasiswa.filter(m => !this.selectedAnggota.includes(m.id) && m.label.toLowerCase().includes(this.searchAnggota.toLowerCase()));
+                            },
+                            toggleAnggota(id) {
+                                if(this.selectedAnggota.includes(id)) {
+                                    this.selectedAnggota = this.selectedAnggota.filter(i => i !== id);
+                                } else {
+                                    this.selectedAnggota.push(id);
+                                }
+                                this.searchAnggota = '';
+                            },
+                            removeAnggota(id) {
+                                this.selectedAnggota = this.selectedAnggota.filter(i => i !== id);
+                            },
+                            getLabel(id) {
+                                let m = this.allMahasiswa.find(item => item.id == id);
+                                return m ? m.label : '';
+                            }
+                        }" x-effect="if(jenisKp === 'Internal') { instansiNama = 'Universitas Kristen Krida Wacana'; } else if(jenisKp === 'External' && instansiNama === 'Universitas Kristen Krida Wacana' && !isInvited) { instansiNama = ''; }">
                             @csrf
+
 
                             <div class="mb-6">
                                 <label for="judul_kp" class="block text-[14px] font-bold text-black mb-2">Judul KP <span
@@ -137,11 +171,12 @@
                             <div class="mb-6 relative" @click.outside="openJenis = false">
                                 <label class="block text-[14px] font-bold text-black mb-2">Jenis KP <span
                                         class="text-red-600">*</span></label>
-                                <button type="button" @click="openJenis = !openJenis"
-                                    class="w-full flex items-center justify-between border border-[#CAC0C0] rounded bg-white px-4 py-3 text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                                <button type="button" @click="if(!isInvited) openJenis = !openJenis"
+                                    :class="isInvited ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-white'"
+                                    class="w-full flex items-center justify-between border border-[#CAC0C0] rounded px-4 py-3 text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
 
                                     <span x-text="jenisKp !== '' ? jenisKp : 'Pilih Jenis KP'" class="flex-1 text-left truncate"
-                                        :class="jenisKp !== '' ? 'text-black' : 'text-gray-400'"></span>
+                                        :class="jenisKp !== '' ? (isInvited ? 'text-gray-500' : 'text-black') : 'text-gray-400'"></span>
 
                                     <svg :class="openJenis ? 'rotate-90' : 'rotate-180'"
                                         class="w-5 h-5 text-gray-500 transition-transform duration-200 flex-shrink-0 ml-2 min-w-[20px]"
@@ -179,9 +214,9 @@
                                     <span class="text-red-600">*</span></label>
                                 <input type="text" name="instansi_nama" id="instansi_nama" required
                                     placeholder="Masukan nama instansi" x-model="instansiNama"
-                                    :readonly="jenisKp !== 'External'"
-                                    class="w-full border border-[#CAC0C0] rounded bg-white px-4 py-3 text-[14px] focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
-                                    :class="jenisKp !== 'External' ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''">
+                                    :readonly="jenisKp !== 'External' || isInvited"
+                                    class="w-full border border-[#CAC0C0] rounded px-4 py-3 text-[14px] focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                                    :class="jenisKp !== 'External' || isInvited ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-white'">
                                 @error('instansi_nama') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
 
@@ -194,6 +229,97 @@
                                     class="w-full border border-[#CAC0C0] rounded bg-white px-4 py-3 text-[14px] focus:outline-none focus:ring-1 focus:ring-blue-500">
                                 @error('dosen_pemberi_projek') <span class="text-red-500 text-xs">{{ $message }}</span>
                                 @enderror
+                            </div>
+
+                            <div class="mb-6 relative" @click.outside="openPengerjaan = false">
+                                <label class="block text-[14px] font-bold text-black mb-2">Pengerjaan KP <span
+                                        class="text-red-600">*</span></label>
+                                <button type="button" @click="if(!isInvited) openPengerjaan = !openPengerjaan"
+                                    :class="isInvited ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-white'"
+                                    class="w-full flex items-center justify-between border border-[#CAC0C0] rounded px-4 py-3 text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+
+                                    <span x-text="pengerjaanKp !== '' ? (pengerjaanKp === 'sendiri' ? 'Sendiri' : 'Berkelompok') : 'Pilih Pengerjaan KP'" class="flex-1 text-left truncate"
+                                        :class="pengerjaanKp !== '' ? (isInvited ? 'text-gray-500' : 'text-black') : 'text-gray-400'"></span>
+
+                                    <svg :class="openPengerjaan ? 'rotate-90' : 'rotate-180'"
+                                        class="w-5 h-5 text-gray-500 transition-transform duration-200 flex-shrink-0 ml-2 min-w-[20px]"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                                        </path>
+                                    </svg>
+                                </button>
+
+                                <div x-show="openPengerjaan" x-transition style="display: none;"
+                                    class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded shadow-lg overflow-hidden">
+                                    <ul class="py-1 text-[14px]">
+                                        <li>
+                                            <button type="button" @click="pengerjaanKp = 'sendiri'; openPengerjaan = false"
+                                                class="block w-full text-left px-4 py-2 hover:bg-yellow-200 transition-colors"
+                                                :class="pengerjaanKp === 'sendiri' ? 'bg-yellow-300 font-bold' : ''">
+                                                Sendiri
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button type="button" @click="pengerjaanKp = 'berkelompok'; openPengerjaan = false"
+                                                class="block w-full text-left px-4 py-2 hover:bg-yellow-200 transition-colors"
+                                                :class="pengerjaanKp === 'berkelompok' ? 'bg-yellow-300 font-bold' : ''">
+                                                Berkelompok
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <input type="hidden" name="pengerjaan_kp" :value="pengerjaanKp" required>
+                                @error('pengerjaan_kp') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="mb-6 relative" x-show="pengerjaanKp === 'berkelompok'" x-transition style="display: none;">
+                                <label class="block text-[14px] font-bold text-black mb-2">Anggota Kelompok <span
+                                        class="text-red-600">*</span></label>
+                                
+                                <!-- Read-only state for invited users -->
+                                <template x-if="isInvited">
+                                    <div class="w-full border border-[#CAC0C0] bg-gray-100 rounded px-4 py-3 text-[14px] text-gray-700 min-h-[46px] flex flex-wrap gap-2">
+                                        @foreach($anggotaTerpilih ?? [] as $anggota)
+                                            <span class="bg-[#E8E5E5] px-3 py-1 rounded-full text-[13px] border border-[#d1cdcd]">
+                                                {{ $anggota->mahasiswa->nim ?? 'NIM' }} - {{ $anggota->name }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                </template>
+
+                                <!-- Interactive multi-select state for creator -->
+                                <template x-if="!isInvited">
+                                    <div class="relative" @click.outside="openAnggota = false">
+                                        <div class="w-full min-h-[46px] border border-[#CAC0C0] bg-white rounded px-4 py-2 flex flex-wrap gap-2 items-center cursor-text" @click="openAnggota = true; $refs.searchAnggota.focus()">
+                                            <template x-for="id in selectedAnggota" :key="id">
+                                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-[5px] text-[13px] flex items-center gap-1 border border-blue-200">
+                                                    <span x-text="getLabel(id)"></span>
+                                                    <button type="button" @click.stop="removeAnggota(id)" class="text-blue-500 hover:text-blue-700 focus:outline-none">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                    </button>
+                                                </span>
+                                            </template>
+                                            <input x-ref="searchAnggota" type="text" x-model="searchAnggota" placeholder="Cari by NIM / Nama..." class="flex-1 min-w-[120px] border-0 focus:ring-0 p-0 m-0 text-[14px] bg-transparent shadow-none outline-none">
+                                        </div>
+                                        
+                                        <div x-show="openAnggota" x-transition style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded shadow-lg max-h-48 overflow-y-auto">
+                                            <ul class="py-1 text-[13px]">
+                                                <template x-for="m in filteredMahasiswa" :key="m.id">
+                                                    <li>
+                                                        <button type="button" @click.stop="toggleAnggota(m.id)" class="block w-full text-left px-4 py-2 hover:bg-[#E8E5E5] transition-colors">
+                                                            <span x-text="m.label"></span>
+                                                        </button>
+                                                    </li>
+                                                </template>
+                                                <template x-if="filteredMahasiswa.length === 0">
+                                                    <li class="px-4 py-2 text-gray-500">Pencarian tidak ditemukan...</li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </template>
+                                
+                                <input type="hidden" name="anggota_kelompok_ids" :value="JSON.stringify(selectedAnggota)">
                             </div>
 
                             <div class="mb-6">

@@ -2,14 +2,13 @@
 
 @php
     // Menu Utama
-    $inactiveClass = "flex items-center justify-between gap-3 px-6 h-[35px] mx-[1px] text-[13px] font-medium text-[#333333] transition-colors cursor-pointer text-left hover:bg-[#E8E5E5] overflow-hidden whitespace-nowrap rounded-[5px] w-full max-w-[219px]";
-    
-    // Warna Utama Dosen: #CDA057 (Golden/Brownish)
-    $activeClass = "flex items-center justify-between gap-3 px-6 h-[35px] mx-[6px] text-[13px] font-medium text-white bg-[#CDA057] rounded-[5px] transition-colors cursor-pointer text-left overflow-hidden whitespace-nowrap w-full max-w-[207px]";
+    $baseClass = "flex items-center gap-3 pl-4 pr-3 h-[35px] text-[13px] font-medium transition-colors cursor-pointer text-left overflow-hidden whitespace-nowrap rounded-[5px] w-full";
+    $inactiveClass = $baseClass . " text-[#333333] hover:bg-[#E8E5E5]";
+    $activeClass = $baseClass . " text-white bg-[#CDA057]";
 
     // Submenu
-    $subInactiveClass = "flex items-center gap-3 pl-10 pr-4 py-1.5 text-[12px] text-[#333333] transition-colors hover:bg-[#E8E5E5] w-full rounded-none whitespace-nowrap";
-    $subActiveClass = "flex items-center gap-3 pl-10 pr-4 py-1.5 text-[12px] font-medium text-white transition-colors bg-[#CDA057] w-full rounded-none whitespace-nowrap";
+    $subInactiveClass = "flex items-center gap-3 pl-10 pr-4 py-1.5 text-[12px] text-[#333333] transition-colors hover:bg-[#E8E5E5] w-full rounded-none whitespace-nowrap text-left";
+    $subActiveClass = "flex items-center gap-3 pl-10 pr-4 py-1.5 text-[12px] font-medium text-white transition-colors bg-[#CDA057] w-full rounded-none whitespace-nowrap text-left";
 @endphp
 
 <a href="{{ route('dosen.dashboard') }}" class="{{ $active == 'dashboard' ? $activeClass : $inactiveClass }} mt-4 mb-2">
@@ -20,12 +19,12 @@
 </a>
 
 <div x-data="{ open: localStorage.getItem('dosen_bimbingan') === 'true' }" class="mt-1">
-    <button @click="open = !open; localStorage.setItem('dosen_bimbingan', open)" class="{{ $inactiveClass }} outline-none">
+    <button @click="open = !open; localStorage.setItem('dosen_bimbingan', open)" class="{{ $inactiveClass }} flex items-center justify-between outline-none" :class="!sidebarOpen && '!pr-4'">
         <div class="flex items-center gap-3">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
             <span x-show="sidebarOpen" x-transition>Bimbingan</span>
         </div>
-        <svg x-show="sidebarOpen" :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-transform duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        <svg :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
     </button>
     <div x-show="open" x-transition class="mt-0.5 mb-2 bg-[#BBB8B8] w-full overflow-hidden flex flex-col divide-y divide-[#9E9B9B]">
         <a href="{{ route('dosen.dummy', 'daftar-mahasiswa') }}" class="{{ $active == 'daftar-mahasiswa' ? $subActiveClass : $subInactiveClass }}">
@@ -47,12 +46,12 @@
 </a>
 
 <div x-data="{ open: localStorage.getItem('dosen_penilaian') === 'true' }" class="mt-1">
-    <button @click="open = !open; localStorage.setItem('dosen_penilaian', open)" class="{{ $inactiveClass }} outline-none">
+    <button @click="open = !open; localStorage.setItem('dosen_penilaian', open)" class="{{ $inactiveClass }} flex items-center justify-between outline-none" :class="!sidebarOpen && '!pr-4'">
         <div class="flex items-center gap-3">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
             <span x-show="sidebarOpen" x-transition>Penilaian Sidang</span>
         </div>
-        <svg x-show="sidebarOpen" :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-transform duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        <svg :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
     </button>
     <div x-show="open" x-transition class="mt-0.5 mb-2 bg-[#BBB8B8] w-full overflow-hidden flex flex-col divide-y divide-[#9E9B9B]">
         <a href="{{ route('dosen.dummy', 'input-nilai') }}" class="{{ $active == 'input-nilai' ? $subActiveClass : $subInactiveClass }}">
@@ -97,7 +96,7 @@
 
     <div class="mt-1 pb-4">
         <form method="POST" action="{{ route('logout') }}" id="sidebar-logout-form-dosen">@csrf</form>
-        <a href="#" onclick="event.preventDefault(); document.getElementById('sidebar-logout-form-dosen').submit();" class="flex items-center justify-between gap-3 px-6 h-[35px] mx-[1px] w-full max-w-[219px] overflow-hidden whitespace-nowrap rounded-[5px] text-[12px] font-bold text-[#FF0000] hover:bg-[#E8E5E5] transition-colors cursor-pointer text-left">
+        <a href="#" onclick="event.preventDefault(); document.getElementById('sidebar-logout-form-dosen').submit();" class="flex items-center gap-3 pl-4 pr-3 h-[35px] w-full overflow-hidden whitespace-nowrap rounded-[5px] text-[12px] font-bold text-[#FF0000] hover:bg-[#E8E5E5] transition-colors cursor-pointer text-left">
             <div class="flex items-center gap-3">
                 <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                 <span x-show="sidebarOpen" x-transition>Sign Out</span>

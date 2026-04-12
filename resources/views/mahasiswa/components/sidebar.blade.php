@@ -2,13 +2,13 @@
 
 @php
     // Menu Utama
-    $inactiveClass = "flex items-center gap-3 px-6 h-[35px] mx-[1px] text-[13px] font-medium text-[#333333] transition-colors cursor-pointer text-left hover:bg-[#E8E5E5] overflow-hidden whitespace-nowrap rounded-[5px] w-full max-w-[219px]";
-    
-    $activeClass = "flex items-center gap-3 px-6 h-[35px] mx-[6px] text-[13px] font-medium text-white bg-[#F48200] rounded-[5px] transition-colors cursor-pointer text-left overflow-hidden whitespace-nowrap w-full max-w-[207px]";
+    $baseClass = "flex items-center gap-3 pl-4 pr-3 h-[35px] text-[13px] font-medium transition-colors cursor-pointer text-left overflow-hidden whitespace-nowrap rounded-[5px] w-full";
+    $inactiveClass = $baseClass . " text-[#333333] hover:bg-[#E8E5E5]";
+    $activeClass = $baseClass . " text-white bg-[#F48200]";
 
     // Submenu
-    $subInactiveClass = "flex items-center gap-3 pl-10 pr-4 py-1.5 text-[12px] text-[#333333] transition-colors hover:bg-[#E8E5E5] w-full rounded-none whitespace-nowrap";
-    $subActiveClass = "flex items-center gap-3 pl-10 pr-4 py-1.5 text-[12px] font-medium text-white transition-colors bg-[#F48200] w-full rounded-none whitespace-nowrap";
+    $subInactiveClass = "flex items-center gap-3 pl-10 pr-4 py-1.5 text-[12px] text-[#333333] transition-colors hover:bg-[#E8E5E5] w-full rounded-none whitespace-nowrap text-left";
+    $subActiveClass = "flex items-center gap-3 pl-10 pr-4 py-1.5 text-[12px] font-medium text-white transition-colors bg-[#F48200] w-full rounded-none whitespace-nowrap text-left";
 @endphp
 
 <a href="{{ route('mahasiswa.dashboard') }}" class="{{ $active == 'dashboard' ? $activeClass : $inactiveClass }} mt-4 mb-2">
@@ -17,12 +17,12 @@
 </a>
 
 <div x-data="{ open: localStorage.getItem('menu_kp') === 'true' }" class="mt-1">
-    <button @click="open = !open; localStorage.setItem('menu_kp', open)" class="{{ $inactiveClass }} flex justify-between items-center outline-none">
+    <button @click="open = !open; localStorage.setItem('menu_kp', open)" class="{{ $inactiveClass }} flex items-center justify-between outline-none" :class="!sidebarOpen && '!pr-4'">
         <div class="flex items-center gap-3">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
             <span x-show="sidebarOpen" x-transition>KP</span>
         </div>
-        <svg x-show="sidebarOpen" :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-transform duration-200 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        <svg :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
     </button>
     
     <div x-show="open" x-transition class="mt-0.5 bg-[#BBB8B8] w-full overflow-hidden flex flex-col divide-y divide-[#9E9B9B]">
@@ -38,12 +38,12 @@
 </div>
 
 <div x-data="{ open: localStorage.getItem('menu_bimbingan') === 'true' }" class="mt-1">
-    <button @click="open = !open; localStorage.setItem('menu_bimbingan', open)" class="{{ $inactiveClass }} flex justify-between items-center outline-none">
+    <button @click="open = !open; localStorage.setItem('menu_bimbingan', open)" class="{{ $inactiveClass }} flex items-center justify-between outline-none" :class="!sidebarOpen && '!pr-4'">
         <div class="flex items-center gap-3">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
             <span x-show="sidebarOpen" x-transition>Log Bimbingan</span>
         </div>
-        <svg x-show="sidebarOpen" :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-transform duration-200 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        <svg :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
     </button>
     
     <div x-show="open" x-transition class="mt-0.5 bg-[#BBB8B8] w-full overflow-hidden flex flex-col divide-y divide-[#9E9B9B]">
@@ -59,18 +59,22 @@
 </div>
 
 <div x-data="{ open: localStorage.getItem('menu_sidang') === 'true' }" class="mt-1">
-    <button @click="open = !open; localStorage.setItem('menu_sidang', open)" class="{{ $inactiveClass }} flex justify-between items-center outline-none">
+    <button @click="open = !open; localStorage.setItem('menu_sidang', open)" class="{{ $inactiveClass }} flex items-center justify-between outline-none" :class="!sidebarOpen && '!pr-4'">
         <div class="flex items-center gap-3">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
             <span x-show="sidebarOpen" x-transition>Sidang</span>
         </div>
-        <svg x-show="sidebarOpen" :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-transform duration-200 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        <svg :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
     </button>
     
     <div x-show="open" x-transition class="mt-0.5 bg-[#BBB8B8] w-full overflow-hidden flex flex-col divide-y divide-[#9E9B9B]">
         <a href="{{ route('mahasiswa.dummy', 'pendaftaran-sidang') }}" class="{{ $active == 'pendaftaran-sidang' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             <span x-show="sidebarOpen" x-transition>Pendaftaran Sidang</span>
+        </a>
+        <a href="{{ route('mahasiswa.dummy', 'jadwal-sidang') }}" class="{{ $active == 'jadwal-sidang' ? $subActiveClass : $subInactiveClass }}">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11h-4v4h4v-4z"></path></svg>
+            <span x-show="sidebarOpen" x-transition>Jadwal Sidang</span>
         </a>
         <a href="{{ route('mahasiswa.dummy', 'hasil-sidang') }}" class="{{ $active == 'hasil-sidang' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
@@ -108,7 +112,7 @@
         <form method="POST" action="{{ route('logout') }}" id="sidebar-logout-form">
             @csrf
         </form>
-        <a href="#" onclick="event.preventDefault(); document.getElementById('sidebar-logout-form').submit();" class="flex items-center gap-3 px-6 h-[35px] mx-[1px] w-full max-w-[219px] overflow-hidden whitespace-nowrap rounded-[5px] text-[12px] font-bold text-[#FF0000] hover:bg-[#E8E5E5] transition-colors cursor-pointer text-left">
+        <a href="#" onclick="event.preventDefault(); document.getElementById('sidebar-logout-form').submit();" class="flex items-center gap-3 pl-4 pr-3 h-[35px] w-full overflow-hidden whitespace-nowrap rounded-[5px] text-[12px] font-bold text-[#FF0000] hover:bg-[#E8E5E5] transition-colors cursor-pointer text-left">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
             <span x-show="sidebarOpen" x-transition>Sign Out</span>
         </a>

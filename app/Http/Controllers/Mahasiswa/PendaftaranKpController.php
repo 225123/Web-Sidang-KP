@@ -17,7 +17,37 @@ class PendaftaranKpController extends Controller
             ->latest()
             ->first();
 
-        return view('mahasiswa.Pendaftaran-KP', compact('existingKp'));
+        // Fetch all other users with role = mahasiswa, eager load mahasiswa relation to sort by NIM
+        $allMahasiswa = User::with('mahasiswa')
+            ->where('role', 'mahasiswa')
+            ->where('id', '!=', auth()->id())
+            ->get()
+            ->sortBy(function($user) {
+                return $user->mahasiswa->nim ?? (string)$user->id;
+            })
+            ->values();
+
+        // Check if current user is invited into any group
+        $invitation = PendaftaranKp::whereJsonContains('anggota_kelompok_ids', (string)auth()->id())
+            ->orWhereJsonContains('anggota_kelompok_ids', auth()->id())
+            ->latest()
+            ->first();
+
+        // If invited, we need to gather the actual group members for display
+        $anggotaTerpilih = [];
+        if ($invitation) {
+            $anggotaIds = $invitation->anggota_kelompok_ids ?? [];
+            // Add the creator of the group to the members list if not the current user
+            if ($invitation->mahasiswa_id !== auth()->id()) {
+                $anggotaIds[] = $invitation->mahasiswa_id;
+            }
+            // Remove current user from the display list of members
+            $anggotaIds = array_diff($anggotaIds, [auth()->id(), (string)auth()->id()]);
+            // Fetch names for display
+            $anggotaTerpilih = User::whereIn('id', $anggotaIds)->get();
+        }
+
+        return view('mahasiswa.Pendaftaran-KP', compact('existingKp', 'allMahasiswa', 'invitation', 'anggotaTerpilih'));
     }
 
     public function dataKpSaya(Request $request)
@@ -68,6 +98,8 @@ class PendaftaranKpController extends Controller
             'dosen_pemberi_projek' => 'required_if:jenis_instansi,Internal|nullable|string',
             'nama_supervisor' => 'required|string|max:255',
             'deskripsi_kp' => 'required|string',
+            'pengerjaan_kp' => 'required|in:sendiri,berkelompok',
+            'anggota_kelompok_ids' => 'nullable|string',
         ]);
 
         $existingKp = PendaftaranKp::where('mahasiswa_id', auth()->id())
@@ -79,6 +111,26 @@ class PendaftaranKpController extends Controller
         }
 
         try {
+            $anggotaArray = [];
+            if ($request->pengerjaan_kp === 'berkelompok' && $request->filled('anggota_kelompok_ids')) {
+                // Decode the JSON array from frontend
+                $anggotaArray = json_decode($request->anggota_kelompok_ids, true);
+                if (!is_array($anggotaArray)) {
+                    $anggotaArray = [];
+                }
+            }
+
+            // check if there's an invitation to copy the status
+            $invitation = PendaftaranKp::whereJsonContains('anggota_kelompok_ids', (string)auth()->id())
+                ->orWhereJsonContains('anggota_kelompok_ids', auth()->id())
+                ->latest()
+                ->first();
+
+            $status_kp = 'pending';
+            if ($invitation && $request->pengerjaan_kp === 'berkelompok') {
+                $status_kp = $invitation->status_kp; // Sync status if invited
+            }
+
             $pendaftaranKp = PendaftaranKp::create([
                 'mahasiswa_id' => auth()->id(),
                 'judul_kp' => $request->judul_kp,
@@ -87,7 +139,9 @@ class PendaftaranKpController extends Controller
                 'instansi_nama' => $request->jenis_instansi === 'External' ? $request->instansi_nama : 'Universitas Kristen Krida Wacana',
                 'supervisor_internal_id' => null, // Just keeping this null to avoid constraint errors since we accept raw text
                 'jenis_proyek' => $request->deskripsi_kp, // Mapping Deskripsi to jenis_proyek
-                'status_kp' => 'pending',
+                'status_kp' => $status_kp,
+                'pengerjaan_kp' => $request->pengerjaan_kp,
+                'anggota_kelompok_ids' => empty($anggotaArray) ? null : $anggotaArray,
             ]);
 
             SupervisorInstansi::create([

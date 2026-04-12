@@ -30,7 +30,16 @@ class PendaftaranKp extends Model
         'jenis_instansi',
         'supervisor_internal_id',
         'tipe_kp',
+        'pengerjaan_kp',
+        'anggota_kelompok_ids',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'anggota_kelompok_ids' => 'array',
+        ];
+    }
 
     public function mahasiswa()
     {
