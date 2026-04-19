@@ -5,7 +5,7 @@
 
     <!-- Header Actions (Periode Box sama persis Dashboard) -->
     <x-slot:headerActions>
-        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
+        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-full md:w-[212px]">
             <button @click="open = !open" @click.outside="open = false" type="button" 
                 class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
                 
@@ -63,13 +63,13 @@
     }">
 
         <!-- Header and Tools -->
-        <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
-            <div class="flex items-center gap-4">
-                <button @click="showAddModal = true" class="w-[104px] h-[36px] bg-[#4CAF50] rounded-[5px] flex items-center justify-center gap-1 text-white text-[14px] font-medium shadow-sm hover:bg-[#45a049] transition-colors">
+        <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 mb-8">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                <button @click="showAddModal = true" class="w-full sm:w-[104px] h-[36px] bg-[#4CAF50] rounded-[5px] flex items-center justify-center gap-1 text-white text-[14px] font-medium shadow-sm hover:bg-[#45a049] transition-colors flex-shrink-0">
                     <span class="text-[20px] leading-none mb-1">+</span> Tambah
                 </button>
 
-                <form id="filterForm" action="{{ url()->current() }}" method="GET" class="relative w-[340px] h-[36px]">
+                <form id="filterForm" action="{{ url()->current() }}" method="GET" class="relative w-full sm:w-[340px] h-[36px]">
                     <input type="hidden" name="tab" :value="tab">
                     <input type="hidden" name="status" id="statusFilter" value="{{ request('status') }}">
                     <svg class="w-4 h-4 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -77,10 +77,10 @@
                 </form>
             </div>
 
-            <div class="flex items-center gap-4">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                 
                 @if($tab === 'dosen')
-                <div x-data="{ openStatus: false, selectedStatus: '{{ request('status') ?: 'Status' }}' }" class="relative w-[130px] h-[36px]">
+                <div x-data="{ openStatus: false, selectedStatus: '{{ request('status') ?: 'Status' }}' }" class="relative w-full sm:w-[130px] h-[36px]">
                     <button @click="openStatus = !openStatus" @click.outside="openStatus = false" type="button" 
                         class="w-full h-full flex items-center justify-between border border-black/50 bg-white rounded-[5px] text-[14px] text-gray-700 px-3 outline-none focus:border-black/70 cursor-pointer">
                         <span x-text="selectedStatus"></span>
@@ -101,7 +101,7 @@
                 @endif
 
                 <!-- Export PDF Dropdown -->
-                <div x-data="{ openExport: false }" class="relative w-[150px] h-[36px]">
+                <div x-data="{ openExport: false }" class="relative w-full sm:w-[150px] h-[36px]">
                     <button @click="openExport = !openExport" @click.outside="openExport = false" type="button" 
                         class="w-full h-full bg-[#E32727] hover:bg-red-700 transition-colors rounded-full flex items-center justify-center gap-2 text-white text-[14px] shadow-sm font-medium focus:outline-none">
                         <div class="w-[14px] h-[18px] bg-black/30 border border-white flex items-center justify-center">
@@ -153,7 +153,7 @@
 
             <!-- Table Container -->
             <div class="bg-white border border-black/50 border-t-0 rounded-b-[5px] rounded-tr-[5px] overflow-x-auto relative top-[-1px]">
-                <table class="w-full text-left text-[13px] font-medium text-black border-collapse">
+                <table class="w-full min-w-[1000px] text-left text-[13px] font-medium text-black border-collapse">
                     <thead class="bg-[#B0AFB5]">
                         <tr class="h-[40px] text-gray-900 border-b border-black/50">
                             <th class="border-r border-black/40 font-medium w-[5%] pl-4">No</th>
@@ -245,31 +245,31 @@
                         @csrf
                         <div class="space-y-4 max-w-[600px] mb-12">
                             <!-- Nama -->
-                            <div class="flex items-center">
-                                <label class="w-[200px] text-[15px] text-black font-medium">Nama Lengkap</label>
-                                <span class="text-black mx-4">:</span>
-                                <input type="text" name="name" required class="flex-1 max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Ketik nama...">
+                            <div class="flex flex-col md:flex-row md:items-center">
+                                <label class="w-full md:w-[200px] text-[15px] text-black font-medium mb-1 md:mb-0">Nama Lengkap</label>
+                                <span class="hidden md:inline text-black mx-4">:</span>
+                                <input type="text" name="name" required class="flex-1 w-full md:max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Ketik nama...">
                             </div>
 
                             <!-- ID -->
-                            <div class="flex items-center">
-                                <label class="w-[200px] text-[15px] text-black font-medium">ID (NIM/NIDN)</label>
-                                <span class="text-black mx-4">:</span>
-                                <input type="text" name="id_user" required class="flex-1 max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Input ID User">
+                            <div class="flex flex-col md:flex-row md:items-center">
+                                <label class="w-full md:w-[200px] text-[15px] text-black font-medium mb-1 md:mb-0">ID (NIM/NIDN)</label>
+                                <span class="hidden md:inline text-black mx-4">:</span>
+                                <input type="text" name="id_user" required class="flex-1 w-full md:max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Input ID User">
                             </div>
 
                             <!-- Email -->
-                            <div class="flex items-center">
-                                <label class="w-[200px] text-[15px] text-black font-medium">Email Utama</label>
-                                <span class="text-black mx-4">:</span>
-                                <input type="email" name="email" required class="flex-1 max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Input Email User">
+                            <div class="flex flex-col md:flex-row md:items-center">
+                                <label class="w-full md:w-[200px] text-[15px] text-black font-medium mb-1 md:mb-0">Email Utama</label>
+                                <span class="hidden md:inline text-black mx-4">:</span>
+                                <input type="email" name="email" required class="flex-1 w-full md:max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Input Email User">
                             </div>
 
                             <!-- Role Dropdown -->
-                            <div class="flex items-start">
-                                <label class="w-[200px] text-[15px] text-black mt-1 font-medium">Role System</label>
-                                <span class="text-black mx-4 mt-1">:</span>
-                                <div class="relative flex-1 max-w-[300px]">
+                            <div class="flex flex-col md:flex-row md:items-start">
+                                <label class="w-full md:w-[200px] text-[15px] text-black md:mt-1 font-medium mb-1 md:mb-0">Role System</label>
+                                <span class="hidden md:inline text-black mx-4 mt-1">:</span>
+                                <div class="relative flex-1 w-full md:max-w-[300px]">
                                     <button @click="openRole = !openRole" type="button" class="w-full h-[32px] bg-[#D9D9D9] px-3 flex items-center justify-between outline-none focus:ring-1 focus:ring-blue-500">
                                         <span x-text="selectedRole" :class="selectedRole === 'Input Role User' ? 'text-black/50 italic text-[14px]' : 'text-black text-[14px] font-medium'"></span>
                                         <span class="text-black/70 font-bold transform rotate-90" :class="openRole ? '-rotate-90' : ''">&gt;</span>
@@ -287,15 +287,15 @@
                         </div>
 
                         <!-- Footer Actions -->
-                        <div class="flex items-center justify-between mt-8 pt-4 border-t border-black/10">
+                        <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 mt-8 pt-4 border-t border-black/10">
                             <!-- Left: File actions -->
-                            <div class="flex gap-4">
-                                <a href="{{ route('koordinator.user.template.download') }}" class="w-[180px] h-[34px] bg-[#6C6F77] hover:bg-gray-600 rounded-[5px] flex items-center justify-center gap-2 text-white font-bold text-[12px] shadow-sm transition-colors cursor-pointer ring-1 ring-black/20">
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <a href="{{ route('koordinator.user.template.download') }}" class="w-full sm:w-[180px] h-[34px] bg-[#6C6F77] hover:bg-gray-600 rounded-[5px] flex items-center justify-center gap-2 text-white font-bold text-[12px] shadow-sm transition-colors cursor-pointer ring-1 ring-black/20 focus:outline-none">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                     Download template
                                 </a>
                                 
-                                <label class="w-[180px] h-[34px] bg-[#3A6FF7] hover:bg-blue-600 rounded-[5px] flex items-center justify-center gap-2 text-white font-bold text-[12px] shadow-sm transition-colors cursor-pointer ring-1 ring-black/20">
+                                <label class="w-full sm:w-[180px] h-[34px] bg-[#3A6FF7] hover:bg-blue-600 rounded-[5px] flex items-center justify-center gap-2 text-white font-bold text-[12px] shadow-sm transition-colors cursor-pointer ring-1 ring-black/20 mb-0">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></path></svg>
                                     Upload File Excel
                                     <input type="file" form="importForm" name="file_import" class="hidden" onchange="document.getElementById('importForm').submit()" accept=".xlsx,.xls">
@@ -303,11 +303,11 @@
                             </div>
 
                             <!-- Right: Submit actions -->
-                            <div class="flex gap-6 pr-6">
-                                <button @click="showAddModal = false" type="button" class="w-[104px] h-[32px] bg-[#E32727] hover:bg-red-700 text-white font-medium text-[14px] rounded-[5px] transition-colors shadow-sm focus:outline-none">
+                            <div class="flex gap-4 lg:pr-6 justify-end">
+                                <button @click="showAddModal = false" type="button" class="flex-1 sm:flex-none w-full sm:w-[104px] h-[32px] bg-[#E32727] hover:bg-red-700 text-white font-medium text-[14px] rounded-[5px] transition-colors shadow-sm focus:outline-none">
                                     Keluar
                                 </button>
-                                <button type="button" @click="openAddConfirm()" class="w-[104px] h-[32px] bg-[#008000] hover:bg-green-700 text-white font-medium text-[14px] rounded-[5px] transition-colors shadow-sm focus:outline-none">
+                                <button type="button" @click="openAddConfirm()" class="flex-1 sm:flex-none w-full sm:w-[104px] h-[32px] bg-[#008000] hover:bg-green-700 text-white font-medium text-[14px] rounded-[5px] transition-colors shadow-sm focus:outline-none">
                                     Kirim
                                 </button>
                             </div>

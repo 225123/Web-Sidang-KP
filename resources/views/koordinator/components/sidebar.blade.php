@@ -38,7 +38,7 @@
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
             <span x-show="sidebarOpen" x-transition>Data Mahasiswa KP</span>
         </a>
-        <a href="{{ route('koordinator.dummy', 'penugasan-pembimbing') }}" class="{{ $active == 'penugasan-pembimbing' ? $subActiveClass : $subInactiveClass }}">
+        <a href="{{ route('koordinator.penugasan-pembimbing') }}" class="{{ $active == 'penugasan-pembimbing' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
             <span x-show="sidebarOpen" x-transition>Penugasan Pembimbing</span>
         </a>
@@ -78,7 +78,7 @@
         <svg :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
     </button>
     <div x-show="open" x-transition class="mt-0.5 bg-[#BBB8B8] w-full overflow-hidden flex flex-col divide-y divide-[#9E9B9B]">
-        <a href="{{ route('koordinator.dummy', 'verifikasi-berkas') }}" class="{{ $active == 'verifikasi-berkas' ? $subActiveClass : $subInactiveClass }}">
+        <a href="{{ route('koordinator.verifikasi-berkas') }}" class="{{ $active == 'verifikasi' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             <span x-show="sidebarOpen" x-transition>Verifikasi Berkas Sidang</span>
         </a>
@@ -178,7 +178,7 @@
 </div>
 
 <div class="mt-4">
-    <a href="{{ route('koordinator.dummy', 'profil') }}" class="{{ $active == 'profil' ? $activeClass : $inactiveClass }}">
+    <a href="{{ route('profil.index') }}" class="{{ $active == 'profil' ? $activeClass : $inactiveClass }}">
         <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
         <span x-show="sidebarOpen" x-transition>Profil</span>
     </a>

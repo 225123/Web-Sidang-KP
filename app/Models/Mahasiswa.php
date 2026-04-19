@@ -27,10 +27,16 @@ class Mahasiswa extends Model
         'angkatan',
         'no_hp',
         'email',
+        'pembimbing_id',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function pembimbing()
+    {
+        return $this->belongsTo(User::class, 'pembimbing_id');
     }
 }

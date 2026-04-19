@@ -10,7 +10,7 @@
             @if(session('success') || isset($existingKp))
                 <div class="flex flex-col lg:flex-row justify-end items-start lg:items-center gap-6 mb-10 w-full">
                     <div x-data="{ open: false, selected: 'Genap 2025/2026' }"
-                        class="relative w-[212px] flex-shrink-0 lg:mt-0 mt-2">
+                        class="relative w-full md:w-[212px] flex-shrink-0 lg:mt-0 mt-2">
                         <button @click="open = !open" @click.outside="open = false" type="button"
                             class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-2 px-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer text-black">
                             <span x-text="selected"></span>
@@ -64,7 +64,7 @@
                         </div>
 
                         <div x-data="{ open: false, selected: 'Genap 2025/2026' }"
-                            class="relative w-[212px] flex-shrink-0 lg:mt-0 mt-2">
+                            class="relative w-full md:w-[212px] flex-shrink-0 lg:mt-0 mt-2">
                             <button @click="open = !open" @click.outside="open = false" type="button"
                                 class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-2 px-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer text-black">
                                 <span x-text="selected"></span>
@@ -122,7 +122,7 @@
                             $isInvited = isset($invitation) && $invitation ? 'true' : 'false';
                             $initJenis = old('jenis_instansi', $invitation->jenis_instansi ?? '');
                             $initInstansi = old('instansi_nama', $invitation->instansi_nama ?? '');
-                            $initPengerjaan = old('pengerjaan_kp', $invitation ? 'berkelompok' : 'sendiri');
+                            $initPengerjaan = old('pengerjaan_kp', $invitation ? 'kelompok' : 'sendiri');
                             $oldAnggota = old('anggota_kelompok_ids', '[]');
                         @endphp
                         <form action="{{ route('mahasiswa.pendaftaran-kp.store') }}" method="POST" x-data="{ 
@@ -135,7 +135,7 @@
                             searchAnggota: '',
                             openAnggota: false,
                             selectedAnggota: {{ $oldAnggota }},
-                            allMahasiswa: {{ $allMahasiswa->map(function($m) { return ['id' => (string)$m->id, 'label' => ($m->mahasiswa->nim ?? 'NIM') . ' - ' . $m->name]; })->values()->toJson() }},
+                            allMahasiswa: {{ $allMahasiswa->map(function($m) { return ['id' => (string)$m->id, 'label' => ($m->mahasiswa->nim ?? 'NIM') . ' - ' . $m->name, 'is_unavailable' => $m->is_unavailable]; })->values()->toJson() }},
                             get filteredMahasiswa() {
                                 if(this.searchAnggota === '') return this.allMahasiswa.filter(m => !this.selectedAnggota.includes(m.id));
                                 return this.allMahasiswa.filter(m => !this.selectedAnggota.includes(m.id) && m.label.toLowerCase().includes(this.searchAnggota.toLowerCase()));
@@ -238,7 +238,7 @@
                                     :class="isInvited ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-white'"
                                     class="w-full flex items-center justify-between border border-[#CAC0C0] rounded px-4 py-3 text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
 
-                                    <span x-text="pengerjaanKp !== '' ? (pengerjaanKp === 'sendiri' ? 'Sendiri' : 'Berkelompok') : 'Pilih Pengerjaan KP'" class="flex-1 text-left truncate"
+                                    <span x-text="pengerjaanKp !== '' ? (pengerjaanKp === 'sendiri' ? 'Sendiri' : 'Kelompok') : 'Pilih Pengerjaan KP'" class="flex-1 text-left truncate"
                                         :class="pengerjaanKp !== '' ? (isInvited ? 'text-gray-500' : 'text-black') : 'text-gray-400'"></span>
 
                                     <svg :class="openPengerjaan ? 'rotate-90' : 'rotate-180'"
@@ -260,10 +260,10 @@
                                             </button>
                                         </li>
                                         <li>
-                                            <button type="button" @click="pengerjaanKp = 'berkelompok'; openPengerjaan = false"
+                                            <button type="button" @click="pengerjaanKp = 'kelompok'; openPengerjaan = false"
                                                 class="block w-full text-left px-4 py-2 hover:bg-yellow-200 transition-colors"
-                                                :class="pengerjaanKp === 'berkelompok' ? 'bg-yellow-300 font-bold' : ''">
-                                                Berkelompok
+                                                :class="pengerjaanKp === 'kelompok' ? 'bg-yellow-300 font-bold' : ''">
+                                                Kelompok
                                             </button>
                                         </li>
                                     </ul>
@@ -272,7 +272,7 @@
                                 @error('pengerjaan_kp') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
 
-                            <div class="mb-6 relative" x-show="pengerjaanKp === 'berkelompok'" x-transition style="display: none;">
+                            <div class="mb-6 relative" x-show="pengerjaanKp === 'kelompok'" x-transition style="display: none;">
                                 <label class="block text-[14px] font-bold text-black mb-2">Anggota Kelompok <span
                                         class="text-red-600">*</span></label>
                                 
@@ -306,8 +306,11 @@
                                             <ul class="py-1 text-[13px]">
                                                 <template x-for="m in filteredMahasiswa" :key="m.id">
                                                     <li>
-                                                        <button type="button" @click.stop="toggleAnggota(m.id)" class="block w-full text-left px-4 py-2 hover:bg-[#E8E5E5] transition-colors">
-                                                            <span x-text="m.label"></span>
+                                                        <button type="button" @click.stop="m.is_unavailable ? null : toggleAnggota(m.id)" class="block w-full text-left px-4 py-2 transition-colors relative" :class="m.is_unavailable ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'hover:bg-[#E8E5E5]'">
+                                                            <div class="flex items-center justify-between pointer-events-none">
+                                                                <span x-text="m.label" :class="m.is_unavailable ? 'text-gray-400' : ''"></span>
+                                                                <span x-show="m.is_unavailable" class="text-[10px] font-bold text-red-500 bg-red-100 px-2 py-0.5 rounded border border-red-200">Sedang KP</span>
+                                                            </div>
                                                         </button>
                                                     </li>
                                                 </template>
@@ -342,7 +345,7 @@
 
                             <div class="flex justify-center mt-8 relative pb-8">
                                 <button type="submit"
-                                    class="bg-[#008000] hover:bg-green-700 text-white font-bold h-[40px] px-8 rounded-[30px] text-[14px] flex items-center justify-center shadow-md gap-2 transition-colors">
+                                    class="w-full sm:w-auto bg-[#008000] hover:bg-green-700 text-white font-bold h-[40px] px-8 rounded-[30px] text-[14px] flex items-center justify-center shadow-md gap-2 transition-colors">
                                     <svg class="w-4 h-4 transform -rotate-45 mb-1" fill="currentColor" viewBox="0 0 20 20"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path

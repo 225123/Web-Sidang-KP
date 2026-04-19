@@ -30,3 +30,17 @@
   scrollbar-width: thin;
   scrollbar-color: #C4C4C4 transparent;
 }
+
+/* Hide scrollbar for sidebar but keep scroll functionality */
+.sidebar-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.sidebar-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Align submenu items cleanly in collapsed sidebar */
+aside.md\:w-\[88px\] a.pl-10 {
+  padding-left: 1rem !important;
+}

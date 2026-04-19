@@ -17,19 +17,42 @@ class PendaftaranKpController extends Controller
             ->latest()
             ->first();
 
+        // Identify all students who are already part of an active or approved KP
+        $activeKps = PendaftaranKp::whereIn('status_kp', ['pending', 'approved'])->get();
+        $unavailableIds = [];
+        foreach ($activeKps as $akp) {
+            $unavailableIds[] = (string)$akp->mahasiswa_id;
+            if (!empty($akp->anggota_kelompok_ids)) {
+                $anggota = is_string($akp->anggota_kelompok_ids) ? json_decode($akp->anggota_kelompok_ids, true) : $akp->anggota_kelompok_ids;
+                if (is_array($anggota)) {
+                    foreach($anggota as $aid) {
+                        $unavailableIds[] = (string)$aid;
+                    }
+                }
+            }
+        }
+        $unavailableIds = array_unique($unavailableIds);
+
         // Fetch all other users with role = mahasiswa, eager load mahasiswa relation to sort by NIM
         $allMahasiswa = User::with('mahasiswa')
             ->where('role', 'mahasiswa')
             ->where('id', '!=', auth()->id())
             ->get()
+            ->map(function($user) use ($unavailableIds) {
+                $user->is_unavailable = in_array((string)$user->id, $unavailableIds);
+                return $user;
+            })
             ->sortBy(function($user) {
                 return $user->mahasiswa->nim ?? (string)$user->id;
             })
             ->values();
 
-        // Check if current user is invited into any group
-        $invitation = PendaftaranKp::whereJsonContains('anggota_kelompok_ids', (string)auth()->id())
-            ->orWhereJsonContains('anggota_kelompok_ids', auth()->id())
+        // Check if current user is invited into any active group
+        $invitation = PendaftaranKp::where(function($query) {
+                $query->whereJsonContains('anggota_kelompok_ids', (string)auth()->id())
+                      ->orWhereJsonContains('anggota_kelompok_ids', auth()->id());
+            })
+            ->whereIn('status_kp', ['pending', 'approved'])
             ->latest()
             ->first();
 
@@ -52,6 +75,23 @@ class PendaftaranKpController extends Controller
 
     public function dataKpSaya(Request $request)
     {
+        $unrespondedInvitation = PendaftaranKp::where(function($q) {
+                $q->whereJsonContains('anggota_kelompok_ids', (string)auth()->id())
+                  ->orWhereJsonContains('anggota_kelompok_ids', auth()->id());
+            })
+            ->whereIn('status_kp', ['pending', 'approved'])
+            ->latest()
+            ->first();
+            
+        if ($unrespondedInvitation) {
+            $hasSubmitted = PendaftaranKp::where('mahasiswa_id', auth()->id())
+                ->whereIn('status_kp', ['pending', 'approved'])
+                ->exists();
+            if ($hasSubmitted) {
+                $unrespondedInvitation = null;
+            }
+        }
+
         $query = PendaftaranKp::where('mahasiswa_id', auth()->id());
 
         // Search by judul_kp or instansi_nama
@@ -85,7 +125,7 @@ class PendaftaranKpController extends Controller
 
         $riwayatKp = $query->latest()->paginate(10)->withQueryString();
             
-        return view('mahasiswa.Status-Pendaftaran', compact('riwayatKp'));
+        return view('mahasiswa.Status-Pendaftaran', compact('riwayatKp', 'unrespondedInvitation'));
     }
 
 
@@ -98,7 +138,7 @@ class PendaftaranKpController extends Controller
             'dosen_pemberi_projek' => 'required_if:jenis_instansi,Internal|nullable|string',
             'nama_supervisor' => 'required|string|max:255',
             'deskripsi_kp' => 'required|string',
-            'pengerjaan_kp' => 'required|in:sendiri,berkelompok',
+            'pengerjaan_kp' => 'required|in:sendiri,kelompok',
             'anggota_kelompok_ids' => 'nullable|string',
         ]);
 
@@ -112,7 +152,7 @@ class PendaftaranKpController extends Controller
 
         try {
             $anggotaArray = [];
-            if ($request->pengerjaan_kp === 'berkelompok' && $request->filled('anggota_kelompok_ids')) {
+            if ($request->pengerjaan_kp === 'kelompok' && $request->filled('anggota_kelompok_ids')) {
                 // Decode the JSON array from frontend
                 $anggotaArray = json_decode($request->anggota_kelompok_ids, true);
                 if (!is_array($anggotaArray)) {
@@ -120,29 +160,43 @@ class PendaftaranKpController extends Controller
                 }
             }
 
-            // check if there's an invitation to copy the status
-            $invitation = PendaftaranKp::whereJsonContains('anggota_kelompok_ids', (string)auth()->id())
-                ->orWhereJsonContains('anggota_kelompok_ids', auth()->id())
+            // check if there's an invitation to copy the status (only from active groups)
+            $invitation = PendaftaranKp::where(function($query) {
+                    $query->whereJsonContains('anggota_kelompok_ids', (string)auth()->id())
+                          ->orWhereJsonContains('anggota_kelompok_ids', auth()->id());
+                })
+                ->whereIn('status_kp', ['pending', 'approved'])
                 ->latest()
                 ->first();
 
             $status_kp = 'pending';
-            if ($invitation && $request->pengerjaan_kp === 'berkelompok') {
+            if ($invitation && $request->pengerjaan_kp === 'kelompok') {
                 $status_kp = $invitation->status_kp; // Sync status if invited
             }
 
-            $pendaftaranKp = PendaftaranKp::create([
+            $draftKp = PendaftaranKp::where('mahasiswa_id', auth()->id())
+                ->whereNull('status_kp')
+                ->first();
+
+            $dataKp = [
                 'mahasiswa_id' => auth()->id(),
                 'judul_kp' => $request->judul_kp,
                 'jenis_instansi' => $request->jenis_instansi,
                 'tipe_kp' => strtolower($request->jenis_instansi),
                 'instansi_nama' => $request->jenis_instansi === 'External' ? $request->instansi_nama : 'Universitas Kristen Krida Wacana',
-                'supervisor_internal_id' => null, // Just keeping this null to avoid constraint errors since we accept raw text
-                'jenis_proyek' => $request->deskripsi_kp, // Mapping Deskripsi to jenis_proyek
+                'supervisor_internal_id' => null,
+                'jenis_proyek' => $request->deskripsi_kp,
                 'status_kp' => $status_kp,
                 'pengerjaan_kp' => $request->pengerjaan_kp,
                 'anggota_kelompok_ids' => empty($anggotaArray) ? null : $anggotaArray,
-            ]);
+            ];
+
+            if ($draftKp) {
+                $draftKp->update($dataKp);
+                $pendaftaranKp = $draftKp;
+            } else {
+                $pendaftaranKp = PendaftaranKp::create($dataKp);
+            }
 
             SupervisorInstansi::create([
                 'pendaftaran_kp_id' => $pendaftaranKp->id,

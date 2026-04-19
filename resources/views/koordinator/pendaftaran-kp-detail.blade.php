@@ -40,47 +40,67 @@
         <div class="bg-[#E6E6E6] rounded-[15px] p-6 lg:p-8 w-full max-w-5xl mt-2">
             <h3 class="text-[17px] font-bold text-black mb-6">Informasi Mahasiswa</h3>
             
-            <div class="grid grid-cols-[140px_10px_1fr] md:grid-cols-[200px_10px_1fr] gap-y-4 text-[14px] text-[#1A1A1A] font-medium leading-[24px]">
+            <div class="grid grid-cols-1 md:grid-cols-[200px_10px_1fr] gap-y-1 md:gap-y-4 text-[14px] text-[#1A1A1A] leading-[24px]">
                 
                 <!-- Nama -->
-                <div>Nama</div>
-                <div>:</div>
-                <div class="uppercase">{{ $kp->user->name ?? '-' }}</div>
+                <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Nama</div>
+                <div class="hidden md:block">:</div>
+                <div class="uppercase mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->user->name ?? '-' }}</div>
                 
                 <!-- NIM -->
-                <div>NIM</div>
-                <div>:</div>
-                <div>{{ $kp->user->mahasiswa->nim ?? '-' }}</div>
+                <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">NIM</div>
+                <div class="hidden md:block">:</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->user->mahasiswa->nim ?? '-' }}</div>
+                
+                <!-- Pengerjaan KP -->
+                <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Pengerjaan KP</div>
+                <div class="hidden md:block">:</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px] capitalize">
+                    {{ $kp->pengerjaan_kp }}
+                </div>
+                
+                @if($kp->pengerjaan_kp === 'kelompok' && !empty($kp->anggotaLainList))
+                <!-- Anggota Kelompok -->
+                <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A] align-top md:pt-[2px]">Anggota Kelompok</div>
+                <div class="hidden md:block align-top md:pt-[2px]">:</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px] md:pt-[2px]">
+                    <ul class="flex flex-col gap-1">
+                        @foreach($kp->anggotaLainList as $anggota)
+                            <li>{{ $anggota['nim'] }} - {{ $anggota['nama'] }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
                 
                 <!-- Jenis KP -->
-                <div>Jenis KP</div>
-                <div>:</div>
-                <div>{{ $kp->jenis_instansi }}</div>
+                <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Jenis KP</div>
+                <div class="hidden md:block">:</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->jenis_instansi }}</div>
                 
                 <!-- Nama Instansi -->
-                <div>Nama Instansi</div>
-                <div>:</div>
-                <div>{{ $kp->instansi_nama }}</div>
+                <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Nama Instansi</div>
+                <div class="hidden md:block">:</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->instansi_nama }}</div>
                 
                 <!-- Supervisor -->
-                <div>Supervisor</div>
-                <div>:</div>
-                <div>{{ $kp->supervisorInstansi->nama_supervisor ?? '-' }}</div>
+                <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Supervisor</div>
+                <div class="hidden md:block">:</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->supervisorInstansi->nama_supervisor ?? '-' }}</div>
                 
                 <!-- Judul KP -->
-                <div>Judul KP</div>
-                <div>:</div>
-                <div>{{ $kp->judul_kp }}</div>
+                <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Judul KP</div>
+                <div class="hidden md:block">:</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->judul_kp }}</div>
                 
                 <!-- Status KP (Baru/Lanjut) -->
-                <div>Status KP</div>
-                <div>:</div>
-                <div>Baru /Lanjut</div> 
+                <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Status KP</div>
+                <div class="hidden md:block">:</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">Baru /Lanjut</div> 
                 
                 <!-- Detail KP -->
-                <div class="align-top pt-2">Detail KP</div>
-                <div class="align-top pt-2">:</div>
-                <div class="pt-2">
+                <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A] align-top md:pt-2">Detail KP</div>
+                <div class="hidden md:block align-top md:pt-2">:</div>
+                <div class="md:pt-2 font-medium text-[15px] md:text-[14px]">
                     <div class="text-[13px] leading-[1.8]">
                         @if($kp->jenis_proyek)
                             {!! nl2br(e($kp->jenis_proyek)) !!}
@@ -116,41 +136,11 @@
                         </button>
                     </form>
                 @else
-                    <div x-show="!editMode" class="flex items-center gap-3">
-                        <button @click="editMode = true" type="button" class="text-gray-500 hover:text-blue-600 transition underline text-[13px] font-semibold mr-2 cursor-pointer">Ubah Status</button>
-                        <div class="inline-flex items-center justify-center {{ $kp->status_kp === 'approved' ? 'bg-[#A1DFAC] text-[#1D5E2D]' : 'bg-[#F3A5A1] text-[#711611]' }} px-8 py-2.5 rounded-[5px] font-bold shadow-sm text-[13px]">
-                            @if($kp->status_kp === 'approved')
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                Telah Disahkan
-                            @else
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                Telah Ditolak
-                            @endif
-                        </div>
-                    </div>
-
-                    <div x-show="editMode" style="display: none;" class="flex items-center gap-3">
-                        <button @click="editMode = false" type="button" class="text-gray-500 hover:text-gray-800 transition underline text-[13px] font-semibold mr-2 cursor-pointer">Batal</button>
-                        <form method="POST" action="{{ route('koordinator.pendaftaran-kp.status', $kp->id) }}" class="inline-block">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="status" value="rejected">
-                            <button type="button" class="bg-[#EA4335] hover:bg-red-600 transition-colors text-white px-6 py-2.5 rounded-[5px] text-[13px] font-bold shadow-sm flex items-center justify-center gap-2 w-[110px]" 
-                                @click="openModalCatatan($el.closest('form'), 'Ubah Status ke Ditolak?')">
-                                <svg class="w-4 h-4 rounded-full border border-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                Tolak
-                            </button>
-                        </form>
-                        <form method="POST" action="{{ route('koordinator.pendaftaran-kp.status', $kp->id) }}" class="inline-block">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="status" value="approved">
-                            <button type="button" class="bg-[#34A853] hover:bg-green-600 transition-colors text-white px-6 py-2.5 rounded-[5px] text-[13px] font-bold shadow-sm flex items-center justify-center gap-2 w-[110px]" 
-                                @click="openModalCatatan($el.closest('form'), 'Ubah Status ke Disahkan?')">
-                                <svg class="w-4 h-4 rounded-full border border-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                Sahkan
-                            </button>
-                        </form>
+                    <div class="flex items-center">
+                        <a href="{{ route('koordinator.pendaftaran-kp') }}" class="bg-[#EA4335] text-white hover:bg-red-600 transition-colors px-10 py-2.5 rounded-[5px] text-[13px] font-bold shadow-sm flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                            Kembali
+                        </a>
                     </div>
                 @endif
             </div>

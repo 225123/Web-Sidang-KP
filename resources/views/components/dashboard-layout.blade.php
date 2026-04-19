@@ -13,6 +13,9 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <style>
         .font-bree { font-family: 'Bree Serif', serif; }
         .font-inter { font-family: 'Inter', sans-serif; }
@@ -21,18 +24,18 @@
 <body x-data="{ sidebarOpen: $persist(true), footerVisible: false }" @toggle-footer.window="footerVisible = $event.detail" class="font-inter antialiased bg-[#F5F6F8] text-gray-900 flex flex-col h-screen overflow-hidden">
     
     <header class="bg-[#D9D9D9] flex-shrink-0 relative top-0 z-50 shadow-[0px_4px_4px_rgba(0,0,0,0.25)] border-b border-gray-300 h-[76px]">
-        <div class="flex items-center justify-between px-9 h-full">
-            <div class="flex items-center gap-6 shrink-0">
+        <div class="flex items-center justify-between px-4 md:px-9 h-full">
+            <div class="flex items-center gap-4 md:gap-6 shrink-0">
                 <button @click="sidebarOpen = !sidebarOpen" class="p-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition-colors focus:outline-none z-50 relative">
                     <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                 </button>
-                <h1 class="text-[20px] font-bold uppercase leading-tight text-black font-serif tracking-widest mt-2">
+                <h1 class="hidden md:block text-[20px] font-bold uppercase leading-tight text-black font-serif tracking-widest mt-2">
                     KERJA<br/>PRAKTEK
                 </h1>
             </div>
             
-            <div class="flex items-center gap-6 mt-1">
-                <button class="relative p-2.5 bg-[#9F9F9F] rounded-full hover:bg-gray-500 transition-colors">
+            <div class="flex items-center gap-4 md:gap-6 mt-1">
+                <button class="relative p-2 md:p-2.5 bg-[#9F9F9F] rounded-full hover:bg-gray-500 transition-colors">
                     <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
@@ -41,8 +44,8 @@
                     </span>
                 </button>
 
-                <div class="flex items-center gap-4">
-                    <div class="text-right flex flex-col justify-center">
+                <div class="flex items-center gap-3 md:gap-4">
+                    <div class="text-right hidden md:flex flex-col justify-center">
                         <span class="text-[17px] font-bree uppercase text-black font-normal">{{ $roleName ?? 'ROLE' }}</span>
                         <span class="text-[17px] font-bree text-black font-normal">
                             @php
@@ -59,23 +62,30 @@
                             {{ $userName ?? 'User' }}{{ $dId ? ' - ' . $dId : '' }}
                         </span>
                     </div>
-                    <div class="h-[68px] w-[68px] rounded-full bg-[#140EBF] flex items-center justify-center text-white font-bold text-2xl border-4 border-[#D9D9D9]">
-                        {{ substr($userName ?? 'R', 0, 1) }}
+                    <div class="h-[48px] w-[48px] md:h-[68px] md:w-[68px] rounded-full bg-[#140EBF] flex items-center justify-center text-white font-bold text-xl md:text-2xl border-[3px] md:border-4 border-[#D9D9D9] overflow-hidden shadow-sm">
+                        @if(auth()->user() && auth()->user()->avatar)
+                            <img src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Avatar" class="w-full h-full object-cover">
+                        @else
+                            {{ substr($userName ?? 'R', 0, 1) }}
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="flex flex-1 overflow-hidden relative z-0">
-        <aside :class="sidebarOpen ? 'w-[221px]' : 'w-[76px]'" class="bg-[#D9D9D9] flex-shrink-0 overflow-y-auto overflow-x-hidden h-full pb-10 transition-all duration-300 ease-in-out relative group custom-scrollbar z-10">
+    <div class="flex flex-1 overflow-hidden relative z-0 w-full">
+        <!-- Mobile Sidebar Backdrop -->
+        <div x-show="sidebarOpen" x-transition.opacity style="display: none;" class="fixed inset-0 bg-black/50 z-30 md:hidden" @click="sidebarOpen = false"></div>
+
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0 md:w-[88px]'" class="w-[221px] absolute md:relative z-40 md:z-10 bg-[#D9D9D9] flex-shrink-0 overflow-y-auto overflow-x-hidden h-full pb-10 transition-all duration-300 ease-in-out group sidebar-scroll shadow-xl md:shadow-none">
             <div class="py-6 w-full flex flex-col items-stretch px-2 space-y-1">
                 {{ $sidebar }}
             </div>
         </aside>
 
-        <main id="main-scroll-area" class="flex-1 overflow-y-auto bg-[#F5F6F8] transition-all duration-300 flex flex-col custom-scrollbar relative z-0">
-            <div class="p-8 pb-10 flex-1">
+        <main id="main-scroll-area" class="flex-1 overflow-y-auto bg-[#F5F6F8] transition-all duration-300 flex flex-col custom-scrollbar relative z-0 w-full">
+            <div class="p-4 md:p-8 pb-10 flex-1 w-full max-w-[100vw] overflow-x-hidden">
                 @if(isset($header))
                     <div class="mb-8 flex flex-col md:flex-row md:justify-between md:items-center gap-4 w-full">
                         <h2 class="text-2xl font-bold font-inter text-black">{{ $header }}</h2>

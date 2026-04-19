@@ -24,6 +24,7 @@ class Dosen extends Model
         'nidn',
         'kuota_bimbingan',
         'is_aktif',
+        'no_hp',
     ];
 
     public function user()

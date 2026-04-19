@@ -11,10 +11,7 @@ class PendaftaranKp extends Model
 
     protected $table = 'pendaftaran_kp';
     
-    /**
-     * Disable the default updated_at since it's not in the PostgreSQL schema.
-     */
-    const UPDATED_AT = null;
+    // We recently added updated_at via migration to support feature logic constraints
 
     protected $fillable = [
         'mahasiswa_id',
@@ -54,5 +51,15 @@ class PendaftaranKp extends Model
     public function supervisorInstansi()
     {
         return $this->hasOne(SupervisorInstansi::class, 'pendaftaran_kp_id');
+    }
+
+    public function pembimbing()
+    {
+        return $this->belongsTo(User::class, 'pembimbing_id');
+    }
+
+    public function logBimbingans()
+    {
+        return $this->hasMany(LogBimbingan::class, 'pendaftaran_kp_id');
     }
 }

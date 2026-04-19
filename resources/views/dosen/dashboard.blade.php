@@ -4,7 +4,7 @@
         </x-slot>
 
         <x-slot:headerActions>
-            <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
+            <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-full md:w-[212px] mt-2 md:mt-0">
                 <button @click="open = !open" @click.outside="open = false" type="button"
                     class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4285F4] focus:ring-1 focus:ring-[#4285F4] cursor-pointer text-black h-[32px]">
 
@@ -39,10 +39,10 @@
         </x-slot:headerActions>
 
         <div class="flex flex-col gap-6 mt-4 w-full">
-            <div class="flex flex-wrap gap-4 items-center mb-2">
-                <div class="flex gap-4">
+            <div class="flex flex-wrap gap-4 items-center mb-2 w-full">
+                <div class="flex flex-wrap gap-4 w-full xl:w-auto">
                     <div
-                        class="w-[188px] h-[71px] bg-[#3B82F6] rounded-[5px] relative overflow-hidden flex flex-col justify-center items-center shadow-sm">
+                        class="w-full sm:w-[calc(50%-0.5rem)] xl:w-[188px] h-[71px] bg-[#3B82F6] rounded-[5px] relative overflow-hidden flex flex-col justify-center items-center shadow-sm">
                         <svg class="w-5 h-5 absolute left-3 top-3 text-white" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -53,7 +53,7 @@
                     </div>
 
                     <div
-                        class="w-[188px] h-[71px] bg-[#E57835] rounded-[5px] relative overflow-hidden flex flex-col justify-center items-center shadow-sm">
+                        class="w-full sm:w-[calc(50%-0.5rem)] xl:w-[188px] h-[71px] bg-[#E57835] rounded-[5px] relative overflow-hidden flex flex-col justify-center items-center shadow-sm">
                         <svg class="w-5 h-5 absolute left-3 top-3 text-white" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -64,7 +64,7 @@
                     </div>
 
                     <div
-                        class="w-[188px] h-[71px] bg-[#4CAF50] rounded-[5px] relative overflow-hidden flex flex-col justify-center items-center shadow-sm">
+                        class="w-full sm:w-[calc(50%-0.5rem)] xl:w-[188px] h-[71px] bg-[#4CAF50] rounded-[5px] relative overflow-hidden flex flex-col justify-center items-center shadow-sm">
                         <svg class="w-5 h-5 absolute left-3 top-3 text-white" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -75,7 +75,7 @@
                     </div>
 
                     <div
-                        class="w-[188px] h-[71px] bg-[#F4B400] rounded-[5px] relative overflow-hidden flex flex-col justify-center items-center shadow-sm">
+                        class="w-full sm:w-[calc(50%-0.5rem)] xl:w-[188px] h-[71px] bg-[#F4B400] rounded-[5px] relative overflow-hidden flex flex-col justify-center items-center shadow-sm">
                         <svg class="w-5 h-5 absolute left-3 top-3 text-black" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -138,8 +138,9 @@
                         <div class="mb-4">
                             <h3 class="font-semibold text-[#1A1A1A] text-[18px] font-inter">Persetujuan Menunggu</h3>
                         </div>
-                        <table class="w-full text-left">
-                            <thead class="bg-[#F9F9F9] text-[13px] text-gray-500 font-bold border-b border-[#D9D9D9]">
+                        <div class="overflow-x-auto">
+                            <table class="w-full min-w-[500px] text-left">
+                                <thead class="bg-[#F9F9F9] text-[13px] text-gray-500 font-bold border-b border-[#D9D9D9]">
                                 <tr>
                                     <th class="px-4 py-2 w-[40px]">No</th>
                                     <th class="px-4 py-2">Mahasiswa</th>
@@ -176,6 +177,7 @@
                                 </tr>
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
 

@@ -59,6 +59,24 @@
             </p>
         </div>
 
+        @if(isset($unrespondedInvitation) && $unrespondedInvitation)
+        <div class="bg-yellow-50 border border-yellow-400 rounded-[10px] p-4 lg:p-5 mb-6 flex items-start gap-4 shadow-sm relative overflow-hidden">
+            <div class="w-6 h-6 rounded-full bg-yellow-400 text-yellow-900 flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
+                !
+            </div>
+            <div class="flex-1">
+                <h4 class="text-[14px] font-bold text-yellow-900 mb-1">Panggilan Pendaftaran Kelompok</h4>
+                <p class="text-[13px] text-yellow-800 font-medium leading-relaxed m-0">
+                    Rekan Anda <strong>{{ $unrespondedInvitation->user->name ?? 'Seseorang' }}</strong> telah menunjuk Anda sebagai anggota kelompok untuk judul KP <span class="italic">"{{ $unrespondedInvitation->judul_kp }}"</span>. 
+                    Anda harus mengisi Formulir Pendaftaran agar data Anda masuk ke dalam sistem.
+                </p>
+            </div>
+            <a href="{{ route('mahasiswa.pendaftaran-kp.create') }}" class="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold px-4 py-2 rounded-[5px] text-[12px] shadow-sm whitespace-nowrap transition-colors mt-2 sm:mt-0 flex-shrink-0">
+                Lengkapi Sekarang
+            </a>
+        </div>
+        @endif
+
         <form method="GET" action="{{ url()->current() }}" class="flex flex-col lg:flex-row justify-between items-center gap-4 mb-8">
             
             <div class="relative w-full lg:w-[400px]">
@@ -72,7 +90,7 @@
 
             <div class="flex flex-wrap items-center gap-4 w-full lg:w-auto justify-start lg:justify-end">
                 
-                <div x-data="{ open: false, val: '{{ request('status', '') }}' }" class="relative min-w-[155px]">
+                <div x-data="{ open: false, val: '{{ request('status', '') }}' }" class="relative w-full sm:w-auto sm:min-w-[155px]">
                     <button @click="open = !open" @click.outside="open = false" type="button" class="w-full flex items-center justify-between gap-3 border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-2 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black">
                         <span x-text="val === '' ? 'Semua Status' : val === 'pending' ? 'Menunggu' : val === 'approved' ? 'Disetujui' : 'Ditolak'"></span>
                         <svg :class="open ? '-rotate-90' : 'rotate-0'" class="w-3.5 h-3.5 transition-transform duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,7 +107,7 @@
                     </div>
                 </div>
                 
-                <div x-data="{ open: false, val: '{{ request('jenis', '') }}' }" class="relative min-w-[155px]">
+                <div x-data="{ open: false, val: '{{ request('jenis', '') }}' }" class="relative w-full sm:w-auto sm:min-w-[155px]">
                     <button @click="open = !open" @click.outside="open = false" type="button" class="w-full flex items-center justify-between gap-3 border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-2 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black">
                         <span x-text="val === '' ? 'Semua Jenis KP' : val === 'internal' ? 'Internal' : 'External'"></span>
                         <svg :class="open ? '-rotate-90' : 'rotate-0'" class="w-3.5 h-3.5 transition-transform duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,7 +123,7 @@
                     </div>
                 </div>
                 
-                <div x-data="{ open: false, val: '{{ request('periode', '') }}' }" class="relative min-w-[155px]">
+                <div x-data="{ open: false, val: '{{ request('periode', '') }}' }" class="relative w-full sm:w-auto sm:min-w-[155px]">
                     <button @click="open = !open" @click.outside="open = false" type="button" class="w-full flex items-center justify-between gap-3 border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-2 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black">
                         <span x-text="val === '' ? 'Semua Periode' : val === 'ganjil' ? 'Ganjil' : 'Genap'"></span>
                         <svg :class="open ? '-rotate-90' : 'rotate-0'" class="w-3.5 h-3.5 transition-transform duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,9 +139,9 @@
                     </div>
                 </div>
 
-                <a href="{{ url()->current() }}" class="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm">Clear</a>
+                <a href="{{ url()->current() }}" class="flex-1 sm:flex-none bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm text-center">Clear</a>
 
-                <a href="{{ route('mahasiswa.pendaftaran-kp.create') }}" class="bg-[#FBEC04] hover:bg-yellow-400 transition-colors text-black px-6 py-2 rounded-[5px] text-[13px] font-bold shadow-sm flex items-center justify-center gap-2 whitespace-nowrap ml-auto lg:ml-0">
+                <a href="{{ route('mahasiswa.pendaftaran-kp.create') }}" class="w-full lg:w-auto mt-2 lg:mt-0 bg-[#FBEC04] hover:bg-yellow-400 transition-colors text-black px-6 py-2 rounded-[5px] text-[13px] font-bold shadow-sm flex items-center justify-center gap-2 whitespace-nowrap ml-0 lg:ml-auto">
                     <svg class="w-4 h-4" fill="none" stroke="black" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                     Mendaftar KP
                 </a>
@@ -134,7 +152,7 @@
         <h3 class="text-black font-bold text-[15px] mb-4">Riwayat Pendaftaran</h3>
 
         <div class="overflow-x-auto bg-white rounded-[10px] shadow-sm border border-[#EBEBEB]">
-            <table class="w-full text-center border-collapse">
+            <table class="w-full min-w-[800px] text-center border-collapse">
                 <thead class="bg-[#EEEEEE] text-[13px] font-bold text-black uppercase tracking-wide">
                     <tr>
                         <th class="px-4 py-4 w-[5%] border-b border-[#EBEBEB]">No</th>
