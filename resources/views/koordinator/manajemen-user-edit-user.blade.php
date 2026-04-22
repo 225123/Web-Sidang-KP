@@ -42,7 +42,7 @@
                         <input type="text" name="name" value="{{ $user->name }}" required class="w-[300px] h-[34px] bg-white border border-gray-300 px-3 text-[14px] text-gray-900 outline-none rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all">
                     </div>
 
-                    @if($user->role === 'dosen')
+                    @if(in_array($user->role, ['dosen', 'koordinator_kp']))
                     <div class="flex items-center">
                         <div class="w-[150px] text-[14px] text-gray-600 font-medium">Status</div>
                         <div class="w-[20px] text-[14px] text-gray-600">:</div>

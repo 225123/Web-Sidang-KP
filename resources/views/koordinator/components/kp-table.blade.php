@@ -151,7 +151,7 @@
                         @if($mIdx === 0)
                         <td rowspan="{{ $rowspan }}" class="border-r border-[#CAC0C0] px-4 py-2 text-center align-middle">
                             <div class="inline-flex py-1 px-3 rounded-[5px] text-[12px] font-bold shadow-sm whitespace-nowrap {{ ($kp->pengerjaan_kp ?? '') == 'berkelompok' || ($kp->pengerjaan_kp ?? '') == 'kelompok' ? 'bg-[#FFF3E0] text-[#E65100]' : 'bg-[#E3F2FD] text-[#0D47A1]' }}">
-                                {{ ucfirst($kp->pengerjaan_kp ?? 'Individu') }}
+                                {{ ($kp->pengerjaan_kp ?? '') == 'individu' || ($kp->pengerjaan_kp ?? '') == 'sendiri' ? 'Individu' : ucfirst($kp->pengerjaan_kp ?? 'Individu') }}
                             </div>
                         </td>
                         <td rowspan="{{ $rowspan }}" class="border-r border-[#CAC0C0] px-4 py-2 text-center align-middle">{{ $kp->jenis_instansi }}</td>

@@ -47,6 +47,15 @@ class PendaftaranKpController extends Controller
             })
             ->values();
 
+        // Fetch all active Dosen
+        $allDosen = User::where('role', 'dosen')
+            ->whereHas('dosen', function($query) {
+                $query->where('is_aktif', 1);
+            })
+            ->get(['id', 'name'])
+            ->sortBy('name')
+            ->values();
+
         // Check if current user is invited into any active group
         $invitation = PendaftaranKp::where(function($query) {
                 $query->whereJsonContains('anggota_kelompok_ids', (string)auth()->id())
@@ -70,7 +79,7 @@ class PendaftaranKpController extends Controller
             $anggotaTerpilih = User::whereIn('id', $anggotaIds)->get();
         }
 
-        return view('mahasiswa.Pendaftaran-KP', compact('existingKp', 'allMahasiswa', 'invitation', 'anggotaTerpilih'));
+        return view('mahasiswa.Pendaftaran-KP', compact('existingKp', 'allMahasiswa', 'allDosen', 'invitation', 'anggotaTerpilih'));
     }
 
     public function dataKpSaya(Request $request)
@@ -138,8 +147,9 @@ class PendaftaranKpController extends Controller
             'dosen_pemberi_projek' => 'required_if:jenis_instansi,Internal|nullable|string',
             'nama_supervisor' => 'required|string|max:255',
             'deskripsi_kp' => 'required|string',
-            'pengerjaan_kp' => 'required|in:sendiri,kelompok',
+            'pengerjaan_kp' => 'required|in:individu,kelompok',
             'anggota_kelompok_ids' => 'nullable|string',
+            'supervisor_internal_id' => 'nullable|exists:users,id',
         ]);
 
         $existingKp = PendaftaranKp::where('mahasiswa_id', auth()->id())
@@ -184,7 +194,7 @@ class PendaftaranKpController extends Controller
                 'jenis_instansi' => $request->jenis_instansi,
                 'tipe_kp' => strtolower($request->jenis_instansi),
                 'instansi_nama' => $request->jenis_instansi === 'External' ? $request->instansi_nama : 'Universitas Kristen Krida Wacana',
-                'supervisor_internal_id' => null,
+                'supervisor_internal_id' => $request->supervisor_internal_id, // Allow ID regardless of type
                 'jenis_proyek' => $request->deskripsi_kp,
                 'status_kp' => $status_kp,
                 'pengerjaan_kp' => $request->pengerjaan_kp,

@@ -38,7 +38,7 @@
     </div>
 </div>
 
-<a href="{{ route('dosen.dummy', 'jadwal-sidang') }}" class="{{ $active == 'jadwal-sidang' ? $activeClass : $inactiveClass }}">
+<a href="{{ route('dosen.jadwal-menguji') }}" class="{{ $active == 'jadwal-menguji' ? $activeClass : $inactiveClass }}">
     <div class="flex items-center gap-3">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         <span x-show="sidebarOpen" x-transition>Jadwal Sidang</span>
@@ -54,7 +54,7 @@
         <svg :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
     </button>
     <div x-show="open" x-transition class="mt-0.5 mb-2 bg-[#BBB8B8] w-full overflow-hidden flex flex-col divide-y divide-[#9E9B9B]">
-        <a href="{{ route('dosen.dummy', 'input-nilai') }}" class="{{ $active == 'input-nilai' ? $subActiveClass : $subInactiveClass }}">
+        <a href="{{ route('dosen.input-nilai.index') }}" class="{{ $active == 'input-nilai' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
             <span x-show="sidebarOpen" x-transition>Input Nilai</span>
         </a>

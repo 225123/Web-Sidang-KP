@@ -79,6 +79,31 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verifie
     Route::get('/verifikasi', [VerifikasiBerkasController::class, 'index'])->name('verifikasi-berkas');
     Route::put('/verifikasi/{id}/status', [VerifikasiBerkasController::class, 'updateStatus'])->name('verifikasi-berkas.status');
 
+    // 6. Penjadwalan Sidang
+    Route::get('/penjadwalan', [\App\Http\Controllers\Koordinator\PenjadwalanSidangController::class, 'index'])->name('penjadwalan.index');
+    Route::post('/penjadwalan/store', [\App\Http\Controllers\Koordinator\PenjadwalanSidangController::class, 'store'])->name('penjadwalan.store');
+    Route::delete('/penjadwalan/{id}', [\App\Http\Controllers\Koordinator\PenjadwalanSidangController::class, 'destroySchedule'])->name('penjadwalan.destroy');
+    Route::post('/penjadwalan/bulk-destroy', [\App\Http\Controllers\Koordinator\PenjadwalanSidangController::class, 'bulkDestroy'])->name('penjadwalan.bulk-destroy');
+    Route::post('/penjadwalan/auto', [\App\Http\Controllers\Koordinator\PenjadwalanSidangController::class, 'autoSchedule'])->name('penjadwalan.auto');
+
+    // 7. Dosen Penguji
+    Route::get('/dosen-penguji', [\App\Http\Controllers\Koordinator\DosenPengujiController::class, 'index'])->name('dosen-penguji');
+    Route::post('/dosen-penguji/store', [\App\Http\Controllers\Koordinator\DosenPengujiController::class, 'store'])->name('dosen-penguji.store');
+    Route::post('/dosen-penguji/auto', [\App\Http\Controllers\Koordinator\DosenPengujiController::class, 'autoPlot'])->name('dosen-penguji.auto');
+    Route::post('/dosen-penguji/bulk-destroy', [\App\Http\Controllers\Koordinator\DosenPengujiController::class, 'bulkDestroy'])->name('dosen-penguji.bulk-destroy');
+    Route::delete('/dosen-penguji/{id}/cancel', [\App\Http\Controllers\Koordinator\DosenPengujiController::class, 'destroy'])->name('dosen-penguji.cancel');
+    Route::post('/dosen-penguji/submit', [\App\Http\Controllers\Koordinator\DosenPengujiController::class, 'submit'])->name('dosen-penguji.submit');
+    Route::post('/dosen-penguji/cancel-submit', [\App\Http\Controllers\Koordinator\DosenPengujiController::class, 'cancelSubmit'])->name('dosen-penguji.cancel-submit');
+    Route::get('/kalender-sidang', [\App\Http\Controllers\Koordinator\KalenderSidangController::class, 'index'])->name('kalender-sidang');
+    Route::get('/jadwal-menguji', [\App\Http\Controllers\Koordinator\JadwalMengujiController::class, 'index'])->name('jadwal-menguji');
+
+    // 8. Input Nilai Sidang (Koordinator)
+    Route::get('/input-nilai', [\App\Http\Controllers\Koordinator\InputNilaiController::class, 'index'])->name('input-nilai.index');
+    Route::get('/input-nilai/{id}/{role}', [\App\Http\Controllers\Koordinator\InputNilaiController::class, 'detail'])->name('input-nilai.detail');
+    Route::post('/input-nilai/{id}/{role}', [\App\Http\Controllers\Koordinator\InputNilaiController::class, 'store'])->name('input-nilai.store');
+    Route::get('/input-nilai/{id}/{role}/download', [\App\Http\Controllers\Koordinator\InputNilaiController::class, 'downloadPdf'])->name('input-nilai.download');
+    Route::post('/input-nilai/{id}/status', [\App\Http\Controllers\Koordinator\InputNilaiController::class, 'updateStatus'])->name('input-nilai.status');
+
     // 5. Catch-all for dummy routes on sidebar (Harus paling bawah di grup ini)
     Route::get('/{page}', function ($page) {
         $titles = [
@@ -135,6 +160,9 @@ Route::prefix('mahasiswa')->name('mahasiswa.')->middleware('auth')->group(functi
     Route::post('/pendaftaran-sidang', [PendaftaranSidangController::class, 'store'])->name('pendaftaran-sidang.store');
     Route::get('/pendaftaran-sidang/template-supervisor', [PendaftaranSidangController::class, 'downloadTemplateSupervisor'])->name('pendaftaran-sidang.template-supervisor');
 
+    // Jadwal Sidang Mahasiswa
+    Route::get('/jadwal-sidang', [\App\Http\Controllers\Mahasiswa\JadwalSidangController::class, 'index'])->name('jadwal-sidang');
+
     Route::get('/{page}', function ($page) {
         $titles = [
             'bimbingan-dosen' => 'Bimbingan Dosen',
@@ -170,6 +198,14 @@ Route::prefix('dosen')->name('dosen.')->middleware('auth')->group(function () {
     Route::get('/daftar-mahasiswa', [\App\Http\Controllers\Dosen\DaftarBimbinganController::class, 'index'])->name('daftar-mahasiswa');
     Route::get('/daftar-mahasiswa/{id}/detail-log-bimbingan', [\App\Http\Controllers\Dosen\DaftarBimbinganController::class, 'detail'])->name('daftar-mahasiswa.detail');
     Route::put('/daftar-mahasiswa/log/{id}/status', [\App\Http\Controllers\Dosen\DaftarBimbinganController::class, 'updateStatus'])->name('daftar-mahasiswa.updateStatus');
+
+    // Sidang Lifecycle (Dosen) - New Input Nilai Routes
+    Route::get('/jadwal-menguji', [\App\Http\Controllers\Dosen\JadwalMengujiController::class, 'index'])->name('jadwal-menguji');
+    Route::get('/input-nilai', [\App\Http\Controllers\Dosen\InputNilaiController::class, 'index'])->name('input-nilai.index');
+    Route::get('/input-nilai/{id}/{role}', [\App\Http\Controllers\Dosen\InputNilaiController::class, 'detail'])->name('input-nilai.detail');
+    Route::post('/input-nilai/{id}/{role}', [\App\Http\Controllers\Dosen\InputNilaiController::class, 'store'])->name('input-nilai.store');
+    Route::get('/input-nilai/{id}/{role}/download', [\App\Http\Controllers\Dosen\InputNilaiController::class, 'downloadPdf'])->name('input-nilai.download');
+    Route::post('/input-nilai/{id}/status', [\App\Http\Controllers\Dosen\InputNilaiController::class, 'updateStatus'])->name('input-nilai.status');
 
     // Halaman Persetujuan Sidang Dosen
     Route::get('/persetujuan-sidang', [DosenPersetujuanSidangController::class, 'index'])->name('persetujuan-sidang.index');

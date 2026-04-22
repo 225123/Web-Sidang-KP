@@ -11,6 +11,44 @@ use Illuminate\Support\Facades\DB;
 
 class PenugasanPembimbingController extends Controller
 {
+    private function getDosenWorkloadMap()
+    {
+        $allMahasiswas = User::with(['mahasiswa'])->where('role', 'mahasiswa')->get();
+
+        $clusters = [];
+        foreach ($allMahasiswas as $m) {
+            if (!$m->mahasiswa) continue;
+            
+            $latestKp = PendaftaranKp::where(function($q) use ($m) {
+                    $q->where('mahasiswa_id', $m->id)
+                      ->orWhereJsonContains('anggota_kelompok_ids', $m->id)
+                      ->orWhereJsonContains('anggota_kelompok_ids', (string)$m->id);
+                })->latest()->first();
+
+            $approvedKp = ($latestKp && $latestKp->status_kp === 'approved') ? $latestKp : null;
+            $clusterId = $approvedKp ? 'kp_'.$approvedKp->id : 'mhs_'.$m->id;
+
+            if (!isset($clusters[$clusterId])) {
+                $clusters[$clusterId] = [
+                    'dosen_id' => $latestKp ? $latestKp->pembimbing_id : null,
+                    'count' => 0
+                ];
+            }
+            $clusters[$clusterId]['count']++;
+        }
+
+        $dosenBebanMap = [];
+        foreach ($clusters as $cluster) {
+            $dId = $cluster['dosen_id'];
+            if (!empty($dId)) {
+                if (!isset($dosenBebanMap[$dId])) $dosenBebanMap[$dId] = 0;
+                $dosenBebanMap[$dId] += $cluster['count'];
+            }
+        }
+
+        return $dosenBebanMap;
+    }
+
     private function syncAllMahasiswa()
     {
         $mahasiswas = User::where('role', 'mahasiswa')->get();
@@ -26,7 +64,7 @@ class PenugasanPembimbingController extends Controller
                 PendaftaranKp::firstOrCreate(
                     ['mahasiswa_id' => $mhs->id],
                     [
-                        'pengerjaan_kp' => 'sendiri', 
+                        'pengerjaan_kp' => 'individu', 
                         'status_kp' => null,
                         'judul_kp' => '-',
                         'jenis_proyek' => '-',
@@ -41,28 +79,11 @@ class PenugasanPembimbingController extends Controller
 
     public function index(Request $request)
     {
-        // 1. Fetch Dosen Workload dynamically straight from `mahasiswa` table!
         $dosens = Dosen::with('user')->where('is_aktif', true)->get();
-        $dosenList = [];
-        
-        foreach ($dosens as $d) {
-            if (!$d->user) continue;
-            $beban = \App\Models\Mahasiswa::where('pembimbing_id', $d->user_id)->count();
+        // Beban akan dihitung setelah klaster mahasiswa terbentuk agar terhindar dari duplikasi PendaftaranKP (rejected vs approved)
 
-            $dosenList[] = [
-                'id' => $d->user_id,
-                'nama' => $d->user->name,
-                'beban' => $beban,
-                'kuota' => $d->kuota_bimbingan
-            ];
-        }
-
-        usort($dosenList, function($a, $b) {
-            return $a['beban'] <=> $b['beban'];
-        });
-
-        // 2. Fetch all User Mahasiswa to enforce precisely 1 row per student structure
-        $query = User::with(['mahasiswa.pembimbing', 'mahasiswa'])->where('role', 'mahasiswa');
+        // 1. Fetch all User Mahasiswa to enforce precisely 1 row per student structure
+        $query = User::with(['mahasiswa'])->where('role', 'mahasiswa');
 
         // Apply advanced filters targeting user or their assigned projects
         if ($request->has('search') && $request->search != '') {
@@ -71,23 +92,7 @@ class PenugasanPembimbingController extends Controller
                 $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%'])
                   ->orWhereHas('mahasiswa', function($mq) use ($search) {
                       $mq->whereRaw('LOWER(nim) LIKE ?', ['%' . $search . '%']);
-                  })
-                  ->orWhereHas('mahasiswa', function($mq) use ($search) {
-                      // Attempt to search DOSEN's name via relation
-                      $mq->whereHas('pembimbing', function($pq) use ($search) {
-                          $pq->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
-                      });
                   });
-            });
-        }
-
-        if ($request->has('dosen_pembimbing') && $request->dosen_pembimbing != 'All') {
-            $query->whereHas('mahasiswa', function($mq) use ($request) {
-                if ($request->dosen_pembimbing == 'Belum Ditugaskan') {
-                    $mq->whereNull('pembimbing_id');
-                } else {
-                    $mq->where('pembimbing_id', $request->dosen_pembimbing);
-                }
             });
         }
 
@@ -124,8 +129,8 @@ class PenugasanPembimbingController extends Controller
                 'user_id' => $m->id,
                 'nama' => $m->name,
                 'nim' => $m->mahasiswa->nim,
-                'judul_kp' => $approvedKp ? ($approvedKp->judul_kp ?? '-') : '-',
-                'dosen_id' => $m->mahasiswa->pembimbing_id,
+                'judul_kp' => $approvedKp ? ($approvedKp->judul_kp ?? '-') : ($latestKp ? ($latestKp->judul_kp ?? '-') : '-'),
+                'dosen_id' => $latestKp ? $latestKp->pembimbing_id : null,
             ];
         }
 
@@ -149,9 +154,35 @@ class PenugasanPembimbingController extends Controller
                 'instansi' => $maskedInstansi,
                 'supervisor' => $maskedSupervisor,
                 'pengerjaan' => $pengerjaanFormat,
-                'dosen_id' => $cluster['mahasiswas'][0]['dosen_id'] ?? '',
+                'dosen_id' => $cluster['mahasiswas'][0]['dosen_id'] ?? null,
             ];
         }
+
+        // --- NEW: Calculate Dosen Beban strictly from these Active Clusters ---
+        $dosenBebanMap = [];
+        foreach ($formattedPendaftarans as $group) {
+            $dId = $group['dosen_id'];
+            if (!empty($dId)) {
+                if (!isset($dosenBebanMap[$dId])) $dosenBebanMap[$dId] = 0;
+                $dosenBebanMap[$dId] += count($group['mahasiswas']);
+            }
+        }
+
+        $dosenList = [];
+        foreach ($dosens as $d) {
+            if (!$d->user) continue;
+            $dosenList[] = [
+                'id' => $d->user_id,
+                'nama' => $d->user->name,
+                'beban' => $dosenBebanMap[$d->user_id] ?? 0,
+                'kuota' => $d->kuota_bimbingan
+            ];
+        }
+
+        usort($dosenList, function($a, $b) {
+            return $a['beban'] <=> $b['beban'];
+        });
+        // ----------------------------------------------------------------------
 
         // Apply Status & Pengerjaan filters onto clusters!
         if ($request->has('status_filter') && $request->status_filter != 'All') {
@@ -174,6 +205,16 @@ class PenugasanPembimbingController extends Controller
             });
         }
 
+        if ($request->has('dosen_pembimbing') && $request->dosen_pembimbing != 'All') {
+            $formattedPendaftarans = array_filter($formattedPendaftarans, function($group) use ($request) {
+                $dosenId = $group['dosen_id'];
+                if ($request->dosen_pembimbing === 'Belum Ditugaskan') {
+                    return empty($dosenId);
+                }
+                return $dosenId == $request->dosen_pembimbing;
+            });
+        }
+
         // Pagination Collection conversion so 'paginator' exists for View
         $perPage = 15;
         $page = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
@@ -185,8 +226,14 @@ class PenugasanPembimbingController extends Controller
         );
         
         $totalAllMahasiswa = User::where('role', 'mahasiswa')->has('mahasiswa')->count();
-        $ditugaskanCount = \App\Models\Mahasiswa::whereNotNull('pembimbing_id')->count();
-        $menungguCount = $totalAllMahasiswa - $ditugaskanCount;
+        // Calculate ditugaskan by accumulating students directly from Formatted Active Clusters
+        $ditugaskanCount = 0;
+        foreach ($formattedPendaftarans as $group) {
+            if (!empty($group['dosen_id'])) {
+                $ditugaskanCount += count($group['mahasiswas']);
+            }
+        }
+        $menungguCount = max(0, $totalAllMahasiswa - $ditugaskanCount);
 
         return view('koordinator.Penugasan-Pembimbing', [
             'dosenList' => $dosenList,
@@ -211,21 +258,16 @@ class PenugasanPembimbingController extends Controller
             foreach ($assignments as $clusterId => $dosenUserId) {
                 if (str_starts_with($clusterId, 'kp_')) {
                     $kpId = str_replace('kp_', '', $clusterId);
-                    $kp = PendaftaranKp::find($kpId);
-                    if ($kp) {
-                        \App\Models\Mahasiswa::where('user_id', $kp->mahasiswa_id)->update(['pembimbing_id' => empty($dosenUserId) ? null : $dosenUserId]);
-                        if (!empty($kp->anggota_kelompok_ids)) {
-                            $anggotaIds = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
-                            if (is_array($anggotaIds)) {
-                                foreach ($anggotaIds as $uid) {
-                                    \App\Models\Mahasiswa::where('user_id', $uid)->update(['pembimbing_id' => empty($dosenUserId) ? null : $dosenUserId]);
-                                }
-                            }
-                        }
-                    }
+                    PendaftaranKp::where('id', $kpId)->update(['pembimbing_id' => empty($dosenUserId) ? null : $dosenUserId]);
                 } elseif (str_starts_with($clusterId, 'mhs_')) {
                     $mhsId = str_replace('mhs_', '', $clusterId);
-                    \App\Models\Mahasiswa::where('user_id', $mhsId)->update(['pembimbing_id' => empty($dosenUserId) ? null : $dosenUserId]);
+                    $kp = PendaftaranKp::where('mahasiswa_id', $mhsId)
+                        ->orWhereJsonContains('anggota_kelompok_ids', $mhsId)
+                        ->orWhereJsonContains('anggota_kelompok_ids', (string)$mhsId)
+                        ->latest()->first();
+                    if ($kp) {
+                        $kp->update(['pembimbing_id' => empty($dosenUserId) ? null : $dosenUserId]);
+                    }
                 }
             }
             DB::commit();
@@ -243,16 +285,18 @@ class PenugasanPembimbingController extends Controller
             $dosens = Dosen::with('user')->where('is_aktif', true)->get();
             $dosenStats = [];
             
+            $dosenBebanMap = $this->getDosenWorkloadMap();
+
             foreach ($dosens as $d) {
                 if (!$d->user) continue;
                 $dosenStats[] = [
                     'id' => $d->user_id,
                     'kuota' => $d->kuota_bimbingan,
-                    'beban' => 0
+                    'beban' => 0 // Akan kita reset dari 0 karena semua akan dihapus pembimbingnya di bawah
                 ];
             }
 
-            \App\Models\Mahasiswa::query()->update(['pembimbing_id' => null]);
+            PendaftaranKp::query()->update(['pembimbing_id' => null]);
             
             $allMahasiswas = User::with('mahasiswa')->where('role', 'mahasiswa')->get();
             $clusters = [];
@@ -307,8 +351,18 @@ class PenugasanPembimbingController extends Controller
 
                 foreach ($dosenStats as &$dData) {
                     if (($dData['beban'] + $size) <= $dData['kuota']) {
-                        foreach ($item['members'] as $uid) {
-                            \App\Models\Mahasiswa::where('user_id', $uid)->update(['pembimbing_id' => $dData['id']]);
+                        if (str_starts_with($item['id'], 'kp_')) {
+                            $kpId = str_replace('kp_', '', $item['id']);
+                            PendaftaranKp::where('id', $kpId)->update(['pembimbing_id' => $dData['id']]);
+                        } elseif (str_starts_with($item['id'], 'mhs_')) {
+                            $mhsId = str_replace('mhs_', '', $item['id']);
+                            $kp = PendaftaranKp::where('mahasiswa_id', $mhsId)
+                                ->orWhereJsonContains('anggota_kelompok_ids', $mhsId)
+                                ->orWhereJsonContains('anggota_kelompok_ids', (string)$mhsId)
+                                ->latest()->first();
+                            if ($kp) {
+                                $kp->update(['pembimbing_id' => $dData['id']]);
+                            }
                         }
                         $dData['beban'] += $size;
                         break;
@@ -350,9 +404,6 @@ class PenugasanPembimbingController extends Controller
         }
         
         $kp->user = $mhsUser; 
-        $kp->pembimbing = $mhsUser->mahasiswa->pembimbing ?? null;
-        $kp->pembimbing_id = $mhsUser->mahasiswa->pembimbing_id;
-
         $mahasiswasDetail = [];
         if ($kp->status_kp === 'approved' && $kp->pengerjaan_kp === 'kelompok' && !empty($kp->anggota_kelompok_ids)) {
             $anggotaIds = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
@@ -380,15 +431,16 @@ class PenugasanPembimbingController extends Controller
 
         $dosens = Dosen::with('user')->where('is_aktif', true)->get();
         $dosenList = [];
+        
+        $dosenBebanMap = $this->getDosenWorkloadMap();
+
         foreach ($dosens as $d) {
             if (!$d->user) continue;
-
-            $beban = \App\Models\Mahasiswa::where('pembimbing_id', $d->user_id)->count();
 
             $dosenList[] = [
                 'id' => $d->user_id,
                 'nama' => $d->user->name,
-                'beban' => $beban,
+                'beban' => $dosenBebanMap[$d->user_id] ?? 0,
                 'kuota' => $d->kuota_bimbingan
             ];
         }

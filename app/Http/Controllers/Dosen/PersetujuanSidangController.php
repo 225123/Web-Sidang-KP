@@ -16,11 +16,10 @@ class PersetujuanSidangController extends Controller
     {
         $dosenId = Auth::user()->id;
 
-        // 1. Ambil ID Mahasiswa yang dibimbing oleh dosen ini secara langsung
-        $mhsIds = \App\Models\Mahasiswa::where('pembimbing_id', $dosenId)->pluck('user_id');
-
-        // 2. Ambil data Persetujuan Sidang berdasarkan Mahasiswa tersebut
-        $pengajuans = PendaftaranSidang::whereIn('mahasiswa_id', $mhsIds)
+        // 1. Ambil data Persetujuan Sidang berdasarkan pendaftaran_kp yang dibimbing dosen ini
+        $pengajuans = PendaftaranSidang::whereHas('pendaftaranKp', function($q) use ($dosenId) {
+                $q->where('pembimbing_id', $dosenId);
+            })
             ->with(['mahasiswa.user', 'pendaftaranKp.logBimbingans'])
             ->get();
 
@@ -29,9 +28,10 @@ class PersetujuanSidangController extends Controller
         foreach ($pengajuans as $pengajuan) {
             $ownerId = $pengajuan->mahasiswa_id;
 
-            // Filter log bimbingan agar hanya menghitung yang diupload oleh pemilik pengajuan ini
+            // Filter log bimbingan agar hanya menghitung yang DISETUJUI oleh pemilik pengajuan ini
             $pengajuan->total_bimbingan_count = $pengajuan->pendaftaranKp ? $pengajuan->pendaftaranKp->logBimbingans
                 ->where('mahasiswa_id', $ownerId)
+                ->where('status_approval', 'approved')
                 ->count() : 0;
         }
 

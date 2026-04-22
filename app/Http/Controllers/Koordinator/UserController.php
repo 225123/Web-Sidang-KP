@@ -52,8 +52,23 @@ class UserController extends Controller
             }
         }
 
-        $users = $query->orderBy('users.created_at', 'desc')->paginate(10)->withQueryString();
+        $users = $query->orderBy('users.created_at', 'desc')->paginate(10);
 
+        if ($request->ajax()) {
+            return response()->json([
+                'users' => $users->items(),
+                'pagination' => [
+                    'current_page' => $users->currentPage(),
+                    'last_page' => $users->lastPage(),
+                    'per_page' => $users->perPage(),
+                    'total' => $users->total(),
+                    'from' => $users->firstItem(),
+                    'to' => $users->lastItem(),
+                ]
+            ]);
+        }
+
+        $users->withQueryString();
         return view('koordinator.manajemen-user', compact('users', 'tab'));
     }
 
@@ -86,7 +101,7 @@ class UserController extends Controller
                     'email' => $request->email,
                     'prodi' => 'Informatika'
                 ]);
-            } elseif ($request->role === 'dosen') {
+            } elseif (in_array($request->role, ['dosen', 'koordinator_kp'])) {
                 DB::table('dosen')->insert([
                     'user_id' => $user->id,
                     'nidn' => $request->id_user,
@@ -140,7 +155,7 @@ class UserController extends Controller
             'role' => $request->role
         ]);
 
-        if ($user->role === 'dosen') {
+        if (in_array($user->role, ['dosen', 'koordinator_kp'])) {
             DB::table('dosen')->where('user_id', $id)->update([
                 'is_aktif' => $request->status === 'Aktif'
             ]);
@@ -155,11 +170,21 @@ class UserController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $user = User::findOrFail($id);
-        if ($user->role === 'dosen') {
-            DB::table('dosen')->where('user_id', $id)->update([
+        $success = false;
+        
+        if (in_array($user->role, ['dosen', 'koordinator_kp'])) {
+            $success = (bool) DB::table('dosen')->where('user_id', $id)->update([
                 'is_aktif' => $request->status === 'Aktif'
             ]);
         }
+        
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => $success,
+                'message' => 'Status dosen ' . $user->name . ' berhasil diperbarui.'
+            ]);
+        }
+        
         return back()->with('success', 'Status dosen ' . $user->name . ' berhasil diperbarui.');
     }
 
@@ -291,7 +316,7 @@ class UserController extends Controller
                         'email' => $row['email'],
                         'prodi' => 'Informatika'
                     ]);
-                } elseif ($user->role === 'dosen') {
+                } elseif (in_array($user->role, ['dosen', 'koordinator_kp'])) {
                     DB::table('dosen')->insert([
                         'user_id' => $user->id,
                         'nidn' => $row['id'],

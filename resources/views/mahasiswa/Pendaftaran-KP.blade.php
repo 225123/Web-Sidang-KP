@@ -122,7 +122,7 @@
                             $isInvited = isset($invitation) && $invitation ? 'true' : 'false';
                             $initJenis = old('jenis_instansi', $invitation->jenis_instansi ?? '');
                             $initInstansi = old('instansi_nama', $invitation->instansi_nama ?? '');
-                            $initPengerjaan = old('pengerjaan_kp', $invitation ? 'kelompok' : 'sendiri');
+                            $initPengerjaan = old('pengerjaan_kp', $invitation ? 'kelompok' : 'individu');
                             $oldAnggota = old('anggota_kelompok_ids', '[]');
                         @endphp
                         <form action="{{ route('mahasiswa.pendaftaran-kp.store') }}" method="POST" x-data="{ 
@@ -136,6 +136,42 @@
                             openAnggota: false,
                             selectedAnggota: {{ $oldAnggota }},
                             allMahasiswa: {{ $allMahasiswa->map(function($m) { return ['id' => (string)$m->id, 'label' => ($m->mahasiswa->nim ?? 'NIM') . ' - ' . $m->name, 'is_unavailable' => $m->is_unavailable]; })->values()->toJson() }},
+                            
+                            allDosen: {{ $allDosen->map(function($d) { return ['id' => (string)$d->id, 'name' => $d->name]; })->values()->toJson() }},
+                            searchDosen: '',
+                            openDosen: false,
+                            selectedDosenId: '{{ old('supervisor_internal_id', '') }}',
+                            selectedDosenName: '{{ old('nama_supervisor', '') }}',
+                            
+                            selectedGiverId: '{{ old('dosen_pemberi_projek_id', '') }}',
+                            selectedGiverName: '{{ old('dosen_pemberi_projek', '') }}',
+                            searchGiver: '',
+                            openGiver: false,
+
+                             get filteredDosenFromInput() {
+                                if (this.searchDosen === '') return this.allDosen;
+                                return this.allDosen.filter(d => d.name.toLowerCase().includes(this.searchDosen.toLowerCase()));
+                            },
+
+                            selectDosen(dosen) {
+                                this.selectedDosenId = String(dosen.id);
+                                this.selectedDosenName = dosen.name;
+                                this.searchDosen = '';
+                                this.openDosen = false;
+                            },
+
+                            get filteredGiver() {
+                                if (this.searchGiver === '') return this.allDosen;
+                                return this.allDosen.filter(d => d.name.toLowerCase().includes(this.searchGiver.toLowerCase()));
+                            },
+
+                            selectGiver(dosen) {
+                                this.selectedGiverId = String(dosen.id);
+                                this.selectedGiverName = dosen.name;
+                                this.searchGiver = '';
+                                this.openGiver = false;
+                            },
+
                             get filteredMahasiswa() {
                                 if(this.searchAnggota === '') return this.allMahasiswa.filter(m => !this.selectedAnggota.includes(m.id));
                                 return this.allMahasiswa.filter(m => !this.selectedAnggota.includes(m.id) && m.label.toLowerCase().includes(this.searchAnggota.toLowerCase()));
@@ -220,13 +256,51 @@
                                 @error('instansi_nama') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
 
-                            <div class="mb-6" x-show="jenisKp === 'Internal'" x-transition style="display: none;">
+                            <!-- Dosen Pemberi Projek: Only visible for Internal -->
+                            <div class="mb-6 relative" x-show="jenisKp === 'Internal'" x-transition style="display: none;">
                                 <label for="dosen_pemberi_projek" class="block text-[14px] font-bold text-black mb-2">Dosen
                                     Pemberi Projek <span class="text-red-600">*</span></label>
-                                <input type="text" name="dosen_pemberi_projek" id="dosen_pemberi_projek"
-                                    placeholder="Masukan nama Dosen" value="{{ old('dosen_pemberi_projek') }}"
-                                    :required="jenisKp === 'Internal'"
-                                    class="w-full border border-[#CAC0C0] rounded bg-white px-4 py-3 text-[14px] focus:outline-none focus:ring-1 focus:ring-blue-500">
+
+                                <!-- Internal Mode: Searchable Dosen Dropdown -->
+                                <template x-if="jenisKp === 'Internal'">
+                                    <div class="relative" @click.outside="openGiver = false">
+                                        <button type="button" @click="openGiver = !openGiver; if(openGiver) searchGiver = ''"
+                                            class="w-full flex items-center justify-between border border-[#CAC0C0] rounded bg-white px-4 py-3 text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                                            <span x-text="selectedGiverName !== '' ? selectedGiverName : '--- Pilih Dosen Pemberi Projek ---'" 
+                                                class="flex-1 text-left truncate"
+                                                :class="selectedGiverName !== '' ? 'text-black' : 'text-gray-400'"></span>
+                                            <svg :class="openGiver ? 'rotate-90' : 'rotate-180'"
+                                                class="w-5 h-5 text-gray-500 transition-transform duration-200 flex-shrink-0 ml-2 min-w-[20px]"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </button>
+
+                                        <div x-show="openGiver" x-transition style="display: none;"
+                                            class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded shadow-lg overflow-hidden">
+                                            <div class="p-2 border-b border-gray-100 bg-gray-50">
+                                                <input type="text" x-model="searchGiver" placeholder="Cari dosen..." 
+                                                    class="w-full px-3 py-1.5 text-[13px] border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                            </div>
+                                            <ul class="py-1 text-[14px] max-h-48 overflow-y-auto">
+                                                <template x-for="dosen in filteredGiver" :key="dosen.id">
+                                                    <li>
+                                                        <button type="button" @click="selectGiver(dosen)"
+                                                            class="block w-full text-left px-4 py-2 hover:bg-yellow-200 transition-colors"
+                                                            :class="selectedGiverId == dosen.id ? 'bg-yellow-100 font-bold' : ''">
+                                                            <span x-text="dosen.name"></span>
+                                                        </button>
+                                                    </li>
+                                                </template>
+                                                <template x-if="filteredGiver.length === 0">
+                                                    <li class="px-4 py-2 text-gray-500 text-center">Dosen tidak ditemukan...</li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                        <input type="hidden" name="dosen_pemberi_projek" :value="selectedGiverName" :required="jenisKp === 'Internal'">
+                                    </div>
+                                </template>
+
                                 @error('dosen_pemberi_projek') <span class="text-red-500 text-xs">{{ $message }}</span>
                                 @enderror
                             </div>
@@ -238,7 +312,7 @@
                                     :class="isInvited ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-white'"
                                     class="w-full flex items-center justify-between border border-[#CAC0C0] rounded px-4 py-3 text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
 
-                                    <span x-text="pengerjaanKp !== '' ? (pengerjaanKp === 'sendiri' ? 'Sendiri' : 'Kelompok') : 'Pilih Pengerjaan KP'" class="flex-1 text-left truncate"
+                                    <span x-text="pengerjaanKp !== '' ? (pengerjaanKp === 'individu' ? 'Individu' : 'Kelompok') : 'Pilih Pengerjaan KP'" class="flex-1 text-left truncate"
                                         :class="pengerjaanKp !== '' ? (isInvited ? 'text-gray-500' : 'text-black') : 'text-gray-400'"></span>
 
                                     <svg :class="openPengerjaan ? 'rotate-90' : 'rotate-180'"
@@ -253,10 +327,10 @@
                                     class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded shadow-lg overflow-hidden">
                                     <ul class="py-1 text-[14px]">
                                         <li>
-                                            <button type="button" @click="pengerjaanKp = 'sendiri'; openPengerjaan = false"
+                                            <button type="button" @click="pengerjaanKp = 'individu'; openPengerjaan = false"
                                                 class="block w-full text-left px-4 py-2 hover:bg-yellow-200 transition-colors"
-                                                :class="pengerjaanKp === 'sendiri' ? 'bg-yellow-300 font-bold' : ''">
-                                                Sendiri
+                                                :class="pengerjaanKp === 'individu' ? 'bg-yellow-300 font-bold' : ''">
+                                                Individu
                                             </button>
                                         </li>
                                         <li>
@@ -325,13 +399,50 @@
                                 <input type="hidden" name="anggota_kelompok_ids" :value="JSON.stringify(selectedAnggota)">
                             </div>
 
-                            <div class="mb-6">
+                            <div class="mb-6 relative">
                                 <label for="nama_supervisor" class="block text-[14px] font-bold text-black mb-2">Supervisior
                                     <span class="text-red-600">*</span></label>
-                                <input type="text" name="nama_supervisor" id="nama_supervisor" required
-                                    placeholder="Masukan nama supervisior" value="{{ old('nama_supervisor') }}"
-                                    class="w-full border border-[#CAC0C0] rounded bg-white px-4 py-3 text-[14px] focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                
+                                <!-- Searchable Dosen Dropdown (Now for both Internal and External) -->
+                                <div class="relative" @click.outside="openDosen = false">
+                                    <div class="relative">
+                                        <input type="text" name="nama_supervisor" id="nama_supervisor" required
+                                            placeholder="Cari Dosen atau ketik nama supervisior..."
+                                            x-model="selectedDosenName"
+                                            @focus="openDosen = true; searchDosen = ''"
+                                            @input="openDosen = true; selectedDosenId = ''; searchDosen = $event.target.value"
+                                            class="w-full border border-[#CAC0C0] rounded bg-white px-4 py-3 text-[14px] focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                        
+                                        <button type="button" @click="openDosen = !openDosen"
+                                            class="absolute right-3 top-1/2 -translate-y-1/2">
+                                            <svg :class="openDosen ? 'rotate-90' : 'rotate-180'"
+                                                class="w-5 h-5 text-gray-400 transition-transform duration-200"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <div x-show="openDosen && filteredDosenFromInput.length > 0" x-transition style="display: none;"
+                                        class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded shadow-lg overflow-hidden">
+                                        <ul class="py-1 text-[14px] max-h-48 overflow-y-auto">
+                                            <template x-for="dosen in filteredDosenFromInput" :key="dosen.id + '-supervisor'">
+                                                <li>
+                                                    <button type="button" @click="selectDosen(dosen)"
+                                                        class="block w-full text-left px-4 py-2 hover:bg-yellow-200 transition-colors"
+                                                        :class="selectedDosenId == dosen.id ? 'bg-yellow-100 font-bold' : ''">
+                                                        <span x-text="dosen.name"></span>
+                                                    </button>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                    <input type="hidden" name="supervisor_internal_id" :value="selectedDosenId">
+                                </div>
+                                <p class="mt-1 text-[11px] text-gray-500 italic">Ketik nama lengkap jika supervisior bukan dosen (External).</p>
+                                
                                 @error('nama_supervisor') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                @error('supervisor_internal_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="mb-8">

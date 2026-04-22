@@ -16,9 +16,13 @@ class PersetujuanSidangController extends Controller
     {
         $mahasiswaId = Auth::user()->id;
 
-        // Ambil data Pendaftaran KP yang sudah APPROVED milik mahasiswa ini
+        // Ambil data Pendaftaran KP yang sudah APPROVED milik mahasiswa ini (termasuk kelompook)
         $pendaftaran = PendaftaranKp::with(['mahasiswa.user', 'pembimbing'])
-            ->where('mahasiswa_id', $mahasiswaId)
+            ->where(function($q) use ($mahasiswaId) {
+                $q->where('mahasiswa_id', $mahasiswaId)
+                  ->orWhereJsonContains('anggota_kelompok_ids', $mahasiswaId)
+                  ->orWhereJsonContains('anggota_kelompok_ids', (string)$mahasiswaId);
+            })
             ->where('status_kp', 'approved') // Pastikan hanya KP yang disetujui
             ->latest()
             ->first();
@@ -47,8 +51,12 @@ class PersetujuanSidangController extends Controller
 
         $mahasiswaId = Auth::user()->id;
 
-        // Cari ID KP yang aktif (ID 28 atau 26 seperti di hasil debug Anda)
-        $pendaftaran = PendaftaranKp::where('mahasiswa_id', $mahasiswaId)
+        // Cari ID KP yang aktif untuk mahasiswa (termasuk kelompok)
+        $pendaftaran = PendaftaranKp::where(function($q) use ($mahasiswaId) {
+                $q->where('mahasiswa_id', $mahasiswaId)
+                  ->orWhereJsonContains('anggota_kelompok_ids', $mahasiswaId)
+                  ->orWhereJsonContains('anggota_kelompok_ids', (string)$mahasiswaId);
+            })
             ->where('status_kp', 'approved')
             ->latest()
             ->first();
@@ -69,7 +77,6 @@ class PersetujuanSidangController extends Controller
                 'file_laporan' => $filePath,
                 'link_github' => $request->link_drive,
                 'status_verifikasi' => 'pending', // Sesuai constraint DB ('pending', 'verified', 'rejected')
-                'tahun_ajaran_id' => $pendaftaran->tahun_ajaran_id
             ]
         );
 
@@ -79,7 +86,7 @@ class PersetujuanSidangController extends Controller
     // 3. Menampilkan / Download PDF Surat Persetujuan
     public function cetakPersetujuan(Request $request, $id)
     {
-        $persetujuan = PendaftaranSidang::with(['mahasiswa.user', 'mahasiswa.pembimbing.dosen'])->findOrFail($id);
+        $persetujuan = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp.pembimbing.dosen'])->findOrFail($id);
 
         $pdf = Pdf::loadView('pdf.surat-persetujuan-sidang', compact('persetujuan'));
 

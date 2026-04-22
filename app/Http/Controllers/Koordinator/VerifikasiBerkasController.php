@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Koordinator;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PendaftaranSidang;
+use App\Models\RiwayatPenolakanSidang;
 
 class VerifikasiBerkasController extends Controller
 {
@@ -20,8 +21,8 @@ class VerifikasiBerkasController extends Controller
         // 1. Yang ada di tabel utama (Pending, Verified)
         $pengajuans = $semuaPengajuan->whereIn('status_koordinator', ['pending', 'verified'])->values();
         
-        // 2. Yang ada di tabel bawah (Ditolak)
-        $ditolaks = $semuaPengajuan->where('status_koordinator', 'rejected')->values();
+        // 2. Yang ada di tabel bawah (Ditolak) -> Sekarang dari tabel Riwayat independen
+        $ditolaks = RiwayatPenolakanSidang::with(['pendaftaranSidang.mahasiswa.user', 'pendaftaranSidang.pendaftaranKp', 'mahasiswa.user'])->latest()->get();
 
         // 3. Yang belum submit sama sekali (Tapi sudah ACC dosen)
         $belumKumpuls = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp'])
@@ -53,6 +54,15 @@ class VerifikasiBerkasController extends Controller
             'status_koordinator' => $request->status_koordinator,
             'koordinator_feedback' => $request->feedback ?? null
         ]);
+
+        if ($request->status_koordinator === 'rejected') {
+            RiwayatPenolakanSidang::create([
+                'pendaftaran_sidang_id' => $pengajuan->id,
+                'mahasiswa_id' => $pengajuan->mahasiswa_id,
+                'feedback' => $request->feedback,
+                'ditolak_oleh' => 'koordinator'
+            ]);
+        }
 
         if ($request->ajax()) {
             // Re-calculate stats for real-time update

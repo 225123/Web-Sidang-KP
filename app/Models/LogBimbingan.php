@@ -24,7 +24,6 @@ class LogBimbingan extends Model
         'status_approval',
         'komentar_dosen',
         'is_supervisor',
-        'tahun_ajaran_id',
     ];
 
     protected $casts = [

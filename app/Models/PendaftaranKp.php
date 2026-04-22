@@ -58,6 +58,11 @@ class PendaftaranKp extends Model
         return $this->belongsTo(User::class, 'pembimbing_id');
     }
 
+    public function supervisorInternal()
+    {
+        return $this->belongsTo(User::class, 'supervisor_internal_id');
+    }
+
     public function logBimbingans()
     {
         return $this->hasMany(LogBimbingan::class, 'pendaftaran_kp_id');

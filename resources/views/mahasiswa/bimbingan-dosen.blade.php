@@ -1,299 +1,233 @@
 <x-dashboard-layout header="Bimbingan Dosen" userName="{{ auth()->user()->name }}" roleName="MAHASISWA">
     <x-slot:sidebar>
         @include('mahasiswa.components.sidebar', ['active' => 'bimbingan-dosen'])
-        </x-slot>
+    </x-slot>
 
-        <x-slot:headerActions>
-            <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
-                <button @click="open = !open" @click.outside="open = false" type="button"
-                    class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-2 px-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer text-black">
-                    <span x-text="selected"></span>
-                    <svg :class="open ? 'rotate-90' : 'rotate-180'"
-                        class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </button>
-                <div x-show="open" x-transition style="display: none;"
-                    class="absolute z-50 w-full bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
-                    <ul class="py-1 text-[13px] font-medium text-black">
-                        <li><button @click="selected = 'Genap 2025/2026'; open = false" type="button"
-                                class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">Genap
-                                2025/2026</button></li>
-                        <li><button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
-                                class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">Ganjil
-                                2025/2026</button></li>
-                    </ul>
-                </div>
-                <input type="hidden" name="periode" :value="selected">
+    <style>
+        [x-cloak] { display: none !important; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #999; }
+    </style>
+
+    <x-slot:headerActions>
+        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
+            <button @click="open = !open" @click.outside="open = false" type="button"
+                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-2 px-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer text-black">
+                <span x-text="selected"></span>
+                <svg :class="open ? 'rotate-90' : 'rotate-180'" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
+            <div x-show="open" x-transition x-cloak class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-[5px] shadow-lg overflow-hidden">
+                <ul class="py-1 text-[13px] font-medium text-black">
+                    <li><button @click="selected = 'Genap 2025/2026'; open = false" type="button" class="block w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors">Genap 2025/2026</button></li>
+                    <li><button @click="selected = 'Ganjil 2025/2026'; open = false" type="button" class="block w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors">Ganjil 2025/2026</button></li>
+                </ul>
             </div>
-        </x-slot:headerActions>
+            <input type="hidden" name="periode" :value="selected">
+        </div>
+    </x-slot:headerActions>
 
-        <div x-data="bimbinganState()" class="mt-6">
-            <div class="flex justify-end items-center gap-3 mb-6 relative">
+    <div x-data="bimbinganState()" class="mt-6">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
+            <div class="flex-1 bg-[#EAEFFF] border border-[#BACDFB] rounded-[10px] p-4 flex items-center gap-4 shadow-sm w-full lg:w-auto">
+                <div class="bg-[#7896F8] w-6 h-6 rounded-full flex items-center justify-center text-white shrink-0 shadow-sm font-serif italic text-sm">i</div>
+                <p class="text-[13px] text-black font-medium leading-relaxed">
+                    Pastikan Anda mencatat setiap kegiatan bimbingan dengan Dosen Pembimbing Anda. Minimal bimbingan yang diterima adalah 12 kali.
+                </p>
+            </div>
+            
+            <div class="flex items-center gap-3 shrink-0 w-full lg:w-auto overflow-x-auto pb-2 lg:pb-0">
                 <a href="{{ route('mahasiswa.bimbingan-dosen.export-pdf') }}" target="_blank"
-                    class="bg-[#EA3323] hover:bg-red-600 text-white font-medium text-[13px] px-4 py-2 rounded-[20px] shadow flex items-center gap-2 transition-colors">
+                    class="bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[11px] px-6 py-2.5 rounded-full shadow-md flex items-center gap-2 transition-all uppercase tracking-wide whitespace-nowrap">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                        </path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                     Export PDF
                 </a>
-                <div x-data="{ filterOpen: false }" class="relative">
-                    <button @click="filterOpen = !filterOpen" @click.outside="filterOpen = false"
-                        class="bg-transparent hover:bg-gray-100 text-[#666666] font-medium text-[13px] px-3 py-2 rounded shadow-sm border border-[#D9D9D9] flex items-center gap-2 transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
-                            </path>
-                        </svg>
-                        Filter
-                    </button>
-                    <div x-show="filterOpen" style="display:none;"
-                        class="absolute right-0 mt-1 w-32 bg-white border border-[#D9D9D9] rounded shadow-lg z-10">
-                        <ul class="py-1 text-[13px] text-gray-700">
-                            <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Nama</a></li>
-                            <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Tanggal</a></li>
-                        </ul>
-                    </div>
-                </div>
                 <button @click="isModalOpen = true"
-                    class="bg-[#FFFF1A] hover:bg-yellow-400 text-black font-medium text-[13px] px-4 py-2 rounded shadow flex items-center gap-2 transition-colors">
+                    class="bg-[#FFFF1A] hover:bg-yellow-400 text-black font-bold text-[11px] px-6 py-2.5 rounded-full shadow-md flex items-center gap-2 transition-all uppercase tracking-wide whitespace-nowrap">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path>
                     </svg>
                     Tambah Bimbingan
                 </button>
             </div>
+        </div>
 
-            <div class="bg-[#ECECEC] rounded-[15px] p-5 shadow-sm border border-[#D9D9D9]">
-                <h3 class="font-bold text-black text-[15px] mb-4">Riwayat Bimbingan :</h3>
+        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-12">
+            <h3 class="font-bold text-black text-[15px] mb-6 uppercase tracking-tight">Riwayat Bimbingan :</h3>
 
-                @if(session('success'))
-                    <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
-                        role="alert">
-                        <span class="block sm:inline">{{ session('success') }}</span>
-                    </div>
-                @endif
-                @if($errors->any())
-                    <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                        <ul class="list-disc list-inside">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+            @if(session('success'))
+                <div class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-[10px] flex items-center gap-3 shadow-sm animate-pulse">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="text-sm font-bold">{{ session('success') }}</span>
+                </div>
+            @endif
 
-                <div class="overflow-x-auto custom-scrollbar">
-                    <table class="w-full text-left border-collapse min-w-[900px]">
-                        <thead>
-                            <tr class="border-b border-[#D9D9D9] text-[13px] text-black text-center">
-                                <th class="py-3 px-2 font-semibold">Tanggal</th>
-                                <th class="py-3 px-2 font-semibold">Waktu dan Tempat</th>
-                                <th class="py-3 px-2 font-semibold w-[40%]">Logbook Pembahasan</th>
-                                <th class="py-3 px-2 font-semibold">Bukti - gambar</th>
-                                <th class="py-3 px-2 font-semibold">Status</th>
+            <div class="overflow-x-auto custom-scrollbar border border-gray-100 rounded-[10px]">
+                <table class="w-full text-left border-collapse min-w-[900px]">
+                    <thead>
+                        <tr class="bg-[#EBEBEB] text-black text-[13px] border-b border-gray-300">
+                            <th class="py-4 px-4 font-bold text-center w-[120px]">Tanggal</th>
+                            <th class="py-4 px-4 font-bold text-center w-[180px]">Waktu & Tempat</th>
+                            <th class="py-4 px-4 font-bold text-left">Detail Pembahasan</th>
+                            <th class="py-4 px-4 font-bold text-center w-[120px]">Bukti</th>
+                            <th class="py-4 px-4 font-bold text-center w-[180px]">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-[13px] text-black divide-y divide-gray-100">
+                        @forelse($logs ?? [] as $log)
+                            @php $materi = json_decode($log->materi_bahasan, true); @endphp
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="py-4 px-4 text-center font-bold">
+                                    {{ \Carbon\Carbon::parse($log->tanggal)->format('d/m/Y') }}
+                                </td>
+                                <td class="py-4 px-4 text-center">
+                                    <div class="text-blue-700 font-bold tracking-tight">{{ $materi['waktuMulai'] ?? '00:00' }} - {{ $materi['waktuSelesai'] ?? '00:00' }}</div>
+                                    <div class="text-[11px] text-black/50 italic">{{ $materi['tempat'] ?? '-' }}</div>
+                                </td>
+                                <td class="py-4 px-4 text-left">
+                                    <div class="font-bold text-black mb-1 uppercase text-[12px] tracking-tight">{{ $materi['topik'] ?? '-' }}</div>
+                                    <div class="text-black/70 leading-relaxed text-[12px]">{{ Str::limit($materi['detail'] ?? '-', 120) }}</div>
+                                </td>
+                                <td class="py-4 px-4 text-center">
+                                    @if($log->file_progress)
+                                        <div class="w-14 h-10 mx-auto rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:ring-2 hover:ring-blue-400 transition-all cursor-pointer bg-gray-50"
+                                            @click="previewImage = '{{ asset('storage/' . $log->file_progress) }}'">
+                                            <img src="{{ asset('storage/' . $log->file_progress) }}" class="w-full h-full object-cover">
+                                        </div>
+                                    @else
+                                        <div class="w-12 h-8 mx-auto border border-dashed border-gray-300 rounded flex items-center justify-center text-[9px] text-black/30 font-bold uppercase text-center leading-tight">No<br>Img</div>
+                                    @endif
+                                </td>
+                                <td class="py-4 px-4 text-center">
+                                    @if($log->status_approval == 'pending')
+                                        <div class="inline-flex items-center gap-1.5 bg-[#FDE68A] text-[#92400E] px-4 py-1.5 rounded-full font-bold text-[10px] uppercase shadow-sm whitespace-nowrap">
+                                            <div class="w-1.5 h-1.5 rounded-full bg-[#D4A017] animate-pulse"></div>
+                                            Menunggu pengecekan
+                                        </div>
+                                    @elseif($log->status_approval == 'approved')
+                                        <div class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-4 py-1.5 rounded-full font-bold text-[10px] uppercase shadow-sm">
+                                            <div class="w-1.5 h-1.5 rounded-full bg-green-600"></div> Diterima
+                                        </div>
+                                    @elseif($log->status_approval == 'rejected')
+                                        <div class="inline-flex items-center gap-1.5 bg-red-100 text-red-700 px-4 py-1.5 rounded-full font-bold text-[10px] uppercase shadow-sm">
+                                            <div class="w-1.5 h-1.5 rounded-full bg-red-600"></div> Ditolak
+                                        </div>
+                                    @endif
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody class="text-[12px] text-black">
-                            @forelse($logs ?? [] as $log)
-                                @php $materi = json_decode($log->materi_bahasan, true); @endphp
-                                <tr class="border-b border-[#D9D9D9] hover:bg-[#E2E2E2] transition-colors">
-                                    <td class="py-3 px-2 text-center">
-                                        {{ \Carbon\Carbon::parse($log->tanggal)->format('d/m/Y') }}</td>
-                                    <td class="py-3 px-2 text-center">
-                                        {{ $materi['waktuMulai'] ?? '00:00' }}-{{ $materi['waktuSelesai'] ?? '00:00' }}
-                                        ({{ $materi['tempat'] ?? '-' }})
-                                    </td>
-                                    <td class="py-3 px-2">
-                                        <strong>{{ $materi['topik'] ?? '-' }}</strong><br>
-                                        {{ Str::limit($materi['detail'] ?? '-', 100) }}
-                                    </td>
-                                    <td class="py-3 px-2 text-center flex justify-center">
-                                        @if($log->file_progress)
-                                            <div class="w-8 h-8 rounded bg-gray-200 overflow-hidden cursor-pointer shadow-sm hover:opacity-80 transition-opacity"
-                                                @click="previewImage = '{{ asset('storage/' . $log->file_progress) }}'">
-                                                <img src="{{ asset('storage/' . $log->file_progress) }}"
-                                                    class="w-full h-full object-cover">
-                                            </div>
-                                        @else
-                                            <div
-                                                class="w-8 h-8 rounded bg-[#8B9BED] shadow-sm flex items-center justify-center text-white text-[10px]">
-                                                No<br>Img</div>
-                                        @endif
-                                    </td>
-                                    <td class="py-3 px-2 text-center">
-                                        @if($log->status_approval == 'pending')
-                                            <div
-                                                class="inline-flex items-center gap-2 bg-[#FBD76F] px-3 py-1 rounded-full w-full max-w-[140px] justify-center shadow-sm">
-                                                <div class="w-2.5 h-2.5 rounded-full bg-[#D4A017]"></div>
-                                                <span
-                                                    class="font-medium text-[#7E651D] text-[11px] leading-tight flex-1">Menunggu<br>pengecekan</span>
-                                            </div>
-                                        @elseif($log->status_approval == 'approved')
-                                            <div
-                                                class="inline-flex items-center gap-2 bg-[#9BF48F] px-4 py-1.5 rounded-full w-full max-w-[140px] justify-center shadow-sm">
-                                                <div class="w-2.5 h-2.5 rounded-full bg-[#46A43B]"></div>
-                                                <span class="font-medium text-[#2E6B27]">Diterima</span>
-                                            </div>
-                                        @elseif($log->status_approval == 'rejected')
-                                            <div
-                                                class="inline-flex items-center gap-2 bg-[#F17E7E] px-4 py-1.5 rounded-full w-full max-w-[140px] justify-center shadow-sm">
-                                                <div class="w-2.5 h-2.5 rounded-full bg-[#C12E2E]"></div>
-                                                <span class="font-medium text-[#7D1E1E]">Ditolak</span>
-                                            </div>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="py-6 text-center text-gray-500">Belum ada riwayat bimbingan.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="mt-6 flex flex-col items-end text-[12px] text-gray-600 gap-2">
-                    <span>Total Bimbingan : {{ count($logs ?? []) }}</span>
-                </div>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="py-16 text-center text-gray-400 italic bg-gray-50 uppercase tracking-widest font-medium">Belum ada riwayat bimbingan</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
 
-            <div x-show="previewImage" style="display:none;"
-                class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-70 transition-opacity backdrop-blur-sm p-4">
-                <div @click.away="previewImage = null" class="relative max-w-4xl max-h-screen">
-                    <button @click="previewImage = null"
-                        class="absolute -top-4 -right-4 bg-white text-black rounded-full w-8 h-8 flex items-center justify-center font-bold shadow-lg hover:bg-gray-200">X</button>
-                    <img :src="previewImage" class="max-w-full max-h-[90vh] object-contain rounded-md shadow-2xl">
-                </div>
-            </div>
 
-            <div x-show="isModalOpen" style="display:none;"
-                class="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto w-full h-full bg-black/40 p-4">
-                <div @click.away="isModalOpen = false"
-                    class="bg-white w-full max-w-2xl rounded-2xl shadow-xl relative my-8 overflow-hidden">
+        </div>
 
-                    <div class="p-8">
-                        <h2 class="text-xl font-bold text-black mb-6">Tambah Bimbingan Dosen</h2>
-
-                        <form action="{{ route('mahasiswa.bimbingan-dosen.store') }}" method="POST"
-                            enctype="multipart/form-data">
-                            @csrf
-
-                            <div class="space-y-4 text-sm font-medium text-black">
-                                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
-                                    <label class="w-full sm:w-[160px]">Hari / Tanggal</label>
-                                    <span class="hidden sm:inline mr-4">:</span>
-                                    <input type="date" name="tanggal" required
-                                        class="flex-1 bg-[#E8E8E8] border-none text-black text-sm rounded py-2 px-3 focus:outline-none focus:ring-1 focus:ring-gray-400">
-                                </div>
-
-                                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
-                                    <label class="w-full sm:w-[160px]">Waktu</label>
-                                    <span class="hidden sm:inline mr-4">:</span>
-                                    <div class="flex-1 flex gap-2 items-center">
-                                        <input type="time" name="waktuMulai" required
-                                            class="w-1/2 bg-[#E8E8E8] border-none text-black text-sm rounded py-2 px-3 focus:outline-none focus:ring-1 focus:ring-gray-400">
-                                        <span class="flex items-center text-black font-bold">-</span>
-                                        <input type="time" name="waktuSelesai" required
-                                            class="w-1/2 bg-[#E8E8E8] border-none text-black text-sm rounded py-2 px-3 focus:outline-none focus:ring-1 focus:ring-gray-400">
-                                    </div>
-                                </div>
-
-                                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
-                                    <label class="w-full sm:w-[160px]">Tempat</label>
-                                    <span class="hidden sm:inline mr-4">:</span>
-                                    <input type="text" name="tempat" placeholder="Contoh E302" required
-                                        class="flex-1 bg-[#E8E8E8] border-none text-black text-sm rounded py-2 px-3 focus:outline-none focus:ring-1 focus:ring-gray-400">
-                                </div>
-
-                                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
-                                    <label class="w-full sm:w-[160px]">Topik Pembahasan</label>
-                                    <span class="hidden sm:inline mr-4">:</span>
-                                    <input type="text" name="topik" placeholder="Masukan Judul Topik" required
-                                        class="flex-1 bg-[#E8E8E8] border-none text-black text-sm rounded py-2 px-3 focus:outline-none focus:ring-1 focus:ring-gray-400">
-                                </div>
-
-                                <div class="flex flex-col sm:flex-row items-start gap-2 sm:gap-0">
-                                    <label class="w-full sm:w-[160px] pt-2">Detail Pembahasan</label>
-                                    <span class="hidden sm:inline mr-4 pt-2">:</span>
-                                    <div class="flex-1 w-full relative">
-                                        <textarea name="detail" required rows="6"
-                                            class="w-full bg-[#E8E8E8] border-none text-black text-sm rounded py-3 px-3 resize-none focus:outline-none focus:ring-1 focus:ring-gray-400"
-                                            placeholder="Masukan isi pembahasan..."></textarea>
-                                        <span class="absolute bottom-2 right-3 text-xs text-gray-500">500 kata</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mt-8 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6">
-                                <div class="flex items-center gap-4 relative w-full sm:max-w-[250px]">
-                                    <button type="button"
-                                        class="bg-white border border-gray-300 hover:bg-gray-50 text-black text-sm font-semibold py-1.5 px-4 rounded shadow-sm flex items-center gap-2 transition-colors"
-                                        onclick="document.getElementById('fileUpload').click()">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12">
-                                            </path>
-                                        </svg>
-                                        Upload Bukti
-                                    </button>
-                                    <input type="file" id="fileUpload" name="bukti" @change="handleFileUpload"
-                                        accept="image/*" class="hidden" required>
-
-                                    <div class="w-16 h-16 bg-[#F5F5F5] border border-dashed border-gray-300 rounded overflow-hidden flex items-center justify-center shrink-0"
-                                        onclick="document.getElementById('fileUpload').click()" style="cursor:pointer;"
-                                        title="Klik untuk mengubah gambar">
-                                        <template x-if="newImagePreview">
-                                            <img :src="newImagePreview" class="w-full h-full object-cover">
-                                        </template>
-                                        <template x-if="!newImagePreview">
-                                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                                </path>
-                                            </svg>
-                                        </template>
-                                    </div>
-                                </div>
-
-                                <button type="submit"
-                                    class="w-full sm:w-auto bg-[#2B8130] hover:bg-green-700 text-white font-bold text-sm py-2.5 px-8 rounded-full shadow flex items-center justify-center gap-2 transition-colors">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path
-                                            d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z">
-                                        </path>
-                                    </svg>
-                                    SUBMIT
-                                </button>
-                            </div>
-
-                        </form>
-                    </div>
-                </div>
+        <!-- Image Preview Modal -->
+        <div x-cloak x-show="previewImage" style="display:none;"
+            class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 transition-opacity backdrop-blur-sm p-4">
+            <div @click.away="previewImage = null" class="relative max-w-4xl max-h-screen">
+                <button @click="previewImage = null" class="absolute -top-3 -right-3 bg-white text-black rounded-full w-8 h-8 flex items-center justify-center font-bold shadow-lg hover:bg-gray-200 z-10 transition-colors">✕</button>
+                <img :src="previewImage" class="max-w-full max-h-[90vh] object-contain rounded-lg border-4 border-white shadow-2xl">
             </div>
         </div>
 
-        <script>
-            document.addEventListener('alpine:init', () => {
-                Alpine.data('bimbinganState', () => ({
-                    isModalOpen: false,
-                    previewImage: null,
-                    newImagePreview: null,
-                    handleFileUpload(event) {
-                        const file = event.target.files[0];
-                        if (file) {
-                            const reader = new FileReader();
-                            reader.onload = (e) => {
-                                this.newImagePreview = e.target.result;
-                            };
-                            reader.readAsDataURL(file);
-                        }
+        <!-- Add Bimbingan Modal -->
+        <div x-cloak x-show="isModalOpen" style="display:none;"
+            class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4 transition-all overflow-y-auto">
+            <div @click.away="isModalOpen = false" class="bg-white w-full max-w-2xl rounded-[20px] shadow-2xl relative my-8 overflow-hidden transform transition-all scale-100">
+                
+                <div class="bg-gray-50 border-b border-gray-100 px-8 py-5 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-black uppercase tracking-tight">Tambah Bimbingan Dosen</h2>
+                    <button @click="isModalOpen = false" class="text-black/40 hover:text-black transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
+                <div class="p-8">
+                    <form action="{{ route('mahasiswa.bimbingan-dosen.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                        @csrf
+                        <div class="grid grid-cols-1 md:grid-cols-[160px_auto] gap-x-4 gap-y-5 items-center">
+                            <label class="text-[13px] font-bold text-black uppercase">Hari / Tanggal</label>
+                            <input type="date" name="tanggal" required class="w-full bg-[#F5F5F5] border-gray-200 text-black text-sm rounded-[10px] py-3 px-4 focus:ring-blue-500 focus:bg-white transition-all">
+
+                            <label class="text-[13px] font-bold text-black uppercase">Waktu</label>
+                            <div class="flex gap-2 items-center">
+                                <input type="time" name="waktuMulai" required class="flex-1 bg-[#F5F5F5] border-gray-200 text-black text-sm rounded-[10px] py-3 px-4 focus:ring-blue-500 focus:bg-white transition-all text-center">
+                                <span class="text-black font-bold">-</span>
+                                <input type="time" name="waktuSelesai" required class="flex-1 bg-[#F5F5F5] border-gray-200 text-black text-sm rounded-[10px] py-3 px-4 focus:ring-blue-500 focus:bg-white transition-all text-center">
+                            </div>
+
+                            <label class="text-[13px] font-bold text-black uppercase">Tempat</label>
+                            <input type="text" name="tempat" placeholder="Contoh: Lab Komputer 1 / Zoom Meeting" required class="w-full bg-[#F5F5F5] border-gray-200 text-black text-sm rounded-[10px] py-3 px-4 focus:ring-blue-500 focus:bg-white transition-all">
+
+                            <label class="text-[13px] font-bold text-black uppercase">Topik Pembahasan</label>
+                            <input type="text" name="topik" placeholder="Contoh: Revisi Bab 1" required class="w-full bg-[#F5F5F5] border-gray-200 text-black text-sm rounded-[10px] py-3 px-4 focus:ring-blue-500 focus:bg-white transition-all">
+
+                            <label class="text-[13px] font-bold text-black uppercase self-start pt-3">Detail Isi</label>
+                            <div class="relative">
+                                <textarea name="detail" required rows="6" class="w-full bg-[#F5F5F5] border-gray-200 text-black text-sm rounded-[15px] py-3 px-4 resize-none focus:ring-blue-500 focus:bg-white transition-all placeholder:text-gray-400" placeholder="Jelaskan detail apa saja yang dibahas saat bimbingan..."></textarea>
+                                <span class="absolute bottom-3 right-4 text-[10px] text-gray-400 font-bold uppercase tracking-wider bg-white/50 px-2 py-1 rounded">Max 500 kata</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 flex flex-col md:flex-row items-stretch md:items-end justify-between gap-6 pt-6 border-t border-gray-100">
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 bg-[#F5F5F5] border border-dashed border-gray-300 rounded-[12px] overflow-hidden flex items-center justify-center shrink-0 cursor-pointer hover:bg-gray-100 transition-colors" @click="document.getElementById('fileUpload').click()">
+                                    <template x-if="newImagePreview">
+                                        <img :src="newImagePreview" class="w-full h-full object-cover">
+                                    </template>
+                                    <template x-if="!newImagePreview">
+                                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    </template>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <button type="button" @click="document.getElementById('fileUpload').click()" class="bg-white border border-gray-300 hover:bg-gray-50 text-black text-[11px] font-bold px-4 py-2 rounded-full shadow-sm flex items-center gap-2 transition-all uppercase tracking-wide">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                        Pilih Bukti
+                                    </button>
+                                    <span class="text-[10px] text-gray-400 font-medium italic">Format: JPG, PNG (Max 2MB)</span>
+                                </div>
+                                <input type="file" id="fileUpload" name="bukti" @change="handleFileUpload" accept="image/*" class="hidden" required>
+                            </div>
+
+                            <button type="submit" class="bg-[#2B8130] hover:bg-green-700 text-white font-black text-[13px] px-10 py-3 rounded-full shadow-lg flex items-center justify-center gap-2 transition-all uppercase tracking-widest transform hover:scale-105 active:scale-95">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
+                                Submit Logbook
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('bimbinganState', () => ({
+                isModalOpen: false,
+                previewImage: null,
+                newImagePreview: null,
+                handleFileUpload(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.newImagePreview = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
                     }
-                }))
-            })
-        </script>
+                }
+            }))
+        })
+    </script>
 </x-dashboard-layout>

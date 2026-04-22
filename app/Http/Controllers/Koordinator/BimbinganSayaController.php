@@ -24,7 +24,7 @@ class BimbinganSayaController extends Controller
 
         foreach ($mahasiswas as $mhs) {
             // Ambil pendaftaran KP tanpa filter 'mahasiswa_id' di level SQL untuk menghindari error
-            $kpLog = PendaftaranKp::with('logBimbingans')
+            $kpLog = PendaftaranKp::with(['logBimbingans', 'supervisorInstansi'])
                 ->where(function ($q) use ($mhs) {
                     $q->where('mahasiswa_id', $mhs->user_id)
                         ->orWhereJsonContains('anggota_kelompok_ids', $mhs->user_id)
@@ -35,32 +35,31 @@ class BimbinganSayaController extends Controller
                 ->first();
 
             if (!$kpLog && $mhs->user) {
-                $kpLog = PendaftaranKp::with('logBimbingans')
+                $kpLog = PendaftaranKp::with(['logBimbingans', 'supervisorInstansi'])
                     ->where('mahasiswa_id', $mhs->user_id)
                     ->latest()
                     ->first();
             }
 
+            $displayKp = new \stdClass();
+            $displayKp->id = $kpLog->id ?? null;
+            $displayKp->display_mahasiswa = $mhs;
+            $displayKp->display_judul_kp = $kpLog->judul_kp ?? '-';
+            $displayKp->display_instansi = $kpLog->instansi_nama ?? '-';
+            $displayKp->display_supervisor = $kpLog->supervisorInstansi->nama_supervisor ?? '-';
+            $displayKp->total_log = 0;
+            $displayKp->status_approval_semua = '-';
+
             if ($kpLog) {
-                $displayKp = clone $kpLog;
-
-                // --- PERBAIKAN LOGIKA PRIVASI DI SINI ---
                 $myLogs = $kpLog->logBimbingans->where('mahasiswa_id', $mhs->user_id);
+                $myApprovedLogs = $myLogs->where('status_approval', 'approved');
 
-                $displayKp->total_log = $myLogs->count();
+                $displayKp->total_log = $myApprovedLogs->count();
                 $adaPending = $myLogs->where('status_approval', 'pending')->count() > 0;
 
-                if ($displayKp->total_log == 0) {
-                    $displayKp->status_approval_semua = '-';
-                } else {
+                if ($myLogs->count() > 0) {
                     $displayKp->status_approval_semua = $adaPending ? 'Menunggu pengecekan' : 'Diperiksa';
                 }
-
-                $displayKp->display_mahasiswa = $mhs;
-                $displayKp->display_judul_kp = $kpLog->judul_kp;
-                $displayKp->display_instansi = $kpLog->instansi_nama;
-
-                $pendaftarans->push($displayKp);
 
                 // Hitung statistik untuk Dashboard
                 foreach ($myLogs as $log) {
@@ -71,6 +70,8 @@ class BimbinganSayaController extends Controller
                     }
                 }
             }
+            
+            $pendaftarans->push($displayKp);
         }
 
         return view('koordinator.bimbingan-saya', [

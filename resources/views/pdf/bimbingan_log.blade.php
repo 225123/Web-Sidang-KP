@@ -176,7 +176,8 @@
         return null;
     }
 
-    $pembimbing = $pendaftaran->user->mahasiswa->pembimbing ?? $pendaftaran->pembimbing;
+    // Eksekusi logic untuk memastikan tidak error jika ada relasi yang null
+    $pembimbing = $pendaftaran->pembimbing;
     if (!$pembimbing && $pendaftaran->pendaftaran_asal_id) {
         $asal = \App\Models\PendaftaranKp::with('pembimbing.dosen')->find($pendaftaran->pendaftaran_asal_id);
         if ($asal) {

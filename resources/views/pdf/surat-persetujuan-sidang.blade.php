@@ -232,8 +232,8 @@
                                 : now();
 
                 $kp = $persetujuan->pendaftaranKp;
-                // Ambil pembimbing dari tabel mahasiswa (sumber utama setelah fitur penugasan dospem)
-                $pembimbing = $persetujuan->mahasiswa->pembimbing ?? $kp?->pembimbing;
+                // Handle the normalization of Pembimbing (diambil dari Pendaftaran KP)
+                $pembimbing = $persetujuan->pendaftaranKp->pembimbing ?? $kp?->pembimbing;
                 
                 // Jika tidak ada pembimbing namun dia adalah anggota kelompok (ada pendaftaran_asal_id)
                 if (!$pembimbing && $kp?->pendaftaran_asal_id) {

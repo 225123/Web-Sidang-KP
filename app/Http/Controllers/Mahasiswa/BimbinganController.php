@@ -15,6 +15,7 @@ class BimbinganController extends Controller
         $userId = Auth::id();
         $pendaftaran = PendaftaranKp::where('mahasiswa_id', $userId)
             ->whereNotIn('status_kp', ['rejected', 'pending'])
+            ->latest()
             ->first();
 
         if (!$pendaftaran) {
@@ -46,7 +47,14 @@ class BimbinganController extends Controller
         ]);
 
         $userId = Auth::id();
-        $pendaftaran = PendaftaranKp::where('mahasiswa_id', $userId)->latest()->first();
+        $pendaftaran = PendaftaranKp::where('mahasiswa_id', $userId)
+            ->whereNotIn('status_kp', ['rejected', 'pending'])
+            ->latest()
+            ->first();
+
+        if (!$pendaftaran) {
+            $pendaftaran = PendaftaranKp::where('mahasiswa_id', $userId)->latest()->first();
+        }
 
         if (!$pendaftaran) {
             return back()->with('error', 'Pendaftaran KP tidak ditemukan.');
@@ -89,6 +97,7 @@ class BimbinganController extends Controller
         $pendaftaran = PendaftaranKp::with(['pembimbing.dosen', 'user.mahasiswa'])
             ->where('mahasiswa_id', $userId)
             ->whereNotIn('status_kp', ['rejected', 'pending'])
+            ->latest()
             ->first();
 
         if (!$pendaftaran) {

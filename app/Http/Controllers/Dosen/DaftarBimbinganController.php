@@ -15,8 +15,23 @@ class DaftarBimbinganController extends Controller
     {
         $dosenId = Auth::id();
 
+        $kps = PendaftaranKp::where('pembimbing_id', $dosenId)->get();
+        $mahasiswaIds = [];
+        foreach ($kps as $kp) {
+            $mahasiswaIds[] = $kp->mahasiswa_id;
+            if (!empty($kp->anggota_kelompok_ids)) {
+                $anggota = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
+                if (is_array($anggota)) {
+                    foreach ($anggota as $aid) {
+                        $mahasiswaIds[] = $aid;
+                    }
+                }
+            }
+        }
+        $mahasiswaIds = array_unique($mahasiswaIds);
+        
         // 1. Ambil mahasiswa bimbingan
-        $mahasiswas = Mahasiswa::with(['user'])->where('pembimbing_id', $dosenId)->get();
+        $mahasiswas = Mahasiswa::with(['user'])->whereIn('user_id', $mahasiswaIds)->get();
 
         $pendaftarans = collect();
         $jumlahSelesai = 0;
@@ -24,7 +39,7 @@ class DaftarBimbinganController extends Controller
 
         foreach ($mahasiswas as $mhs) {
             // Ambil pendaftaran KP tanpa filter 'mahasiswa_id' di level SQL untuk menghindari error
-            $kpLog = PendaftaranKp::with('logBimbingans')
+            $kpLog = PendaftaranKp::with(['logBimbingans', 'supervisorInstansi'])
                 ->where(function ($q) use ($mhs) {
                     $q->where('mahasiswa_id', $mhs->user_id)
                         ->orWhereJsonContains('anggota_kelompok_ids', $mhs->user_id)
@@ -35,37 +50,32 @@ class DaftarBimbinganController extends Controller
                 ->first();
 
             if (!$kpLog && $mhs->user) {
-                $kpLog = PendaftaranKp::with('logBimbingans')
+                $kpLog = PendaftaranKp::with(['logBimbingans', 'supervisorInstansi'])
                     ->where('mahasiswa_id', $mhs->user_id)
                     ->latest()
                     ->first();
             }
 
+            $displayKp = new \stdClass();
+            $displayKp->id = $kpLog->id ?? null;
+            $displayKp->display_mahasiswa = $mhs;
+            $displayKp->display_judul_kp = $kpLog->judul_kp ?? '-';
+            $displayKp->display_instansi = $kpLog->instansi_nama ?? '-';
+            $displayKp->display_supervisor = $kpLog->supervisorInstansi->nama_supervisor ?? '-';
+            $displayKp->total_log = 0;
+            $displayKp->status_approval_semua = '-';
+
             if ($kpLog) {
-                $displayKp = clone $kpLog;
-
-                // --- PERBAIKAN LOGIKA PRIVASI DI SINI ---
-                // Kita filter log bimbingan di level PHP agar hanya milik mahasiswa ini saja
-                // Pastikan kolom di tabel log_bimbingan Anda adalah 'mahasiswa_id' atau 'user_id'
+                // filter log bimbingan di level PHP agar hanya milik mahasiswa ini saja
                 $myLogs = $kpLog->logBimbingans->where('mahasiswa_id', $mhs->user_id);
+                $myApprovedLogs = $myLogs->where('status_approval', 'approved');
 
-                // Jika error kolom 'mahasiswa_id' masih muncul di PHP, 
-                // ganti baris di atas menjadi: ->where('user_id', $mhs->user_id);
-
-                $displayKp->total_log = $myLogs->count();
+                $displayKp->total_log = $myApprovedLogs->count();
                 $adaPending = $myLogs->where('status_approval', 'pending')->count() > 0;
 
-                if ($displayKp->total_log == 0) {
-                    $displayKp->status_approval_semua = '-';
-                } else {
+                if ($myLogs->count() > 0) {
                     $displayKp->status_approval_semua = $adaPending ? 'Menunggu pengecekan' : 'Diperiksa';
                 }
-
-                $displayKp->display_mahasiswa = $mhs;
-                $displayKp->display_judul_kp = $kpLog->judul_kp;
-                $displayKp->display_instansi = $kpLog->instansi_nama;
-
-                $pendaftarans->push($displayKp);
 
                 // Hitung statistik untuk Dashboard
                 foreach ($myLogs as $log) {
@@ -76,6 +86,8 @@ class DaftarBimbinganController extends Controller
                     }
                 }
             }
+            
+            $pendaftarans->push($displayKp);
         }
 
         return view('dosen.daftar-mahasiswa', [
@@ -104,7 +116,7 @@ class DaftarBimbinganController extends Controller
             }
         ])->where('id', $id)->firstOrFail();
 
-        if ($mhs->pembimbing_id != $dosenId && Auth::user()->role != 'koordinator_kp') {
+        if ($pendaftaran->pembimbing_id != $dosenId && Auth::user()->role != 'koordinator_kp') {
             abort(403, 'Unauthorized access.');
         }
 

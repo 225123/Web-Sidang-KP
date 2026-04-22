@@ -56,7 +56,7 @@
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Pengerjaan KP</div>
                 <div class="hidden md:block">:</div>
                 <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px] capitalize">
-                    {{ $kp->pengerjaan_kp }}
+                    {{ ($kp->pengerjaan_kp ?? '') == 'sendiri' || ($kp->pengerjaan_kp ?? '') == 'individu' ? 'Individu' : $kp->pengerjaan_kp }}
                 </div>
                 
                 @if($kp->pengerjaan_kp === 'kelompok' && !empty($kp->anggotaLainList))

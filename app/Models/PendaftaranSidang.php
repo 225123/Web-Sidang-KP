@@ -28,7 +28,35 @@ class PendaftaranSidang extends Model
         'status_koordinator',
         'koordinator_feedback',
         'dosen_feedback',
-        'tahun_ajaran_id',
+        'tanggal_sidang',
+        'waktu_mulai_sidang',
+        'waktu_selesai_sidang',
+        'ruang_sidang',
+        'status_jadwal',
+        'penguji_1_id',
+        'penguji_2_id',
+        'nilai_pembimbing',
+        'nilai_penguji_1',
+        'nilai_penguji_2',
+        'nilai_akhir',
+        'grade',
+        'catatan_sidang',
+        'status_kelulusan',
+        'pelaksanaan',
+        'nb_laporan',
+        'nb_produk',
+        'nb_sikap',
+        'n1_laporan',
+        'n1_produk',
+        'n1_presentasi',
+        'n2_laporan',
+        'n2_produk',
+        'n2_presentasi',
+        'ns_motivasi',
+        'ns_kualitas',
+        'ns_inisiatif',
+        'ns_sikap',
+        'nilai_supervisor',
     ];
 
     public function pendaftaranKp()
@@ -39,5 +67,15 @@ class PendaftaranSidang extends Model
     public function mahasiswa()
     {
         return $this->belongsTo(Mahasiswa::class, 'mahasiswa_id', 'user_id');
+    }
+
+    public function penguji1()
+    {
+        return $this->belongsTo(User::class, 'penguji_1_id');
+    }
+
+    public function penguji2()
+    {
+        return $this->belongsTo(User::class, 'penguji_2_id');
     }
 }
