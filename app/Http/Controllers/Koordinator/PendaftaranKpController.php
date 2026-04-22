@@ -63,7 +63,39 @@ class PendaftaranKpController extends Controller
         }
         
         $dapatProjek = $disetujuiCount;
-        $totalMahasiswa = User::where('role', 'mahasiswa')->count();
+        $totalMahasiswa = $usersMahasiswa->count();
+
+        $allStatusRows = $usersMahasiswa->map(function($u) {
+            $ownKp = PendaftaranKp::where('mahasiswa_id', $u->id)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            $isSudah = false;
+            if ($ownKp && in_array($ownKp->status_kp, ['pending', 'approved'])) {
+                $isSudah = true;
+            }
+
+            $invitedKp = PendaftaranKp::where(function($q) use ($u) {
+                    $q->whereJsonContains('anggota_kelompok_ids', $u->id)
+                      ->orWhereJsonContains('anggota_kelompok_ids', (string)$u->id);
+                })
+                ->whereIn('status_kp', ['pending', 'approved'])
+                ->latest()
+                ->first();
+
+            $statusText = 'Belum Mendaftar';
+            if ($isSudah) {
+                $statusText = 'Sudah Mendaftar';
+            } elseif ($invitedKp) {
+                $statusText = 'Belum Mendaftar (Proyek Ada)';
+            }
+
+            return [
+                'nim'    => $u->mahasiswa->nim ?? '-',
+                'name'   => $u->name ?? '-',
+                'status' => $statusText
+            ];
+        })->sortBy('nim')->values();
 
         $stats = [
             'disetujui' => $disetujuiCount,
@@ -74,7 +106,7 @@ class PendaftaranKpController extends Controller
             'belum_dapat_projek' => max(0, $totalMahasiswa - $dapatProjek),
         ];
 
-        return view('koordinator.Pendaftaran-KP', compact('pendaftarans', 'rejectedPendaftarans', 'stats'));
+        return view('koordinator.Pendaftaran-KP', compact('pendaftarans', 'rejectedPendaftarans', 'stats', 'allStatusRows'));
     }
 
     private function mapMahasiswaList($paginator)

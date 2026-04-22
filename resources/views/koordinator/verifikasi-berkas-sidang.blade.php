@@ -283,9 +283,9 @@
         <!-- Status Summary Section -->
         <div class="mt-16 bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-6 mb-8">
-                <div class="border-l-4 border-blue-600 pl-4">
+                <div>
                     <h3 class="text-[18px] font-bold text-black uppercase tracking-tight">Status Pengunggahan Berkas</h3>
-                    <p class="text-[12px] text-black/60 font-medium">Rekapitulasi seluruh mahasiswa KP aktif</p>
+                    <p class="text-[12px] text-black/60 font-medium">Rekapitulasi berkas persyaratan milik mahasiswa</p>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-4 w-full sm:w-auto">
@@ -296,15 +296,22 @@
                         <input type="text" x-model="searchStatus" class="block w-full pl-9 pr-4 py-2 border border-gray-300 rounded-[5px] text-[12px] text-black focus:ring-blue-500" placeholder="Cari Nama/NIM Summary...">
                     </div>
 
-                    <select x-model="filterStatusUpload" class="w-[180px] text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium">
-                        <option value="all">Semua Status Upload</option>
-                        <option value="sudah">Sudah Mengupload</option>
-                        <option value="belum">Belum Mengupload</option>
-                    </select>
+                    <div x-data="{ openFilter: false }" class="relative w-full sm:w-[180px] z-[60]">
+                        <button type="button" @click="openFilter = !openFilter" @click.outside="openFilter = false" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                            <span x-text="filterStatusUpload === 'all' ? 'Semua Status Upload' : (filterStatusUpload === 'sudah' ? 'Sudah Mengupload' : 'Belum Mengupload')"></span>
+                            <svg :class="openFilter ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openFilter" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="all" x-model="filterStatusUpload" class="hidden" @change="openFilter = false">Semua Status Upload</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="sudah" x-model="filterStatusUpload" class="hidden" @change="openFilter = false">Sudah Mengupload</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="belum" x-model="filterStatusUpload" class="hidden" @change="openFilter = false">Belum Mengupload</label>
+                        </div>
+                    </div>
 
                     <div class="relative shrink-0" x-data="{ exportOpen: false }" @click.outside="exportOpen = false">
-                        <button @click="exportOpen = !exportOpen" class="bg-[#1D6F42] hover:bg-green-700 text-white px-5 py-2 rounded-[5px] text-[12px] font-bold flex items-center gap-2 shadow-sm uppercase transition-colors">
-                            <span>📥</span> Cetak PDF
+                        <button @click="exportOpen = !exportOpen" class="bg-[#EA4335] hover:bg-red-700 text-white px-4 py-1.5 rounded-[5px] text-[12px] font-bold flex items-center shadow-sm uppercase transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Cetak PDF
                         </button>
                         <div x-cloak x-show="exportOpen" class="absolute right-0 mt-2 w-52 bg-white rounded-[8px] shadow-xl border border-gray-200 z-[70] overflow-hidden">
                             <div class="bg-gray-50 px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-200">Format Laporan</div>
@@ -320,18 +327,18 @@
                 <table class="w-full border-collapse text-[13px]">
                     <thead>
                         <tr class="bg-[#EBEBEB] text-black">
-                            <th class="py-3 px-4 font-bold text-center w-[60px] border-b border-gray-300">No</th>
-                            <th class="py-3 px-4 font-bold text-left border-b border-gray-300">NIM</th>
-                            <th class="py-3 px-4 font-bold text-left border-b border-gray-300">Nama Mahasiswa</th>
+                            <th class="py-3 px-4 font-bold text-center w-[60px] border-b border-r border-gray-300">No</th>
+                            <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300">NIM</th>
+                            <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300">Nama Mahasiswa</th>
                             <th class="py-3 px-4 font-bold text-center border-b border-gray-300">Status Berkas</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                        <template x-for="(stat, index) in filteredStatusRows" :key="stat.nim">
+                        <template x-for="(stat, index) in paginatedStatusRows" :key="stat.nim">
                             <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="py-3 px-4 text-center text-black/60" x-text="index + 1"></td>
-                                <td class="py-3 px-4 text-left font-medium text-black" x-text="stat.nim"></td>
-                                <td class="py-3 px-4 text-left font-normal text-black sentence-case" x-text="stat.name"></td>
+                                <td class="py-3 px-4 text-center text-black/60 border-r border-gray-200" x-text="(statusCurrentPage - 1) * statusItemsPerPage + index + 1"></td>
+                                <td class="py-3 px-4 text-left font-medium text-black border-r border-gray-200" x-text="stat.nim"></td>
+                                <td class="py-3 px-4 text-left font-normal text-black sentence-case border-r border-gray-200" x-text="stat.name"></td>
                                 <td class="py-3 px-4 text-center">
                                     <template x-if="stat.status === 'Sudah Mengupload Berkas'">
                                         <span class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-4 py-1 rounded-full font-bold text-[10px] uppercase">
@@ -344,8 +351,27 @@
                                 </td>
                             </tr>
                         </template>
+                        <template x-if="filteredStatusRows.length === 0">
+                            <tr>
+                                <td colspan="4" class="py-12 text-center text-gray-400 italic font-medium bg-gray-50 uppercase tracking-widest">Tidak ada data ditemukan</td>
+                            </tr>
+                        </template>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- AlpineJS Dynamic Paginator for Status Table -->
+            <div class="px-6 py-4 bg-white flex items-center justify-between border-t border-gray-200" x-show="totalStatusPages > 1">
+                <span class="text-[12px] font-medium text-black/50" x-text="`Halaman ${statusCurrentPage} dari ${totalStatusPages}`"></span>
+                <div class="flex items-center gap-2">
+                    <button @click="prevStatusPage" :disabled="statusCurrentPage === 1" class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Previous</button>
+                    <div class="flex items-center gap-1">
+                        <template x-for="p in totalStatusPages" :key="p">
+                            <button @click="goToStatusPage(p)" class="w-8 h-8 rounded text-[12px] font-bold transition-all" :class="statusCurrentPage === p ? 'bg-blue-600 text-white shadow-md' : 'text-black hover:bg-gray-100'" x-text="p"></button>
+                        </template>
+                    </div>
+                    <button @click="nextStatusPage" :disabled="statusCurrentPage === totalStatusPages" class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Next</button>
+                </div>
             </div>
         </div>
 
@@ -420,6 +446,8 @@
                 isUpdating: false,
                 currentPage: 1,
                 itemsPerPage: 10,
+                statusCurrentPage: 1,
+                statusItemsPerPage: 10,
 
                 get filteredRows() {
                     let filtered = this.rawRows;
@@ -465,6 +493,7 @@
                 clearStatusFilter() {
                     this.searchStatus = '';
                     this.filterStatusUpload = 'all';
+                    this.statusCurrentPage = 1;
                 },
 
                 get totalPages() {
@@ -476,9 +505,22 @@
                     return this.filteredRows.slice(start, start + this.itemsPerPage);
                 },
 
+                get totalStatusPages() {
+                    return Math.ceil(this.filteredStatusRows.length / this.statusItemsPerPage) || 1;
+                },
+
+                get paginatedStatusRows() {
+                    const start = (this.statusCurrentPage - 1) * this.statusItemsPerPage;
+                    return this.filteredStatusRows.slice(start, start + this.statusItemsPerPage);
+                },
+
                 nextPage() { if (this.currentPage < this.totalPages) this.currentPage++; },
                 prevPage() { if (this.currentPage > 1) this.currentPage--; },
                 goToPage(page) { this.currentPage = page; },
+
+                nextStatusPage() { if (this.statusCurrentPage < this.totalStatusPages) this.statusCurrentPage++; },
+                prevStatusPage() { if (this.statusCurrentPage > 1) this.statusCurrentPage--; },
+                goToStatusPage(page) { this.statusCurrentPage = page; },
 
                 openTolakModal(id) {
                     this.selectedId = id;

@@ -17,7 +17,7 @@
                 <button type="button" @click="openJenis = !openJenis" @click.outside="openJenis = false" 
                     class="w-full border border-[#CAC0C0] rounded px-3 py-1.5 focus:outline-none bg-white flex justify-between items-center text-[13px] font-medium cursor-pointer shadow-sm">
                     <span x-text="selectedJenis"></span>
-                    <svg :class="openJenis ? 'rotate-180' : 'rotate-0'" class="w-3.5 h-3.5 transition-transform duration-200 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    <svg :class="openJenis ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </button>
                 <div x-show="openJenis" x-transition style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded shadow-lg overflow-hidden">
                     <ul class="py-1 text-[13px]">
@@ -36,7 +36,7 @@
                 <button type="button" @click="openStatus = !openStatus" @click.outside="openStatus = false" 
                     class="w-full border border-[#CAC0C0] rounded px-3 py-1.5 focus:outline-none bg-white flex justify-between items-center text-[13px] font-medium cursor-pointer shadow-sm">
                     <span x-text="selectedStatus"></span>
-                    <svg :class="openStatus ? 'rotate-180' : 'rotate-0'" class="w-3.5 h-3.5 transition-transform duration-200 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    <svg :class="openStatus ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </button>
                 <div x-show="openStatus" x-transition style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded shadow-lg overflow-hidden">
                     <ul class="py-1 text-[13px]">
@@ -55,7 +55,7 @@
                 <button type="button" @click="openPengerjaan = !openPengerjaan" @click.outside="openPengerjaan = false" 
                     class="w-full border border-[#CAC0C0] rounded px-3 py-1.5 focus:outline-none bg-white flex justify-between items-center text-[13px] font-medium cursor-pointer shadow-sm">
                     <span x-text="selectedPengerjaan"></span>
-                    <svg :class="openPengerjaan ? 'rotate-180' : 'rotate-0'" class="w-3.5 h-3.5 transition-transform duration-200 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    <svg :class="openPengerjaan ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </button>
                 <div x-show="openPengerjaan" x-transition style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded shadow-lg overflow-hidden">
                     <ul class="py-1 text-[13px]">
