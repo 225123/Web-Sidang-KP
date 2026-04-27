@@ -38,6 +38,9 @@ class Mahasiswa extends Model
 
     public function pembimbing()
     {
-        return $this->belongsTo(Dosen::class, 'pembimbing_id');
+        // Karena pembimbing_id dipindah ke pendaftaran_kp, kita ambil dari pendaftaran terakhir
+        return $this->hasOne(PendaftaranKp::class, 'mahasiswa_id', 'user_id')
+            ->latestOfMany()
+            ->withDefault();
     }
 }

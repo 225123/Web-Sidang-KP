@@ -60,6 +60,43 @@ class NilaiAkhirController extends Controller
         return view('mahasiswa.hasil-sidang', compact('sidang'));
     }
 
+    public function downloadNilai()
+    {
+        $userId = Auth::id();
+        $sidang = PendaftaranSidang::with(['mahasiswa.user', 'penguji1', 'penguji2', 'pendaftaranKp.pembimbing', 'pendaftaranKp.supervisorInstansi'])
+            ->whereHas('mahasiswa', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->latest()
+            ->firstOrFail();
+
+        $logic = $this->calculateFinalLogic($sidang);
+        $sidang->nilai_akhir_display = $logic['nilai'];
+        $sidang->grade_display = $logic['grade'];
+        $sidang->original_grade = $logic['original_grade'];
+        $sidang->is_penalized = $logic['is_penalized'];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.nilai-akhir-pdf', compact('sidang'));
+        return $pdf->download('Nilai_Akhir_' . ($sidang->mahasiswa->nim ?? 'Mahasiswa') . '.pdf');
+    }
+
+    public function downloadBeritaAcara()
+    {
+        $userId = Auth::id();
+        $sidang = PendaftaranSidang::with(['mahasiswa.user', 'penguji1.dosen', 'penguji2.dosen', 'pendaftaranKp.pembimbing.dosen', 'pendaftaranKp.supervisorInstansi'])
+            ->whereHas('mahasiswa', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->latest()
+            ->firstOrFail();
+
+        // Get Koordinator (Role 1)
+        $koordinator = \App\Models\User::where('role', 1)->first();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('koordinator.berita-acara-pdf-template', compact('sidang', 'koordinator'));
+        return $pdf->download('Berita_Acara_' . ($sidang->mahasiswa->nim ?? 'Mahasiswa') . '.pdf');
+    }
+
     private function calculateFinalLogic($sidang)
     {
         $status = $sidang->status_kelulusan;

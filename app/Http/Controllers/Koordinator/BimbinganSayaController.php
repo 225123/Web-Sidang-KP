@@ -92,7 +92,7 @@ class BimbinganSayaController extends Controller
             },
         ])->where('id', $id)->firstOrFail();
 
-        if ($mhs->pembimbing_id != $dosenId && Auth::user()->role != 'koordinator_kp') {
+        if ($pendaftaran->pembimbing_id != $dosenId && Auth::user()->role != 'koordinator_kp') {
             abort(403, 'Unauthorized access.');
         }
 

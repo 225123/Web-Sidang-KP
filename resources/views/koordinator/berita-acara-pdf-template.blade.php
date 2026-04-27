@@ -72,22 +72,22 @@
 
     <div style="padding: 0 10px;">
         <p class="text-justify" style="line-height: 1.8;">
-            Pada hari ini _____________, tanggal _____________, pukul _________ WIB, bertempat di ruangan _____________, telah dilaksanakan kegiatan <strong>Sidang Kerja Praktek</strong> Program Studi Informatika, Fakultas Teknologi Cerdas, Universitas Kristen Krida Wacana.
+            Pada hari ini <strong>{{ \Carbon\Carbon::parse($sidang->tanggal_sidang)->locale('id')->isoFormat('dddd') }}</strong>, tanggal <strong>{{ \Carbon\Carbon::parse($sidang->tanggal_sidang)->locale('id')->isoFormat('D MMMM Y') }}</strong>, pukul <strong>{{ \Carbon\Carbon::parse($sidang->waktu_mulai_sidang)->format('H:i') }}</strong> WIB, bertempat di ruangan <strong>{{ $sidang->ruang_sidang ?? '-' }}</strong>, telah dilaksanakan kegiatan <strong>Sidang Kerja Praktek</strong> Program Studi Informatika, Fakultas Teknologi Cerdas, Universitas Kristen Krida Wacana.
         </p>
 
         <p style="margin-top: 20px;">Sidang tersebut dilaksanakan terhadap mahasiswa dengan data sebagai berikut:</p>
 
         <table class="content-table">
-            <tr><td class="w-40">Nama</td><td>: ________________________________</td></tr>
-            <tr><td>NIM</td><td>: ________________________________</td></tr>
-            <tr><td>Judul Kerja Praktek</td><td>: ________________________________</td></tr>
+            <tr><td class="w-40">Nama Mahasiswa</td><td>: <strong>{{ strtoupper($sidang->mahasiswa->user->name ?? '-') }}</strong></td></tr>
+            <tr><td>NIM</td><td>: <strong>{{ $sidang->mahasiswa->nim ?? '-' }}</strong></td></tr>
+            <tr><td>Judul Kerja Praktek</td><td>: <strong>{{ $sidang->pendaftaranKp->judul_kp ?? '-' }}</strong></td></tr>
         </table>
 
         <p style="margin-top: 25px;">Sidang ini dihadiri dan dinilai oleh tim penguji sebagai berikut:</p>
 
         <table class="content-table">
-            <tr><td class="w-40">Dosen Penguji 1</td><td>: ________________________________</td></tr>
-            <tr><td>Dosen Penguji 2</td><td>: ________________________________</td></tr>
+            <tr><td class="w-40">Dosen Penguji 1</td><td>: {{ $sidang->penguji1->user->name ?? '-' }}</td></tr>
+            <tr><td>Dosen Penguji 2</td><td>: {{ $sidang->penguji2->user->name ?? '-' }}</td></tr>
         </table>
 
         <p class="text-justify" style="margin-top: 30px;">
@@ -100,20 +100,47 @@
                 <tr>
                     <td>
                         <p class="font-bold">Dosen Penguji 1</p>
-                        <div class="signature-line"></div>
-                        <p>NIDK/NIDN : ______________</p>
+                        @if($sidang->penguji1?->signature_path)
+                            <img src="{{ public_path('storage/' . $sidang->penguji1->signature_path) }}" style="width: 150px; height: 80px; margin: 10px 0;">
+                        @elseif($sidang->penguji1?->signature)
+                            <img src="{{ $sidang->penguji1->signature }}" style="width: 150px; height: 80px; margin: 10px 0;">
+                        @else
+                            <div style="height: 80px; color: red; font-style: italic; font-size: 10px; padding-top: 30px;">
+                                (Tanda tangan digital belum tersedia)
+                            </div>
+                        @endif
+                        <p class="font-bold underline">{{ $sidang->penguji1?->name ?? 'Belum Diplot' }}</p>
+                        <p>NIDK/NIDN : {{ $sidang->penguji1?->dosen?->nidn ?? '-' }}</p>
                     </td>
                     <td>
                         <p class="font-bold">Dosen Penguji 2</p>
-                        <div class="signature-line"></div>
-                        <p>NIDK/NIDN : ______________</p>
+                        @if($sidang->penguji2?->signature_path)
+                            <img src="{{ public_path('storage/' . $sidang->penguji2->signature_path) }}" style="width: 150px; height: 80px; margin: 10px 0;">
+                        @elseif($sidang->penguji2?->signature)
+                            <img src="{{ $sidang->penguji2->signature }}" style="width: 150px; height: 80px; margin: 10px 0;">
+                        @else
+                            <div style="height: 80px; color: red; font-style: italic; font-size: 10px; padding-top: 30px;">
+                                (Tanda tangan digital belum tersedia)
+                            </div>
+                        @endif
+                        <p class="font-bold underline">{{ $sidang->penguji2?->name ?? 'Belum Diplot' }}</p>
+                        <p>NIDK/NIDN : {{ $sidang->penguji2?->dosen?->nidn ?? '-' }}</p>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <p class="font-bold">Koordinator Kerja Praktek</p>
-                        <div class="signature-line"></div>
-                        <p>NIDK/NIDN : ______________</p>
+                        <p class="font-bold" style="margin-top: 40px;">Koordinator Kerja Praktek</p>
+                        @if($koordinator?->signature_path)
+                            <img src="{{ public_path('storage/' . $koordinator->signature_path) }}" style="width: 150px; height: 80px; margin: 10px 0;">
+                        @elseif($koordinator?->signature)
+                            <img src="{{ $koordinator->signature }}" style="width: 150px; height: 80px; margin: 10px 0;">
+                        @else
+                            <div style="height: 80px; color: red; font-style: italic; font-size: 10px; padding-top: 30px;">
+                                (Tanda tangan digital belum tersedia)
+                            </div>
+                        @endif
+                        <p class="font-bold underline">{{ $koordinator?->name ?? 'Koordinator KP' }}</p>
+                        <p>NIDK/NIDN : {{ $koordinator?->dosen?->nidn ?? '-' }}</p>
                     </td>
                     <td></td>
                 </tr>
@@ -124,7 +151,7 @@
     <div class="footer">
         <table width="100%">
             <tr>
-                <td style="text-align: left;">Dokumen ini diterbitkan pada : {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y, HH:mm') }} | Berita Acara Sidang KP</td>
+                <td style="text-align: left;">Dokumen Digital Sah | Dicetak pada : {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y, HH:mm') }}</td>
                 <td style="text-align: right;"><span class="page-number"></span></td>
             </tr>
         </table>

@@ -15,15 +15,29 @@ class PenugasanPembimbingController extends Controller
 {
     private function getDosenWorkloadMap()
     {
-        $mahasiswas = \App\Models\Mahasiswa::whereNotNull('pembimbing_id')->get();
+        // Get all active pendaftaran_kp clusters that have a supervisor
+        $pendaftarans = PendaftaranKp::whereNotNull('pembimbing_id')->get();
         
         $dosenBebanMap = [];
-        foreach ($mahasiswas as $m) {
-            $dId = $m->pembimbing_id;
+        foreach ($pendaftarans as $kp) {
+            $dId = $kp->pembimbing_id;
+            
+            // Count unique students in this KP (handling groups)
+            $studentCount = 1;
+            if ($kp->pengerjaan_kp === 'kelompok' && !empty($kp->anggota_kelompok_ids)) {
+                $memberIds = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
+                if (is_array($memberIds)) {
+                    $studentCount = count($memberIds);
+                    if (!in_array($kp->mahasiswa_id, $memberIds)) {
+                        $studentCount++;
+                    }
+                }
+            }
+            
             if (! isset($dosenBebanMap[$dId])) {
                 $dosenBebanMap[$dId] = 0;
             }
-            $dosenBebanMap[$dId]++;
+            $dosenBebanMap[$dId] += $studentCount;
         }
 
         return $dosenBebanMap;
@@ -114,7 +128,7 @@ class PenugasanPembimbingController extends Controller
                 'nama' => $m->name,
                 'nim' => $m->mahasiswa->nim,
                 'judul_kp' => $approvedKp ? ($approvedKp->judul_kp ?? '-') : '-',
-                'dosen_id' => $m->mahasiswa->pembimbing_id,
+                'dosen_id' => $latestKp ? $latestKp->pembimbing_id : null,
             ];
         }
 
@@ -139,6 +153,7 @@ class PenugasanPembimbingController extends Controller
                 'supervisor' => $maskedSupervisor,
                 'pengerjaan' => $pengerjaanFormat,
                 'dosen_id' => $cluster['mahasiswas'][0]['dosen_id'] ?? null,
+                'supervisor_id' => $kp ? $kp->supervisor_internal_id : null,
             ];
         }
 
@@ -290,24 +305,22 @@ class PenugasanPembimbingController extends Controller
                     $kpId = str_replace('kp_', '', $clusterId);
                     $kp = PendaftaranKp::find($kpId);
                     if ($kp) {
+                        if ($dosenUserId && $kp->supervisor_internal_id == $dosenUserId) {
+                            throw new \Exception("Dosen pembimbing tidak boleh sama dengan supervisor internal untuk mahasiswa di KP: " . ($kp->judul_kp ?? '-'));
+                        }
                         $kp->update(['pembimbing_id' => empty($dosenUserId) ? null : $dosenUserId]);
-                        $memberIds = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
-                        if (!is_array($memberIds)) $memberIds = [];
-                        if (!in_array($kp->mahasiswa_id, $memberIds)) $memberIds[] = $kp->mahasiswa_id;
-                        
-                        \App\Models\Mahasiswa::whereIn('user_id', $memberIds)
-                            ->update(['pembimbing_id' => empty($dosenUserId) ? null : $dosenUserId]);
                     }
                 } elseif (str_starts_with($clusterId, 'mhs_')) {
                     $mhsId = str_replace('mhs_', '', $clusterId);
-                    \App\Models\Mahasiswa::where('user_id', $mhsId)
-                        ->update(['pembimbing_id' => empty($dosenUserId) ? null : $dosenUserId]);
-                        
+                    
                     $kp = PendaftaranKp::where('mahasiswa_id', $mhsId)
                         ->orWhereJsonContains('anggota_kelompok_ids', $mhsId)
                         ->orWhereJsonContains('anggota_kelompok_ids', (string) $mhsId)
                         ->latest()->first();
                     if ($kp) {
+                        if ($dosenUserId && $kp->supervisor_internal_id == $dosenUserId) {
+                            throw new \Exception("Dosen pembimbing tidak boleh sama dengan supervisor internal untuk mahasiswa: " . ($mhsId));
+                        }
                         $kp->update(['pembimbing_id' => empty($dosenUserId) ? null : $dosenUserId]);
                     }
                 }
@@ -357,8 +370,8 @@ class PenugasanPembimbingController extends Controller
                         ->orWhereJsonContains('anggota_kelompok_ids', (string) $m->id);
                 })->latest()->first();
 
-                // Skip mahasiswa yang sudah punya dosen pembimbing
-                if (! empty($m->mahasiswa->pembimbing_id)) {
+                // Skip mahasiswa yang sudah punya dosen pembimbing (cek dari latest KP)
+                if ($latestKp && ! empty($latestKp->pembimbing_id)) {
                     continue;
                 }
 
@@ -371,6 +384,7 @@ class PenugasanPembimbingController extends Controller
                         'id' => $clusterId,
                         'is_group' => $approvedKp ? true : false,
                         'members' => [],
+                        'supervisor_id' => $approvedKp ? $approvedKp->supervisor_internal_id : null,
                     ];
                 }
 
@@ -382,9 +396,9 @@ class PenugasanPembimbingController extends Controller
             foreach ($clusters as $cid => $cData) {
                 $size = count($cData['members']);
                 if ($cData['is_group'] && $size > 1) {
-                    $groups[] = ['id' => $cid, 'size' => $size, 'members' => $cData['members']];
+                    $groups[] = ['id' => $cid, 'size' => $size, 'members' => $cData['members'], 'supervisor_id' => $cData['supervisor_id']];
                 } else {
-                    $individuals[] = ['id' => $cid, 'size' => $size, 'members' => $cData['members']];
+                    $individuals[] = ['id' => $cid, 'size' => $size, 'members' => $cData['members'], 'supervisor_id' => $cData['supervisor_id']];
                 }
             }
 
@@ -398,20 +412,25 @@ class PenugasanPembimbingController extends Controller
 
             foreach ($toProcess as $item) {
                 $size = $item['size'];
+                $supervisorId = $item['supervisor_id'] ?? null;
 
                 usort($dosenStats, function ($a, $b) {
                     return $a['beban'] <=> $b['beban'];
                 });
 
-                if (count($dosenStats) > 0) {
-                    $dData = &$dosenStats[0]; // Pilih dosen dengan beban terkecil
-
-                    if (str_starts_with($item['id'], 'kp_')) {
-                        $assignmentsDraft[$item['id']] = $dData['id'];
-                    } elseif (str_starts_with($item['id'], 'mhs_')) {
-                        $assignmentsDraft[$item['id']] = $dData['id'];
+                // Find a dosen with the smallest workload who is NOT the supervisor
+                $foundDosenIdx = -1;
+                foreach ($dosenStats as $idx => $d) {
+                    if ($supervisorId && $d['id'] == $supervisorId) {
+                        continue;
                     }
-                    $dData['beban'] += $size;
+                    $foundDosenIdx = $idx;
+                    break;
+                }
+
+                if ($foundDosenIdx !== -1) {
+                    $assignmentsDraft[$item['id']] = $dosenStats[$foundDosenIdx]['id'];
+                    $dosenStats[$foundDosenIdx]['beban'] += $size;
                 }
             }
 
@@ -432,7 +451,6 @@ class PenugasanPembimbingController extends Controller
     {
         try {
             DB::beginTransaction();
-            \App\Models\Mahasiswa::whereNotNull('pembimbing_id')->update(['pembimbing_id' => null]);
             PendaftaranKp::whereNotNull('pembimbing_id')->update(['pembimbing_id' => null]);
             DB::commit();
 

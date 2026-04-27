@@ -45,25 +45,12 @@
     </div>
 </a>
 
-<div x-data="{ open: localStorage.getItem('dosen_penilaian') === 'true' }" class="mt-1">
-    <button @click="open = !open; localStorage.setItem('dosen_penilaian', open)" class="{{ $inactiveClass }} flex items-center justify-between outline-none" :class="!sidebarOpen && '!pr-4'">
-        <div class="flex items-center gap-3">
-            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-            <span x-show="sidebarOpen" x-transition>Penilaian Sidang</span>
-        </div>
-        <svg :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-    </button>
-    <div x-show="open" x-transition class="mt-0.5 mb-2 bg-[#BBB8B8] w-full overflow-hidden flex flex-col divide-y divide-[#9E9B9B]">
-        <a href="{{ route('dosen.input-nilai.index') }}" class="{{ $active == 'input-nilai' ? $subActiveClass : $subInactiveClass }}">
-            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-            <span x-show="sidebarOpen" x-transition>Input Nilai</span>
-        </a>
-        <a href="{{ route('dosen.dummy', 'akumulasi-penilaian') }}" class="{{ $active == 'akumulasi-penilaian' ? $subActiveClass : $subInactiveClass }}">
-            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-            <span x-show="sidebarOpen" x-transition>Akumulasi Penilaian</span>
-        </a>
+<a href="{{ route('dosen.input-nilai.index') }}" class="{{ $active == 'input-nilai' ? $activeClass : $inactiveClass }} mt-1">
+    <div class="flex items-center gap-3">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+        <span x-show="sidebarOpen" x-transition>Input Nilai</span>
     </div>
-</div>
+</a>
 
 <a href="{{ route('dosen.dummy', 'berita-acara') }}" class="{{ $active == 'berita-acara' ? $activeClass : $inactiveClass }}">
     <div class="flex items-center gap-3">
@@ -94,7 +81,7 @@
         </div>
     </a>
 
-    <a href="{{ route('dosen.dummy', 'panduan') }}" class="{{ $active == 'panduan' ? $activeClass : $inactiveClass }} mt-1">
+    <a href="{{ route('dosen.panduan') }}" class="{{ $active == 'panduan' ? $activeClass : $inactiveClass }} mt-1">
         <div class="flex items-center gap-3">
             <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
             <span x-show="sidebarOpen" x-transition>Panduan Website</span>

@@ -62,11 +62,15 @@ Route::middleware('auth')->group(function () {
 // ROUTE KOORDINATOR (Sudah Disatukan & Dirapihkan)
 // ==========================================
 Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verified'])->group(function () {
+    // Periode KP
+    Route::get('/periode-kp', [App\Http\Controllers\Koordinator\PeriodeKpController::class, 'index'])->name('periode-kp.index');
+    Route::post('/periode-kp', [App\Http\Controllers\Koordinator\PeriodeKpController::class, 'store'])->name('periode-kp.store');
+    Route::put('/periode-kp/{id}/aktif', [App\Http\Controllers\Koordinator\PeriodeKpController::class, 'setActive'])->name('periode-kp.aktif');
+    Route::delete('/periode-kp/{id}', [App\Http\Controllers\Koordinator\PeriodeKpController::class, 'destroy'])->name('periode-kp.destroy');
 
     // 1. Dashboard Koordinator
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // 2. Route Asli Manajemen Akses (Harus di atas route dummy)
     Route::get('/manajemen-akses', [UserController::class, 'index'])->name('manajemen-akses');
     Route::post('/manajemen-akses/store', [UserController::class, 'store'])->name('user.store');
     Route::get('/manajemen-akses/export-pdf', [UserController::class, 'exportPdf'])->name('user.export-pdf');
@@ -154,13 +158,21 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verifie
     Route::get('/finalisasi-nilai', [FinalisasiNilaiController::class, 'index'])->name('finalisasi-nilai.index');
     Route::get('/finalisasi-nilai/{id}', [FinalisasiNilaiController::class, 'show'])->name('finalisasi-nilai.show');
     Route::get('/finalisasi-nilai/{id}/download', [FinalisasiNilaiController::class, 'downloadPdf'])->name('finalisasi-nilai.download');
+    Route::get('/finalisasi-nilai/{id}/download-berita-acara', [FinalisasiNilaiController::class, 'downloadBeritaAcara'])->name('finalisasi-nilai.download-berita-acara');
 
     // 11. Timeline (Koordinator)
     Route::get('/timeline', [TimelineController::class, 'index'])->name('timeline.index');
     Route::post('/timeline', [TimelineController::class, 'store'])->name('timeline.store');
     Route::post('/timeline/bulk-destroy', [TimelineController::class, 'bulkDestroy'])->name('timeline.bulk-destroy');
     Route::put('/timeline/{id}', [TimelineController::class, 'update'])->name('timeline.update');
-    Route::delete('/timeline/{id}', [TimelineController::class, 'destroy'])->name('timeline.destroy');
+    // 12. Audit Log (Koordinator)
+    Route::get('/audit-log', [App\Http\Controllers\Koordinator\AuditLogController::class, 'index'])->name('audit-log.index');
+
+    // 13. Backup Database (Koordinator)
+    Route::get('/backup', [App\Http\Controllers\Koordinator\BackupController::class, 'index'])->name('backup.index');
+    Route::post('/backup/store', [App\Http\Controllers\Koordinator\BackupController::class, 'store'])->name('backup.store');
+    Route::get('/backup/download/{filename}', [App\Http\Controllers\Koordinator\BackupController::class, 'download'])->name('backup.download');
+    Route::delete('/backup/{filename}', [App\Http\Controllers\Koordinator\BackupController::class, 'destroy'])->name('backup.destroy');
 
     // 12. Pengumuman (Koordinator)
     Route::get('/pengumuman', [PengumumanController::class, 'index'])->name('pengumuman.index');
@@ -239,6 +251,8 @@ Route::prefix('mahasiswa')->name('mahasiswa.')->middleware('auth')->group(functi
 
     // Nilai Akhir Mahasiswa
     Route::get('/nilai-akhir', [App\Http\Controllers\Mahasiswa\NilaiAkhirController::class, 'index'])->name('nilai-akhir');
+    Route::get('/nilai-akhir/download', [App\Http\Controllers\Mahasiswa\NilaiAkhirController::class, 'downloadNilai'])->name('nilai-akhir.download');
+    Route::get('/nilai-akhir/download-berita-acara', [App\Http\Controllers\Mahasiswa\NilaiAkhirController::class, 'downloadBeritaAcara'])->name('nilai-akhir.download-berita-acara');
 
     // Hasil Sidang Mahasiswa
     Route::get('/hasil-sidang', [App\Http\Controllers\Mahasiswa\NilaiAkhirController::class, 'hasilSidang'])->name('hasil-sidang');
@@ -304,6 +318,11 @@ Route::prefix('dosen')->name('dosen.')->middleware('auth')->group(function () {
     // Notifikasi Dosen
     Route::get('/notifikasi', [App\Http\Controllers\Dosen\NotifikasiController::class, 'index'])->name('notifikasi');
     Route::get('/notifikasi/{id}', [App\Http\Controllers\Dosen\NotifikasiController::class, 'show'])->name('notifikasi.show');
+
+    // Panduan Website Dosen
+    Route::get('/panduan', function() {
+        return view('dosen.panduan', ['active' => 'panduan']);
+    })->name('panduan');
 
     Route::get('/{page}', function ($page) {
         $titles = [

@@ -152,8 +152,8 @@
                             <!-- Nilai Akhir Row -->
                             <div class="w-full">
                                 <div class="flex items-center gap-4">
-                                    <span class="text-[15px] font-bold text-black uppercase w-[150px]">Nilai Akhir</span>
-                                    <span class="text-[18px] font-bold text-black">
+                                    <span class="text-[13px] font-bold text-black uppercase w-[150px]">Nilai Akhir</span>
+                                    <span class="text-[15px] font-bold text-black">
                                         : {{ $nilaiAkhir }}
                                     </span>
                                 </div>
@@ -167,8 +167,8 @@
 
                             <!-- Status Lulus Row -->
                             <div class="flex items-center gap-4 mt-1">
-                                <span class="text-[15px] font-bold text-black uppercase w-[150px]">Status Lulus</span>
-                                <span class="text-[15px] font-medium text-black">
+                                <span class="text-[13px] font-bold text-black uppercase w-[150px]">Status Lulus</span>
+                                <span class="text-[13px] font-medium text-black">
                                     : <span class="{{ strtolower($statusLulus) === 'lanjut' ? 'text-red-600' : 'text-black' }}">
                                         {{ $statusLulus }}
                                     </span>
@@ -179,17 +179,25 @@
                 </div>
             </div>
 
-            <!-- Download Buttons (Bottom Right) -->
-            <div class="mt-12 flex justify-end gap-4">
+
+            <div class="mt-12 flex justify-end gap-3">
                 @if($sidang)
-                    <a href="#" class="bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[13px] px-8 py-3 rounded-[5px] flex items-center gap-2 shadow-sm transition-all uppercase tracking-wide">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <a href="{{ route('mahasiswa.nilai-akhir.download') }}" class="bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[11px] px-6 py-2.5 rounded-[5px] flex items-center gap-2 shadow-sm transition-all uppercase tracking-wide">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         Download Nilai
                     </a>
-                    <a href="#" class="bg-[#4285F4] hover:bg-blue-600 text-white font-bold text-[13px] px-8 py-3 rounded-[5px] flex items-center gap-2 shadow-sm transition-all uppercase tracking-wide">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        Download Berita Acara
-                    </a>
+
+                    @if($sidang->penguji_1_id && $sidang->penguji_2_id)
+                        <a href="{{ route('mahasiswa.nilai-akhir.download-berita-acara') }}" class="bg-[#4285F4] hover:bg-blue-600 text-white font-bold text-[11px] px-6 py-2.5 rounded-[5px] flex items-center gap-2 shadow-sm transition-all uppercase tracking-wide">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Download Berita Acara
+                        </a>
+                    @else
+                        <button disabled class="bg-gray-400 text-white font-bold text-[13px] px-8 py-3 rounded-[5px] flex items-center gap-2 shadow-sm uppercase tracking-wide cursor-not-allowed opacity-70" title="Dosen Penguji belum diplot oleh Koordinator">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Berita Acara Belum Tersedia
+                        </button>
+                    @endif
                 @else
                     <button disabled class="bg-gray-400 text-white font-bold text-[13px] px-8 py-3 rounded-[5px] flex items-center gap-2 shadow-sm uppercase tracking-wide cursor-not-allowed">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>

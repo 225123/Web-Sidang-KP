@@ -53,21 +53,22 @@
             @csrf
         </form>
 
-        <!-- Top Header & Filters -->
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-6">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
             <div class="flex-1 bg-[#E6F0FA] border border-[#D0E3F5] rounded-[10px] p-4 lg:p-5 flex items-start gap-4 shadow-sm w-full">
                 <div class="w-6 h-6 rounded-full bg-[#4285F4] text-white flex items-center justify-center font-bold flex-shrink-0 mt-0.5">i</div>
-                <p class="text-[14px] text-[#1A1A1A] font-medium leading-relaxed m-0 mt-0.5">
-                    Penugasan Dosen Pembimbing Mahasiswa KP.<br>
-                    Silakan klik 'Submit' setelah data terisi untuk dibagikan kepada mahasiswa dan dosen.
-                </p>
+                <div class="flex flex-col gap-1">
+                    <p class="text-[14px] text-[#1A1A1A] font-medium leading-relaxed m-0">
+                        Penugasan Dosen Pembimbing Mahasiswa KP. Silakan klik 'Submit' setelah data terisi.
+                    </p>
+                    <span class="text-red-600 font-bold uppercase text-[11px] tracking-tight">Dosen Pembimbing tidak boleh sama dengan Supervisor Internal.</span>
+                </div>
             </div>
 
             <div class="flex items-center shrink-0 ml-auto w-full lg:w-auto">
-                <button type="button" @click="autoPlot()" :disabled="isLoadingAuto" class="bg-[#4285F4] hover:bg-blue-600 font-bold text-white rounded-[5px] px-6 py-2 text-[13px] flex items-center justify-center gap-2 shadow-sm w-full lg:w-[120px] transition-colors disabled:opacity-50" title="Bagi rata beban dosen pada mahasiswa yang belum ditugaskan">
+                <button type="button" @click="autoPlot()" :disabled="isLoadingAuto" class="bg-[#4285F4] hover:bg-blue-600 font-bold text-white rounded-[5px] px-6 py-2.5 text-[13px] flex items-center justify-center gap-2 shadow-sm w-full lg:w-[140px] transition-colors disabled:opacity-50" title="Bagi rata beban dosen pada mahasiswa yang belum ditugaskan">
                     <svg x-show="!isLoadingAuto" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                     <div x-show="isLoadingAuto" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white" style="display: none;"></div>
-                    <span x-text="isLoadingAuto ? 'Proses...' : 'Auto'"></span>
+                    <span x-text="isLoadingAuto ? 'Proses...' : 'Auto-Plotting'"></span>
                 </button>
             </div>
         </div>
@@ -112,129 +113,111 @@
                 </div>
             </div>
 
-            <!-- Mahasiswa Section Header & Badges -->
-            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 mt-8 border-t border-gray-200 pt-6">
-                <h2 class="text-[20px] font-bold text-black m-0 mb-4 sm:mb-0">Mahasiswa</h2>
-                <div class="flex items-center gap-4">
-                    <div class="bg-[#34A853] text-white rounded-[5px] w-[80px] h-[55px] flex flex-col justify-center items-center shadow-sm">
-                        <div class="flex items-center gap-1.5 border-b border-green-400 pb-0.5 w-[80%] justify-center">
-                            <svg class="w-3 h-3 rounded-full border border-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                            <span class="text-[18px] font-bold leading-none" x-text="stats.ditugaskan"></span>
-                        </div>
-                        <span class="text-[9px] font-medium mt-1">Ditugaskan</span>
+            <!-- Mahasiswa Table Module -->
+            <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm p-6 mb-12">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
+                    <div>
+                        <h3 class="text-[18px] font-bold text-black tracking-tight uppercase">Daftar Plotting Mahasiswa</h3>
+                        <p class="text-[12px] text-black/60 font-medium mt-1">Lakukan penugasan dosen pembimbing untuk setiap pendaftaran KP mahasiswa.</p>
                     </div>
-                    <div class="bg-[#FBBC05] text-black rounded-[5px] w-[80px] h-[55px] flex flex-col justify-center items-center shadow-sm">
-                        <div class="flex items-center gap-1.5 border-b border-[#D4A000] pb-0.5 w-[80%] justify-center">
-                            <div class="w-2.5 h-2.5 border border-black rounded-sm"></div>
-                            <span class="text-[18px] font-bold leading-none" x-text="stats.menunggu"></span>
+                    <div class="flex items-center gap-4 mt-4 sm:mt-0">
+                        <div class="bg-[#34A853] text-white rounded-[5px] w-[85px] h-[50px] flex flex-col justify-center items-center shadow-sm">
+                            <div class="flex items-center gap-1.5 border-b border-green-400 pb-0.5 w-[80%] justify-center">
+                                <span class="text-[18px] font-bold leading-none" x-text="stats.ditugaskan"></span>
+                            </div>
+                            <span class="text-[9px] font-bold uppercase mt-1">Ditugaskan</span>
                         </div>
-                        <span class="text-[9px] font-medium mt-1">Menunggu</span>
+                        <div class="bg-[#FBBC05] text-black rounded-[5px] w-[85px] h-[50px] flex flex-col justify-center items-center shadow-sm">
+                            <div class="flex items-center gap-1.5 border-b border-[#D4A000] pb-0.5 w-[80%] justify-center">
+                                <span class="text-[18px] font-bold leading-none" x-text="stats.menunggu"></span>
+                            </div>
+                            <span class="text-[9px] font-bold uppercase mt-1">Menunggu</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Modern Table Module -->
-            <div class="bg-white rounded-xl">
-                
-                <form action="{{ route('koordinator.penugasan-pembimbing') }}" method="GET" data-turbo-frame="table-data" class="bg-white p-4 rounded-[10px] border border-gray-200 shadow-sm mb-6" id="filter-form" x-data="{ submitForm() { document.getElementById('hidden-filter-submit').click(); } }">
+                <form action="{{ route('koordinator.penugasan-pembimbing') }}" method="GET" data-turbo-frame="table-data" class="mb-8" id="filter-form" x-data="{ submitForm() { document.getElementById('hidden-filter-submit').click(); } }">
                     <button type="submit" id="hidden-filter-submit" class="hidden"></button>
                     
                     <div class="flex flex-col gap-4">
-                        <div class="relative w-full">
+                        <!-- Top Row: Search only -->
+                        <div class="relative w-full sm:w-[400px]">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="w-5 h-5 text-gray-400 font-bold" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                <svg class="w-4 h-4 text-gray-400 font-bold" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                             </div>
                             <input id="search-input" type="text" name="search" value="{{ request('search') }}" x-on:input.debounce.500ms="submitForm()" @clear-filters.window="$el.value = ''" placeholder="Cari Nama Mahasiswa atau NIM..." 
-                                class="block w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-[5px] text-[13px] text-black focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm">
+                                class="block w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-[5px] text-[12px] text-black focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm">
                         </div>
-                        
-                        <div class="flex flex-wrap items-center justify-between gap-4 w-full">
-                            <div class="flex flex-wrap items-center gap-3">
-                                <div class="flex items-center gap-2 shrink-0">
-                                    <label class="text-[13px] font-bold text-black whitespace-nowrap">Jenis KP:</label>
-                                    <select name="jenis_kp" class="w-[120px] text-[13px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm" @change="submitForm()">
-                                        <option value="All" {{ request('jenis_kp') == 'All' ? 'selected' : '' }}>All</option>
-                                        <option value="Internal" {{ request('jenis_kp') == 'Internal' ? 'selected' : '' }}>Internal</option>
-                                        <option value="Eksternal" {{ request('jenis_kp') == 'Eksternal' ? 'selected' : '' }}>Eksternal</option>
-                                    </select>
-                                </div>
 
-                                <div class="flex items-center gap-2 shrink-0">
-                                    <label class="text-[13px] font-bold text-black whitespace-nowrap">Pengerjaan:</label>
-                                    <select name="pengerjaan" class="w-[130px] text-[13px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm" @change="submitForm()">
-                                        <option value="All" {{ request('pengerjaan') == 'All' ? 'selected' : '' }}>All</option>
-                                        <option value="Individu" {{ request('pengerjaan') == 'Individu' ? 'selected' : '' }}>Individu</option>
-                                        <option value="Berkelompok" {{ request('pengerjaan') == 'Berkelompok' ? 'selected' : '' }}>Berkelompok</option>
-                                    </select>
-                                </div>
+                        <!-- Bottom Row: Other Filters + Actions -->
+                        <div class="flex flex-wrap items-center gap-3">
+                            <select name="jenis_kp" @clear-filters.window="$el.value = 'All'" class="w-[140px] text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm" @change="submitForm()">
+                                <option value="All">Semua Jenis KP</option>
+                                <option value="Internal" {{ request('jenis_kp') == 'Internal' ? 'selected' : '' }}>Internal</option>
+                                <option value="Eksternal" {{ request('jenis_kp') == 'Eksternal' ? 'selected' : '' }}>Eksternal</option>
+                            </select>
 
-                                <div class="flex items-center gap-2 shrink-0">
-                                    <label class="text-[13px] font-bold text-black whitespace-nowrap">Status:</label>
-                                    <select name="status_filter" class="w-[130px] text-[13px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm" @change="submitForm()">
-                                        <option value="All" {{ request('status_filter') == 'All' ? 'selected' : '' }}>Semua Status</option>
-                                        <option value="Menunggu" {{ request('status_filter') == 'Menunggu' ? 'selected' : '' }}>Menunggu</option>
-                                        <option value="Ditugaskan" {{ request('status_filter') == 'Ditugaskan' ? 'selected' : '' }}>Ditugaskan</option>
-                                    </select>
-                                </div>
+                            <select name="pengerjaan" @clear-filters.window="$el.value = 'All'" class="w-[150px] text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm" @change="submitForm()">
+                                <option value="All">Semua Pengerjaan</option>
+                                <option value="Individu" {{ request('pengerjaan') == 'Individu' ? 'selected' : '' }}>Individu</option>
+                                <option value="Berkelompok" {{ request('pengerjaan') == 'Berkelompok' ? 'selected' : '' }}>Berkelompok</option>
+                            </select>
 
-                                <div class="flex items-center gap-2 shrink-0" x-data="{ 
-                                    openDosen: false, 
-                                    searchDosenText: '',
-                                    selectedDosenId: '{{ request('dosen_pembimbing', 'All') }}',
-                                    selectedDosenName: '{{ request('dosen_pembimbing') == 'Belum Ditugaskan' ? 'Belum Ditugaskan' : (request('dosen_pembimbing') && request('dosen_pembimbing') != 'All' ? addslashes(collect($dosenList)->where('id', request('dosen_pembimbing'))->first()['nama'] ?? 'All') : 'All') }}'
-                                }" @clear-filters.window="selectedDosenId = 'All'; selectedDosenName = 'All'; searchDosenText = ''">
-                                    <label class="text-[13px] font-bold text-black whitespace-nowrap">Pembimbing:</label>
-                                    <div class="relative w-[180px]">
-                                        <button type="button" @click="openDosen = !openDosen" @click.outside="openDosen = false" 
-                                            class="w-full flex justify-between items-center bg-white border border-gray-300 rounded-[5px] px-3 py-2 text-[13px] font-medium shadow-sm text-black focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                            <span class="truncate w-full text-left pr-2" x-text="selectedDosenName"></span>
-                                            <svg :class="openDosen ? 'rotate-180' : 'rotate-0'" class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                        </button>
-                                        <div x-show="openDosen" x-transition style="display: none;" class="absolute z-50 w-[240px] right-0 sm:right-auto mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg flex flex-col overflow-hidden">
-                                            <div class="px-2 py-2 sticky top-0 bg-[#F5F6F8] border-b border-gray-200 z-10 w-full shrink-0">
-                                                <input type="text" x-model="searchDosenText" @click.stop class="w-full border border-gray-300 rounded-[3px] px-2 py-1.5 text-[12px] focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Ketik nama dosen...">
-                                            </div>
-                                            <ul class="py-1 text-[13px] max-h-[200px] overflow-y-auto overflow-x-hidden custom-scrollbar flex-1 w-full scale-100 text-black">
-                                                <li x-show="'all'.includes(searchDosenText.toLowerCase())"><label class="block px-3 py-1.5 hover:bg-gray-100 cursor-pointer"><input type="radio" name="dosen_pembimbing" value="All" class="hidden" x-model="selectedDosenId" @change="selectedDosenName = 'All'; openDosen = false; submitForm()">All</label></li>
-                                                <li x-show="'belum ditugaskan'.includes(searchDosenText.toLowerCase())"><label class="block px-3 py-1.5 hover:bg-gray-100 cursor-pointer"><input type="radio" name="dosen_pembimbing" value="Belum Ditugaskan" class="hidden" x-model="selectedDosenId" @change="selectedDosenName = 'Belum Ditugaskan'; openDosen = false; submitForm()">Belum Ditugaskan</label></li>
-                                                @foreach($dosenList as $dl)
-                                                    <li x-show="'{{ strtolower(addslashes($dl['nama'])) }}'.includes(searchDosenText.toLowerCase())"><label class="block px-3 py-1.5 hover:bg-gray-100 cursor-pointer text-[12px]"><input type="radio" name="dosen_pembimbing" value="{{ $dl['id'] }}" class="hidden" x-model="selectedDosenId" @change="selectedDosenName = '{{ addslashes($dl['nama']) }}'; openDosen = false; submitForm()">{{ $dl['nama'] }}</label></li>
-                                                @endforeach
-                                            </ul>
+                            <select name="status_filter" @clear-filters.window="$el.value = 'All'" class="w-[140px] text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm" @change="submitForm()">
+                                <option value="All">Semua Status</option>
+                                <option value="Menunggu" {{ request('status_filter') == 'Menunggu' ? 'selected' : '' }}>Menunggu</option>
+                                <option value="Ditugaskan" {{ request('status_filter') == 'Ditugaskan' ? 'selected' : '' }}>Ditugaskan</option>
+                            </select>
+
+                            <div class="flex items-center gap-2 shrink-0" x-data="{ 
+                                openDosen: false, 
+                                searchDosenText: '',
+                                selectedDosenId: '{{ request('dosen_pembimbing', 'All') }}',
+                                selectedDosenName: '{{ request('dosen_pembimbing') == 'Belum Ditugaskan' ? 'Belum Ditugaskan' : (request('dosen_pembimbing') && request('dosen_pembimbing') != 'All' ? addslashes(collect($dosenList)->where('id', request('dosen_pembimbing'))->first()['nama'] ?? 'All') : 'Pilih Pembimbing') }}'
+                            }" @clear-filters.window="selectedDosenId = 'All'; selectedDosenName = 'Pilih Pembimbing'; searchDosenText = ''">
+                                <div class="relative w-[190px]">
+                                    <button type="button" @click="openDosen = !openDosen" @click.outside="openDosen = false" 
+                                        class="w-full flex justify-between items-center bg-white border border-gray-300 rounded-[5px] px-3 py-2.5 text-[12px] font-medium shadow-sm text-black focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                        <span class="truncate w-full text-left pr-2" x-text="selectedDosenName === 'All' ? 'Semua Pembimbing' : selectedDosenName"></span>
+                                        <svg :class="openDosen ? 'rotate-180' : 'rotate-0'" class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </button>
+                                    <div x-show="openDosen" x-transition style="display: none;" class="absolute z-50 w-[240px] left-0 mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg flex flex-col overflow-hidden">
+                                        <div class="px-2 py-2 sticky top-0 bg-[#F5F6F8] border-b border-gray-200 z-10 w-full shrink-0">
+                                            <input type="text" x-model="searchDosenText" @click.stop class="w-full border border-gray-300 rounded-[3px] px-2 py-1.5 text-[11px] focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Ketik nama dosen...">
                                         </div>
+                                        <ul class="py-1 text-[12px] max-h-[200px] overflow-y-auto overflow-x-hidden custom-scrollbar flex-1 w-full scale-100 text-black">
+                                            <li><label class="block px-3 py-1.5 hover:bg-gray-100 cursor-pointer"><input type="radio" name="dosen_pembimbing" value="All" class="hidden" x-model="selectedDosenId" @change="selectedDosenName = 'All'; openDosen = false; submitForm()">Semua Pembimbing</label></li>
+                                            <li><label class="block px-3 py-1.5 hover:bg-gray-100 cursor-pointer"><input type="radio" name="dosen_pembimbing" value="Belum Ditugaskan" class="hidden" x-model="selectedDosenId" @change="selectedDosenName = 'Belum Ditugaskan'; openDosen = false; submitForm()">Belum Ditugaskan</label></li>
+                                            @foreach($dosenList as $dl)
+                                                <li x-show="'{{ strtolower(addslashes($dl['nama'])) }}'.includes(searchDosenText.toLowerCase())"><label class="block px-3 py-1.5 hover:bg-gray-100 cursor-pointer text-[11px]"><input type="radio" name="dosen_pembimbing" value="{{ $dl['id'] }}" class="hidden" x-model="selectedDosenId" @change="selectedDosenName = '{{ addslashes($dl['nama']) }}'; openDosen = false; submitForm()">{{ $dl['nama'] }}</label></li>
+                                            @endforeach
+                                        </ul>
                                     </div>
                                 </div>
+                            </div>
 
-                                <button type="button" @click="$dispatch('clear-filters'); setTimeout(() => submitForm(), 50)" class="bg-[#757575] hover:bg-[#616161] text-white font-bold text-[12px] px-5 py-2.5 rounded-[5px] shadow-sm transition-colors whitespace-nowrap border border-[#616161]">
-                                    Clear Filter
-                                </button>
-                            </div>
-                            
-                            <div class="flex items-center gap-3 ml-auto">
-                                <button @click="resetPlotting()" type="button" class="bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold py-2.5 px-6 rounded-[5px] shadow-md flex items-center gap-2 transition-colors text-[13px] whitespace-nowrap border border-[#B71C1C]">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                                    Reset Penugasan
-                                </button>
-                            </div>
+                            <button type="button" @click="$dispatch('clear-filters'); setTimeout(() => submitForm(), 50)" class="bg-[#757575] hover:bg-[#616161] text-white font-bold text-[12px] px-5 py-2.5 rounded-[5px] shadow-sm transition-colors whitespace-nowrap">
+                                Clear Filter
+                            </button>
+                            <button @click="resetPlotting()" type="button" class="bg-[#EA4335] hover:bg-red-700 text-white font-bold py-2.5 px-5 rounded-[5px] shadow-sm flex items-center gap-2 transition-colors text-[12px] whitespace-nowrap">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                Reset Penugasan
+                            </button>
                         </div>
                     </div>
                 </form>
-                
-                <form id="form-assignment" method="POST" action="{{ route('koordinator.penugasan-pembimbing.store') }}" class="hidden">
-                    @csrf
-                </form>
 
                 <turbo-frame id="table-data">
-                <div class="bg-white border border-gray-200 rounded-[10px] overflow-hidden shadow-sm mb-12">
-                    <div class="overflow-x-auto custom-scrollbar">
-                        <table class="w-full min-w-[1000px] border-collapse text-[12px] text-center">
+                <div class="border border-gray-200 rounded-[10px] shadow-sm">
+                    <div class="overflow-x-auto sm:overflow-visible custom-scrollbar min-h-[500px]">
+                        <table class="w-full min-w-[1000px] border-collapse text-[12px] text-center bg-white">
                             <thead class="bg-[#EBEBEB] font-bold text-black h-[45px]">
                                 <tr>
                                     <th class="border-b border-r border-gray-300 px-4 py-3 w-[40px]">No</th>
                                     <th class="border-b border-r border-gray-300 px-4 py-3">Mahasiswa</th>
                                     <th class="border-b border-r border-gray-300 px-4 py-3">Jenis KP</th>
                                     <th class="border-b border-r border-gray-300 px-4 py-3">Supervisor</th>
-                                    <th class="border-b border-r border-gray-300 px-4 py-3">Judul KP</th>
+                                    <th class="border-b border-r border-gray-300 px-4 py-3 min-w-[280px]">Judul KP</th>
                                     <th class="border-b border-r border-gray-300 px-4 py-3 min-w-[200px]">Dosen Pembimbing</th>
                                     <th class="border-b border-r border-gray-300 px-4 py-3 min-w-[120px]">Status</th>
                                     <th class="border-b border-gray-300 px-4 py-3 w-[80px]">Detail KP</th>
@@ -244,22 +227,25 @@
                         @php
                             $assignmentsInitNew = [];
                             $groupSizesInitNew = [];
+                            $supervisorMapInit = [];
                             foreach($pendaftarans as $p) {
                                 $assignmentsInitNew[$p['id']] = $p['dosen_id'] ?? '';
                                 $groupSizesInitNew[$p['id']] = count($p['mahasiswas']);
+                                $supervisorMapInit[$p['id']] = $p['supervisor_id'] ?? '';
                             }
                         @endphp
-                        <tbody class="align-middle bg-white" x-init='$dispatch("update-assignments", { assignments: @json($assignmentsInitNew), groupSizes: @json($groupSizesInitNew) })'>
+                        <tbody class="align-middle bg-white" x-init='$dispatch("update-assignments", { assignments: @json($assignmentsInitNew), groupSizes: @json($groupSizesInitNew), supervisorMap: @json($supervisorMapInit) })'>
                             @php $noCounter = $startNumber; @endphp
                             
                             @forelse($pendaftarans as $p)
                                 @php 
+                                    $pIndex = $loop->index;
                                     $mhsList = $p['mahasiswas'];
                                     $rowspan = count($mhsList); 
                                 @endphp
                                 
                                 @foreach($mhsList as $mIndex => $mhs)
-                                    <tr class="hover:bg-gray-50 border-b border-gray-200 font-medium transition-colors" :class="openDropdown === '{{ $p['id'] }}' ? 'relative z-[50]' : ''">
+                                    <tr class="hover:bg-gray-50 border-b border-gray-200 font-medium transition-colors" :class="openDropdown === '{{ $p['id'] }}' ? 'relative z-[1000]' : ''">
                                         
                                         <!-- Index -->
                                         <td class="border-r border-gray-200 px-4 py-4 text-center font-bold text-gray-700 align-middle">{{ $noCounter++ }}</td>
@@ -285,7 +271,7 @@
                                         @if($mIndex === 0)
                                             <!-- Dosen Plotting Column -->
                                             <td rowspan="{{ $rowspan }}" class="border-r border-gray-200 px-4 py-2 align-middle">
-                                                <div class="relative w-full max-w-[200px] mx-auto" :class="openDropdown === '{{ $p['id'] }}' ? 'z-50' : 'z-0'" @click.outside="closeDropdown('{{ $p['id'] }}')">
+                                                <div class="relative w-full max-w-[200px] mx-auto" :class="openDropdown === '{{ $p['id'] }}' ? 'z-[100]' : 'z-10'" @click.outside="closeDropdown('{{ $p['id'] }}')">
                                                     <input type="hidden" name="assignments[{{ $p['id'] }}]" :value="assignments['{{ $p['id'] }}']" form="form-assignment">
                                                     
                                                     <!-- Dropdown Trigger button mimicking table cell look -->
@@ -299,7 +285,8 @@
 
                                                     <!-- Dropdown Menu -->
                                                     <div x-show="openDropdown === '{{ $p['id'] }}'" x-transition 
-                                                         class="absolute z-[9999] mt-1 top-full right-0 min-w-max bg-white border-2 border-[#A8A8A8] rounded-md shadow-[0_8px_30px_rgb(0,0,0,0.2)] ring-1 ring-black/5 overflow-hidden text-left" style="display: none;">
+                                                         style="{{ $pIndex > 12 ? 'bottom: 100%; margin-bottom: 8px; top: auto;' : 'top: 100%; margin-top: 4px; bottom: auto;' }}"
+                                                         class="absolute z-[100000] right-0 min-w-[320px] bg-white border-2 border-gray-400 rounded-lg shadow-[0_20px_60px_rgba(0,0,0,0.4)] ring-1 ring-black/5 overflow-hidden text-left" style="display: none;">
                                                         
                                                         <!-- Ghost elements to permanently reserve max width -->
                                                         <div class="h-0 overflow-hidden invisible pointer-events-none flex flex-col" aria-hidden="true">
@@ -482,6 +469,7 @@
                 assignments: @json($assignmentsInit),
                 initialAssignments: @json($assignmentsInit),
                 groupSizes: @json($allGroupSizes),
+                supervisorMap: {},
                 isDirty: false,
                 isLoadingAuto: false,
                 openDropdown: null,
@@ -503,6 +491,10 @@
                                 tempInitial[key] = newAssignments[key];
                                 tempGroups[key] = newGroupSizes[key];
                             }
+                        }
+
+                        if (e.detail.supervisorMap) {
+                            this.supervisorMap = { ...this.supervisorMap, ...e.detail.supervisorMap };
                         }
                         
                         this.assignments = tempAssignments;
@@ -687,6 +679,16 @@
                 },
 
                 setAssignment(pId, dosenId) {
+                    if (dosenId && this.supervisorMap[pId] && dosenId == this.supervisorMap[pId]) {
+                        this.triggerConfirm({
+                            title: 'Peringatan Konflik Peran',
+                            message: 'Dosen ini adalah Supervisor Internal untuk mahasiswa tersebut. Berdasarkan peraturan, Dosen Pembimbing tidak boleh orang yang sama dengan Supervisor. Silakan pilih dosen lain.',
+                            type: 'danger',
+                            confirmText: 'Mengerti',
+                            callback: null
+                        });
+                        return;
+                    }
                     this.assignments[pId] = dosenId;
                     this.isDirty = true;
                     this.closeDropdown(pId);

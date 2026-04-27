@@ -163,7 +163,7 @@
         <svg :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
     </button>
     <div x-show="open" x-transition class="mt-0.5 bg-[#BBB8B8] w-full overflow-hidden flex flex-col divide-y divide-[#9E9B9B]">
-        <a href="{{ route('koordinator.dummy', 'periode-kp') }}" class="{{ $active == 'periode-kp' ? $subActiveClass : $subInactiveClass }}">
+        <a href="{{ route('koordinator.periode-kp.index') }}" class="{{ $active == 'periode-kp' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             <span x-show="sidebarOpen" x-transition>Periode KP</span>
         </a>
@@ -175,11 +175,11 @@
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
             <span x-show="sidebarOpen" x-transition>Pengumuman</span>
         </a>
-        <a href="{{ route('koordinator.dummy', 'audit-log') }}" class="{{ $active == 'audit-log' ? $subActiveClass : $subInactiveClass }}">
+        <a href="{{ route('koordinator.audit-log.index') }}" class="{{ $active == 'audit-log' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             <span x-show="sidebarOpen" x-transition>Audit Log</span>
         </a>
-        <a href="{{ route('koordinator.dummy', 'backup-database') }}" class="{{ $active == 'backup-database' ? $subActiveClass : $subInactiveClass }}">
+        <a href="{{ route('koordinator.backup.index') }}" class="{{ $active == 'backup' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             <span x-show="sidebarOpen" x-transition>Backup Database</span>
         </a>
