@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Koordinator;
 
+use App\Exports\UsersTemplateExport;
 use App\Http\Controllers\Controller;
+use App\Imports\UsersImport;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\UsersImport;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class UserController extends Controller
 {
@@ -18,12 +19,12 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $tab = $request->get('tab', 'dosen');
-        
+        $tab = $request->input('tab', 'dosen');
+
         $query = User::leftJoin('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
             ->leftJoin('dosen', 'users.id', '=', 'dosen.user_id')
             ->select('users.*', DB::raw('COALESCE(mahasiswa.nim, dosen.nidn) as identifier_id'), 'dosen.is_aktif');
-            
+
         if ($tab === 'dosen') {
             $query->whereIn('users.role', ['dosen', 'koordinator_kp']);
         } else {
@@ -32,11 +33,11 @@ class UserController extends Controller
 
         if ($request->filled('search')) {
             $search = strtolower($request->search);
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->whereRaw('LOWER(users.name) LIKE ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(users.email) LIKE ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(mahasiswa.nim) LIKE ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(dosen.nidn) LIKE ?', ["%{$search}%"]);
+                    ->orWhereRaw('LOWER(users.email) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(mahasiswa.nim) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(dosen.nidn) LIKE ?', ["%{$search}%"]);
             });
         }
 
@@ -64,11 +65,12 @@ class UserController extends Controller
                     'total' => $users->total(),
                     'from' => $users->firstItem(),
                     'to' => $users->lastItem(),
-                ]
+                ],
             ]);
         }
 
         $users->withQueryString();
+
         return view('koordinator.manajemen-user', compact('users', 'tab'));
     }
 
@@ -99,13 +101,13 @@ class UserController extends Controller
                     'user_id' => $user->id,
                     'nim' => $request->id_user,
                     'email' => $request->email,
-                    'prodi' => 'Informatika'
+                    'prodi' => 'Informatika',
                 ]);
             } elseif (in_array($request->role, ['dosen', 'koordinator_kp'])) {
                 DB::table('dosen')->insert([
                     'user_id' => $user->id,
                     'nidn' => $request->id_user,
-                    'is_aktif' => true
+                    'is_aktif' => true,
                 ]);
             }
         });
@@ -121,7 +123,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $detail = null;
-        if ($user->role === 'dosen') {
+        if (in_array($user->role, ['dosen', 'koordinator_kp'])) {
             $detail = DB::table('dosen')->where('user_id', $user->id)->first();
         } elseif ($user->role === 'mahasiswa') {
             $detail = DB::table('mahasiswa')->where('user_id', $user->id)->first();
@@ -138,7 +140,7 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
+            'email' => 'required|email|unique:users,email,'.$id,
             'role' => 'required|in:mahasiswa,dosen,koordinator_kp',
         ], [
             'name.required' => 'Nama tidak boleh kosong.',
@@ -152,12 +154,12 @@ class UserController extends Controller
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
-            'role' => $request->role
+            'role' => $request->role,
         ]);
 
         if (in_array($user->role, ['dosen', 'koordinator_kp'])) {
             DB::table('dosen')->where('user_id', $id)->update([
-                'is_aktif' => $request->status === 'Aktif'
+                'is_aktif' => $request->status === 'Aktif',
             ]);
         }
 
@@ -171,27 +173,27 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $success = false;
-        
+
         if (in_array($user->role, ['dosen', 'koordinator_kp'])) {
             $success = (bool) DB::table('dosen')->where('user_id', $id)->update([
-                'is_aktif' => $request->status === 'Aktif'
+                'is_aktif' => $request->status === 'Aktif',
             ]);
         }
-        
+
         if ($request->ajax()) {
             return response()->json([
                 'success' => $success,
-                'message' => 'Status dosen ' . $user->name . ' berhasil diperbarui.'
+                'message' => 'Status dosen '.$user->name.' berhasil diperbarui.',
             ]);
         }
-        
-        return back()->with('success', 'Status dosen ' . $user->name . ' berhasil diperbarui.');
+
+        return back()->with('success', 'Status dosen '.$user->name.' berhasil diperbarui.');
     }
 
     public function import(Request $request)
     {
         $request->validate([
-            'file_import' => 'required|mimes:xlsx,xls'
+            'file_import' => 'required|mimes:xlsx,xls',
         ], [
             'file_import.required' => 'Gagal mengunggah: Silakan pilih file Excel terlebih dahulu.',
             'file_import.mimes' => 'Format file tidak valid! Pastikan file yang diunggah hanyalah berformat Excel (.xlsx atau .xls) berbahasa Indonesia.',
@@ -199,7 +201,7 @@ class UserController extends Controller
 
         // Mengambil data sebagai Array
         $data = Excel::toArray(new UsersImport, $request->file('file_import'));
-        
+
         $rows = $data[0] ?? []; // Ambil worksheet pertama
         $validRows = [];
         $duplikatData = [];
@@ -211,7 +213,7 @@ class UserController extends Controller
 
         foreach ($rows as $row) {
             // Evaluasi baris kosong
-            if (!empty($row['nama']) && !empty($row['email'])) {
+            if (! empty($row['nama']) && ! empty($row['email'])) {
                 $role = strtolower(str_replace(' ', '_', $row['role'] ?? ''));
                 $isDuplicateEmail = in_array(strtolower($row['email']), array_map('strtolower', $eksisEmails));
                 $isDuplicateId = in_array($row['id'], $eksisIds);
@@ -223,8 +225,9 @@ class UserController extends Controller
                         'email' => $row['email'],
                         'role' => $role,
                         'is_duplicate_email' => $isDuplicateEmail,
-                        'is_duplicate_id' => $isDuplicateId
+                        'is_duplicate_id' => $isDuplicateId,
                     ];
+
                     continue;
                 }
 
@@ -269,7 +272,7 @@ class UserController extends Controller
         $eksisNids = DB::table('dosen')->pluck('nidn')->toArray();
         $eksisNims = DB::table('mahasiswa')->pluck('nim')->toArray();
         $eksisIds = array_merge($eksisNids, $eksisNims);
-        
+
         $duplikatData = [];
         $validRowsFinal = [];
 
@@ -283,8 +286,9 @@ class UserController extends Controller
                     'nama' => $row['nama'],
                     'id' => $row['id'],
                     'email' => $row['email'],
-                    'role' => $row['role']
+                    'role' => $row['role'],
                 ];
+
                 continue; // Skip the insertion for this row if duplicate
             }
 
@@ -314,13 +318,13 @@ class UserController extends Controller
                         'user_id' => $user->id,
                         'nim' => $row['id'],
                         'email' => $row['email'],
-                        'prodi' => 'Informatika'
+                        'prodi' => 'Informatika',
                     ]);
                 } elseif (in_array($user->role, ['dosen', 'koordinator_kp'])) {
                     DB::table('dosen')->insert([
                         'user_id' => $user->id,
                         'nidn' => $row['id'],
-                        'is_aktif' => true
+                        'is_aktif' => true,
                     ]);
                 }
             }
@@ -329,10 +333,10 @@ class UserController extends Controller
         session()->forget('import_users_preview');
 
         if (count($duplikatData) > 0) {
-            return redirect()->route('koordinator.manajemen-akses')->with('success', count($validRowsFinal) . ' user berhasil didaftarkan. Beberapa dilewati karena duplikat.');
+            return redirect()->route('koordinator.manajemen-akses')->with('success', count($validRowsFinal).' user berhasil didaftarkan. Beberapa dilewati karena duplikat.');
         }
 
-        return redirect()->route('koordinator.manajemen-akses')->with('success', 'Seluruh data user (' . count($validRowsFinal) . ') berhasil diimport dan didaftarkan.');
+        return redirect()->route('koordinator.manajemen-akses')->with('success', 'Seluruh data user ('.count($validRowsFinal).') berhasil diimport dan didaftarkan.');
     }
 
     /**
@@ -340,7 +344,7 @@ class UserController extends Controller
      */
     public function downloadTemplate()
     {
-        return Excel::download(new \App\Exports\UsersTemplateExport, 'Template_Data_User.xlsx');
+        return Excel::download(new UsersTemplateExport, 'Template_Data_User.xlsx');
     }
 
     /**
@@ -349,12 +353,16 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-        
+
         // Prevent self deletion
         if ($user->id === auth()->id()) {
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Akses ditolak: Anda tidak dapat menghapus akun Anda sendiri.']);
+            }
+
             return back()->with('error', 'Akses ditolak: Anda tidak dapat menghapus akun Anda sendiri.');
         }
-        
+
         // Prevent deleting the only Koordinator? Optional, but self-deletion covers the immediate case.
 
         DB::transaction(function () use ($user) {
@@ -365,7 +373,11 @@ class UserController extends Controller
             }
             $user->delete();
         });
-        
+
+        if (request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'User berhasil dihapus.']);
+        }
+
         return back()->with('success', 'User berhasil dihapus.');
     }
 
@@ -375,31 +387,31 @@ class UserController extends Controller
     public function exportPdf(Request $request)
     {
         $type = $request->query('type', 'semua');
-        
+
         $query = User::leftJoin('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
             ->leftJoin('dosen', 'users.id', '=', 'dosen.user_id')
             ->select('users.*', DB::raw('COALESCE(mahasiswa.nim, dosen.nidn) as identifier_id'), 'dosen.is_aktif');
 
-        $title = "DAFTAR SELURUH PENGGUNA SISTEM";
+        $title = 'DAFTAR SELURUH PENGGUNA SISTEM';
 
         if ($type === 'dosen') {
             $query->whereIn('users.role', ['dosen', 'koordinator_kp']);
-            $title = "DAFTAR DATA DOSEN DAN KOORDINATOR KP";
+            $title = 'DAFTAR DATA DOSEN DAN KOORDINATOR KP';
         } elseif ($type === 'mahasiswa') {
             $query->where('users.role', 'mahasiswa');
-            $title = "DAFTAR DATA MAHASISWA";
+            $title = 'DAFTAR DATA MAHASISWA';
         }
 
         $users = $query->orderBy('users.role', 'desc')
-                       ->orderBy('users.name', 'asc')
-                       ->get();
+            ->orderBy('users.name', 'asc')
+            ->get();
 
         $pdf = Pdf::loadView('koordinator.pdf.users', compact('users', 'title', 'type'));
-        
+
         // Setup paper size
         $pdf->setPaper('A4', 'portrait');
 
-        $filename = 'Laporan_Data_User_' . ucfirst($type) . '_' . date('Ymd_His') . '.pdf';
+        $filename = 'Laporan_Data_User_'.ucfirst($type).'_'.date('Ymd_His').'.pdf';
 
         return $pdf->stream($filename);
     }

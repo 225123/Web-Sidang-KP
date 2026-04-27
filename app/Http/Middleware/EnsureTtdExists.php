@@ -16,7 +16,7 @@ class EnsureTtdExists
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
-        
+
         // If user is authenticated
         if ($user) {
             // Check if they are trying to access a profile route or logout route
@@ -26,9 +26,9 @@ class EnsureTtdExists
 
             // Exclude API or other routes that might not need TTD
             // But we specifically want to guard Dashboard logic
-            
+
             // If they don't have a signature path, force them to profile
-            if (!$user->signature_path) {
+            if (! $user->signature_path) {
                 return redirect()->route('profil.index')
                     ->with('error', 'Anda harus membuat atau mengunggah tanda tangan digital (TTD) terlebih dahulu!');
             }

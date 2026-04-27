@@ -48,8 +48,8 @@
                         <div class="w-[20px] text-[14px] text-gray-600">:</div>
                         <div class="relative w-[150px]">
                             <select name="status" class="w-full h-[34px] bg-white border border-gray-300 px-3 text-[14px] text-gray-900 outline-none rounded appearance-none cursor-pointer focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all font-medium">
-                                <option value="Aktif" {{ $detail->is_aktif ? 'selected' : '' }}>Aktif</option>
-                                <option value="Nonaktif" {{ !$detail->is_aktif ? 'selected' : '' }}>Tidak Aktif</option>
+                                <option value="Aktif" {{ ($detail->is_aktif ?? true) ? 'selected' : '' }}>Aktif</option>
+                                <option value="Nonaktif" {{ !($detail->is_aktif ?? true) ? 'selected' : '' }}>Tidak Aktif</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>

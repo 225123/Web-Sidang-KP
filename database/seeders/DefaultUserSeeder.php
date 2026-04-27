@@ -7,7 +7,6 @@ use App\Models\Mahasiswa;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class DefaultUserSeeder extends Seeder
 {
@@ -32,7 +31,7 @@ class DefaultUserSeeder extends Seeder
                 'user_id' => $mahasiswaUser->id,
                 'prodi' => 'Informatika',
                 'no_hp' => '081234567890',
-                'email' => 'mahasiswa.nim@example.com'
+                'email' => 'mahasiswa.nim@example.com',
             ]
         );
 

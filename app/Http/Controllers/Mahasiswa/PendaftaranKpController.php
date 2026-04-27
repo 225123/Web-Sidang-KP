@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Mahasiswa;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\NotifikasiLog;
 use App\Models\PendaftaranKp;
 use App\Models\SupervisorInstansi;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class PendaftaranKpController extends Controller
 {
@@ -21,12 +22,12 @@ class PendaftaranKpController extends Controller
         $activeKps = PendaftaranKp::whereIn('status_kp', ['pending', 'approved'])->get();
         $unavailableIds = [];
         foreach ($activeKps as $akp) {
-            $unavailableIds[] = (string)$akp->mahasiswa_id;
-            if (!empty($akp->anggota_kelompok_ids)) {
+            $unavailableIds[] = (string) $akp->mahasiswa_id;
+            if (! empty($akp->anggota_kelompok_ids)) {
                 $anggota = is_string($akp->anggota_kelompok_ids) ? json_decode($akp->anggota_kelompok_ids, true) : $akp->anggota_kelompok_ids;
                 if (is_array($anggota)) {
-                    foreach($anggota as $aid) {
-                        $unavailableIds[] = (string)$aid;
+                    foreach ($anggota as $aid) {
+                        $unavailableIds[] = (string) $aid;
                     }
                 }
             }
@@ -38,18 +39,19 @@ class PendaftaranKpController extends Controller
             ->where('role', 'mahasiswa')
             ->where('id', '!=', auth()->id())
             ->get()
-            ->map(function($user) use ($unavailableIds) {
-                $user->is_unavailable = in_array((string)$user->id, $unavailableIds);
+            ->map(function ($user) use ($unavailableIds) {
+                $user->is_unavailable = in_array((string) $user->id, $unavailableIds);
+
                 return $user;
             })
-            ->sortBy(function($user) {
-                return $user->mahasiswa->nim ?? (string)$user->id;
+            ->sortBy(function ($user) {
+                return $user->mahasiswa->nim ?? (string) $user->id;
             })
             ->values();
 
         // Fetch all active Dosen
         $allDosen = User::where('role', 'dosen')
-            ->whereHas('dosen', function($query) {
+            ->whereHas('dosen', function ($query) {
                 $query->where('is_aktif', 1);
             })
             ->get(['id', 'name'])
@@ -57,10 +59,10 @@ class PendaftaranKpController extends Controller
             ->values();
 
         // Check if current user is invited into any active group
-        $invitation = PendaftaranKp::where(function($query) {
-                $query->whereJsonContains('anggota_kelompok_ids', (string)auth()->id())
-                      ->orWhereJsonContains('anggota_kelompok_ids', auth()->id());
-            })
+        $invitation = PendaftaranKp::where(function ($query) {
+            $query->whereJsonContains('anggota_kelompok_ids', (string) auth()->id())
+                ->orWhereJsonContains('anggota_kelompok_ids', auth()->id());
+        })
             ->whereIn('status_kp', ['pending', 'approved'])
             ->latest()
             ->first();
@@ -74,7 +76,7 @@ class PendaftaranKpController extends Controller
                 $anggotaIds[] = $invitation->mahasiswa_id;
             }
             // Remove current user from the display list of members
-            $anggotaIds = array_diff($anggotaIds, [auth()->id(), (string)auth()->id()]);
+            $anggotaIds = array_diff($anggotaIds, [auth()->id(), (string) auth()->id()]);
             // Fetch names for display
             $anggotaTerpilih = User::whereIn('id', $anggotaIds)->get();
         }
@@ -84,14 +86,14 @@ class PendaftaranKpController extends Controller
 
     public function dataKpSaya(Request $request)
     {
-        $unrespondedInvitation = PendaftaranKp::where(function($q) {
-                $q->whereJsonContains('anggota_kelompok_ids', (string)auth()->id())
-                  ->orWhereJsonContains('anggota_kelompok_ids', auth()->id());
-            })
+        $unrespondedInvitation = PendaftaranKp::where(function ($q) {
+            $q->whereJsonContains('anggota_kelompok_ids', (string) auth()->id())
+                ->orWhereJsonContains('anggota_kelompok_ids', auth()->id());
+        })
             ->whereIn('status_kp', ['pending', 'approved'])
             ->latest()
             ->first();
-            
+
         if ($unrespondedInvitation) {
             $hasSubmitted = PendaftaranKp::where('mahasiswa_id', auth()->id())
                 ->whereIn('status_kp', ['pending', 'approved'])
@@ -106,9 +108,9 @@ class PendaftaranKpController extends Controller
         // Search by judul_kp or instansi_nama
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('judul_kp', 'like', "%{$search}%")
-                  ->orWhere('instansi_nama', 'like', "%{$search}%");
+                    ->orWhere('instansi_nama', 'like', "%{$search}%");
             });
         }
 
@@ -133,10 +135,9 @@ class PendaftaranKpController extends Controller
         }
 
         $riwayatKp = $query->latest()->paginate(10)->withQueryString();
-            
+
         return view('mahasiswa.Status-Pendaftaran', compact('riwayatKp', 'unrespondedInvitation'));
     }
-
 
     public function store(Request $request)
     {
@@ -146,6 +147,7 @@ class PendaftaranKpController extends Controller
             'instansi_nama' => 'required_if:jenis_instansi,External|nullable|string|max:255',
             'dosen_pemberi_projek' => 'required_if:jenis_instansi,Internal|nullable|string',
             'nama_supervisor' => 'required|string|max:255',
+            'email_supervisor' => 'nullable|email|max:255|required_without:supervisor_internal_id',
             'deskripsi_kp' => 'required|string',
             'pengerjaan_kp' => 'required|in:individu,kelompok',
             'anggota_kelompok_ids' => 'nullable|string',
@@ -155,7 +157,7 @@ class PendaftaranKpController extends Controller
         $existingKp = PendaftaranKp::where('mahasiswa_id', auth()->id())
             ->whereIn('status_kp', ['pending', 'approved'])
             ->first();
-            
+
         if ($existingKp) {
             return redirect()->route('mahasiswa.pendaftaran-kp.create')->with('error', 'Anda sudah memiliki pendaftaran KP yang sedang diproses atau disetujui.');
         }
@@ -165,16 +167,16 @@ class PendaftaranKpController extends Controller
             if ($request->pengerjaan_kp === 'kelompok' && $request->filled('anggota_kelompok_ids')) {
                 // Decode the JSON array from frontend
                 $anggotaArray = json_decode($request->anggota_kelompok_ids, true);
-                if (!is_array($anggotaArray)) {
+                if (! is_array($anggotaArray)) {
                     $anggotaArray = [];
                 }
             }
 
             // check if there's an invitation to copy the status (only from active groups)
-            $invitation = PendaftaranKp::where(function($query) {
-                    $query->whereJsonContains('anggota_kelompok_ids', (string)auth()->id())
-                          ->orWhereJsonContains('anggota_kelompok_ids', auth()->id());
-                })
+            $invitation = PendaftaranKp::where(function ($query) {
+                $query->whereJsonContains('anggota_kelompok_ids', (string) auth()->id())
+                    ->orWhereJsonContains('anggota_kelompok_ids', auth()->id());
+            })
                 ->whereIn('status_kp', ['pending', 'approved'])
                 ->latest()
                 ->first();
@@ -211,11 +213,22 @@ class PendaftaranKpController extends Controller
             SupervisorInstansi::create([
                 'pendaftaran_kp_id' => $pendaftaranKp->id,
                 'nama_supervisor' => $request->nama_supervisor,
+                'email_supervisor' => $request->email_supervisor ?? null,
+            ]);
+
+            // Notifikasi ke Koordinator
+            NotifikasiLog::create([
+                'sender_id' => null, // Sistem
+                'target_role' => 'koordinator',
+                'judul' => 'Pendaftaran KP Baru',
+                'pesan' => auth()->user()->name.' ('.(auth()->user()->mahasiswa->nim ?? '-').') telah melakukan pendaftaran KP.',
+                'target_url' => route('koordinator.pendaftaran-kp.detail', $pendaftaranKp->id),
+                'is_read' => false,
             ]);
 
             return redirect()->route('mahasiswa.pendaftaran-kp.create')->with('success', 'Pendaftaran KP berhasil diajukan.');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan sistem saat menyimpan data: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan sistem saat menyimpan data: '.$e->getMessage());
         }
     }
 }

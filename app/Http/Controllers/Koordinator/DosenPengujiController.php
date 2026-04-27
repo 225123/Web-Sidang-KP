@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Koordinator;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\PendaftaranSidang;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class DosenPengujiController extends Controller
 {
@@ -22,24 +21,24 @@ class DosenPengujiController extends Controller
         $warnings = $this->detectConflicts($allPendaftaran);
 
         // Bagi menjadi Daftar Tunggu dan Sudah Terjadwal
-        $daftarTunggu = $allPendaftaran->filter(function($p) {
+        $daftarTunggu = $allPendaftaran->filter(function ($p) {
             return is_null($p->penguji_1_id) || is_null($p->penguji_2_id);
         })->sortBy('mahasiswa.nim')->values();
 
-        $terjadwal = $allPendaftaran->filter(function($p) {
-            return !is_null($p->penguji_1_id) && !is_null($p->penguji_2_id);
+        $terjadwal = $allPendaftaran->filter(function ($p) {
+            return ! is_null($p->penguji_1_id) && ! is_null($p->penguji_2_id);
         })->sortBy('mahasiswa.nim')->values();
 
         // 3. Ambil daftar dosen aktif
-        $dosenAktif = User::whereHas('dosen', function($query) {
-                $query->where('is_aktif', 1);
-            })
+        $dosenAktif = User::whereHas('dosen', function ($query) {
+            $query->where('is_aktif', 1);
+        })
             ->get();
 
         // 4. Hitung beban menguji saat ini
         $bebanPenguji = $this->calculateLoads();
 
-        $dosenList = $dosenAktif->map(function($d) use ($bebanPenguji) {
+        $dosenList = $dosenAktif->map(function ($d) use ($bebanPenguji) {
             return [
                 'id' => $d->id,
                 'nama' => $d->name,
@@ -70,7 +69,7 @@ class DosenPengujiController extends Controller
             )
             ->get()
             ->groupBy('user_id')
-            ->map(function($group) {
+            ->map(function ($group) {
                 return $group->sum('total');
             });
     }
@@ -82,7 +81,7 @@ class DosenPengujiController extends Controller
 
         foreach ($allPendaftaran as $p) {
             $supervisorId = $p->pendaftaranKp->supervisor_internal_id ?? null;
-            
+
             // 1. Conflict: Examiner is Supervisor
             if ($p->penguji_1_id && $p->penguji_1_id == $supervisorId) {
                 $warnings[] = "Mahasiswa {$p->mahasiswa->user->name} memiliki Penguji 1 yang juga Pembimbingnya.";
@@ -129,7 +128,7 @@ class DosenPengujiController extends Controller
 
     private function mapPendaftaran($collection)
     {
-        return $collection->map(function($p) {
+        return $collection->map(function ($p) {
             return [
                 'id' => $p->id,
                 'nim' => $p->mahasiswa->nim ?? '-',
@@ -150,9 +149,9 @@ class DosenPengujiController extends Controller
 
     public function autoPlot()
     {
-        $dosenList = User::whereHas('dosen', function($query) {
-                $query->where('is_aktif', 1);
-            })->get();
+        $dosenList = User::whereHas('dosen', function ($query) {
+            $query->where('is_aktif', 1);
+        })->get();
 
         if ($dosenList->isEmpty()) {
             return response()->json(['success' => false, 'message' => 'Tidak ada dosen aktif untuk diplot.'], 422);
@@ -160,7 +159,7 @@ class DosenPengujiController extends Controller
 
         $daftarTunggu = PendaftaranSidang::with(['pendaftaranKp'])
             ->where('status_koordinator', 'verified')
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->whereNull('penguji_1_id')->orWhereNull('penguji_2_id');
             })->get();
 
@@ -170,11 +169,11 @@ class DosenPengujiController extends Controller
 
         // Initialize loads
         $loads = $this->calculateLoads();
-        $dosenData = $dosenList->map(function($d) use ($loads) {
+        $dosenData = $dosenList->map(function ($d) use ($loads) {
             return [
                 'id' => $d->id,
                 'name' => $d->name,
-                'load' => $loads->get($d->id, 0)
+                'load' => $loads->get($d->id, 0),
             ];
         })->toArray();
 
@@ -194,16 +193,20 @@ class DosenPengujiController extends Controller
                 $supervisorId = $sidang->pendaftaranKp->supervisor_internal_id;
 
                 // Sort dosen by load to ensure fair distribution
-                usort($dosenData, function($a, $b) {
+                usort($dosenData, function ($a, $b) {
                     return $a['load'] <=> $b['load'];
                 });
 
                 $selected = [];
                 foreach ($dosenData as &$d) {
-                    if (count($selected) >= 2) break;
+                    if (count($selected) >= 2) {
+                        break;
+                    }
 
                     // Constraint 1: Not Supervisor
-                    if ($d['id'] == $supervisorId) continue;
+                    if ($d['id'] == $supervisorId) {
+                        continue;
+                    }
 
                     // Constraint 2: No Overlap
                     if ($tanggal && $mulai && $selesai) {
@@ -220,7 +223,9 @@ class DosenPengujiController extends Controller
                                 }
                             }
                         }
-                        if ($hasConflict) continue;
+                        if ($hasConflict) {
+                            continue;
+                        }
                     }
 
                     $selected[] = $d['id'];
@@ -232,7 +237,7 @@ class DosenPengujiController extends Controller
                         'penguji_1_id' => $selected[0],
                         'penguji_2_id' => $selected[1],
                     ]);
-                    
+
                     // Update currentAssignments for next iteration
                     $currentAssignments[] = [
                         'id' => $sidang->id,
@@ -240,16 +245,18 @@ class DosenPengujiController extends Controller
                         'waktu_mulai_sidang' => $mulai,
                         'waktu_selesai_sidang' => $selesai,
                         'penguji_1_id' => $selected[0],
-                        'penguji_2_id' => $selected[1]
+                        'penguji_2_id' => $selected[1],
                     ];
                     $successCount++;
                 }
             }
             DB::commit();
+
             return response()->json(['success' => true, 'message' => "Auto Plotting berhasil untuk {$successCount} mahasiswa."]);
         } catch (\Exception $e) {
             DB::rollback();
-            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan saat auto plotting: ' . $e->getMessage()], 500);
+
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan saat auto plotting: '.$e->getMessage()], 500);
         }
     }
 
@@ -267,7 +274,7 @@ class DosenPengujiController extends Controller
 
         $sidang = PendaftaranSidang::findOrFail($request->id);
         $supervisor_id = $sidang->pendaftaranKp->supervisor_internal_id;
-        
+
         if ($request->penguji_1_id == $supervisor_id || $request->penguji_2_id == $supervisor_id) {
             return response()->json(['success' => false, 'message' => 'Supervisor Internal tidak boleh menjadi penguji.'], 422);
         }
@@ -292,13 +299,14 @@ class DosenPengujiController extends Controller
             'penguji_2_id' => null,
         ]);
 
-        return response()->json(['success' => true, 'message' => count($ids) . ' penugasan penguji telah dibatalkan.']);
+        return response()->json(['success' => true, 'message' => count($ids).' penugasan penguji telah dibatalkan.']);
     }
 
     public function destroy($id)
     {
         $sidang = PendaftaranSidang::findOrFail($id);
         $sidang->update(['penguji_1_id' => null, 'penguji_2_id' => null]);
+
         return response()->json(['success' => true, 'message' => 'Penugasan penguji dibatalkan.']);
     }
 
@@ -310,18 +318,18 @@ class DosenPengujiController extends Controller
             ->whereNotNull('penguji_2_id')
             ->where('status_jadwal', 'draft')
             ->update(['status_jadwal' => 'submitted']);
-            
+
         return redirect()->back()->with('success', 'Penugasan penguji telah berhasil disubmit.');
     }
 
-    public function cancelSubmit(Request $request) 
+    public function cancelSubmit(Request $request)
     {
         PendaftaranSidang::where('status_koordinator', 'verified')
             ->whereNotNull('penguji_1_id')
             ->whereNotNull('penguji_2_id')
             ->where('status_jadwal', 'submitted')
             ->update(['status_jadwal' => 'draft']);
-            
+
         return redirect()->back()->with('success', 'Status submit penugasan dibatalkan.');
     }
 }

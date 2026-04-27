@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Mahasiswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\Mahasiswa;
+use App\Models\NotifikasiLog;
+use App\Models\PendaftaranKp;
+use App\Models\PendaftaranSidang;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\PendaftaranSidang;
-use App\Models\PendaftaranKp;
 
 class PendaftaranSidangController extends Controller
 {
@@ -53,7 +56,9 @@ class PendaftaranSidangController extends Controller
         $mahasiswaId = Auth::user()->id;
         $pendaftaran = PendaftaranKp::where('mahasiswa_id', $mahasiswaId)->where('status_kp', 'approved')->latest()->first();
 
-        if (!$pendaftaran) abort(403, 'Akses ditolak.');
+        if (! $pendaftaran) {
+            abort(403, 'Akses ditolak.');
+        }
 
         $pengajuan = PendaftaranSidang::where('pendaftaran_kp_id', $pendaftaran->id)
             ->where('mahasiswa_id', $mahasiswaId)
@@ -87,23 +92,34 @@ class PendaftaranSidangController extends Controller
 
         $pengajuan->update($dataToUpdate);
 
+        // Notifikasi ke Koordinator
+        NotifikasiLog::create([
+            'sender_id' => null, // Sistem
+            'target_role' => 'koordinator',
+            'judul' => 'Pengajuan Berkas Sidang',
+            'pesan' => auth()->user()->name.' ('.(auth()->user()->mahasiswa->nim ?? '-').') telah mengajukan berkas pendaftaran sidang.',
+            'target_url' => route('koordinator.verifikasi-berkas'),
+            'is_read' => false,
+        ]);
+
         return back()->with('success', 'Berkas pendaftaran sidang berhasil diajukan ke Koordinator KP.');
     }
 
     public function downloadTemplateSupervisor()
     {
         $mahasiswaId = Auth::user()->id;
-        $mhs = \App\Models\Mahasiswa::with('user')->where('user_id', $mahasiswaId)->first();
+        $mhs = Mahasiswa::with('user')->where('user_id', $mahasiswaId)->first();
         $kp = PendaftaranKp::where('mahasiswa_id', $mahasiswaId)->where('status_kp', 'approved')->latest()->first();
 
         $data = [
             'nama_mahasiswa' => $mhs->user->name ?? 'Mahasiswa',
             'nim' => $mhs->nim ?? '-',
             'nama_projek' => $kp->judul_kp ?? '-',
-            'nama_instansi' => $kp->instansi_nama ?? '-'
+            'nama_instansi' => $kp->instansi_nama ?? '-',
         ];
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('mahasiswa.template_penilaian_supervisor', compact('data'));
+        $pdf = Pdf::loadView('mahasiswa.template_penilaian_supervisor', compact('data'));
+
         return $pdf->download('Template_Surat_Penilaian_Supervisor_'.$data['nim'].'.pdf');
     }
 }

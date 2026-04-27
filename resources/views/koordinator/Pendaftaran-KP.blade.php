@@ -89,53 +89,108 @@
                     <span class="text-[#E8F5E9] text-[12px] font-medium font-inter mt-1">Belum Dapat Projek</span>
                 </div>
             </div>
+        </div>
 
-            <div class="hidden xl:block w-px bg-gray-300 mx-2"></div>
+        @php
+            $items = collect($pendaftarans->items());
+            $statsMain = [
+                'Internal' => [
+                    'menunggu' => $items->where('jenis_instansi', 'Internal')->where('status_kp', 'pending')->count(),
+                    'disetujui' => $items->where('jenis_instansi', 'Internal')->where('status_kp', 'approved')->count()
+                ],
+                'External' => [
+                    'menunggu' => $items->where('jenis_instansi', 'External')->where('status_kp', 'pending')->count(),
+                    'disetujui' => $items->where('jenis_instansi', 'External')->where('status_kp', 'approved')->count()
+                ]
+            ];
+            $statsRejectedCount = $rejectedPendaftarans->total();
+            
+            $statsBelumDaftar = collect($allStatusRows)->whereIn('status', ['Belum Mendaftar', 'Belum Mendaftar (Proyek Ada)'])->count();
+            $statsSudahDaftar = collect($allStatusRows)->where('status', 'Sudah Mendaftar')->count();
+        @endphp
 
-            <div class="flex flex-col sm:flex-row flex-wrap gap-4 w-full xl:w-auto">
-                <div class="bg-[#34A853] text-white rounded-[5px] w-full sm:w-[calc(33.33%-0.67rem)] xl:w-[100px] h-[75px] flex flex-col justify-center items-center shadow-sm">
-                    <div class="flex items-center gap-1 mt-1">
-                        <svg class="w-4 h-4 rounded-full border border-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        <span class="text-[24px] font-bold leading-none">{{ $stats['disetujui'] }}</span>
-                    </div>
-                    <span class="text-[11px] font-medium mt-1.5">Disetujui</span>
+
+
+        <!-- Tabs -->
+        <div class="flex items-end h-[36px] mt-8">
+            <button @click="tabJenis = 'Internal'; $dispatch('update-jenis-main', 'Internal')" 
+               :class="tabJenis === 'Internal' ? 'bg-[#D9D9D9] border border-black/50 border-b-0 h-[36px] z-10' : 'bg-[#E8E8E8] border border-black/50 opacity-70 h-[34px] border-b-black'"
+               class="w-[110px] text-[14px] font-medium rounded-t-[5px] relative flex items-center justify-center text-black hover:opacity-100 transition-all">
+               Internal
+            </button>
+            <button @click="tabJenis = 'External'; $dispatch('update-jenis-main', 'External')" 
+               :class="tabJenis === 'External' ? 'bg-[#D9D9D9] border border-black/50 border-b-0 h-[36px] z-10' : 'bg-[#E8E8E8] border border-black/50 opacity-70 h-[34px] border-b-black'"
+               class="w-[110px] text-[14px] font-medium rounded-t-[5px] relative left-[-1px] flex items-center justify-center text-black hover:opacity-100 transition-all">
+               Eksternal
+            </button>
+        </div>
+
+        <div class="bg-white rounded-b-[15px] rounded-tr-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8 relative top-[-1px]" id="main">
+            <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
+                <div>
+                    <h3 class="text-[18px] font-bold text-black tracking-tight">Daftar Pengajuan KP <span x-text="tabJenis === 'External' ? 'Eksternal' : 'Internal'"></span></h3>
+                    <p class="text-[12px] text-black/60 font-medium mt-1">Berdasarkan data pengajuan kerja praktik terbaru dari mahasiswa yang perlu ditinjau koordinator.</p>
                 </div>
-                <div class="bg-[#FBBC05] text-black rounded-[5px] w-full sm:w-[calc(33.33%-0.67rem)] xl:w-[100px] h-[75px] flex flex-col justify-center items-center shadow-sm">
-                    <div class="flex items-center gap-1 mt-1">
-                        <div class="w-3.5 h-3.5 border-2 border-black rounded-sm"></div>
-                        <span class="text-[24px] font-bold leading-none">{{ $stats['belum_diperiksa'] }}</span>
+                <div class="flex gap-2 shrink-0">
+                    <div class="bg-[#FBBC05] text-black rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-yellow-500/20">
+                        <span class="text-[16px] font-bold leading-none" x-text="tabJenis === 'Internal' ? {{ $statsMain['Internal']['menunggu'] }} : {{ $statsMain['External']['menunggu'] }}"></span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Menunggu</span>
                     </div>
-                    <span class="text-[11px] font-medium mt-1.5">Belum Diperiksa</span>
-                </div>
-                <div class="bg-[#EA4335] text-white rounded-[5px] w-full sm:w-[calc(33.33%-0.67rem)] xl:w-[100px] h-[75px] flex flex-col justify-center items-center shadow-sm">
-                    <div class="flex items-center gap-1 mt-1">
-                        <svg class="w-4 h-4 rounded-full border border-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        <span class="text-[24px] font-bold leading-none">{{ $stats['ditolak'] }}</span>
+                    <div class="bg-[#34A853] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-green-600/20">
+                        <span class="text-[16px] font-bold leading-none" x-text="tabJenis === 'Internal' ? {{ $statsMain['Internal']['disetujui'] }} : {{ $statsMain['External']['disetujui'] }}"></span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Disetujui</span>
                     </div>
-                    <span class="text-[11px] font-medium mt-1.5">Ditolak</span>
                 </div>
+            </div>
+            <div class="mb-4">
+                @include('koordinator.components.pendaftaran-filter', ['prefix' => 'main', 'otherPrefix' => 'rejected', 'hideStatus' => false])
+            </div>
+            <div class="border border-gray-200 rounded-[10px] overflow-hidden">
+                @include('koordinator.components.kp-table', ['pendaftarans' => $pendaftarans, 'isRejected' => false, 'searchModel' => 'searchQuery'])
             </div>
         </div>
 
-
-
-        <div class="mb-4" id="main">
-            @include('koordinator.components.pendaftaran-filter', ['prefix' => 'main', 'otherPrefix' => 'rejected', 'hideStatus' => false])
-            @include('koordinator.components.kp-table', ['pendaftarans' => $pendaftarans, 'title' => 'Daftar Pengajuan KP', 'isRejected' => false, 'searchModel' => 'searchQuery'])
-        </div>
-
-        <div class="mt-8 mb-8" id="rejected">
-            @include('koordinator.components.pendaftaran-filter', ['prefix' => 'rejected', 'otherPrefix' => 'main', 'hideStatus' => true])
-            @include('koordinator.components.kp-table', ['pendaftarans' => $rejectedPendaftarans, 'title' => 'Riwayat Penolakan Pendaftaran KP', 'isRejected' => true, 'searchModel' => 'searchQueryRejected'])
+        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8" id="rejected">
+            <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
+                <div>
+                    <h3 class="text-[18px] font-bold text-black tracking-tight">Riwayat Penolakan Pendaftaran KP</h3>
+                    <p class="text-[12px] text-black/60 font-medium mt-1">Tabel rekam jejak ditariknya dan penolakan form registrasi mahasiswa secara permanen pada sesi sebelumnya.</p>
+                </div>
+                <div class="flex gap-2 shrink-0">
+                    <div class="bg-[#EA4335] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-red-600/20">
+                        <span class="text-[16px] font-bold leading-none">{{ $statsRejectedCount }}</span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Ditolak</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-4">
+                @include('koordinator.components.pendaftaran-filter', ['prefix' => 'rejected', 'otherPrefix' => 'main', 'hideStatus' => true])
+            </div>
+            <div class="border border-gray-200 rounded-[10px] overflow-hidden">
+                @include('koordinator.components.kp-table', ['pendaftarans' => $rejectedPendaftarans, 'isRejected' => true, 'searchModel' => 'searchQueryRejected'])
+            </div>
         </div>
 
         <!-- Tabel Status Pendaftaran Mahasiswa -->
         <div class="mt-16 bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-6 mb-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start gap-4 mb-8">
                 <div>
                     <h3 class="text-[18px] font-bold text-black uppercase tracking-tight">Status Pendaftaran Mahasiswa</h3>
-                    <p class="text-[12px] text-black/60 font-medium">Rekapitulasi pendaftaran KP seluruh mahasiswa</p>
+                    <p class="text-[12px] text-black/60 font-medium mt-1">Rekapitulasi pendaftaran KP seluruh mahasiswa</p>
                 </div>
+                <div class="flex gap-2 shrink-0">
+                    <div class="bg-[#EA4335] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-red-600/20">
+                        <span class="text-[16px] font-bold leading-none">{{ $statsBelumDaftar }}</span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Belum Mendaftar</span>
+                    </div>
+                    <div class="bg-[#34A853] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-green-600/20">
+                        <span class="text-[16px] font-bold leading-none">{{ $statsSudahDaftar }}</span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Sudah Mendaftar</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-6 mb-6">
 
                 <div class="flex flex-wrap items-center gap-4 w-full sm:w-auto">
                     <div class="relative flex-1 sm:w-[300px]">
@@ -158,7 +213,7 @@
                     </div>
 
                     <div class="relative shrink-0" x-data="{ exportOpen: false }" @click.outside="exportOpen = false">
-                        <button @click="exportOpen = !exportOpen" class="bg-[#EA4335] hover:bg-red-700 text-white px-4 py-1.5 rounded-[5px] text-[12px] font-bold flex items-center shadow-sm uppercase transition-colors">
+                        <button @click="exportOpen = !exportOpen" class="bg-[#EA4335] hover:bg-red-700 text-white px-4 py-1.5 rounded-[5px] text-[12px] font-bold flex items-center shadow-sm transition-colors">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                             Cetak PDF
                         </button>
@@ -190,12 +245,12 @@
                                 <td class="py-3 px-4 text-left font-normal text-black sentence-case border-r border-gray-200" x-text="stat.name"></td>
                                 <td class="py-3 px-4 text-center">
                                     <template x-if="stat.status === 'Sudah Mendaftar'">
-                                        <span class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-4 py-1 rounded-full font-bold text-[10px] uppercase">
+                                        <span class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-4 py-1 rounded-full font-bold text-[10px]">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> Sudah Mendaftar
                                         </span>
                                     </template>
                                     <template x-if="stat.status === 'Belum Mendaftar (Proyek Ada)'">
-                                        <span class="inline-flex items-center gap-1.5 bg-orange-100 text-orange-700 px-4 py-1 rounded-full font-bold text-[10px] uppercase">
+                                        <span class="inline-flex items-center gap-1.5 bg-orange-100 text-orange-700 px-4 py-1 rounded-full font-bold text-[10px]">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Belum (Proyek Ada)
                                         </span>
                                     </template>
@@ -207,7 +262,7 @@
                         </template>
                         <template x-if="filteredStatusRows.length === 0">
                             <tr>
-                                <td colspan="4" class="py-12 text-center text-gray-400 italic font-medium bg-gray-50 uppercase tracking-widest">Tidak ada data ditemukan</td>
+                                <td colspan="4" class="py-12 text-center text-gray-400 italic font-medium bg-gray-50 tracking-widest">Tidak Ada Data Ditemukan</td>
                             </tr>
                         </template>
                     </tbody>
@@ -262,6 +317,7 @@
         document.addEventListener('alpine:init', () => {
             window.pendaftaranScope = function() {
                 return {
+                    tabJenis: 'Internal',
                     searchQuery: '{{ request('main.search') }}', 
                     searchQueryRejected: '{{ request('rejected.search') }}',
                     isSelectionMode: sessionStorage.getItem('kpSelectionMode') === 'true',
@@ -275,6 +331,11 @@
                     statusCurrentPage: 1,
                     statusItemsPerPage: 10,
                     statusRows: @json($allStatusRows ?? []),
+                    
+                    init() {
+                        this.$watch('tabJenis', val => this.$dispatch('update-jenis-main', val));
+                        this.$nextTick(() => this.$dispatch('update-jenis-main', this.tabJenis));
+                    },
 
                     openModalCatatan(formElement, pesan) {
                         this.modalFormEl = formElement;

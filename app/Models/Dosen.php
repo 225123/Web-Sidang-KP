@@ -10,13 +10,15 @@ class Dosen extends Model
     use HasFactory;
 
     protected $table = 'dosen';
-    
+
     // Disable timestamps since they are not in the schema level 1
     public $timestamps = false;
 
     // Menjadikan NIDN sebagai Primary Key
     protected $primaryKey = 'nidn';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [

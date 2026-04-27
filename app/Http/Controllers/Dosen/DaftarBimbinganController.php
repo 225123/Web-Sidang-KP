@@ -3,91 +3,86 @@
 namespace App\Http\Controllers\Dosen;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\PendaftaranKp;
 use App\Models\LogBimbingan;
 use App\Models\Mahasiswa;
+use App\Models\PendaftaranKp;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DaftarBimbinganController extends Controller
 {
     public function index()
     {
-        $dosenId = Auth::id();
+        $user = Auth::user();
+        $isKoordinator = ($user->role === 'koordinator_kp');
+        $dosenId = $user->id;
 
-        $kps = PendaftaranKp::where('pembimbing_id', $dosenId)->get();
-        $mahasiswaIds = [];
-        foreach ($kps as $kp) {
-            $mahasiswaIds[] = $kp->mahasiswa_id;
-            if (!empty($kp->anggota_kelompok_ids)) {
-                $anggota = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
-                if (is_array($anggota)) {
-                    foreach ($anggota as $aid) {
-                        $mahasiswaIds[] = $aid;
-                    }
-                }
-            }
+        // 1. Ambil pendaftaran KP. Jika koordinator, ambil SEMUA yang sudah mendaftar (untuk memantau).
+        // Jika dosen, ambil yang dibimbing.
+        $query = PendaftaranKp::with(['supervisorInstansi', 'logBimbingans', 'mahasiswa.user', 'pembimbing']);
+
+        if (! $isKoordinator) {
+            $query->where('pembimbing_id', $dosenId);
         }
-        $mahasiswaIds = array_unique($mahasiswaIds);
-        
-        // 1. Ambil mahasiswa bimbingan
-        $mahasiswas = Mahasiswa::with(['user'])->whereIn('user_id', $mahasiswaIds)->get();
+
+        $kps = $query->get();
 
         $pendaftarans = collect();
         $jumlahSelesai = 0;
         $jumlahBelumDiperiksa = 0;
 
-        foreach ($mahasiswas as $mhs) {
-            // Ambil pendaftaran KP tanpa filter 'mahasiswa_id' di level SQL untuk menghindari error
-            $kpLog = PendaftaranKp::with(['logBimbingans', 'supervisorInstansi'])
-                ->where(function ($q) use ($mhs) {
-                    $q->where('mahasiswa_id', $mhs->user_id)
-                        ->orWhereJsonContains('anggota_kelompok_ids', $mhs->user_id)
-                        ->orWhereJsonContains('anggota_kelompok_ids', (string) $mhs->user_id);
-                })
-                ->where('status_kp', 'approved')
-                ->latest()
-                ->first();
-
-            if (!$kpLog && $mhs->user) {
-                $kpLog = PendaftaranKp::with(['logBimbingans', 'supervisorInstansi'])
-                    ->where('mahasiswa_id', $mhs->user_id)
-                    ->latest()
-                    ->first();
-            }
-
-            $displayKp = new \stdClass();
-            $displayKp->id = $kpLog->id ?? null;
-            $displayKp->display_mahasiswa = $mhs;
-            $displayKp->display_judul_kp = $kpLog->judul_kp ?? '-';
-            $displayKp->display_instansi = $kpLog->instansi_nama ?? '-';
-            $displayKp->display_supervisor = $kpLog->supervisorInstansi->nama_supervisor ?? '-';
-            $displayKp->total_log = 0;
-            $displayKp->status_approval_semua = '-';
-
-            if ($kpLog) {
-                // filter log bimbingan di level PHP agar hanya milik mahasiswa ini saja
-                $myLogs = $kpLog->logBimbingans->where('mahasiswa_id', $mhs->user_id);
-                $myApprovedLogs = $myLogs->where('status_approval', 'approved');
-
-                $displayKp->total_log = $myApprovedLogs->count();
-                $adaPending = $myLogs->where('status_approval', 'pending')->count() > 0;
-
-                if ($myLogs->count() > 0) {
-                    $displayKp->status_approval_semua = $adaPending ? 'Menunggu pengecekan' : 'Diperiksa';
-                }
-
-                // Hitung statistik untuk Dashboard
-                foreach ($myLogs as $log) {
-                    if ($log->status_approval == 'approved') {
-                        $jumlahSelesai++;
-                    } elseif ($log->status_approval == 'pending') {
-                        $jumlahBelumDiperiksa++;
+        foreach ($kps as $kp) {
+            // Dapatkan semua user_id yang terlibat (Ketua + Anggota)
+            $userIds = [$kp->mahasiswa_id];
+            if (! empty($kp->anggota_kelompok_ids)) {
+                $decoded = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
+                if (is_array($decoded)) {
+                    foreach ($decoded as $id) {
+                        if (! empty($id)) {
+                            $userIds[] = $id;
+                        }
                     }
                 }
             }
-            
-            $pendaftarans->push($displayKp);
+            $userIds = array_unique($userIds);
+
+            foreach ($userIds as $uid) {
+                $mhs = Mahasiswa::with('user')->where('user_id', $uid)->first();
+                if ($mhs) {
+                    // Cek log bimbingan untuk mahasiswa spesifik ini
+                    $myLogs = $kp->logBimbingans->where('mahasiswa_id', $mhs->user_id);
+                    $myApprovedLogs = $myLogs->where('status_approval', 'approved');
+                    $adaPending = $myLogs->where('status_approval', 'pending')->count() > 0;
+
+                    $pendaftarans->push([
+                        'id' => $kp->id,
+                        'display_mahasiswa' => $mhs,
+                        'display_judul_kp' => $kp->judul_kp ?? '-',
+                        'display_instansi' => $kp->instansi_nama ?? '-',
+                        'display_supervisor' => ($kp->supervisorInstansi) ? $kp->supervisorInstansi->nama_supervisor : '-',
+                        'display_pembimbing' => $kp->pembimbing->name ?? ($kp->pembimbing_id ? 'Dosen ID: '.$kp->pembimbing_id : '-'),
+                        'total_log' => $myApprovedLogs->count(),
+                        'status_approval_semua' => $myLogs->count() > 0 ? ($adaPending ? 'Menunggu pengecekan' : 'Diperiksa') : '-',
+                    ]);
+
+                    // Statistik Global (Disesuaikan dengan konteks login)
+                    if (! $isKoordinator) {
+                        foreach ($myLogs as $log) {
+                            if ($log->status_approval == 'approved') {
+                                $jumlahSelesai++;
+                            } elseif ($log->status_approval == 'pending') {
+                                $jumlahBelumDiperiksa++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Statistik global untuk koordinator: Total dari seluruh sistem
+        if ($isKoordinator) {
+            $jumlahSelesai = LogBimbingan::where('status_approval', 'approved')->count();
+            $jumlahBelumDiperiksa = LogBimbingan::where('status_approval', 'pending')->count();
         }
 
         return view('dosen.daftar-mahasiswa', [
@@ -113,7 +108,7 @@ class DaftarBimbinganController extends Controller
             'logBimbingans' => function ($q) use ($mhs) {
                 $q->where('mahasiswa_id', $mhs->user_id) // <-- Filter agar hanya log milik mahasiswa ini
                     ->orderBy('tanggal', 'desc');
-            }
+            },
         ])->where('id', $id)->firstOrFail();
 
         if ($pendaftaran->pembimbing_id != $dosenId && Auth::user()->role != 'koordinator_kp') {
@@ -140,12 +135,12 @@ class DaftarBimbinganController extends Controller
     public function updateStatus(Request $request, $log_id)
     {
         $request->validate([
-            'status_approval' => 'required|in:approved,rejected'
+            'status_approval' => 'required|in:approved,rejected',
         ]);
 
         $log = LogBimbingan::findOrFail($log_id);
         $log->update([
-            'status_approval' => $request->status_approval
+            'status_approval' => $request->status_approval,
         ]);
 
         return back()->with('success', 'Status bimbingan berhasil diperbarui.');

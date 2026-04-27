@@ -135,9 +135,9 @@
                             searchAnggota: '',
                             openAnggota: false,
                             selectedAnggota: {{ $oldAnggota }},
-                            allMahasiswa: {{ $allMahasiswa->map(function($m) { return ['id' => (string)$m->id, 'label' => ($m->mahasiswa->nim ?? 'NIM') . ' - ' . $m->name, 'is_unavailable' => $m->is_unavailable]; })->values()->toJson() }},
+                            allMahasiswa: {{ \Illuminate\Support\Js::from($allMahasiswa->map(function($m) { return ['id' => (string)$m->id, 'label' => ($m->mahasiswa->nim ?? 'NIM') . ' - ' . $m->name, 'is_unavailable' => $m->is_unavailable]; })->values()) }},
                             
-                            allDosen: {{ $allDosen->map(function($d) { return ['id' => (string)$d->id, 'name' => $d->name]; })->values()->toJson() }},
+                            allDosen: {{ \Illuminate\Support\Js::from($allDosen->map(function($d) { return ['id' => (string)$d->id, 'name' => $d->name]; })->values()) }},
                             searchDosen: '',
                             openDosen: false,
                             selectedDosenId: '{{ old('supervisor_internal_id', '') }}',
@@ -355,7 +355,7 @@
                                     <div class="w-full border border-[#CAC0C0] bg-gray-100 rounded px-4 py-3 text-[14px] text-gray-700 min-h-[46px] flex flex-wrap gap-2">
                                         @foreach($anggotaTerpilih ?? [] as $anggota)
                                             <span class="bg-[#E8E5E5] px-3 py-1 rounded-full text-[13px] border border-[#d1cdcd]">
-                                                {{ $anggota->mahasiswa->nim ?? 'NIM' }} - {{ $anggota->name }}
+                                                {{ data_get($anggota, 'mahasiswa.nim', 'NIM') }} - {{ data_get($anggota, 'name', '') }}
                                             </span>
                                         @endforeach
                                     </div>
@@ -443,6 +443,17 @@
                                 
                                 @error('nama_supervisor') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                                 @error('supervisor_internal_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- Email Supervisor: Muncul HANYA jika yang diketik BUKAN dosen dari sistem -->
+                            <div class="mb-6" x-show="selectedDosenId === '' && selectedDosenName !== ''" x-transition style="display: none;">
+                                <label for="email_supervisor" class="block text-[14px] font-bold text-black mb-2">Email Supervisior Eksternal <span class="text-red-600">*</span></label>
+                                <input type="email" name="email_supervisor" id="email_supervisor" 
+                                    :required="selectedDosenId === '' && selectedDosenName !== ''"
+                                    placeholder="Masukan email aktif supervisior perusahaan" value="{{ old('email_supervisor') }}"
+                                    class="w-full border border-[#CAC0C0] rounded bg-white px-4 py-3 text-[14px] focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                <p class="mt-1 text-[11px] text-orange-600 italic font-medium">Penting: Link pengisian Nilai Akhir KP bagi supervisor eksternal akan dikirimkan ke email ini. Pastikan email valid.</p>
+                                @error('email_supervisor') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="mb-8">

@@ -11,13 +11,15 @@ class Mahasiswa extends Model
 
     // Define table name as standard schema does not use plural in this case
     protected $table = 'mahasiswa';
-    
+
     // Disable timestamps since they are not in the schema level 1
     public $timestamps = false;
 
     // Menjadikan NIM sebagai Primary Key
     protected $primaryKey = 'nim';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -32,5 +34,10 @@ class Mahasiswa extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function pembimbing()
+    {
+        return $this->belongsTo(Dosen::class, 'pembimbing_id');
     }
 }

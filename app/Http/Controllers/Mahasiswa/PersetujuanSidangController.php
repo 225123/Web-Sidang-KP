@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Mahasiswa;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\PendaftaranKp;
 use App\Models\PendaftaranSidang;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PersetujuanSidangController extends Controller
 {
@@ -18,10 +18,10 @@ class PersetujuanSidangController extends Controller
 
         // Ambil data Pendaftaran KP yang sudah APPROVED milik mahasiswa ini (termasuk kelompook)
         $pendaftaran = PendaftaranKp::with(['mahasiswa.user', 'pembimbing'])
-            ->where(function($q) use ($mahasiswaId) {
+            ->where(function ($q) use ($mahasiswaId) {
                 $q->where('mahasiswa_id', $mahasiswaId)
-                  ->orWhereJsonContains('anggota_kelompok_ids', $mahasiswaId)
-                  ->orWhereJsonContains('anggota_kelompok_ids', (string)$mahasiswaId);
+                    ->orWhereJsonContains('anggota_kelompok_ids', $mahasiswaId)
+                    ->orWhereJsonContains('anggota_kelompok_ids', (string) $mahasiswaId);
             })
             ->where('status_kp', 'approved') // Pastikan hanya KP yang disetujui
             ->latest()
@@ -31,7 +31,10 @@ class PersetujuanSidangController extends Controller
         $persetujuan = null;
 
         if ($pendaftaran) {
-            $totalBimbingan = $pendaftaran->logBimbingans()->count();
+            $totalBimbingan = $pendaftaran->logBimbingans()
+                ->where('mahasiswa_id', $mahasiswaId)
+                ->where('status_approval', 'approved')
+                ->count();
             // Ambil data pengajuan sidang berdasarkan pendaftaran_kp_id dan mahasiswa_id
             $persetujuan = PendaftaranSidang::where('pendaftaran_kp_id', $pendaftaran->id)
                 ->where('mahasiswa_id', $mahasiswaId)
@@ -46,22 +49,22 @@ class PersetujuanSidangController extends Controller
     {
         $request->validate([
             'file_laporan' => 'nullable|mimes:pdf|max:5120',
-            'link_drive' => 'nullable|url'
+            'link_drive' => 'nullable|url',
         ]);
 
         $mahasiswaId = Auth::user()->id;
 
         // Cari ID KP yang aktif untuk mahasiswa (termasuk kelompok)
-        $pendaftaran = PendaftaranKp::where(function($q) use ($mahasiswaId) {
-                $q->where('mahasiswa_id', $mahasiswaId)
-                  ->orWhereJsonContains('anggota_kelompok_ids', $mahasiswaId)
-                  ->orWhereJsonContains('anggota_kelompok_ids', (string)$mahasiswaId);
-            })
+        $pendaftaran = PendaftaranKp::where(function ($q) use ($mahasiswaId) {
+            $q->where('mahasiswa_id', $mahasiswaId)
+                ->orWhereJsonContains('anggota_kelompok_ids', $mahasiswaId)
+                ->orWhereJsonContains('anggota_kelompok_ids', (string) $mahasiswaId);
+        })
             ->where('status_kp', 'approved')
             ->latest()
             ->first();
 
-        if (!$pendaftaran) {
+        if (! $pendaftaran) {
             return back()->with('error', 'Anda belum memiliki pendaftaran KP yang disetujui oleh Koordinator.');
         }
 
@@ -72,7 +75,7 @@ class PersetujuanSidangController extends Controller
 
         // Simpan atau update jika sudah ada (mencegah pendobelan row)
         PendaftaranSidang::updateOrCreate(
-            ['pendaftaran_kp_id' => $pendaftaran->id, 'mahasiswa_id' => $mahasiswaId], 
+            ['pendaftaran_kp_id' => $pendaftaran->id, 'mahasiswa_id' => $mahasiswaId],
             [
                 'file_laporan' => $filePath,
                 'link_github' => $request->link_drive,
@@ -92,7 +95,7 @@ class PersetujuanSidangController extends Controller
 
         // Jika parameter download=true ada di URL, maka file akan terdownload
         if ($request->has('download') && $request->download == 'true') {
-            return $pdf->download('Surat_Persetujuan_Sidang_' . $persetujuan->mahasiswa->nim . '.pdf');
+            return $pdf->download('Surat_Persetujuan_Sidang_'.$persetujuan->mahasiswa->nim.'.pdf');
         }
 
         // Stream untuk menampilkan preview di dalam iframe (Gambar 3)

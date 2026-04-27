@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Mahasiswa;
-use App\Models\Dosen;
-use App\Models\User;
 
 class UserProfileController extends Controller
 {
@@ -16,7 +14,7 @@ class UserProfileController extends Controller
         $user = Auth::user();
         $role = $user->role;
         $active = 'profil';
-        
+
         $profileData = [
             'name' => $user->name,
             'email' => $user->email,
@@ -49,10 +47,10 @@ class UserProfileController extends Controller
     public function updateInfo(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|max:255|unique:users,email,' . Auth::id(),
+            'email' => 'required|email|max:255|unique:users,email,'.Auth::id(),
             'no_hp' => 'nullable|string|max:20',
         ], [
-            'email.unique' => 'Email yang baru saja Anda masukkan sudah terdaftar untuk pengguna lain.'
+            'email.unique' => 'Email yang baru saja Anda masukkan sudah terdaftar untuk pengguna lain.',
         ]);
 
         $user = Auth::user();
@@ -122,14 +120,14 @@ class UserProfileController extends Controller
         ]);
 
         $user = Auth::user();
-        
-        $image_parts = explode(";base64,", $request->signature_base64);
-        $image_type_aux = explode("image/", $image_parts[0]);
+
+        $image_parts = explode(';base64,', $request->signature_base64);
+        $image_type_aux = explode('image/', $image_parts[0]);
         $image_type = $image_type_aux[1] ?? 'png';
         $image_base64 = base64_decode($image_parts[1]);
-        
-        $fileName = 'signatures/' . uniqid() . '.png';
-        
+
+        $fileName = 'signatures/'.uniqid().'.png';
+
         Storage::disk('public')->put($fileName, $image_base64);
 
         if ($user->signature_path) {

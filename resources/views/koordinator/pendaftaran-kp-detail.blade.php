@@ -86,6 +86,11 @@
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Supervisor</div>
                 <div class="hidden md:block">:</div>
                 <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->supervisorInstansi->nama_supervisor ?? '-' }}</div>
+
+                <!-- Email Supervisor -->
+                <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Email Supervisor</div>
+                <div class="hidden md:block">:</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->supervisorInstansi->email_supervisor ?? '-' }}</div>
                 
                 <!-- Judul KP -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Judul KP</div>

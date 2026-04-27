@@ -30,7 +30,21 @@
         </div>
     </x-slot:headerActions>
 
-    <div x-data="bimbinganState()" class="mt-6">
+    <div x-data="{
+        isModalOpen: false,
+        previewImage: null,
+        newImagePreview: null,
+        handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.newImagePreview = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    }" class="mt-6">
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
             <div class="flex-1 bg-[#EAEFFF] border border-[#BACDFB] rounded-[10px] p-4 flex items-center gap-4 shadow-sm w-full lg:w-auto">
                 <div class="bg-[#7896F8] w-6 h-6 rounded-full flex items-center justify-center text-white shrink-0 shadow-sm font-serif italic text-sm">i</div>
@@ -80,10 +94,16 @@
                     </thead>
                     <tbody class="text-[13px] text-black divide-y divide-gray-100">
                         @forelse($logs ?? [] as $log)
-                            @php $materi = json_decode($log->materi_bahasan, true); @endphp
+                            @php 
+                                /** @var \App\Models\LogBimbingan $log */
+                                $materi = [];
+                                if ($log && $log->materi_bahasan) {
+                                    $materi = json_decode($log->materi_bahasan, true) ?? [];
+                                }
+                            @endphp
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="py-4 px-4 text-center font-bold">
-                                    {{ \Carbon\Carbon::parse($log->tanggal)->format('d/m/Y') }}
+                                    {{ $log && $log->tanggal ? \Carbon\Carbon::parse($log->tanggal)->format('d/m/Y') : '-' }}
                                 </td>
                                 <td class="py-4 px-4 text-center">
                                     <div class="text-blue-700 font-bold tracking-tight">{{ $materi['waktuMulai'] ?? '00:00' }} - {{ $materi['waktuSelesai'] ?? '00:00' }}</div>
@@ -94,7 +114,7 @@
                                     <div class="text-black/70 leading-relaxed text-[12px]">{{ Str::limit($materi['detail'] ?? '-', 120) }}</div>
                                 </td>
                                 <td class="py-4 px-4 text-center">
-                                    @if($log->file_progress)
+                                    @if($log && $log->file_progress)
                                         <div class="w-14 h-10 mx-auto rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:ring-2 hover:ring-blue-400 transition-all cursor-pointer bg-gray-50"
                                             @click="previewImage = '{{ asset('storage/' . $log->file_progress) }}'">
                                             <img src="{{ asset('storage/' . $log->file_progress) }}" class="w-full h-full object-cover">
@@ -104,16 +124,16 @@
                                     @endif
                                 </td>
                                 <td class="py-4 px-4 text-center">
-                                    @if($log->status_approval == 'pending')
+                                    @if($log && $log->status_approval == 'pending')
                                         <div class="inline-flex items-center gap-1.5 bg-[#FDE68A] text-[#92400E] px-4 py-1.5 rounded-full font-bold text-[10px] uppercase shadow-sm whitespace-nowrap">
                                             <div class="w-1.5 h-1.5 rounded-full bg-[#D4A017] animate-pulse"></div>
                                             Menunggu pengecekan
                                         </div>
-                                    @elseif($log->status_approval == 'approved')
+                                    @elseif($log && $log->status_approval == 'approved')
                                         <div class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-4 py-1.5 rounded-full font-bold text-[10px] uppercase shadow-sm">
                                             <div class="w-1.5 h-1.5 rounded-full bg-green-600"></div> Diterima
                                         </div>
-                                    @elseif($log->status_approval == 'rejected')
+                                    @elseif($log && $log->status_approval == 'rejected')
                                         <div class="inline-flex items-center gap-1.5 bg-red-100 text-red-700 px-4 py-1.5 rounded-full font-bold text-[10px] uppercase shadow-sm">
                                             <div class="w-1.5 h-1.5 rounded-full bg-red-600"></div> Ditolak
                                         </div>
@@ -211,23 +231,5 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('bimbinganState', () => ({
-                isModalOpen: false,
-                previewImage: null,
-                newImagePreview: null,
-                handleFileUpload(event) {
-                    const file = event.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            this.newImagePreview = e.target.result;
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                }
-            }))
-        })
-    </script>
+    <!-- Alpine Script Handled via x-data inline -->
 </x-dashboard-layout>

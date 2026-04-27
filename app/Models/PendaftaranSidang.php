@@ -57,6 +57,10 @@ class PendaftaranSidang extends Model
         'ns_inisiatif',
         'ns_sikap',
         'nilai_supervisor',
+        'file_revisi',
+        'link_revisi',
+        'status_revisi',
+        'tanggal_revisi',
     ];
 
     public function pendaftaranKp()

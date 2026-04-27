@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Koordinator;
 
 use App\Http\Controllers\Controller;
+use App\Models\PendaftaranKp;
+use App\Models\PendaftaranSidang;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Models\PendaftaranSidang;
-use App\Models\PendaftaranKp;
 
 class InputNilaiController extends Controller
 {
@@ -16,34 +17,34 @@ class InputNilaiController extends Controller
         app()->setLocale('id');
         $currentUserId = Auth::id();
         $currentUserName = Auth::user()->name;
-        
+
         // Kita menggunakan pencocokan berbasis Mahasiswa ID untuk mengatasi data pendaftaran sidang yang mungkin link ke KP ID yang salah (lama/rejected)
         $sidangs = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp.supervisorInternal', 'pendaftaranKp.supervisorInstansi'])
             ->whereNotNull('tanggal_sidang')
-            ->where(function($query) use ($currentUserId, $currentUserName) {
+            ->where(function ($query) use ($currentUserId, $currentUserName) {
                 $query->where('penguji_1_id', $currentUserId)
-                      ->orWhere('penguji_2_id', $currentUserId)
+                    ->orWhere('penguji_2_id', $currentUserId)
                       // Cari pendaftaran sidang milik mahasiswa yang memiliki KP approved besutan dosen ini
-                      ->orWhereHas('pendaftaranKp', function($sq) use ($currentUserId, $currentUserName) {
-                          $sq->where('pembimbing_id', $currentUserId)
-                             ->orWhere('supervisor_internal_id', $currentUserId)
-                             ->orWhereExists(function($ssq) use ($currentUserName) {
-                                 $ssq->select(DB::raw(1))
-                                     ->from('supervisor_instansi')
-                                     ->whereColumn('supervisor_instansi.pendaftaran_kp_id', 'pendaftaran_kp.id')
-                                     ->where('nama_supervisor', $currentUserName);
-                             });
-                      });
+                    ->orWhereHas('pendaftaranKp', function ($sq) use ($currentUserId, $currentUserName) {
+                        $sq->where('pembimbing_id', $currentUserId)
+                            ->orWhere('supervisor_internal_id', $currentUserId)
+                            ->orWhereExists(function ($ssq) use ($currentUserName) {
+                                $ssq->select(DB::raw(1))
+                                    ->from('supervisor_instansi')
+                                    ->whereColumn('supervisor_instansi.pendaftaran_kp_id', 'pendaftaran_kp.id')
+                                    ->where('nama_supervisor', $currentUserName);
+                            });
+                    });
             })
             ->get()
-            ->map(function($sidang) use ($currentUserId, $currentUserName) {
+            ->map(function (PendaftaranSidang $sidang) use ($currentUserId, $currentUserName) {
                 // Cari data pendaftaran KP yang APPROVED untuk mahasiswa ini guna konteks data yang benar
                 $kp = PendaftaranKp::with(['supervisorInternal', 'supervisorInstansi'])
                     ->where('mahasiswa_id', $sidang->mahasiswa_id)
                     ->where('status_kp', 'approved')
                     ->first();
 
-                if (!$kp && $sidang->pendaftaran_kp_id) {
+                if (! $kp && $sidang->pendaftaran_kp_id) {
                     $kp = PendaftaranKp::with(['supervisorInternal', 'supervisorInstansi'])->find($sidang->pendaftaran_kp_id);
                 }
 
@@ -52,12 +53,20 @@ class InputNilaiController extends Controller
                 }
 
                 $userRoles = [];
-                if ($sidang->penguji_1_id == $currentUserId) $userRoles[] = 'PENGUJI 1';
-                if ($sidang->penguji_2_id == $currentUserId) $userRoles[] = 'PENGUJI 2';
-                
+                if ($sidang->penguji_1_id == $currentUserId) {
+                    $userRoles[] = 'PENGUJI 1';
+                }
+                if ($sidang->penguji_2_id == $currentUserId) {
+                    $userRoles[] = 'PENGUJI 2';
+                }
+
                 if ($kp) {
-                    if ($kp->pembimbing_id == $currentUserId) $userRoles[] = 'PEMBIMBING';
-                    if ($kp->supervisor_internal_id == $currentUserId) $userRoles[] = 'SUPERVISIOR';
+                    if ($kp->pembimbing_id == $currentUserId) {
+                        $userRoles[] = 'PEMBIMBING';
+                    }
+                    if ($kp->supervisor_internal_id == $currentUserId) {
+                        $userRoles[] = 'SUPERVISIOR';
+                    }
                     if ($kp->supervisorInstansi && $kp->supervisorInstansi->nama_supervisor === $currentUserName) {
                         $userRoles[] = 'SUPERVISIOR';
                     }
@@ -65,7 +74,7 @@ class InputNilaiController extends Controller
                 // Fallback pembimbing dari tabel mahasiswa telah dihapus
                 $sidang->user_roles = array_unique($userRoles);
                 $sidang->is_penguji_1 = ($sidang->penguji_1_id == $currentUserId);
-                
+
                 return $sidang;
             });
 
@@ -82,7 +91,7 @@ class InputNilaiController extends Controller
             ->where('status_kp', 'approved')
             ->first();
 
-        if (!$kp && $sidang->pendaftaran_kp_id) {
+        if (! $kp && $sidang->pendaftaran_kp_id) {
             $kp = PendaftaranKp::with(['supervisorInternal', 'supervisorInstansi'])->find($sidang->pendaftaran_kp_id);
         }
 
@@ -121,7 +130,7 @@ class InputNilaiController extends Controller
 
         $input = $request->all();
         $this->sanitizeNumeric($input);
-        
+
         $request->merge($input);
         $request->validate($rules);
 
@@ -154,7 +163,7 @@ class InputNilaiController extends Controller
             $timestamp = now()->format('d/m/Y H:i');
             $roleLabel = strtoupper($role);
             $newNote = "[{$timestamp} - {$roleLabel}]: {$request->catatan}";
-            $sidang->catatan_sidang = $sidang->catatan_sidang ? $sidang->catatan_sidang . "\n" . $newNote : $newNote;
+            $sidang->catatan_sidang = $sidang->catatan_sidang ? $sidang->catatan_sidang."\n".$newNote : $newNote;
             $sidang->save();
         }
 
@@ -166,7 +175,8 @@ class InputNilaiController extends Controller
     public function downloadPdf($id, $role)
     {
         $sidang = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp.supervisorInternal'])->findOrFail($id);
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.grading-summary', compact('sidang', 'role'));
+        $pdf = Pdf::loadView('pdf.grading-summary', compact('sidang', 'role'));
+
         return $pdf->stream('Nilai_Sidang_'.$role.'_'.$sidang->mahasiswa->nim.'.pdf');
     }
 
@@ -174,12 +184,12 @@ class InputNilaiController extends Controller
     {
         $request->validate(['pelaksanaan' => 'required|in:Menunggu,Berjalan,Selesai,Dibatalkan']);
         $sidang = PendaftaranSidang::findOrFail($id);
-        
+
         // Strict enforcement: only Penguji 1 can change to Selesai/Dibatalkan
         if ($sidang->penguji_1_id != Auth::id()) {
             return response()->json(['success' => false, 'message' => 'Hanya Penguji 1 yang berwenang mengubah status pelaksanaan.'], 403);
         }
-        
+
         $sidang->pelaksanaan = $request->pelaksanaan;
         $sidang->save();
 
@@ -191,7 +201,7 @@ class InputNilaiController extends Controller
         $fields = [
             'nb_laporan', 'nb_produk', 'nb_sikap',
             'n_laporan', 'n_produk', 'n_presentasi',
-            'ns_motivasi', 'ns_kualitas', 'ns_inisiatif', 'ns_sikap'
+            'ns_motivasi', 'ns_kualitas', 'ns_inisiatif', 'ns_sikap',
         ];
         foreach ($fields as $field) {
             if (isset($input[$field]) && is_string($input[$field])) {
@@ -206,7 +216,7 @@ class InputNilaiController extends Controller
             $sidang->nilai_pembimbing,
             $sidang->nilai_penguji_1,
             $sidang->nilai_penguji_2,
-            $sidang->nilai_supervisor
+            $sidang->nilai_supervisor,
         ];
 
         $isComplete = true;
@@ -218,19 +228,33 @@ class InputNilaiController extends Controller
         }
 
         if ($isComplete) {
-            $avg = array_sum($scores) / 4;
+            $pembimbing = (float) $sidang->nilai_pembimbing * 0.40;
+            $supervisor = (float) $sidang->nilai_supervisor * 0.10;
+            $penguji1   = (float) $sidang->nilai_penguji_1 * 0.25;
+            $penguji2   = (float) $sidang->nilai_penguji_2 * 0.25;
+            
+            $avg = $pembimbing + $supervisor + $penguji1 + $penguji2;
             $sidang->nilai_akhir = round($avg, 3); // 3 decimals
 
-            if ($avg >= 85) $sidang->grade = 'A';
-            elseif ($avg >= 80) $sidang->grade = 'A-';
-            elseif ($avg >= 75) $sidang->grade = 'B+';
-            elseif ($avg >= 70) $sidang->grade = 'B';
-            elseif ($avg >= 65) $sidang->grade = 'B-';
-            elseif ($avg >= 60) $sidang->grade = 'C+';
-            elseif ($avg >= 55) $sidang->grade = 'C';
-            else $sidang->grade = 'D/E';
+            if ($avg >= 85) {
+                $sidang->grade = 'A';
+            } elseif ($avg >= 80) {
+                $sidang->grade = 'A-';
+            } elseif ($avg >= 75) {
+                $sidang->grade = 'B+';
+            } elseif ($avg >= 70) {
+                $sidang->grade = 'B';
+            } elseif ($avg >= 65) {
+                $sidang->grade = 'B-';
+            } elseif ($avg >= 60) {
+                $sidang->grade = 'C+';
+            } elseif ($avg >= 55) {
+                $sidang->grade = 'C';
+            } else {
+                $sidang->grade = 'D/E';
+            }
 
-            $sidang->status_kelulusan = ($avg >= 60) ? 'lulus' : 'tidak_lulus';
+            $sidang->status_kelulusan = ($avg >= 60) ? 'Lulus' : 'Tidak Lulus';
             $sidang->save();
         }
     }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\Dosen;
+use App\Models\Mahasiswa;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -43,14 +45,14 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         $loginId = $this->input('login_id');
-        
+
         // 1. Try to find the user in Mahasiswa
-        $mahasiswa = \App\Models\Mahasiswa::where('nim', $loginId)->first();
+        $mahasiswa = Mahasiswa::where('nim', $loginId)->first();
         if ($mahasiswa) {
             $user = $mahasiswa->user;
         } else {
             // 2. Try to find the user in Dosen
-            $dosen = \App\Models\Dosen::where('nidn', $loginId)->first();
+            $dosen = Dosen::where('nidn', $loginId)->first();
             $user = $dosen ? $dosen->user : null;
         }
 

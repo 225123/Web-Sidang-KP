@@ -16,34 +16,84 @@
         })->keyBy('id')->toArray();
     @endphp
 
-    <div class="mt-8 px-2 w-full max-w-[1200px] mx-auto pb-12" 
-         x-data='{ 
-            initialDosen: "{{ $initialDosen }}",
-            selectedDosen: "{{ $initialDosen }}",
-            openDropdown: false,
-            searchDosen: "",
-            baseDosenData: @json($dosenDataArray),
-            get isDirty() { return this.initialDosen !== this.selectedDosen; },
-            get filteredDosenList() {
-                let list = Object.values(this.baseDosenData);
-                if(this.searchDosen.trim() !== "") {
-                    let query = this.searchDosen.toLowerCase();
-                    list = list.filter(d => d.nama.toLowerCase().includes(query));
-                }
-                return list.sort((a,b) => a.nama.localeCompare(b.nama));
-            },
-            getDosenName(id) {
-                if(!id || id === "") return "-";
-                return this.baseDosenData[id] ? this.baseDosenData[id].nama : "Unknown";
-            },
-            setAssignment(id) {
-                this.selectedDosen = id;
-                this.openDropdown = false;
-                this.$nextTick(() => {
-                    document.getElementById('form-assignment').submit();
-                });
+    <script>
+        document.addEventListener('alpine:init', () => {
+            if (!Alpine.data('detailController')) {
+                Alpine.data('detailController', () => ({
+                    initialDosen: "{{ $initialDosen }}",
+                    selectedDosen: "{{ $initialDosen }}",
+                    openDropdown: false,
+                    searchDosen: "",
+                    confirmDialog: { show: false, title: '', message: '', dosenId: null, type: 'info' },
+                    baseDosenData: @json($dosenDataArray),
+                    get isDirty() { return this.initialDosen != this.selectedDosen; },
+                    get filteredDosenList() {
+                        let list = Object.values(this.baseDosenData);
+                        if(this.searchDosen.trim() !== "") {
+                            let query = this.searchDosen.toLowerCase();
+                            list = list.filter(d => d.nama.toLowerCase().includes(query));
+                        }
+                        return list.sort((a,b) => a.nama.localeCompare(b.nama));
+                    },
+                    getDosenName(id) {
+                        if(!id || id === "") return "-";
+                        return this.baseDosenData[id] ? this.baseDosenData[id].nama : "Unknown";
+                    },
+                    triggerConfirm(id) {
+                        this.confirmDialog.dosenId = id;
+                        this.confirmDialog.title = 'Konfirmasi Perubahan';
+                        this.confirmDialog.message = 'Anda yakin ingin merubah penugasan? (Perubahan tidak akan disimpan sampai Anda menekan tombol Selesai)';
+                        this.confirmDialog.type = id === '' ? 'danger' : 'info';
+                        this.confirmDialog.show = true;
+                    },
+                    executeConfirm() {
+                        this.selectedDosen = this.confirmDialog.dosenId;
+                        this.openDropdown = false;
+                        this.confirmDialog.show = false;
+                    }
+                }));
             }
-         }'>
+        });
+        
+        // Fallback for Turbo Drive (if alpine:init already fired)
+        if (window.Alpine && !window.Alpine.data('detailController')) {
+            window.Alpine.data('detailController', () => ({
+                initialDosen: "{{ $initialDosen }}",
+                selectedDosen: "{{ $initialDosen }}",
+                openDropdown: false,
+                searchDosen: "",
+                confirmDialog: { show: false, title: '', message: '', dosenId: null, type: 'info' },
+                baseDosenData: @json($dosenDataArray),
+                get isDirty() { return this.initialDosen != this.selectedDosen; },
+                get filteredDosenList() {
+                    let list = Object.values(this.baseDosenData);
+                    if(this.searchDosen.trim() !== "") {
+                        let query = this.searchDosen.toLowerCase();
+                        list = list.filter(d => d.nama.toLowerCase().includes(query));
+                    }
+                    return list.sort((a,b) => a.nama.localeCompare(b.nama));
+                },
+                getDosenName(id) {
+                    if(!id || id === "") return "-";
+                    return this.baseDosenData[id] ? this.baseDosenData[id].nama : "Unknown";
+                },
+                triggerConfirm(id) {
+                    this.confirmDialog.dosenId = id;
+                    this.confirmDialog.title = 'Konfirmasi Perubahan';
+                    this.confirmDialog.message = 'Anda yakin ingin merubah penugasan? (Perubahan tidak akan disimpan sampai Anda menekan tombol Selesai)';
+                    this.confirmDialog.type = id === '' ? 'danger' : 'info';
+                    this.confirmDialog.show = true;
+                },
+                executeConfirm() {
+                    this.selectedDosen = this.confirmDialog.dosenId;
+                    this.openDropdown = false;
+                    this.confirmDialog.show = false;
+                }
+            }));
+        }
+    </script>
+
+    <div class="mt-8 px-2 w-full max-w-[1200px] mx-auto pb-12" x-data="detailController()">
         
         <!-- Flash message -->
         @if(session('success'))
@@ -69,7 +119,7 @@
         <form id="form-assignment" action="{{ route('koordinator.penugasan-pembimbing.store') }}" method="POST">
             @csrf
             <!-- Hidden input for assignment -->
-            <input type="hidden" name="assignments[{{ $kp->id }}]" :value="selectedDosen">
+            <input type="hidden" name="assignments[{{ $clusterId }}]" :value="selectedDosen">
         </form>
 
         <div class="bg-[#E6E6E6] rounded-[15px] p-6 lg:p-8 w-full max-w-5xl mt-2 relative">
@@ -158,7 +208,7 @@
                         <button type="button" @click="$event.stopPropagation(); openDropdown = !openDropdown; searchDosen = ''" 
                                 class="w-full py-1.5 px-3 border bg-white rounded-[5px] text-[13px] font-semibold flex items-center justify-between transition-colors shadow-sm focus:outline-none h-[34px]"
                                 :class="selectedDosen !== '' ? 'text-[#4285F4] border-[#4285F4] hover:bg-blue-50' : 'text-gray-600 border-gray-400 hover:bg-gray-50'">
-                            <span class="truncate pr-2" x-text="selectedDosen !== '' ? 'Ubah Penugasan' : 'Tugaskan Dosen'"></span>
+                            <span class="truncate pr-2" x-text="selectedDosen !== '' ? getDosenName(selectedDosen) : 'Tugaskan Dosen'"></span>
                             <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
 
@@ -170,13 +220,13 @@
                             </div>
                             <ul class="py-1 text-[13px] max-h-[200px] overflow-y-auto custom-scrollbar bg-white">
                                 <li x-show="selectedDosen !== ''">
-                                    <button type="button" @click.prevent="setAssignment('')" class="w-full text-left px-3 py-2 font-semibold text-red-600 hover:bg-red-50 flex items-center gap-2 border-b border-gray-100 whitespace-nowrap">
+                                    <button type="button" @click.prevent="triggerConfirm('')" class="w-full text-left px-3 py-2 font-semibold text-red-600 hover:bg-red-50 flex items-center gap-2 border-b border-gray-100 whitespace-nowrap">
                                         Batalkan Pilihan
                                     </button>
                                 </li>
                                 <template x-for="dosen in filteredDosenList" :key="dosen.id">
                                     <li>
-                                        <button type="button" @click.prevent="setAssignment(dosen.id)" 
+                                        <button type="button" @click.prevent="triggerConfirm(dosen.id)" 
                                                 class="w-full text-left px-3 py-1.5 flex justify-between items-center transition-colors"
                                                 :class="[
                                                     selectedDosen == dosen.id ? 'bg-blue-50 font-bold' : 'hover:bg-gray-100',
@@ -195,7 +245,6 @@
 
             </div>
 
-            <!-- Buttons at the bottom right inside the gray box -->
             <div class="flex justify-end mt-8 border-t border-[#D9D9D9] pt-6">
                 <button type="submit" form="form-assignment" 
                         class="bg-[#4285F4] hover:bg-blue-600 transition-colors text-white px-8 py-2.5 rounded-[5px] text-[13px] font-bold shadow-sm flex items-center justify-center gap-2 w-[140px] disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
@@ -205,5 +254,29 @@
                 </button>
             </div>
         </div>
+
+        <!-- Custom Global Confirm Modal -->
+        <div x-cloak x-show="confirmDialog.show" style="display: none;" class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+            <div @click.away="confirmDialog.show = false" class="bg-white rounded-[15px] w-full max-w-[420px] p-8 shadow-2xl flex flex-col items-center text-center relative overflow-hidden border border-gray-100">
+                <div class="mb-6">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center">
+                        <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                </div>
+
+                <h3 class="text-[18px] font-bold text-gray-900 mb-3" x-text="confirmDialog.title"></h3>
+                <p class="text-[14px] text-gray-500 mb-8 leading-relaxed px-2" x-text="confirmDialog.message"></p>
+
+                <div class="flex gap-4 w-full">
+                    <button @click="confirmDialog.show = false" type="button" class="flex-1 h-[45px] bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-[10px] text-[14px] font-bold transition-all border border-gray-200">
+                        Batal
+                    </button>
+                    <button @click="executeConfirm()" type="button" class="flex-1 h-[45px] text-white rounded-[10px] text-[14px] font-bold transition-all shadow-md active:transform active:scale-95 bg-[#4285F4] hover:bg-blue-700">
+                        Lanjutkan
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </x-dashboard-layout>

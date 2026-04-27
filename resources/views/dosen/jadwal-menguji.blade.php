@@ -10,7 +10,7 @@
 
     <div class="mt-6" x-data="{ 
         searchQuery: '',
-        sidangs: {{ $sidangs->map(fn($s) => [
+        sidangs: {{ \Illuminate\Support\Js::from($sidangs->map(fn($s) => [
             'id' => $s->id,
             'nama' => $s->mahasiswa->user->name ?? 'User',
             'nim' => $s->mahasiswa->nim ?? '-',
@@ -20,7 +20,7 @@
             'waktu' => ($s->waktu_mulai_sidang ? substr($s->waktu_mulai_sidang, 0, 5) : '-') . ' - ' . ($s->waktu_selesai_sidang ? substr($s->waktu_selesai_sidang, 0, 5) : '-'),
             'ruang' => $s->ruang_sidang ? strtoupper($s->ruang_sidang) : '-',
             'peran' => ($s->penguji_1_id == auth()->id()) ? 'PENGUJI 1' : (($s->penguji_2_id == auth()->id()) ? 'PENGUJI 2' : 'PEMBIMBING'),
-        ])->toJson() }},
+        ])) }},
         get filteredList() {
             return this.sidangs.filter(s => {
                 return !this.searchQuery || 

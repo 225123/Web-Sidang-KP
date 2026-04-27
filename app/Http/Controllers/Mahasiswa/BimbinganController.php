@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Mahasiswa;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\PendaftaranKp;
 use App\Models\LogBimbingan;
+use App\Models\NotifikasiLog;
+use App\Models\PendaftaranKp;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class BimbinganController extends Controller
@@ -18,7 +20,7 @@ class BimbinganController extends Controller
             ->latest()
             ->first();
 
-        if (!$pendaftaran) {
+        if (! $pendaftaran) {
             $pendaftaran = PendaftaranKp::where('mahasiswa_id', $userId)->latest()->first();
         }
 
@@ -34,7 +36,7 @@ class BimbinganController extends Controller
         return view('mahasiswa.bimbingan-dosen', [
             'active' => 'bimbingan-dosen',
             'pendaftaran' => $pendaftaran,
-            'logs' => $logs
+            'logs' => $logs,
         ]);
     }
 
@@ -43,7 +45,7 @@ class BimbinganController extends Controller
         $request->validate([
             'tanggal' => 'required|date',
             'detail' => 'required|string',
-            'bukti' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'bukti' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $userId = Auth::id();
@@ -52,11 +54,11 @@ class BimbinganController extends Controller
             ->latest()
             ->first();
 
-        if (!$pendaftaran) {
+        if (! $pendaftaran) {
             $pendaftaran = PendaftaranKp::where('mahasiswa_id', $userId)->latest()->first();
         }
 
-        if (!$pendaftaran) {
+        if (! $pendaftaran) {
             return back()->with('error', 'Pendaftaran KP tidak ditemukan.');
         }
 
@@ -88,6 +90,17 @@ class BimbinganController extends Controller
             'status_approval' => 'pending',
             'is_supervisor' => false,
         ]);
+
+        // Notifikasi ke Koordinator
+        NotifikasiLog::create([
+            'sender_id' => null, // Sistem
+            'target_role' => 'koordinator',
+            'judul' => 'Input Progress Bimbingan',
+            'pesan' => auth()->user()->name.' ('.(auth()->user()->mahasiswa->nim ?? '-').') telah menginput log bimbingan baru.',
+            'target_url' => route('koordinator.progress-umum'),
+            'is_read' => false,
+        ]);
+
         return redirect()->route('mahasiswa.bimbingan-dosen')->with('success', 'Bimbingan berhasil ditambahkan.');
     }
 
@@ -100,12 +113,12 @@ class BimbinganController extends Controller
             ->latest()
             ->first();
 
-        if (!$pendaftaran) {
+        if (! $pendaftaran) {
             $pendaftaran = PendaftaranKp::with(['pembimbing.dosen', 'user.mahasiswa'])
                 ->where('mahasiswa_id', $userId)->latest()->first();
         }
 
-        if (!$pendaftaran) {
+        if (! $pendaftaran) {
             return back()->with('error', 'Pendaftaran KP tidak ditemukan.');
         }
 
@@ -116,9 +129,9 @@ class BimbinganController extends Controller
             ->orderBy('tanggal', 'asc')
             ->get();
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.bimbingan_log', [
+        $pdf = Pdf::loadView('pdf.bimbingan_log', [
             'pendaftaran' => $pendaftaran,
-            'logs' => $logs
+            'logs' => $logs,
         ]);
 
         return $pdf->download('Log_Bimbingan_'.($pendaftaran->user->mahasiswa->nim ?? 'MHS').'.pdf');

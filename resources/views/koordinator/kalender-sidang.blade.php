@@ -177,9 +177,13 @@
                                         </div>
                                     </td>
                                     <td class="text-center">
-                                        <span class="px-2 py-1 rounded-[4px] text-[10px] font-black uppercase tracking-tight"
-                                            :class="session.status === 'Selesai' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-blue-100 text-blue-700 border border-blue-200'"
-                                            x-text="session.status"></span>
+                                        <div class="flex justify-center">
+                                            <div class="text-[10px] font-bold px-3 py-1.5 rounded-[20px] shadow-sm flex items-center justify-center gap-1.5 min-w-[100px] border"
+                                                :class="getStatusClass(session)">
+                                                <div class="w-1.5 h-1.5 rounded-full" :class="getStatusDotClass(session)"></div>
+                                                <span x-text="getExecutionStatus(session)"></span>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             </template>
@@ -278,6 +282,7 @@
                 allSessions: @json($events),
                 currentMonth: new Date().getMonth(),
                 currentYear: new Date().getFullYear(),
+                now: new Date(),
                 monthName: '',
                 calendarDays: [],
                 selectedDate: null,
@@ -301,9 +306,41 @@
                     this.updateCalendar();
                     this.$nextTick(() => this.initChart());
 
+                    setInterval(() => {
+                        this.now = new Date();
+                    }, 60000);
+
                     // Watch for filter changes to reset page
                     this.$watch('filters', () => { this.currentPage = 1; this.updateChart(); }, { deep: true });
                     this.$watch('selectedDate', () => { this.currentPage = 1; });
+                },
+
+                getExecutionStatus(s) {
+                    if (s.pelaksanaan === 'Selesai') return 'Selesai';
+                    if (s.pelaksanaan === 'Dibatalkan') return 'Dibatalkan';
+                    const start = new Date(`${s.tanggal_sidang}T${s.waktu_mulai_sidang}`);
+                    const end = new Date(`${s.tanggal_sidang}T${s.waktu_selesai_sidang}`);
+                    if (this.now < start) return 'Menunggu';
+                    if (this.now >= start && this.now <= end) return 'Berjalan';
+                    return s.pelaksanaan || '-';
+                },
+
+                getStatusClass(s) {
+                    const status = this.getExecutionStatus(s);
+                    if (status === 'Menunggu') return 'bg-[#F9F9F9] text-gray-500 border-gray-300';
+                    if (status === 'Berjalan') return 'bg-[#DEF1FF] text-[#1D4ED8] border-[#BFDBFE]';
+                    if (status === 'Selesai') return 'bg-[#A1DFAC] text-[#1D5E2D] border-[#BBF7D0]';
+                    if (status === 'Dibatalkan') return 'bg-[#FFD3D3] text-[#B91C1C] border-[#FECACA]';
+                    return '';
+                },
+
+                getStatusDotClass(s) {
+                    const status = this.getExecutionStatus(s);
+                    if (status === 'Menunggu') return 'bg-gray-400';
+                    if (status === 'Berjalan') return 'bg-[#1D4ED8]';
+                    if (status === 'Selesai') return 'bg-[#1D5E2D]';
+                    if (status === 'Dibatalkan') return 'bg-[#B91C1C]';
+                    return '';
                 },
 
                 initChart() {

@@ -131,11 +131,11 @@
                             <th class="border-r border-black/40 font-medium w-[23%] px-4">Nama</th>
                             <th class="border-r border-black/40 font-medium w-[12%] px-4">ID</th>
                             <th class="border-r border-black/40 font-medium w-[15%] px-4">Role</th>
-                            <th class="border-r border-black/40 font-medium :class="tab === 'dosen' ? 'w-[20%]' : 'w-[30%]'" px-4 text-left">Email</th>
+                            <th class="border-r border-black/40 font-medium px-4 text-left" :class="tab === 'dosen' ? 'w-[20%]' : 'w-[30%]'">Email</th>
                             <template x-if="tab === 'dosen'">
                                 <th class="border-r border-black/40 font-medium w-[15%] px-4">Status</th>
                             </template>
-                            <th class="font-medium :class="tab === 'dosen' ? 'w-[10%]' : 'w-[15%]'" text-center">Aksi</th>
+                            <th class="font-medium text-center" :class="tab === 'dosen' ? 'w-[10%]' : 'w-[15%]'">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-black/40">
@@ -151,9 +151,9 @@
                                     <td class="border-r border-black/40 px-2 lg:text-[13px]">
                                         <select @change="updateStatus(user.id, $event.target.value)" 
                                             class="w-full bg-transparent border-none outline-none cursor-pointer text-left focus:ring-0 italic text-[13px] pr-6"
-                                            :class="user.is_aktif !== false ? 'text-green-700' : 'text-red-700'">
-                                            <option class="text-green-700 italic text-[13px]" value="Aktif" :selected="user.is_aktif !== false">Aktif</option>
-                                            <option class="text-red-700 italic text-[13px]" value="Nonaktif" :selected="user.is_aktif === false">Tidak Aktif</option>
+                                            :class="(user.is_aktif == 1 || user.is_aktif === true) ? 'text-green-700' : 'text-red-700'">
+                                            <option class="text-green-700 italic text-[13px]" value="Aktif" :selected="user.is_aktif == 1 || user.is_aktif === true">Aktif</option>
+                                            <option class="text-red-700 italic text-[13px]" value="Nonaktif" :selected="user.is_aktif == 0 || user.is_aktif === false">Tidak Aktif</option>
                                         </select>
                                     </td>
                                 </template>
@@ -166,7 +166,7 @@
                                         <button @click="openDeleteConfirm(user.id)" class="text-gray-500 hover:text-[#E32727] hover:bg-red-50 p-1.5 rounded-md transition-colors" title="Hapus Data">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
-                                        <form :id="'deleteForm-' + user.id" :action="'/koordinator/manajemen-akses/' + user.id" method="POST" class="hidden">
+                                        <form :id="'deleteForm-' + user.id" :action="'/koordinator/manajemen-akses/' + user.id + '/destroy'" method="POST" class="hidden">
                                             @csrf
                                             @method('DELETE')
                                         </form>
@@ -491,11 +491,33 @@
                     this.showConfirmModal = true;
                 },
 
-                executeConfirm() {
+                async executeConfirm() {
                     if (this.confirmType === 'add') {
                         document.getElementById('formManual').submit();
                     } else if (this.confirmType === 'delete') {
-                        document.getElementById('deleteForm-' + this.confirmActionId).submit();
+                        this.startLoading();
+                        try {
+                            const response = await fetch(`/koordinator/manajemen-akses/${this.confirmActionId}/destroy`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            });
+                            
+                            const data = await response.json();
+                            if (data.success) {
+                                this.showNotification(data.message, 'success');
+                                this.fetchData();
+                            } else {
+                                this.showNotification(data.message || 'Gagal menghapus user.', 'error');
+                            }
+                        } catch (error) {
+                            this.showNotification('Terjadi kesalahan koneksi.', 'error');
+                        } finally {
+                            this.stopLoading();
+                        }
                     }
                     this.showConfirmModal = false;
                 },

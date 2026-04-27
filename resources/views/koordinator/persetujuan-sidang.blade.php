@@ -8,7 +8,7 @@
             selectedId: null,
             searchQuery: '',
             statusFilter: 'all',
-            pengajuans: {{ $pengajuans->map(fn($p) => [
+            pengajuans: {{ \Illuminate\Support\Js::from($pengajuans->map(fn($p) => [
                 'id' => $p->id,
                 'nama' => $p->mahasiswa->user->name ?? 'User',
                 'nim' => $p->mahasiswa->nim ?? '-',
@@ -19,7 +19,7 @@
                 'status' => $p->status_verifikasi,
                 'feedback' => $p->dosen_feedback ?? 'Tidak ada catatan.',
                 'detail_url' => '#' 
-            ])->toJson() }},
+            ])) }},
             get filteredList() {
                 return this.pengajuans.filter(p => {
                     const matchesSearch = !this.searchQuery || 

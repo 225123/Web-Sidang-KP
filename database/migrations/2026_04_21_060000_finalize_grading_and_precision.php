@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('pendaftaran_sidang', function (Blueprint $table) {
             // Enum for execution status if missing
-            if (!Schema::hasColumn('pendaftaran_sidang', 'pelaksanaan')) {
+            if (! Schema::hasColumn('pendaftaran_sidang', 'pelaksanaan')) {
                 $table->enum('pelaksanaan', ['Menunggu', 'Berjalan', 'Selesai', 'Dibatalkan'])->default('Menunggu');
             }
 
@@ -22,7 +22,7 @@ return new class extends Migration
                 'n1_laporan', 'n1_produk', 'n1_presentasi',
                 'n2_laporan', 'n2_produk', 'n2_presentasi',
                 'ns_motivasi', 'ns_kualitas', 'ns_inisiatif', 'ns_sikap',
-                'nilai_pembimbing', 'nilai_penguji_1', 'nilai_penguji_2', 'nilai_supervisor', 'nilai_akhir'
+                'nilai_pembimbing', 'nilai_penguji_1', 'nilai_penguji_2', 'nilai_supervisor', 'nilai_akhir',
             ];
 
             foreach ($cols63 as $col) {
@@ -46,7 +46,7 @@ return new class extends Migration
                 'n1_laporan', 'n1_produk', 'n1_presentasi',
                 'n2_laporan', 'n2_produk', 'n2_presentasi',
                 'ns_motivasi', 'ns_kualitas', 'ns_inisiatif', 'ns_sikap',
-                'nilai_pembimbing', 'nilai_penguji_1', 'nilai_penguji_2', 'nilai_supervisor', 'nilai_akhir'
+                'nilai_pembimbing', 'nilai_penguji_1', 'nilai_penguji_2', 'nilai_supervisor', 'nilai_akhir',
             ];
 
             foreach ($cols52 as $col) {

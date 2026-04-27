@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Koordinator;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\PendaftaranSidang;
 use App\Models\Mahasiswa;
-use App\Models\User;
+use App\Models\PendaftaranSidang;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class PenjadwalanSidangController extends Controller
 {
@@ -51,16 +51,16 @@ class PenjadwalanSidangController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'daftarTunggu' => $daftarTunggu,
-                'terjadwal' => $terjadwal
+                'terjadwal' => $terjadwal,
             ]);
         }
-            
+
         $totalMahasiswa = $daftarTunggu->count() + $terjadwal->count();
 
         return view('koordinator.penjadwalan-sidang', [
             'daftarTunggu' => $daftarTunggu,
             'terjadwal' => $terjadwal,
-            'totalMahasiswa' => $totalMahasiswa
+            'totalMahasiswa' => $totalMahasiswa,
         ]);
     }
 
@@ -83,17 +83,17 @@ class PenjadwalanSidangController extends Controller
         // Mengecek apakah ada jadwal pada tanggal yang sama, di mana jam bersinggungan.
         $overlappingCount = PendaftaranSidang::where('tanggal_sidang', $tanggal)
             ->where('id', '!=', $sidangId)
-            ->where(function($query) use ($mulai, $selesai) {
+            ->where(function ($query) use ($mulai, $selesai) {
                 // Ada overlap jika (MulaiA < SelesaiB) AND (SelesaiA > MulaiB)
                 $query->where('waktu_mulai_sidang', '<', $selesai)
-                      ->where('waktu_selesai_sidang', '>', $mulai);
+                    ->where('waktu_selesai_sidang', '>', $mulai);
             })
             ->count();
 
         if ($overlappingCount >= 3) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal: Kapasitas maksimal 3 mahasiswa per sesi telah penuh untuk slot waktu tersebut.'
+                'message' => 'Gagal: Kapasitas maksimal 3 mahasiswa per sesi telah penuh untuk slot waktu tersebut.',
             ], 422);
         }
 
@@ -110,7 +110,7 @@ class PenjadwalanSidangController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Jadwal sidang berhasil disimpan. Penugasan penguji telah direset.'
+            'message' => 'Jadwal sidang berhasil disimpan. Penugasan penguji telah direset.',
         ]);
     }
 
@@ -127,18 +127,18 @@ class PenjadwalanSidangController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Jadwal sidang dihapus & dikembalikan ke Daftar Tunggu.'
+            'message' => 'Jadwal sidang dihapus & dikembalikan ke Daftar Tunggu.',
         ]);
     }
 
     public function autoSchedule(Request $request)
     {
         $dates = $request->input('dates', []);
-        
+
         if (empty($dates)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Pilih setidaknya satu tanggal untuk melakukan plotting otomatis.'
+                'message' => 'Pilih setidaknya satu tanggal untuk melakukan plotting otomatis.',
             ], 422);
         }
 
@@ -152,7 +152,7 @@ class PenjadwalanSidangController extends Controller
         if ($daftarTunggu->isEmpty()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tidak ada mahasiswa di daftar tunggu untuk diplot otomatis.'
+                'message' => 'Tidak ada mahasiswa di daftar tunggu untuk diplot otomatis.',
             ], 422);
         }
 
@@ -160,16 +160,18 @@ class PenjadwalanSidangController extends Controller
         $studentIndex = 0;
         $totalStudents = $daftarTunggu->count();
         $dateCount = count($dates);
-        
+
         // Calculate balanced distribution limit
         $limitPerDay = ceil($totalStudents / $dateCount);
         // Cap at 18/day (3 streams * 6 hours, approx)
-        if ($limitPerDay > 18) $limitPerDay = 18;
+        if ($limitPerDay > 18) {
+            $limitPerDay = 18;
+        }
 
         foreach ($dates as $dateStr) {
             $studentsOnThisDate = 0;
             // Setiap tanggal mulai dari jam 8 pagi
-            $currentSlot = \Carbon\Carbon::parse($dateStr)->setTime(8, 0, 0);
+            $currentSlot = Carbon::parse($dateStr)->setTime(8, 0, 0);
 
             while ($studentIndex < $totalStudents && $studentsOnThisDate < $limitPerDay) {
                 // Batas waktu: Jam kerja berakhir jam 4 sore (16:00)
@@ -179,16 +181,16 @@ class PenjadwalanSidangController extends Controller
 
                 $formattedMulai = $currentSlot->format('H:i:s');
                 $formattedSelesai = $currentSlot->copy()->addHour()->format('H:i:s');
-                
+
                 // Kapasitas 3 stream per slot (parallel)
                 // Buffer jeda antar sidang 30 menit
                 $occupiedUntil = $currentSlot->copy()->addMinutes(90)->format('H:i:s');
                 $bufferMulai = $currentSlot->copy()->subMinutes(30)->format('H:i:s');
 
                 $overlappingCount = PendaftaranSidang::where('tanggal_sidang', $dateStr)
-                    ->where(function($q) use ($bufferMulai, $occupiedUntil) {
+                    ->where(function ($q) use ($bufferMulai, $occupiedUntil) {
                         $q->where('waktu_mulai_sidang', '<', $occupiedUntil)
-                          ->where('waktu_selesai_sidang', '>', $bufferMulai);
+                            ->where('waktu_selesai_sidang', '>', $bufferMulai);
                     })
                     ->count();
 
@@ -206,16 +208,18 @@ class PenjadwalanSidangController extends Controller
                     $studentIndex++;
                     $assignedCount++;
                     $studentsOnThisDate++;
-                    
+
                     // Cek lagi di jam yang sama untuk stream berikutnya (parallel)
-                    continue; 
+                    continue;
                 }
 
                 // Jika sudah 3 paralel, geser waktu 30 menit
                 $currentSlot->addMinutes(30);
             }
 
-            if ($studentIndex >= $totalStudents) break;
+            if ($studentIndex >= $totalStudents) {
+                break;
+            }
         }
 
         $message = "Berhasil mem-plot {$assignedCount} mahasiswa secara otomatis.";
@@ -226,7 +230,7 @@ class PenjadwalanSidangController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => $message
+            'message' => $message,
         ]);
     }
 
@@ -247,7 +251,7 @@ class PenjadwalanSidangController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => count($ids) . ' jadwal berhasil dibatalkan.'
+            'message' => count($ids).' jadwal berhasil dibatalkan.',
         ]);
     }
 }

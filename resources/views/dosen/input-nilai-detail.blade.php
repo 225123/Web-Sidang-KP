@@ -62,7 +62,7 @@
         </div>
 
         <!-- Section 2: Penilaian Form -->
-        <form action="{{ route('dosen.input-nilai.store', ['id' => $sidang->id, 'role' => $role]) }}" method="POST">
+        <form action="{{ route('dosen.input-nilai.store', ['id' => $sidang->id, 'role' => $role]) }}" method="POST" @submit.prevent="submitForm($event)">
             @csrf
             <div class="bg-[#D9D9D9] p-8 rounded-[15px] shadow-sm border border-gray-200">
                 <h2 class="text-[18px] font-bold text-black mb-6">Penilaian</h2>
@@ -74,19 +74,19 @@
                             <div class="flex items-center gap-4">
                                 <label class="w-[240px] text-[14px] text-gray-700 font-bold">Kualitas Laporan</label>
                                 <span class="text-gray-700">:</span>
-                                <input type="text" name="nb_laporan" x-model="v1" x-on:input="v1 = sanitize($event.target.value)" x-on:blur="v1 = validateRange(v1)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
+                                <input type="text" name="nb_laporan" x-model="v1" x-on:input="v1 = sanitize($event.target.value)" x-on:blur="v1 = validateRange(v1)" x-on:keydown.enter.prevent="focusNext($event)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
                                 <span class="text-[14px] text-gray-500 font-medium">40%</span>
                             </div>
                             <div class="flex items-center gap-4">
                                 <label class="w-[240px] text-[14px] text-gray-700 font-bold">Kualitas Produk</label>
                                 <span class="text-gray-700">:</span>
-                                <input type="text" name="nb_produk" x-model="v2" x-on:input="v2 = sanitize($event.target.value)" x-on:blur="v2 = validateRange(v2)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
+                                <input type="text" name="nb_produk" x-model="v2" x-on:input="v2 = sanitize($event.target.value)" x-on:blur="v2 = validateRange(v2)" x-on:keydown.enter.prevent="focusNext($event)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
                                 <span class="text-[14px] text-gray-500 font-medium">40%</span>
                             </div>
                             <div class="flex items-center gap-4">
                                 <label class="w-[240px] text-[14px] text-gray-700 font-bold">Sikap Dan Kedisiplinan</label>
                                 <span class="text-gray-700">:</span>
-                                <input type="text" name="nb_sikap" x-model="v3" x-on:input="v3 = sanitize($event.target.value)" x-on:blur="v3 = validateRange(v3)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
+                                <input type="text" name="nb_sikap" x-model="v3" x-on:input="v3 = sanitize($event.target.value)" x-on:blur="v3 = validateRange(v3)" x-on:keydown.enter.prevent="focusNext($event)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
                                 <span class="text-[14px] text-gray-500 font-medium">20%</span>
                             </div>
                         </div>
@@ -97,19 +97,19 @@
                             <div class="flex items-center gap-4">
                                 <label class="w-[240px] text-[14px] text-gray-700 font-bold">Kualitas Laporan</label>
                                 <span class="text-gray-700">:</span>
-                                <input type="text" name="n_laporan" x-model="v1" x-on:input="v1 = sanitize($event.target.value)" x-on:blur="v1 = validateRange(v1)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
+                                <input type="text" name="n_laporan" x-model="v1" x-on:input="v1 = sanitize($event.target.value)" x-on:blur="v1 = validateRange(v1)" x-on:keydown.enter.prevent="focusNext($event)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
                                 <span class="text-[14px] text-gray-500 font-medium">40%</span>
                             </div>
                             <div class="flex items-center gap-4">
                                 <label class="w-[240px] text-[14px] text-gray-700 font-bold">Kualitas Produk</label>
                                 <span class="text-gray-700">:</span>
-                                <input type="text" name="n_produk" x-model="v2" x-on:input="v2 = sanitize($event.target.value)" x-on:blur="v2 = validateRange(v2)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
+                                <input type="text" name="n_produk" x-model="v2" x-on:input="v2 = sanitize($event.target.value)" x-on:blur="v2 = validateRange(v2)" x-on:keydown.enter.prevent="focusNext($event)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
                                 <span class="text-[14px] text-gray-500 font-medium">40%</span>
                             </div>
                             <div class="flex items-center gap-4">
                                 <label class="w-[240px] text-[14px] text-gray-700 font-bold">Kemampuan Presentasi</label>
                                 <span class="text-gray-700">:</span>
-                                <input type="text" name="n_presentasi" x-model="v3" x-on:input="v3 = sanitize($event.target.value)" x-on:blur="v3 = validateRange(v3)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
+                                <input type="text" name="n_presentasi" x-model="v3" x-on:input="v3 = sanitize($event.target.value)" x-on:blur="v3 = validateRange(v3)" x-on:keydown.enter.prevent="focusNext($event)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
                                 <span class="text-[14px] text-gray-500 font-medium">20%</span>
                             </div>
                         </div>
@@ -120,25 +120,25 @@
                             <div class="flex items-center gap-4">
                                 <label class="w-[240px] text-[14px] text-gray-700 font-bold">Kemampuan dan Motivasi Kerja</label>
                                 <span class="text-gray-700">:</span>
-                                <input type="text" name="ns_motivasi" x-model="v1" x-on:input="v1 = sanitize($event.target.value)" x-on:blur="v1 = validateRange(v1)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
+                                <input type="text" name="ns_motivasi" x-model="v1" x-on:input="v1 = sanitize($event.target.value)" x-on:blur="v1 = validateRange(v1)" x-on:keydown.enter.prevent="focusNext($event)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
                                 <span class="text-[14px] text-gray-500 font-medium">25%</span>
                             </div>
                             <div class="flex items-center gap-4">
                                 <label class="w-[240px] text-[14px] text-gray-700 font-bold">Kualitas Kerja</label>
                                 <span class="text-gray-700">:</span>
-                                <input type="text" name="ns_kualitas" x-model="v2" x-on:input="v2 = sanitize($event.target.value)" x-on:blur="v2 = validateRange(v2)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
+                                <input type="text" name="ns_kualitas" x-model="v2" x-on:input="v2 = sanitize($event.target.value)" x-on:blur="v2 = validateRange(v2)" x-on:keydown.enter.prevent="focusNext($event)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
                                 <span class="text-[14px] text-gray-500 font-medium">25%</span>
                             </div>
                             <div class="flex items-center gap-4">
                                 <label class="w-[240px] text-[14px] text-gray-700 font-bold">Inisiatif dan Kreatifitas</label>
                                 <span class="text-gray-700">:</span>
-                                <input type="text" name="ns_inisiatif" x-model="v3" x-on:input="v3 = sanitize($event.target.value)" x-on:blur="v3 = validateRange(v3)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
+                                <input type="text" name="ns_inisiatif" x-model="v3" x-on:input="v3 = sanitize($event.target.value)" x-on:blur="v3 = validateRange(v3)" x-on:keydown.enter.prevent="focusNext($event)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
                                 <span class="text-[14px] text-gray-500 font-medium">25%</span>
                             </div>
                             <div class="flex items-center gap-4">
                                 <label class="w-[240px] text-[14px] text-gray-700 font-bold">Sikap Dan Kedisiplinan</label>
                                 <span class="text-gray-700">:</span>
-                                <input type="text" name="ns_sikap" x-model="v4" x-on:input="v4 = sanitize($event.target.value)" x-on:blur="v4 = validateRange(v4)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
+                                <input type="text" name="ns_sikap" x-model="v4" x-on:input="v4 = sanitize($event.target.value)" x-on:blur="v4 = validateRange(v4)" x-on:keydown.enter.prevent="focusNext($event)" :disabled="isLocked" inputmode="decimal" class="w-[90px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-center text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500">
                                 <span class="text-[14px] text-gray-500 font-medium">25%</span>
                             </div>
                         </div>
@@ -158,6 +158,21 @@
                             <span class="text-[18px] font-bold text-[#4285F4]" x-text="nilaiAkhir"></span>
                         </div>
                     </div>
+
+                    @if($role === 'penguji1')
+                    <div class="pt-6 border-t border-dashed border-gray-400">
+                        <div class="flex items-center gap-4">
+                            <label class="w-[240px] text-[16px] font-bold text-black uppercase">Status Kelulusan</label>
+                            <span class="text-black font-bold">:</span>
+                            <select name="status_kelulusan" x-model="statusKelulusan" :disabled="isLocked" class="w-[250px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500 font-medium">
+                                <option value="" disabled selected>Pilih Status Kelulusan...</option>
+                                <option value="Lulus">Lulus</option>
+                                <option value="Lulus Dengan Revisi">Lulus Dengan Revisi</option>
+                                <option value="Lanjut">Lanjut</option>
+                            </select>
+                        </div>
+                    </div>
+                    @endif
                 </div>
 
                 <div class="flex justify-end gap-3 mt-12">
@@ -170,7 +185,7 @@
                     <template x-if="!isLocked">
                         <button type="submit" class="bg-[#34A853] hover:bg-[#2d9247] text-white px-10 py-2 rounded-[5px] text-[13px] font-bold transition flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
-                            Submit (Peresmian)
+                            Submit
                         </button>
                     </template>
                 </div>
@@ -182,36 +197,46 @@
         function inputDetail() {
             return {
                 role: '{{ $role }}',
-                v1: 0,
-                v2: 0,
-                v3: 0,
-                v4: 0,
+                v1: '',
+                v2: '',
+                v3: '',
+                v4: '',
+                statusKelulusan: '',
                 isLocked: false,
 
                 init() {
                     let hasData = false;
                     // Populate with existing data if any
                     @if($role === 'pembimbing')
-                        this.v1 = '{{ number_format($sidang->nb_laporan ?? 0, 3, ".", "") }}';
-                        this.v2 = '{{ number_format($sidang->nb_produk ?? 0, 3, ".", "") }}';
-                        this.v3 = '{{ number_format($sidang->nb_sikap ?? 0, 3, ".", "") }}';
-                        if ({{ $sidang->nb_laporan ?? -1 }} >= 0) hasData = true;
+                        if ({{ $sidang->nb_laporan ?? -1 }} >= 0) {
+                            this.v1 = '{{ number_format($sidang->nb_laporan ?? 0, 3, ".", "") }}';
+                            this.v2 = '{{ number_format($sidang->nb_produk ?? 0, 3, ".", "") }}';
+                            this.v3 = '{{ number_format($sidang->nb_sikap ?? 0, 3, ".", "") }}';
+                            hasData = true;
+                        }
                     @elseif($role === 'penguji1')
-                        this.v1 = '{{ number_format($sidang->n1_laporan ?? 0, 3, ".", "") }}';
-                        this.v2 = '{{ number_format($sidang->n1_produk ?? 0, 3, ".", "") }}';
-                        this.v3 = '{{ number_format($sidang->n1_presentasi ?? 0, 3, ".", "") }}';
-                        if ({{ $sidang->n1_laporan ?? -1 }} >= 0) hasData = true;
+                        if ({{ $sidang->n1_laporan ?? -1 }} >= 0) {
+                            this.v1 = '{{ number_format($sidang->n1_laporan ?? 0, 3, ".", "") }}';
+                            this.v2 = '{{ number_format($sidang->n1_produk ?? 0, 3, ".", "") }}';
+                            this.v3 = '{{ number_format($sidang->n1_presentasi ?? 0, 3, ".", "") }}';
+                            this.statusKelulusan = '{!! $sidang->status_kelulusan ?? '' !!}';
+                            hasData = true;
+                        }
                     @elseif($role === 'penguji2')
-                        this.v1 = '{{ number_format($sidang->n2_laporan ?? 0, 3, ".", "") }}';
-                        this.v2 = '{{ number_format($sidang->n2_produk ?? 0, 3, ".", "") }}';
-                        this.v3 = '{{ number_format($sidang->n2_presentasi ?? 0, 3, ".", "") }}';
-                        if ({{ $sidang->n2_laporan ?? -1 }} >= 0) hasData = true;
+                        if ({{ $sidang->n2_laporan ?? -1 }} >= 0) {
+                            this.v1 = '{{ number_format($sidang->n2_laporan ?? 0, 3, ".", "") }}';
+                            this.v2 = '{{ number_format($sidang->n2_produk ?? 0, 3, ".", "") }}';
+                            this.v3 = '{{ number_format($sidang->n2_presentasi ?? 0, 3, ".", "") }}';
+                            hasData = true;
+                        }
                     @elseif($role === 'supervisior')
-                        this.v1 = '{{ number_format($sidang->ns_motivasi ?? 0, 3, ".", "") }}';
-                        this.v2 = '{{ number_format($sidang->ns_kualitas ?? 0, 3, ".", "") }}';
-                        this.v3 = '{{ number_format($sidang->ns_inisiatif ?? 0, 3, ".", "") }}';
-                        this.v4 = '{{ number_format($sidang->ns_sikap ?? 0, 3, ".", "") }}';
-                        if ({{ $sidang->ns_motivasi ?? -1 }} >= 0) hasData = true;
+                        if ({{ $sidang->ns_motivasi ?? -1 }} >= 0) {
+                            this.v1 = '{{ number_format($sidang->ns_motivasi ?? 0, 3, ".", "") }}';
+                            this.v2 = '{{ number_format($sidang->ns_kualitas ?? 0, 3, ".", "") }}';
+                            this.v3 = '{{ number_format($sidang->ns_inisiatif ?? 0, 3, ".", "") }}';
+                            this.v4 = '{{ number_format($sidang->ns_sikap ?? 0, 3, ".", "") }}';
+                            hasData = true;
+                        }
                     @endif
 
                     if (hasData) {
@@ -252,11 +277,43 @@
                 },
 
                 validateRange(val) {
+                    if (val === '') return '';
                     let num = parseFloat(val);
-                    if (isNaN(num)) return '0';
+                    if (isNaN(num)) return '';
                     if (num < 1) return '1.000';
                     if (num > 100) return '100.000';
                     return num.toFixed(3);
+                },
+
+                submitForm(e) {
+                    let requiredFields = [this.v1, this.v2, this.v3];
+                    if (this.role === 'supervisior') requiredFields.push(this.v4);
+                    
+                    if (requiredFields.some(v => v === '' || parseFloat(v) === 0)) {
+                        alert("Harap lengkapi semua field penilaian (tidak boleh kosong atau 0).");
+                        return;
+                    }
+
+                    if (this.role === 'penguji1' && !this.statusKelulusan) {
+                        alert("Harap pilih Status Kelulusan terlebih dahulu.");
+                        return;
+                    }
+                    
+                    const catatan = document.querySelector('textarea[name="catatan"]')?.value || '';
+                    if (this.role === 'penguji1' && ['Lulus Dengan Revisi', 'Lanjut'].includes(this.statusKelulusan) && catatan.trim() === '') {
+                        alert("Anda wajib meninggalkan Catatan Sidang jika status kelulusan adalah Lulus Dengan Revisi atau Lanjut.");
+                        return;
+                    }
+
+                    e.target.submit();
+                },
+
+                focusNext(e) {
+                    const inputs = Array.from(document.querySelectorAll('input:not([disabled]), select:not([disabled]), textarea:not([disabled])'));
+                    const index = inputs.indexOf(e.target);
+                    if (index > -1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
                 }
             }
         }

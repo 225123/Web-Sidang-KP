@@ -1,4 +1,4 @@
-<x-dashboard-layout header="Daftar Bimbingan Mahasiswa" userName="{{ auth()->user()->name }}" roleName="DOSEN">
+<x-dashboard-layout header="Daftar Bimbingan Mahasiswa" :userName="auth()->user()->name" roleName="DOSEN">
     <x-slot:sidebar>
         @include('dosen.components.sidebar', ['active' => 'daftar-mahasiswa'])
     </x-slot>
@@ -14,26 +14,26 @@
     <div class="mt-6" x-data="{ 
         searchQuery: '',
         statusFilter: 'all',
-        pendaftarans: {{ $pendaftarans->map(fn($p) => [
-            'id' => $p->id,
-            'nama' => $p->display_mahasiswa->user->name ?? '',
-            'nim' => $p->display_mahasiswa->nim ?? '',
-            'judul' => $p->display_judul_kp ?? '',
-            'instansi' => $p->display_instansi ?? '',
-            'supervisor' => $p->display_supervisor ?? '-',
-            'total_log' => $p->total_log ?? 0,
-            'status_label' => $p->status_approval_semua ?? '-',
-            'detail_url' => $p->id ? route('dosen.daftar-mahasiswa.detail', $p->id) : '#'
-        ])->toJson() }},
+        pendaftarans: {{ \Illuminate\Support\Js::from($pendaftarans->map(fn($p) => [
+            'id' => $p['id'],
+            'nama' => $p['display_mahasiswa']->user->name ?? ($p['display_mahasiswa']->nama ?? '-'),
+            'nim' => $p['display_mahasiswa']->nim ?? '-',
+            'judul' => $p['display_judul_kp'] ?? '-',
+            'instansi' => $p['display_instansi'] ?? '-',
+            'supervisor' => $p['display_supervisor'] ?? '-',
+            'total_log' => $p['total_log'] ?? 0,
+            'status_label' => $p['status_approval_semua'] ?? '-',
+            'detail_url' => $p['id'] ? route('dosen.daftar-mahasiswa.detail', $p['id']) : '#'
+        ])) }},
         get filteredList() {
             return this.pendaftarans.filter(p => {
-                const term = this.searchQuery.toLowerCase();
+                const term = (this.searchQuery || '').toLowerCase();
                 const matchesSearch = !this.searchQuery || 
-                    p.nama.toLowerCase().includes(term) ||
-                    p.nim.toLowerCase().includes(term) ||
-                    p.judul.toLowerCase().includes(term) ||
-                    p.instansi.toLowerCase().includes(term) ||
-                    p.supervisor.toLowerCase().includes(term);
+                    (p.nama || '').toLowerCase().includes(term) ||
+                    (p.nim || '').toLowerCase().includes(term) ||
+                    (p.judul || '').toLowerCase().includes(term) ||
+                    (p.instansi || '').toLowerCase().includes(term) ||
+                    (p.supervisor || '').toLowerCase().includes(term);
                 
                 const matchesStatus = this.statusFilter === 'all' || 
                     (this.statusFilter === 'diperiksa' && p.status_label === 'Diperiksa') ||
@@ -102,34 +102,34 @@
             <div class="overflow-x-auto custom-scrollbar">
                 <table class="w-full border-collapse text-[13px]">
                     <thead>
-                        <tr class="bg-[#EBEBEB] text-black">
-                            <th class="py-4 px-4 font-bold text-center w-[60px] border-b border-gray-300 uppercase tracking-wider">No</th>
-                            <th class="py-4 px-4 font-bold text-left border-b border-gray-300 uppercase tracking-wider">Mahasiswa</th>
-                            <th class="py-4 px-4 font-bold text-center border-b border-gray-300 uppercase tracking-wider">Judul KP</th>
-                            <th class="py-4 px-4 font-bold text-center border-b border-gray-300 uppercase tracking-wider">Instansi</th>
-                            <th class="py-4 px-4 font-bold text-center border-b border-gray-300 uppercase tracking-wider">Supervisor</th>
-                            <th class="py-4 px-4 font-bold text-center border-b border-gray-300 uppercase tracking-wider">Bimbingan</th>
-                            <th class="py-4 px-4 font-bold text-center border-b border-gray-300 uppercase tracking-wider">Status</th>
-                            <th class="py-4 px-4 font-bold text-center border-b border-gray-300 uppercase tracking-wider">Aksi</th>
+                        <tr class="bg-[#EBEBEB] text-black text-center">
+                            <th class="py-4 px-4 font-bold w-[60px] border-b border-gray-300 border-r border-gray-300 uppercase tracking-wider">No</th>
+                            <th class="py-4 px-4 font-bold text-left border-b border-gray-300 border-r border-gray-300 uppercase tracking-wider">Mahasiswa</th>
+                            <th class="py-4 px-4 font-bold border-b border-gray-300 border-r border-gray-300 uppercase tracking-wider">Judul KP</th>
+                            <th class="py-4 px-4 font-bold border-b border-gray-300 border-r border-gray-300 uppercase tracking-wider">Instansi</th>
+                            <th class="py-4 px-4 font-bold border-b border-gray-300 border-r border-gray-300 uppercase tracking-wider">Supervisor</th>
+                            <th class="py-4 px-4 font-bold border-b border-gray-300 border-r border-gray-300 uppercase tracking-wider">Bimbingan</th>
+                            <th class="py-4 px-4 font-bold border-b border-gray-300 border-r border-gray-300 uppercase tracking-wider">Status</th>
+                            <th class="py-4 px-4 font-bold border-b border-gray-300 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                        <template x-for="(p, index) in filteredList" :key="p.id">
+                        <template x-for="(p, index) in filteredList" :key="p.id + '-' + p.nim">
                             <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="py-4 px-4 text-center text-black/60" x-text="index + 1"></td>
-                                <td class="py-4 px-4 text-left">
+                                <td class="py-4 px-4 text-center text-black/60 border-r border-gray-200" x-text="index + 1"></td>
+                                <td class="py-4 px-4 text-left border-r border-gray-200">
                                     <div class="font-bold text-black" x-text="p.nama"></div>
                                     <div class="text-black/60 text-[11px]" x-text="p.nim"></div>
                                 </td>
-                                <td class="py-4 px-4 text-center text-black/80 font-medium leading-relaxed" x-text="p.judul"></td>
-                                <td class="py-4 px-4 text-center text-black/70 italic" x-text="p.instansi"></td>
-                                <td class="py-4 px-4 text-center text-black font-bold uppercase text-[11px]" x-text="p.supervisor"></td>
-                                <td class="py-4 px-4 text-center">
+                                <td class="py-4 px-4 text-center text-black/80 font-medium leading-relaxed border-r border-gray-200" x-text="p.judul"></td>
+                                <td class="py-4 px-4 text-center text-black/70 italic font-medium border-r border-gray-200" x-text="p.instansi"></td>
+                                <td class="py-4 px-4 text-center text-black font-bold uppercase text-[10px] border-r border-gray-200" x-text="p.supervisor"></td>
+                                <td class="py-4 px-4 text-center border-r border-gray-200">
                                     <span class="bg-gray-100 text-black px-3 py-1 rounded-full font-bold text-[12px]">
                                         <span x-text="p.total_log"></span>/12
                                     </span>
                                 </td>
-                                <td class="py-4 px-4 text-center">
+                                <td class="py-4 px-4 text-center border-r border-gray-200">
                                     <template x-if="p.status_label === '-'">
                                         <span class="text-black/40 font-bold">-</span>
                                     </template>
@@ -167,16 +167,6 @@
                 </table>
             </div>
         </div>
-
-        <div class="flex justify-start gap-4 mt-8 py-2">
-            <button class="bg-[#38913B] hover:bg-green-700 text-white px-8 py-2.5 rounded-[5px] font-bold text-[13px] flex items-center gap-2 shadow-md transition-all uppercase">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                Sahkan Terpilih
-            </button>
-            <button class="bg-[#EA3323] hover:bg-red-600 text-white px-8 py-2.5 rounded-[5px] font-bold text-[13px] flex items-center gap-2 shadow-md transition-all uppercase">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                Tolak Terpilih
-            </button>
-        </div>
+        <div class="h-20"></div> <!-- Jarak ke footer -->
     </div>
 </x-dashboard-layout>

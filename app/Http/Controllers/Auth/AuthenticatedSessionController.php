@@ -29,7 +29,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $role = Auth::user()->role;
-        
+
         if ($role === 'koordinator_kp') {
             return redirect()->intended(route('koordinator.dashboard', absolute: false));
         } elseif ($role === 'mahasiswa') {

@@ -11,10 +11,6 @@ class LogBimbingan extends Model
 
     protected $table = 'log_bimbingan';
 
-    // Disable default timestamps if they don't exist in the schema, but wait, schemas usually omit them or have them.
-    // Let's assume public.log_bimbingan doesn't have created_at/updated_at since the dump doesn't show them.
-    public $timestamps = false;
-
     protected $fillable = [
         'pendaftaran_kp_id',
         'mahasiswa_id',

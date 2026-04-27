@@ -1,4 +1,4 @@
-<x-dashboard-layout header="Persetujuan Sidang KP" userName="{{ auth()->user()->name }}" roleName="DOSEN">
+<x-dashboard-layout header="Persetujuan Sidang KP" :userName="auth()->user()->name" roleName="DOSEN">
     <x-slot:sidebar>
         @include('dosen.components.sidebar', ['active' => 'persetujuan-sidang'])
         </x-slot>
@@ -8,7 +8,7 @@
             selectedId: null,
             searchQuery: '',
             statusFilter: 'all',
-            pengajuans: {{ $pengajuans->map(fn($p) => [
+            pengajuans: {{ \Illuminate\Support\Js::from($pengajuans->map(fn($p) => [
                 'id' => $p->id,
                 'nama' => $p->mahasiswa->user->name ?? 'User',
                 'nim' => $p->mahasiswa->nim ?? '-',
@@ -19,7 +19,7 @@
                 'status' => $p->status_verifikasi,
                 'feedback' => $p->dosen_feedback ?? 'Tidak ada catatan.',
                 'detail_url' => '#' // Placeholder for detail
-            ])->toJson() }},
+            ])) }},
             get filteredList() {
                 return this.pengajuans.filter(p => {
                     const matchesSearch = !this.searchQuery || 

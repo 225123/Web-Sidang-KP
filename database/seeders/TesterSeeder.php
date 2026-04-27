@@ -28,7 +28,7 @@ class TesterSeeder extends Seeder
                 'user_id' => $mahasiswa->id,
                 'nim' => '412011111',
                 'prodi' => 'Informatika',
-                'email' => 'mahasiswa_tester@test.com'
+                'email' => 'mahasiswa_tester@test.com',
             ]);
 
             // ==========================================
@@ -44,7 +44,7 @@ class TesterSeeder extends Seeder
             DB::table('dosen')->insert([
                 'user_id' => $koor->id,
                 'nidn' => '1111111111', // ID Koordinator
-                'is_aktif' => true
+                'is_aktif' => true,
             ]);
 
             // ==========================================
@@ -60,7 +60,7 @@ class TesterSeeder extends Seeder
             DB::table('dosen')->insert([
                 'user_id' => $dosen->id,
                 'nidn' => '2222222222', // ID Dosen
-                'is_aktif' => true
+                'is_aktif' => true,
             ]);
 
         });

@@ -1,4 +1,4 @@
-<x-dashboard-layout header="Persetujuan Sidang KP" userName="{{ auth()->user()->name }}" roleName="MAHASISWA">
+<x-dashboard-layout header="Persetujuan Sidang KP" :userName="auth()->user()->name" roleName="MAHASISWA">
     <x-slot:sidebar>
         @include('mahasiswa.components.sidebar', ['active' => 'persetujuan-sidang'])
         </x-slot>
@@ -58,7 +58,7 @@
                     <div>Dosen Pembimbing</div>
                     <div>: {{ $pendaftaran->pembimbing->name ?? 'Belum ada pembimbing' }}</div>
 
-                    <div>Total Bimbingan</div>
+                    <div>Bimbingan Disahkan</div>
                     <div>: {{ $totalBimbingan ?? '12' }}/12</div>
 
                     <div>Periode KP</div>

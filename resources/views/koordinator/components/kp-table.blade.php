@@ -1,17 +1,6 @@
-@props(['pendaftarans', 'title', 'isRejected' => false])
+@props(['pendaftarans', 'isRejected' => false, 'searchModel' => 'searchQuery'])
 
-<div class="mb-5 mt-10">
-    <h3 class="text-[16px] font-bold text-gray-800 mb-2 border-b border-gray-300 pb-2 flex items-center gap-2">
-        @if($isRejected)
-            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        @else
-            <svg class="w-5 h-5 text-[#4285F4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-        @endif
-        {{ $title }}
-    </h3>
-</div>
-
-<div class="rounded-t-[10px] mb-4 shadow-sm border border-[#CAC0C0]"
+<div class="mb-4"
     x-data="{
         currentPage: 1,
         perPage: 10,
@@ -85,34 +74,36 @@
         goToPage(p) { this.currentPage = p; this.updateTable(); window.scrollTo(0, this.$el.offsetTop - 100); }
     }"
 >
-    <!-- Wrapper with conditional background only for scrolling boundary horizontally -->
-    <div class="overflow-x-auto {{ $isRejected ? 'bg-[#FFF5F5]' : 'bg-[#F9F9F9]' }} rounded-t-[10px]">
-        <table class="w-full min-w-[1000px] text-left border-collapse text-[12px] text-center" x-ref="tableRoot">
-            <thead class="bg-[#E0DFDF] font-bold text-black h-[40px]">
-                <tr>
-                    <th class="border-b border-[#CAC0C0] px-4 py-2 w-[40px]">No</th>
-                    <th class="border-b border-[#CAC0C0] px-4 py-2">Mahasiswa</th>
-                    <th class="border-b border-[#CAC0C0] px-4 py-2">Pengerjaan</th>
-                    <th class="border-b border-[#CAC0C0] px-4 py-2">Jenis KP</th>
-                    <th class="border-b border-[#CAC0C0] px-4 py-2">Nama Instansi</th>
-                    <th class="border-b border-[#CAC0C0] px-4 py-2">Supervisor</th>
-                    <th class="border-b border-[#CAC0C0] px-4 py-2">Judul KP</th>
-                    <th class="border-b border-[#CAC0C0] px-4 py-2 {{ $isRejected ? 'min-w-[150px]' : 'min-w-[200px]' }}">
-                        {{ $isRejected ? 'Tanggal Penolakan' : 'Status Approval' }}
-                    </th>
-                    <th class="border-b border-[#CAC0C0] px-4 py-2 w-[80px]">Detail KP</th>
+    <div class="overflow-x-auto w-full mb-0">
+        <table class="w-full min-w-[1000px] border-collapse text-[13px] text-center" x-ref="tableRoot">
+            <thead>
+                <tr class="bg-[#EBEBEB] text-black">
+                    <th class="py-3 px-4 font-bold text-center w-[60px] border-b border-r border-gray-300">No</th>
+                    <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300">Mahasiswa</th>
+                    <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300">Pengerjaan</th>
+                    @if($isRejected)
+                    <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 whitespace-nowrap">Jenis KP</th>
+                    @endif
+                    <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300">Nama Instansi</th>
+                    <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300">Supervisor</th>
+                    <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300">Judul KP</th>
+                    <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 {{ $isRejected ? 'min-w-[150px]' : 'min-w-[160px]' }}">Aksi</th>
+                    <th class="py-3 px-4 font-bold text-center border-b border-gray-300 min-w-[80px]">Detail</th>
                 </tr>
             </thead>
 
             @forelse($pendaftarans as $index => $kp)
+                @if($kp->is_duplicate ?? false) @continue @endif
                 @php 
-                    $mhsList = $kp->mahasiswaList ?? [['nama' => $kp->user->name ?? 'Unknown', 'nim' => $kp->user->mahasiswa->nim ?? 'Unknown']];
+                    $mhsList = $kp->mahasiswaList ?? [['nama' => $kp->user->name ?? 'Unknown', 'nim' => $kp->user->mahasiswa->nim ?? 'Unknown', 'has_registered' => true]];
                     $rowspan = count($mhsList);
                     $allNamesNims = '';
                     foreach($mhsList as $member) {
                         $allNamesNims .= strtolower(($member['nama'] ?? '') . ' ' . ($member['nim'] ?? '')) . ' ';
                     }
                     $rowSearchString = $allNamesNims . strtolower(($kp->judul_kp ?? '') . ' ' . ($kp->instansi_nama ?? ''));
+                    $hasAnggota = $rowspan > 1;
+                    $groupSize = $rowspan;
                 @endphp
                 <tbody class="proposal-group transition-colors duration-150" 
                     data-search="{{ $rowSearchString }}" 
@@ -121,120 +112,87 @@
                     data-pengerjaan="{{ $kp->pengerjaan_kp ?? 'individu' }}"
                     style="display: none;">
                     @foreach($mhsList as $mIdx => $m)
-                    <tr class="bg-white hover:bg-gray-50 font-medium border-b border-[#CAC0C0]">
-                        
-                        <td class="border-r border-[#CAC0C0] px-4 py-4 text-center align-middle">
-                            <span x-show="!isSelectionMode" class="text-gray-700 font-bold row-counter"></span>
-                            @if($mIdx === 0)
-                                <div x-show="isSelectionMode" style="display: none;">
-                                    @if($kp->status_kp === 'pending')
-                                        <input type="checkbox" name="selected_ids[]" value="{{ $kp->id }}" class="rounded shadow-sm border-[#CAC0C0] focus:ring-[#4CC098] cursor-pointer w-4 h-4 text-[#4CC098]">
-                                    @else
-                                        <input type="checkbox" disabled class="rounded shadow-sm border-gray-200 bg-gray-100 cursor-not-allowed opacity-50 w-4 h-4">
-                                    @endif
-                                </div>
-                            @endif
+                    <tr class="bg-white hover:bg-gray-50 font-medium border-b border-gray-200">
+                        <td class="border-r border-gray-200 px-4 py-2 text-center align-middle">
+                            <span class="text-gray-700 font-bold row-counter"></span>
                         </td>
 
-                        <td class="border-r border-[#CAC0C0] px-4 py-2 leading-tight">
-                            <div class="flex items-center gap-2 text-left">
-                                <div class="w-8 h-8 rounded-full bg-[#E6F0FA] text-[#4285F4] flex items-center justify-center font-bold text-[13px] border border-[#D0E3F5] flex-shrink-0">
-                                    {{ strtoupper(substr($m['nama'] ?? 'U', 0, 1)) }}
-                                </div>
-                                <div>
-                                    <div class="font-bold text-[12px] text-gray-800">{{ $m['nama'] }}</div>
-                                    <div class="text-[11px] text-gray-500 font-medium mt-0.5">{{ $m['nim'] }}</div>
-                                </div>
-                            </div>
+                        <td class="border-r border-gray-200 px-4 py-2 text-left">
+                            <div class="font-bold text-[12px] text-gray-800">{{ $m['nama'] }}</div>
+                            <div class="text-[11px] text-gray-500 font-medium">{{ $m['nim'] }}</div>
                         </td>
                         
                         @if($mIdx === 0)
-                        <td rowspan="{{ $rowspan }}" class="border-r border-[#CAC0C0] px-4 py-2 text-center align-middle">
-                            <div class="inline-flex py-1 px-3 rounded-[5px] text-[12px] font-bold shadow-sm whitespace-nowrap {{ ($kp->pengerjaan_kp ?? '') == 'berkelompok' || ($kp->pengerjaan_kp ?? '') == 'kelompok' ? 'bg-[#FFF3E0] text-[#E65100]' : 'bg-[#E3F2FD] text-[#0D47A1]' }}">
-                                {{ ($kp->pengerjaan_kp ?? '') == 'individu' || ($kp->pengerjaan_kp ?? '') == 'sendiri' ? 'Individu' : ucfirst($kp->pengerjaan_kp ?? 'Individu') }}
+                        <td rowspan="{{ $rowspan }}" class="border-r border-gray-200 px-4 py-2 text-center align-middle">
+                            <div class="inline-flex py-1 px-3 rounded-[5px] text-[11px] font-bold {{ ($kp->pengerjaan_kp ?? '') == 'berkelompok' ? 'bg-[#FFF3E0] text-[#E65100]' : 'bg-[#E3F2FD] text-[#0D47A1]' }}">
+                                {{ ucfirst($kp->pengerjaan_kp ?? 'Individu') }}
                             </div>
                         </td>
-                        <td rowspan="{{ $rowspan }}" class="border-r border-[#CAC0C0] px-4 py-2 text-center align-middle">{{ $kp->jenis_instansi }}</td>
-                        <td rowspan="{{ $rowspan }}" class="border-r border-[#CAC0C0] px-4 py-2 align-middle text-center">{{ $kp->instansi_nama ?? '-' }}</td>
-                        <td rowspan="{{ $rowspan }}" class="border-r border-[#CAC0C0] px-4 py-2 align-middle text-center">{{ $kp->supervisorInstansi->nama_supervisor ?? '-' }}</td>
-                        <td rowspan="{{ $rowspan }}" class="border-r border-[#CAC0C0] px-4 py-2 max-w-[200px] break-words leading-tight align-middle text-center" title="{{ $kp->judul_kp ?? '-' }}">
-                            {{ Str::limit($kp->judul_kp ?? '-', 50) }}
-                        </td>
-                        <td rowspan="{{ $rowspan }}" class="border-r border-[#CAC0C0] px-4 py-2 text-center align-middle">
-                            @if($isRejected)
-                                <div class="font-bold text-[12px] text-gray-700 whitespace-nowrap">{{ $kp->updated_at ? $kp->updated_at->format('d M Y') : '-' }}</div>
+                        
+                        @if($isRejected)
+                        <td rowspan="{{ $rowspan }}" class="border-r border-gray-200 px-4 py-2 text-center align-middle">{{ $kp->jenis_instansi }}</td>
+                        @endif
+                        <td rowspan="{{ $rowspan }}" class="border-r border-gray-200 px-4 py-2 align-middle text-left">{{ $kp->instansi_nama ?? '-' }}</td>
+                        <td rowspan="{{ $rowspan }}" class="border-r border-gray-200 px-4 py-2 align-middle text-left">{{ $kp->supervisorInstansi->nama_supervisor ?? '-' }}</td>
+                        @endif
+                        
+                        <td class="border-r border-gray-200 px-4 py-2 max-w-[200px] break-words align-middle text-left">
+                            @if(isset($m['has_registered']) && !$m['has_registered'])
+                                <span class="text-gray-400 font-bold block text-center">-</span>
                             @else
-                                @if($kp->status_kp === 'pending')
-                                    <div x-show="!isSelectionMode" class="flex items-center justify-center gap-2">
-                                        <form method="POST" action="{{ route('koordinator.pendaftaran-kp.status', $kp->id) }}">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="rejected">
-                                            <button type="button" @click="openModalCatatan($el.closest('form'), 'Tolak Pendaftaran KP?')" class="bg-[#EA4335] text-white px-3 py-1 rounded-[20px] shadow-sm flex items-center justify-center gap-1 w-[80px] hover:bg-red-600 transition">
-                                                <svg class="w-3 h-3 rounded-full border border-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                                Tolak
-                                            </button>
-                                        </form>
-                                        <form method="POST" action="{{ route('koordinator.pendaftaran-kp.status', $kp->id) }}">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="approved">
-                                            <button type="button" @click="openModalCatatan($el.closest('form'), 'Sahkan Pendaftaran KP?')" class="bg-[#34A853] text-white px-3 py-1 rounded-[20px] shadow-sm flex items-center justify-center gap-1 w-[80px] hover:bg-green-600 transition">
-                                                <svg class="w-3 h-3 rounded-full border border-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                                Sahkan
-                                            </button>
-                                        </form>
-                                    </div>
-                                    <div x-show="isSelectionMode" style="display: none;" class="flex items-center justify-center">
-                                        <div class="inline-flex items-center justify-center bg-[#FDE293] text-[#A67C00] border border-[#FDE293] px-6 py-1.5 rounded-[20px] font-bold w-[120px] shadow-sm text-[11px] cursor-not-allowed">
-                                            Menunggu
-                                        </div>
-                                    </div>
-                                @elseif($kp->status_kp === 'approved')
-                                    <div x-data="{ open: false }" class="relative flex items-center justify-center w-full">
-                                        <button type="button" @click="open = !open" @click.outside="open = false" class="inline-flex items-center justify-center bg-[#A1DFAC] text-[#1D5E2D] px-6 py-1.5 rounded-[20px] font-bold w-[120px] shadow-sm text-[11px] hover:bg-green-300 transition cursor-pointer">
-                                            Disetujui <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                        </button>
-                                        <div x-show="open" style="display: none;" class="absolute top-full mt-1 left-1/2 -translate-x-1/2 bg-white border border-gray-200 shadow-lg rounded-[8px] overflow-hidden z-20 w-[120px]">
-                                            <form method="POST" action="{{ route('koordinator.pendaftaran-kp.status', $kp->id) }}">
-                                                @csrf
-                                                @method('PUT')
-                                                <input type="hidden" name="status" value="rejected">
-                                                <button type="button" class="w-full text-left px-4 py-2 hover:bg-gray-100 text-[11px] font-bold text-[#EA4335]" @click="openModalCatatan($el.closest('form'), 'Ubah Status ke Ditolak')">
-                                                    Ubah: Tolak
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                @endif
+                                {{ Str::limit($kp->judul_kp ?? '-', 50) }}
                             @endif
                         </td>
-                        <td rowspan="{{ $rowspan }}" class="px-4 py-2 text-center align-middle">
-                            <div class="flex justify-center w-full">
-                                <a href="{{ route('koordinator.pendaftaran-kp.show', \Str::slug(($kp->user->name ?? 'user') . '-' . ($kp->user->mahasiswa->nim ?? '000'))) }}" class="inline-block bg-[#4285F4] hover:bg-blue-600 text-white px-4 py-1.5 rounded-[20px] shadow-sm text-[11px] font-semibold transition-colors text-center w-[80px]">Detail</a>
-                            </div>
+                        
+                        @if($mIdx === 0)
+                        <td rowspan="{{ $rowspan }}" class="px-4 py-2 border-r border-gray-200 text-center align-middle">
+                            @if($isRejected)
+                                <span class="text-red-500 font-bold text-[11px] bg-red-50 px-2 py-0.5 rounded-[5px]">Ditolak</span>
+                                <div class="text-[10px] text-gray-500 italic mt-1">{{ $kp->updated_at ? $kp->updated_at->format('d M Y') : '-' }}</div>
+                            @elseif(($kp->status_kp ?? '') === 'approved')
+                                <span class="text-green-600 font-bold text-[11px] bg-green-50 px-2 py-0.5 rounded-[5px]">Disetujui</span>
+                                <div class="text-[10px] text-gray-500 italic mt-1">{{ $kp->updated_at ? $kp->updated_at->format('d M Y') : '-' }}</div>
+                            @else
+                                <div class="flex items-center justify-center gap-2">
+                                    <form action="{{ route('koordinator.pendaftaran-kp.status', $kp->id) }}" method="POST">
+                                        @csrf @method('PUT')
+                                        <input type="hidden" name="status" value="approved">
+                                        <button type="submit" class="bg-[#38913B] hover:bg-green-700 text-white px-3 py-1.5 rounded shadow-sm text-[10px] font-bold transition-colors whitespace-nowrap">Setujui</button>
+                                    </form>
+                                    
+                                    <button type="button" @click="openModalCatatan($el.nextElementSibling, 'Tolak Pendaftaran KP?')" class="bg-[#EA3323] hover:bg-red-700 text-white px-3 py-1.5 rounded shadow-sm text-[10px] font-bold transition-colors whitespace-nowrap">Tolak</button>
+                                    <form class="hidden reject-form" action="{{ route('koordinator.pendaftaran-kp.status', $kp->id) }}" method="POST">
+                                        @csrf @method('PUT')
+                                        <input type="hidden" name="status" value="rejected">
+                                    </form>
+                                </div>
+                            @endif
                         </td>
                         @endif
+                        
+                        <td class="px-4 py-2 text-center align-middle border-l border-gray-200">
+                            @if(isset($m['has_registered']) && !$m['has_registered'])
+                                <span class="text-gray-400 font-bold">-</span>
+                            @else
+                                <a href="{{ route('koordinator.pendaftaran-kp.show', Str::slug(($m['nama'] ?? '') . '-' . ($m['nim'] ?? ''))) }}" class="bg-[#4285F4] hover:bg-blue-700 text-white px-4 py-1.5 rounded shadow-sm text-[10px] font-bold transition-colors whitespace-nowrap inline-block">Detail</a>
+                            @endif
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
             @empty
-                <tbody>
+                <tbody class="divide-y divide-gray-200 proposal-group" data-search="" data-jenis="" data-status="" data-pengerjaan="">
                     <tr>
-                        <td colspan="9" class="border border-[#CAC0C0] px-4 py-16 text-center bg-white">
-                            <div class="flex flex-col items-center justify-center text-gray-400">
-                                <svg class="w-12 h-12 mb-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                                <p class="text-[14px] font-medium text-gray-500">Data pendaftaran tidak ditemukan.</p>
-                            </div>
+                        <td colspan="{{ $isRejected ? 9 : 8 }}" class="py-12 text-center text-gray-400 italic font-medium bg-gray-50 tracking-widest border-b border-gray-300">
+                            Tidak Ada Data
                         </td>
                     </tr>
                 </tbody>
             @endforelse
             
-            <!-- Alpine Empty State for Search -->
             <tbody x-show="totalVisible === 0 && {{ count($pendaftarans) }} > 0" style="display: none;">
                 <tr>
-                    <td colspan="9" class="border border-[#CAC0C0] px-4 py-16 text-center bg-white">
+                    <td colspan="{{ $isRejected ? 9 : 8 }}" class="border border-gray-200 px-4 py-16 text-center bg-white">
                         <div class="flex flex-col items-center justify-center text-gray-400">
                             <svg class="w-12 h-12 mb-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                             <p class="text-[14px] font-medium text-gray-500">Pencarian tidak membuahkan hasil.</p>
@@ -247,28 +205,20 @@
     </div>
 
     <!-- AlpineJS Dynamic Paginator Footer -->
-    <div class="flex flex-col sm:flex-row items-center justify-between bg-white px-4 py-3 border-t-0 rounded-b-[10px] sm:px-6 shadow-sm border border-[#CAC0C0]" x-show="totalVisible > 0">
-        <div class="hidden sm:block text-[13px] font-medium text-gray-600">
-            Menampilkan <span class="font-bold" x-text="startItem"></span> - <span class="font-bold" x-text="endItem"></span> dari <span class="font-bold" x-text="totalVisible"></span> pendaftaran
-        </div>
-        <div class="flex flex-1 justify-between sm:justify-end mt-2 sm:mt-0 gap-2">
-            <button @click="prevPage" :disabled="currentPage === 1" :class="{'opacity-50 cursor-not-allowed': currentPage === 1, 'hover:bg-gray-50': currentPage > 1}" class="relative inline-flex items-center px-4 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white shadow-sm transition">
-                Sebelumnya
-            </button>
-            
-            <div class="hidden md:flex items-center gap-1 mx-2">
+    <div class="px-6 py-4 bg-white flex items-center justify-between border-t border-gray-200 rounded-b-[10px]" x-show="totalPages > 1">
+        <span class="text-[12px] font-medium text-black/50" x-text="`Halaman ${currentPage} dari ${totalPages}`"></span>
+        <div class="flex items-center gap-2">
+            <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Previous</button>
+            <div class="flex items-center gap-1">
                 <template x-for="page in totalPages" :key="page">
                     <button type="button" @click="goToPage(page)" 
-                        :class="currentPage === page ? 'bg-[#4285F4] text-white border-[#4285F4]' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'"
-                        class="relative inline-flex items-center px-3 py-1.5 border text-sm font-medium rounded-md shadow-sm transition"
+                        :class="currentPage === page ? 'bg-blue-600 text-white shadow-md' : 'text-black hover:bg-gray-100'"
+                        class="w-8 h-8 rounded text-[12px] font-bold transition-all"
                         x-text="page" x-show="totalPages <= 7 || page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)">
                     </button>
                 </template>
             </div>
-
-            <button @click="nextPage" :disabled="currentPage === totalPages" :class="{'opacity-50 cursor-not-allowed': currentPage === totalPages, 'hover:bg-gray-50': currentPage < totalPages}" class="relative inline-flex items-center px-4 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white shadow-sm transition">
-                Selanjutnya
-            </button>
+            <button @click="nextPage" :disabled="currentPage === totalPages" class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Next</button>
         </div>
     </div>
 </div>

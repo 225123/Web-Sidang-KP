@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Koordinator;
 
 use App\Http\Controllers\Controller;
+use App\Models\PendaftaranSidang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\PendaftaranSidang;
-use App\Models\PendaftaranKp;
 
 class PersetujuanSidangController extends Controller
 {
@@ -16,9 +15,9 @@ class PersetujuanSidangController extends Controller
         $dosenId = Auth::user()->id;
 
         // 1. Ambil data Persetujuan Sidang berdasarkan pendaftaran_kp yang dibimbing dosen ini
-        $pengajuans = PendaftaranSidang::whereHas('pendaftaranKp', function($q) use ($dosenId) {
-                $q->where('pembimbing_id', $dosenId);
-            })
+        $pengajuans = PendaftaranSidang::whereHas('pendaftaranKp', function ($q) use ($dosenId) {
+            $q->where('pembimbing_id', $dosenId);
+        })
             ->with(['mahasiswa.user', 'pendaftaranKp.logBimbingans'])
             ->get();
 
@@ -47,7 +46,7 @@ class PersetujuanSidangController extends Controller
         $pengajuan = PendaftaranSidang::findOrFail($id);
 
         $pengajuan->update([
-            'status_verifikasi' => 'verified'
+            'status_verifikasi' => 'verified',
         ]);
 
         return back()->with('success', 'Pengajuan mahasiswa berhasil disahkan.');
@@ -57,14 +56,14 @@ class PersetujuanSidangController extends Controller
     public function tolak(Request $request, $id)
     {
         $request->validate([
-            'feedback' => 'required|string'
+            'feedback' => 'required|string',
         ]);
 
         $pengajuan = PendaftaranSidang::findOrFail($id);
-        
+
         $pengajuan->update([
             'status_verifikasi' => 'rejected',
-            'dosen_feedback' => $request->feedback
+            'dosen_feedback' => $request->feedback,
         ]);
 
         return back()->with('success', 'Pengajuan berhasil ditolak dan dipindahkan ke riwayat penolakan.');

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\PendaftaranKp;
 use Illuminate\Console\Command;
 
 class CleanupLegacyData extends Command
@@ -25,9 +26,9 @@ class CleanupLegacyData extends Command
      */
     public function handle()
     {
-        $this->info("Memulai pembersihan data lama...");
+        $this->info('Memulai pembersihan data lama...');
 
-        $kps = \App\Models\PendaftaranKp::all();
+        $kps = PendaftaranKp::all();
         $updatedCount = 0;
 
         foreach ($kps as $kp) {
@@ -40,23 +41,23 @@ class CleanupLegacyData extends Command
                 $changed = true;
             } elseif (in_array($pengerjaan, ['berkelompok', 'kelompok'])) {
                 $kp->pengerjaan_kp = 'kelompok';
-                if (!in_array($pengerjaan, ['kelompok'])) {
-                     $changed = true;
+                if (! in_array($pengerjaan, ['kelompok'])) {
+                    $changed = true;
                 }
             }
-            
+
             // Auto correct based on members presence
             if ($kp->pengerjaan_kp === 'kelompok' && empty($kp->anggota_kelompok_ids)) {
                 $kp->pengerjaan_kp = 'individu';
                 $changed = true;
-            } elseif ($kp->pengerjaan_kp === 'individu' && !empty($kp->anggota_kelompok_ids)) {
+            } elseif ($kp->pengerjaan_kp === 'individu' && ! empty($kp->anggota_kelompok_ids)) {
                 $kp->pengerjaan_kp = 'kelompok';
                 $changed = true;
             }
 
             // 2. Pembersihan Anggota Kelompok pada proposal lama yang berstatus DITOLAK
             // sesuai aturan baru bahwa pembubaran terjadi otomatis. Data lama masih tertinggal.
-            if ($kp->status_kp === 'rejected' && !empty($kp->anggota_kelompok_ids)) {
+            if ($kp->status_kp === 'rejected' && ! empty($kp->anggota_kelompok_ids)) {
                 $kp->anggota_kelompok_ids = null;
                 $changed = true;
             }

@@ -27,11 +27,11 @@
         <svg :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
     </button>
     <div x-show="open" x-transition class="mt-0.5 mb-2 bg-[#BBB8B8] w-full overflow-hidden flex flex-col divide-y divide-[#9E9B9B]">
-        <a href="{{ route('dosen.dummy', 'daftar-mahasiswa') }}" class="{{ $active == 'daftar-mahasiswa' ? $subActiveClass : $subInactiveClass }}">
+        <a href="{{ route('dosen.daftar-mahasiswa') }}" class="{{ $active == 'daftar-mahasiswa' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
             <span x-show="sidebarOpen" x-transition>Daftar Mahasiswa</span>
         </a>
-        <a href="{{ route('dosen.dummy', 'persetujuan-sidang') }}" class="{{ $active == 'persetujuan-sidang' ? $subActiveClass : $subInactiveClass }}">
+        <a href="{{ route('dosen.persetujuan-sidang.index') }}" class="{{ $active == 'persetujuan-sidang' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
             <span x-show="sidebarOpen" x-transition>Persetujuan Sidang</span>
         </a>
@@ -72,10 +72,17 @@
     </div>
 </a>
 
-<a href="{{ route('dosen.dummy', 'revisi') }}" class="{{ $active == 'revisi' ? $activeClass : $inactiveClass }}">
+<a href="{{ route('dosen.revisi.index') }}" class="{{ $active == 'revisi' ? $activeClass : $inactiveClass }}">
     <div class="flex items-center gap-3">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
         <span x-show="sidebarOpen" x-transition>Revisi</span>
+    </div>
+</a>
+
+<a href="{{ route('dosen.notifikasi') }}" class="{{ $active == 'notifikasi' ? $activeClass : $inactiveClass }} mt-1">
+    <div class="flex items-center gap-3">
+        <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-1.707 1.707A1 1 0 003 14h14a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+        <span x-show="sidebarOpen" x-transition>Notifikasi</span>
     </div>
 </a>
 

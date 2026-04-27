@@ -56,7 +56,7 @@ class User extends Authenticatable
             'reset_token_expires' => 'datetime',
         ];
     }
-    
+
     // Disable remember token as it's not in the schema
     public function getRememberTokenName()
     {
@@ -68,7 +68,7 @@ class User extends Authenticatable
     {
         return $this->hasOne(Mahasiswa::class);
     }
-    
+
     public function dosen()
     {
         return $this->hasOne(Dosen::class);

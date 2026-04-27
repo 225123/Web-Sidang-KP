@@ -1,164 +1,186 @@
 <x-dashboard-layout header="Pendaftaran Sidang KP" userName="{{ auth()->user()->name }}" roleName="MAHASISWA">
     <x-slot:sidebar>
         @include('mahasiswa.components.sidebar', ['active' => 'pendaftaran-sidang'])
-    </x-slot>
+        </x-slot>
 
-    <div class="mt-6">
-        @if(session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
-                {{ session('success') }}
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-                {{ session('error') }}
-            </div>
-        @endif
-        @if($errors->any())
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-                <ul class="list-disc pl-5">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <!-- Kotak info dipindah ke dalam logic view masing-masing agar hanya muncul saat form aktif -->
-
-        @if(!$isVerifiedByDosen)
-            <div class="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-4 rounded-xl text-center font-bold mb-6">
-                Anda belum mendapatkan Persetujuan Sidang dari Dosen Pembimbing. Silakan urus Surat Persetujuan terlebih dahulu pada menu "Persetujuan Sidang KP".
-            </div>
-        @elseif($pengajuan && in_array($pengajuan->status_koordinator, ['pending', 'verified']))
-            {{-- Status Card Jika Sudah Submit (Berhasil) --}}
-            <div class="flex flex-col mt-8 w-full">
-                <!-- Bagian atas: Ikon & Teks Utama (Centered) -->
-                <div class="flex flex-col items-center justify-center text-center">
-                    <svg class="w-[100px] h-[100px] mb-4 text-[#008000]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2l2.4 2.6L18 4l.6 3.4 3.4.6L20 10.4 22 14l-2.6 2.4L20 20l-3.4-.6L13.2 22 12 19.6 9.6 22 6.2 21.4 5.6 18 2 17.4 4 14 2 10.4l2.6-2.4L4 4l3.4.6L10.8 2 12 4.4z"></path>
-                        <polyline points="8 12 11 15 16 9" stroke-width="2.5"></polyline>
-                    </svg>
-
-                    <h3 class="text-[18px] font-bold text-gray-800 mb-2 font-sans tracking-tight">
-                        Berkas Pendaftaran Sidang Berhasil Diajukan
-                    </h3>
-
-                    @if($pengajuan->status_koordinator == 'pending')
-                    <p class="text-[14px] text-gray-500 font-medium font-sans">Berkas Anda sedang dalam antrean verifikasi oleh Koordinator KP.</p>
-                    @endif
+        <div class="mt-6">
+            @if(session('success'))
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+                    {{ session('success') }}
                 </div>
-                
-                <hr class="w-[95%] mx-auto border-gray-300 opacity-60 my-10">
-
-                <div class="w-full text-left font-sans flex flex-col justify-start items-start">
-                    @if($pengajuan->status_koordinator == 'pending')
-                            <div class="bg-[#f8f9fa] rounded-xl p-6 mt-2 shadow-sm border border-gray-200 w-fit md:min-w-[400px]">
-                                <div class="text-[15px] font-semibold text-gray-700">Status Pengajuan : <span class="text-yellow-600 font-bold ml-1">-- sedang diverifikasi...</span></div>
-                                <div class="text-gray-400 text-[12px] mt-2 font-medium italic">Tanggal Pengajuan: {{ \Carbon\Carbon::parse($pengajuan->created_at ?? $pengajuan->updated_at)->translatedFormat('d F Y') }}</div>
-                            </div>
-                    @elseif($pengajuan->status_koordinator == 'verified')
-                            <div class="bg-[#f8f9fa] rounded-xl p-6 mt-2 shadow-sm border border-gray-200 w-fit md:min-w-[400px]">
-                                <div class="text-[15px] font-semibold text-gray-700 mb-1">Status Pengajuan : <span class="text-gray-600 font-bold ml-1">telah diverifikasi.</span></div>
-                                <div class="text-gray-400 text-[12px] mb-4 font-medium italic">Tanggal Verifikasi: {{ \Carbon\Carbon::parse($pengajuan->updated_at)->translatedFormat('d F Y') }}</div>
-                                
-                                <a href="{{ url('/mahasiswa/jadwal-sidang') }}" class="bg-[#e9ecef] hover:bg-[#dee2e6] text-gray-500 border-none rounded-md px-6 py-2.5 text-[13px] flex items-center gap-2 font-semibold w-fit transition-colors cursor-pointer shadow-sm">
-                                    <span>ⓘ</span> Lihat Jadwal Sidang
-                                </a>
-                            </div>
-                    @endif
+            @endif
+            @if(session('error'))
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+                    {{ session('error') }}
                 </div>
-            </div>
-            
-        @else
-            {{-- Form Submit Berkas (Muncul saat Unsubmitted atau Rejected) --}}
-
-            <div class="bg-[#EAEFFF] border border-[#BACDFB] rounded-[10px] p-4 flex items-start gap-4 shadow-sm mb-6 mt-2">
-                <div class="bg-[#7896F8] w-6 h-6 rounded-full flex items-center justify-center text-white shrink-0 shadow-sm font-serif italic text-sm mt-0.5">i</div>
-                <p class="text-[14px] text-black font-medium leading-relaxed">
-                    Unggah Berkas yang diperlukan dan klik 'Ajukan Sidang' untuk mendapatkan verifikasi persetujuan sidang dari Koordinator KP
-                </p>
-            </div>
-
-            @if($pengajuan && $pengajuan->status_koordinator == 'rejected')
-                <div class="bg-red-50 border-l-4 border-red-500 text-red-800 px-6 py-5 rounded-r-xl shadow-sm mb-6 flex items-start gap-4">
-                    <div class="mt-0.5">
-                        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-[15px] mb-1">Berks Pendaftaran Anda Dikembalikan (Ditolak)</h4>
-                        <p class="text-[13px] mb-2">Alasan Penolakan: <strong>{{ $pengajuan->koordinator_feedback }}</strong></p>
-                        <p class="text-[12px] italic text-red-600">Silakan unggah ulang dokumen yang telah Anda perbaiki melalui formulir di bawah ini.</p>
-                    </div>
+            @endif
+            @if($errors->any())
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+                    <ul class="list-disc pl-5">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
             @endif
 
-            <form action="{{ route('mahasiswa.pendaftaran-sidang.store') }}" method="POST" enctype="multipart/form-data" class="bg-[#eeeeee] rounded-xl p-8 mb-6 mt-4">
-                @csrf
-                <h3 class="text-lg font-bold text-gray-800 mt-0 mb-6">Kelengkapan Dokumen Sidang</h3>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
-                    <!-- Laporan KP -->
-                    <div class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
-                        <div class="text-[13px] font-bold text-black mb-3">Laporan KP <span class="text-red-500 ml-1">*</span></div>
-                        <input type="file" name="file_laporan" required accept=".pdf" class="text-[11px] text-gray-600 w-full mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        <div class="text-[10px] text-gray-400 font-medium">Maks. 5 MB (PDF)</div>
-                    </div>
+            <!-- Kotak info dipindah ke dalam logic view masing-masing agar hanya muncul saat form aktif -->
 
-                    <!-- Laporan Bimbingan KP -->
-                    <div class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
-                        <div class="text-[13px] font-bold text-black mb-3">Laporan Bimbingan KP <span class="text-red-500 ml-1">*</span></div>
-                        <input type="file" name="file_log_bimbingan" required accept=".pdf" class="text-[11px] text-gray-600 w-full mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        <div class="text-[10px] text-gray-400 font-medium">Maks. 5 MB (PDF)</div>
-                    </div>
+            @if(!$isVerifiedByDosen)
+                <div
+                    class="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-4 rounded-xl text-center font-bold mb-6">
+                    Anda belum mendapatkan Persetujuan Sidang dari Dosen Pembimbing. Silakan urus Surat Persetujuan terlebih
+                    dahulu pada menu "Persetujuan Sidang KP".
+                </div>
+            @elseif($pengajuan && in_array($pengajuan->status_koordinator, ['pending', 'verified']))
+                {{-- Status Card Jika Sudah Submit (Berhasil) --}}
+                <div class="flex flex-col items-center justify-center mt-12 w-full text-center">
+                    <svg class="w-28 h-28 mb-4 text-[#008000]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M12 2l2.4 2.6L18 4l.6 3.4 3.4.6L20 10.4 22 14l-2.6 2.4L20 20l-3.4-.6L13.2 22 12 19.6 9.6 22 6.2 21.4 5.6 18 2 17.4 4 14 2 10.4l2.6-2.4L4 4l3.4.6L10.8 2 12 4.4z">
+                        </path>
+                        <polyline points="8 12 11 15 16 9" stroke-width="2.5"></polyline>
+                    </svg>
 
-                    <!-- Surat Penilaian Supervisor -->
-                    <div class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
-                        <div class="text-[13px] font-bold text-black mb-3 flex justify-between items-start">
-                            <span>Surat Nilai SPV</span>
-                            <a href="{{ route('mahasiswa.pendaftaran-sidang.template-supervisor') }}" class="text-[9px] bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold hover:bg-blue-200 transition-colors">Template</a>
+                    <h3 class="text-[17px] font-bold text-black mb-2">
+                        {{ $pengajuan->status_koordinator === 'verified' ? 'Pendaftaran Sidang Disetujui' : 'Kamu Telah Berhasil Mendaftar' }}
+                    </h3>
+                    <p class="text-[14px] text-[#1A1A1A] font-medium">Informasi selanjutnya akan diumumkan oleh koordinator
+                        KP melalui Email atau Notifikasi</p>
+                </div>
+
+            @else
+                {{-- Form Submit Berkas (Muncul saat Unsubmitted atau Rejected) --}}
+
+                <div
+                    class="bg-[#EAEFFF] border border-[#BACDFB] rounded-[10px] p-4 flex items-start gap-4 shadow-sm mb-6 mt-2">
+                    <div
+                        class="bg-[#7896F8] w-6 h-6 rounded-full flex items-center justify-center text-white shrink-0 shadow-sm font-serif italic text-sm mt-0.5">
+                        i</div>
+                    <p class="text-[14px] text-black font-medium leading-relaxed">
+                        Unggah Berkas yang diperlukan dan klik 'Submit Berkas' untuk mendapatkan verifikasi persetujuan
+                        sidang dari Koordinator KP
+                    </p>
+                </div>
+
+                @if($pengajuan && $pengajuan->status_koordinator == 'rejected')
+                    <div
+                        class="bg-red-50 border-l-4 border-red-500 text-red-800 px-6 py-5 rounded-r-xl shadow-sm mb-6 flex items-start gap-4">
+                        <div class="mt-0.5">
+                            <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                </path>
+                            </svg>
                         </div>
-                        <input type="file" name="file_nilai_supervisor" accept=".pdf" class="text-[11px] text-gray-600 w-full mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        <div class="text-[10px] text-gray-400 font-medium">Opsional - Maks. 5 MB (PDF)</div>
+                        <div>
+                            <h4 class="font-bold text-[15px] mb-1">Berks Pendaftaran Anda Dikembalikan (Ditolak)</h4>
+                            <p class="text-[13px] mb-2">Alasan Penolakan:
+                                <strong>{{ $pengajuan->koordinator_feedback }}</strong></p>
+                            <p class="text-[12px] italic text-red-600">Silakan unggah ulang dokumen yang telah Anda perbaiki
+                                melalui formulir di bawah ini.</p>
+                        </div>
+                    </div>
+                @endif
+
+                <form action="{{ route('mahasiswa.pendaftaran-sidang.store') }}" method="POST" enctype="multipart/form-data"
+                    class="bg-[#eeeeee] rounded-xl p-8 mb-6 mt-4">
+                    @csrf
+                    <h3 class="text-lg font-bold text-gray-800 mt-0 mb-6">Kelengkapan Dokumen Sidang</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+                        <!-- Laporan KP -->
+                        <div
+                            class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
+                            <div class="text-[13px] font-bold text-black mb-3">Laporan KP <span
+                                    class="text-red-500 ml-1">*</span></div>
+                            <input type="file" name="file_laporan" required accept=".pdf"
+                                class="text-[11px] text-gray-600 w-full mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <div class="text-[10px] text-gray-400 font-medium">Maks. 5 MB (PDF)</div>
+                        </div>
+
+                        <!-- Laporan Bimbingan KP -->
+                        <div
+                            class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
+                            <div class="text-[13px] font-bold text-black mb-3">Laporan Bimbingan KP <span
+                                    class="text-red-500 ml-1">*</span></div>
+                            <input type="file" name="file_log_bimbingan" required accept=".pdf"
+                                class="text-[11px] text-gray-600 w-full mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <div class="text-[10px] text-gray-400 font-medium">Maks. 5 MB (PDF)</div>
+                        </div>
+
+                        @if($pendaftaran && $pendaftaran->jenis_instansi === 'Internal')
+                            <!-- Surat Penilaian Supervisor (Hanya Internal) -->
+                            <div
+                                class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
+                                <div class="text-[13px] font-bold text-black mb-3 flex justify-between items-start">
+                                    <span>Surat Nilai SPV</span>
+                                    <a href="{{ route('mahasiswa.pendaftaran-sidang.template-supervisor') }}"
+                                        class="text-[9px] bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold hover:bg-blue-200 transition-colors">Template</a>
+                                </div>
+                                <input type="file" name="file_nilai_supervisor" accept=".pdf"
+                                    class="text-[11px] text-gray-600 w-full mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                <div class="text-[10px] text-gray-400 font-medium">Opsional - Maks. 5 MB (PDF)</div>
+                            </div>
+                        @else
+                            <!-- Surat Penilaian Supervisor External diganti dengan info Link -->
+                            <div
+                                class="bg-blue-50 rounded-lg p-5 flex flex-col justify-center items-center text-center relative shadow-sm border border-blue-200">
+                                <svg class="w-8 h-8 text-blue-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <div class="text-[13px] font-bold text-blue-800 mb-1">Surat Nilai SPV</div>
+                                <div class="text-[10px] text-blue-600 font-medium leading-relaxed">Nilai akan langsung diinput oleh Supervisor Anda melalui tautan yang dikirimkan ke email mereka setelah sidang ini disetujui. Anda tidak perlu mengunggahnya.</div>
+                            </div>
+                        @endif
+
+                        <!-- Berkas Lainnya -->
+                        <div
+                            class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
+                            <div class="text-[13px] font-bold text-black mb-3">Berkas Lainnya</div>
+                            <input type="file" name="file_berkas_lainnya" accept=".pdf"
+                                class="text-[11px] text-gray-600 w-full mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <div class="text-[10px] text-gray-400 font-medium">Opsional - Maks. 5 MB (PDF)</div>
+                        </div>
+
+                        <!-- Link Drive -->
+                        <div
+                            class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
+                            <div class="text-[13px] font-bold text-black mb-3">Link Google Drive</div>
+                            <input type="url" name="link_drive" placeholder="https://drive.google.com/..."
+                                class="border border-gray-300 rounded-[5px] px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 w-full bg-gray-50 mb-1">
+                            <div class="text-[10px] text-gray-400 mt-1">Jika file > 5MB</div>
+                        </div>
+
+                        <!-- Link Github -->
+                        <div
+                            class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
+                            <div class="text-[13px] font-bold text-black mb-3">Link Project (Github)</div>
+                            <input type="url" name="link_github" placeholder="https://github.com/..."
+                                class="border border-gray-300 rounded-[5px] px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 w-full bg-gray-50 mb-1">
+                        </div>
+
+                        <!-- Link Deploy -->
+                        <div
+                            class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200 lg:col-start-1 lg:col-end-4 md:col-start-1 md:col-end-3">
+                            <div class="text-[13px] font-bold text-black mb-3">Link Deploy / Publish Project</div>
+                            <input type="url" name="link_deploy" placeholder="https://myapp.com/..."
+                                class="border border-gray-300 rounded-[5px] px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 w-full sm:w-[50%] bg-gray-50 mb-1">
+                        </div>
                     </div>
 
-                    <!-- Berkas Lainnya -->
-                    <div class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
-                        <div class="text-[13px] font-bold text-black mb-3">Berkas Lainnya</div>
-                        <input type="file" name="file_berkas_lainnya" accept=".pdf" class="text-[11px] text-gray-600 w-full mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        <div class="text-[10px] text-gray-400 font-medium">Opsional - Maks. 5 MB (PDF)</div>
+                    <div class="flex justify-center mt-6">
+                        <button type="submit"
+                            class="w-full sm:w-auto bg-[#008000] hover:bg-green-700 text-white font-bold h-[45px] px-10 rounded-full text-[14px] flex items-center justify-center shadow-md gap-3 transition-colors cursor-pointer border-none">
+                            <svg class="w-4 h-4 transform -rotate-45 mb-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z">
+                                </path>
+                            </svg>
+                            SUBMIT BERKAS
+                        </button>
                     </div>
+                </form>
+            @endif
 
-                    <!-- Link Drive -->
-                    <div class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
-                        <div class="text-[13px] font-bold text-black mb-3">Link Google Drive</div>
-                        <input type="url" name="link_drive" placeholder="https://drive.google.com/..." class="border border-gray-300 rounded-[5px] px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 w-full bg-gray-50 mb-1">
-                        <div class="text-[10px] text-gray-400 mt-1">Jika file > 5MB</div>
-                    </div>
-
-                    <!-- Link Github -->
-                    <div class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
-                        <div class="text-[13px] font-bold text-black mb-3">Link Project (Github)</div>
-                        <input type="url" name="link_github" placeholder="https://github.com/..." class="border border-gray-300 rounded-[5px] px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 w-full bg-gray-50 mb-1">
-                    </div>
-
-                    <!-- Link Deploy -->
-                    <div class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200 lg:col-start-1 lg:col-end-4 md:col-start-1 md:col-end-3">
-                        <div class="text-[13px] font-bold text-black mb-3">Link Deploy / Publish Project</div>
-                        <input type="url" name="link_deploy" placeholder="https://myapp.com/..." class="border border-gray-300 rounded-[5px] px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 w-full sm:w-[50%] bg-gray-50 mb-1">
-                    </div>
-                </div>
-
-                <div class="flex justify-center mt-6">
-                    <button type="submit" class="w-full sm:w-auto bg-[#008000] hover:bg-green-700 text-white font-bold h-[45px] px-10 rounded-full text-[14px] flex items-center justify-center shadow-md gap-3 transition-colors cursor-pointer border-none">
-                        <svg class="w-4 h-4 transform -rotate-45 mb-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
-                        </svg>
-                        SUBMIT BERKAS
-                    </button>
-                </div>
-            </form>
-        @endif
-
-    </div>
+        </div>
 </x-dashboard-layout>

@@ -11,12 +11,17 @@
     $subActiveClass = "flex items-center gap-3 pl-10 pr-4 py-1.5 text-[12px] font-medium text-white transition-colors bg-[#4CC098] w-full rounded-none whitespace-nowrap text-left";
 @endphp
 
-<a href="{{ route('koordinator.dashboard') }}" class="{{ $active == 'dashboard' ? $activeClass : $inactiveClass }} mt-4 mb-2">
+<a href="{{ route('koordinator.dashboard') }}" class="{{ $active == 'dashboard' ? $activeClass : $inactiveClass }} mt-4 mb-1">
     <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
     <span x-show="sidebarOpen" x-transition>Dashboard</span>
 </a>
 
-<a href="{{ route('koordinator.dummy', 'timeline') }}" class="{{ $active == 'timeline' ? $activeClass : $inactiveClass }}">
+<a href="{{ route('koordinator.notifikasi') }}" class="{{ $active == 'notifikasi' ? $activeClass : $inactiveClass }} mb-2">
+    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+    <span x-show="sidebarOpen" x-transition>Notifikasi</span>
+</a>
+
+<a href="{{ route('koordinator.timeline.index') }}" class="{{ $active == 'timeline' ? $activeClass : $inactiveClass }}">
     <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
     <span x-show="sidebarOpen" x-transition>Timeline KP</span>
 </a>
@@ -30,11 +35,11 @@
         <svg :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
     </button>
     <div x-show="open" x-transition class="mt-0.5 bg-[#BBB8B8] w-full overflow-hidden flex flex-col divide-y divide-[#9E9B9B]">
-        <a href="{{ route('koordinator.dummy', 'pendaftaran-kp') }}" class="{{ $active == 'pendaftaran-kp' ? $subActiveClass : $subInactiveClass }}">
+        <a href="{{ route('koordinator.pendaftaran-kp') }}" class="{{ $active == 'pendaftaran-kp' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             <span x-show="sidebarOpen" x-transition>Pendaftaran KP</span>
         </a>
-        <a href="{{ route('koordinator.dummy', 'data-mahasiswa') }}" class="{{ $active == 'data-mahasiswa' ? $subActiveClass : $subInactiveClass }}">
+        <a href="{{ route('koordinator.data-mahasiswa.index') }}" class="{{ $active == 'data-mahasiswa' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
             <span x-show="sidebarOpen" x-transition>Data Mahasiswa KP</span>
         </a>
@@ -54,11 +59,11 @@
         <svg :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
     </button>
     <div x-show="open" x-transition class="mt-0.5 bg-[#BBB8B8] w-full overflow-hidden flex flex-col divide-y divide-[#9E9B9B]">
-        <a href="{{ route('koordinator.dummy', 'progress-umum') }}" class="{{ $active == 'progress-umum' ? $subActiveClass : $subInactiveClass }}">
+        <a href="{{ route('koordinator.progress-umum') }}" class="{{ $active == 'progress-umum' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
             <span x-show="sidebarOpen" x-transition>Progress Umum</span>
         </a>
-        <a href="{{ route('koordinator.dummy', 'bimbingan-saya') }}" class="{{ $active == 'bimbingan-saya' ? $subActiveClass : $subInactiveClass }}">
+        <a href="{{ route('koordinator.bimbingan-saya') }}" class="{{ $active == 'bimbingan-saya' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
             <span x-show="sidebarOpen" x-transition>Bimbingan Saya</span>
         </a>
@@ -114,7 +119,7 @@
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
             <span x-show="sidebarOpen" x-transition>Input Nilai Sidang</span>
         </a>
-        <a href="{{ route('koordinator.dummy', 'berita-acara') }}" class="{{ $active == 'berita-acara' ? $subActiveClass : $subInactiveClass }}">
+        <a href="{{ route('koordinator.berita-acara.index') }}" class="{{ $active == 'berita-acara' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             <span x-show="sidebarOpen" x-transition>Berita Acara</span>
         </a>
@@ -130,11 +135,15 @@
         <svg :class="open ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
     </button>
     <div x-show="open" x-transition class="mt-0.5 bg-[#BBB8B8] w-full overflow-hidden flex flex-col divide-y divide-[#9E9B9B]">
-        <a href="{{ route('koordinator.dummy', 'revisi-sidang') }}" class="{{ $active == 'revisi-sidang' ? $subActiveClass : $subInactiveClass }}">
+        <a href="{{ route('koordinator.rekap-revisi') }}" class="{{ $active == 'rekap-revisi' ? $subActiveClass : $subInactiveClass }}">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 00-4-4H5m11 4v-2a4 4 0 014-4h.5m-11 4h7m-7 0L10 14m3 0l3 3m-3-3l-3 3"/></svg>
+            <span x-show="sidebarOpen" x-transition>Rekap Revisi</span>
+        </a>
+        <a href="{{ route('koordinator.revisi.index') }}" class="{{ $active == 'revisi' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
             <span x-show="sidebarOpen" x-transition>Revisi Sidang</span>
         </a>
-        <a href="{{ route('koordinator.dummy', 'finalisasi-nilai') }}" class="{{ $active == 'finalisasi-nilai' ? $subActiveClass : $subInactiveClass }}">
+        <a href="{{ route('koordinator.finalisasi-nilai.index') }}" class="{{ $active == 'finalisasi-nilai' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
             <span x-show="sidebarOpen" x-transition>Finalisasi Nilai</span>
         </a>

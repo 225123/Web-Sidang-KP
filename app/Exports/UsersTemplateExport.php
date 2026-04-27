@@ -3,17 +3,17 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\Color;
-use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Color;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class UsersTemplateExport implements FromArray, WithHeadings, ShouldAutoSize, WithEvents
+class UsersTemplateExport implements FromArray, ShouldAutoSize, WithEvents, WithHeadings
 {
     public function array(): array
     {
@@ -33,7 +33,7 @@ class UsersTemplateExport implements FromArray, WithHeadings, ShouldAutoSize, Wi
             'nama',
             'id',
             'email',
-            'role'
+            'role',
         ];
     }
 
@@ -81,7 +81,7 @@ class UsersTemplateExport implements FromArray, WithHeadings, ShouldAutoSize, Wi
 
                 // Terapkan style
                 $sheet->getStyle('A1:D1')->applyFromArray($headerStyle);
-                $sheet->getStyle('A2:D' . $highestRow)->applyFromArray($bodyStyle);
+                $sheet->getStyle('A2:D'.$highestRow)->applyFromArray($bodyStyle);
                 $sheet->getRowDimension(1)->setRowHeight(30);
 
                 // Freeze Baris Pertama
@@ -89,7 +89,7 @@ class UsersTemplateExport implements FromArray, WithHeadings, ShouldAutoSize, Wi
 
                 // 2. Data Validation (Dropdown) di Kolom Role (Kolom D)
                 for ($row = 2; $row <= $highestRow; $row++) {
-                    $validation = $sheet->getCell('D' . $row)->getDataValidation();
+                    $validation = $sheet->getCell('D'.$row)->getDataValidation();
                     $validation->setType(DataValidation::TYPE_LIST);
                     $validation->setErrorStyle(DataValidation::STYLE_STOP);
                     $validation->setAllowBlank(true);
