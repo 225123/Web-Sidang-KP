@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Dosen;
 use App\Models\PendaftaranKp;
 use App\Models\User;
+use App\Models\NotifikasiLog;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -310,6 +311,10 @@ class PenugasanPembimbingController extends Controller
                             throw new \Exception("Dosen pembimbing tidak boleh sama dengan supervisor internal untuk mahasiswa di KP: " . ($kp->judul_kp ?? '-'));
                         }
                         $kp->update(['pembimbing_id' => empty($dosenUserId) ? null : $dosenUserId]);
+                        
+                        if ($dosenUserId) {
+                            $this->sendAssignmentNotification($kp, $dosenUserId);
+                        }
                     }
                 } elseif (str_starts_with($clusterId, 'mhs_')) {
                     $mhsId = str_replace('mhs_', '', $clusterId);
@@ -318,11 +323,16 @@ class PenugasanPembimbingController extends Controller
                         ->orWhereJsonContains('anggota_kelompok_ids', $mhsId)
                         ->orWhereJsonContains('anggota_kelompok_ids', (string) $mhsId)
                         ->latest()->first();
+
                     if ($kp) {
                         if ($dosenUserId && $kp->supervisor_internal_id == $dosenUserId) {
                             throw new \Exception("Dosen pembimbing tidak boleh sama dengan supervisor internal untuk mahasiswa: " . ($mhsId));
                         }
                         $kp->update(['pembimbing_id' => empty($dosenUserId) ? null : $dosenUserId]);
+
+                        if ($dosenUserId) {
+                            $this->sendAssignmentNotification($kp, $dosenUserId);
+                        }
                     }
                 }
             }
@@ -543,5 +553,40 @@ class PenugasanPembimbingController extends Controller
         $clusterId = ($kp->status_kp === 'approved' && $kp->id) ? 'kp_'.$kp->id : 'mhs_'.$mhsUser->id;
 
         return view('koordinator.Penugasan-Pembimbing-Detail', compact('kp', 'dosenList', 'clusterId'));
+    }
+
+    private function sendAssignmentNotification($kp, $dosenUserId)
+    {
+        $dosen = User::find($dosenUserId);
+        if (!$dosen) return;
+
+        // --- Kirim Notifikasi ke Mahasiswa (Ketua & Anggota) ---
+        $mhsIds = [$kp->mahasiswa_id];
+        if ($kp->anggota_kelompok_ids) {
+            $decoded = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
+            if (is_array($decoded)) $mhsIds = array_unique(array_merge($mhsIds, $decoded));
+        }
+
+        foreach ($mhsIds as $mid) {
+            $u = User::where('id', $mid)->orWhereHas('mahasiswa', fn($q) => $q->where('nim', $mid))->first();
+            if ($u) {
+                NotifikasiLog::create([
+                    'sender_id' => null,
+                    'receiver_id' => $u->id,
+                    'judul' => "Dosen Pembimbing Ditugaskan",
+                    'pesan' => "Anda telah ditugaskan pembimbing baru: " . ($dosen->name ?? 'Dosen') . ". Silakan hubungi pembimbing Anda untuk memulai bimbingan.",
+                    'target_url' => route('mahasiswa.bimbingan-dosen'),
+                ]);
+            }
+        }
+
+        // --- Kirim Notifikasi ke Dosen ---
+        NotifikasiLog::create([
+            'sender_id' => null,
+            'receiver_id' => $dosenUserId,
+            'judul' => "Penugasan Bimbingan Baru",
+            'pesan' => "Anda telah ditugaskan sebagai pembimbing untuk mahasiswa " . ($kp->user->name ?? 'Grup') . ". Silakan cek daftar bimbingan Anda.",
+            'target_url' => route('dosen.daftar-mahasiswa'),
+        ]);
     }
 }

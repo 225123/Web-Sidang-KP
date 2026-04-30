@@ -56,6 +56,7 @@
             'pengirim' => $n->sender->name ?? 'Sistem',
             'judul' => $n->judul,
             'pesan' => $n->pesan,
+            'pesan_preview' => strlen($n->pesan) > 100 ? substr($n->pesan, 0, 100) . '...' : $n->pesan,
             'is_read' => $n->is_read,
             'file_path' => $n->file_path ? asset('storage/'.$n->file_path) : null,
             'hari' => $n->created_at->isoFormat('dddd,'),
@@ -104,8 +105,14 @@
         <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
             <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
                 <div>
-                    <h3 class="text-[18px] font-bold text-black tracking-tight">Daftar Notifikasi</h3>
+                    <h3 class="text-[18px] font-bold text-black tracking-tight uppercase">Daftar Notifikasi</h3>
                     <p class="text-[12px] text-black/60 font-medium mt-1">Daftar pesan dan pemberitahuan sistem masuk.</p>
+                </div>
+                <div class="flex gap-2 shrink-0">
+                    <div class="bg-[#EA4335] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-red-600/20 cursor-pointer hover:scale-105 transition-transform" @click="statusFilter = 'unread'; resetPagination()">
+                        <span class="text-[16px] font-bold leading-none" x-text="notifikasis.filter(n => !n.is_read).length"></span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Belum Dibaca</span>
+                    </div>
                 </div>
             </div>
 
@@ -165,23 +172,22 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         <template x-for="(notif, index) in paginatedList" :key="notif.id">
-                            <tr class="hover:bg-gray-50 transition-colors" :class="!notif.is_read ? 'bg-gray-100' : ''">
+                            <tr class="hover:bg-gray-50 transition-colors relative" :class="!notif.is_read ? 'bg-blue-50/40' : ''">
                                 <td class="py-3 px-4 border-r border-gray-200 text-center text-black/50" x-text="(currentPage - 1) * itemsPerPage + index + 1"></td>
                                 <td class="py-3 px-4 border-r border-gray-200">
-                                    <a :href="notif.url" class="block font-bold text-black text-[12px] truncate hover:text-blue-600" x-text="notif.pengirim"></a>
-                                    <template x-if="notif.pengirim === 'Sistem'">
-                                        <span class="text-blue-600 block text-[10px] uppercase font-bold mt-0.5">Sistem KP</span>
-                                    </template>
+                                    <div class="flex items-center gap-2">
+                                        <template x-if="!notif.is_read">
+                                            <div class="w-2 h-2 bg-blue-600 rounded-full shrink-0 shadow-sm"></div>
+                                        </template>
+                                        <a :href="notif.url" class="block font-bold text-black text-[12px] hover:text-blue-600 truncate" x-text="notif.pengirim"></a>
+                                    </div>
                                 </td>
                                 <td class="py-3 px-4 border-r border-gray-200 text-left">
                                     <a :href="notif.url" class="flex flex-col gap-0.5 max-w-[600px] group">
                                         <div class="font-bold text-black text-[12px] truncate flex items-center gap-2 group-hover:text-blue-600">
-                                            <template x-if="notif.file_path">
-                                                <svg class="w-3 h-3 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clip-rule="evenodd"></path></svg>
-                                            </template>
                                             <span x-text="notif.judul"></span>
                                         </div>
-                                        <div class="text-black/60 text-[11px] truncate" x-text="notif.pesan"></div>
+                                        <div class="text-black/60 text-[11px] line-clamp-1" x-text="notif.pesan_preview"></div>
                                     </a>
                                 </td>
                                 <td class="py-3 px-4 text-center">

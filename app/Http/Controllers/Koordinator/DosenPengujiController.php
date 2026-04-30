@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Koordinator;
 use App\Http\Controllers\Controller;
 use App\Models\PendaftaranSidang;
 use App\Models\User;
+use App\Models\NotifikasiLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -313,14 +314,44 @@ class DosenPengujiController extends Controller
     public function submit(Request $request)
     {
         // Ubah semua yang sudah ada pengujinya tapi masih 'draft' menjadi 'submitted'
-        PendaftaranSidang::where('status_koordinator', 'verified')
+        $sidangs = PendaftaranSidang::where('status_koordinator', 'verified')
             ->whereNotNull('penguji_1_id')
             ->whereNotNull('penguji_2_id')
             ->where('status_jadwal', 'draft')
-            ->update(['status_jadwal' => 'submitted']);
+            ->get();
+
+        foreach ($sidangs as $sidang) {
+            $sidang->update(['status_jadwal' => 'submitted']);
+
+            // --- Kirim Notifikasi ke Mahasiswa ---
+            NotifikasiLog::create([
+                'sender_id' => null,
+                'receiver_id' => $sidang->mahasiswa->user_id,
+                'judul' => "Jadwal Sidang Diterbitkan",
+                'pesan' => "Jadwal sidang KP Anda telah ditentukan. Silakan cek halaman Jadwal Sidang untuk melihat detail waktu, tempat, dan dosen penguji.",
+                'target_url' => route('mahasiswa.jadwal-sidang'),
+            ]);
+
+            // --- Kirim Notifikasi ke Dosen Penguji 1 ---
+            NotifikasiLog::create([
+                'sender_id' => null,
+                'receiver_id' => $sidang->penguji_1_id,
+                'judul' => "Tugas Menguji Baru",
+                'pesan' => "Anda telah ditugaskan sebagai Penguji 1 untuk sidang mahasiswa " . ($sidang->mahasiswa->user->name ?? '') . ". Silakan cek Jadwal Menguji.",
+                'target_url' => route('dosen.jadwal-menguji'),
+            ]);
+
+            // --- Kirim Notifikasi ke Dosen Penguji 2 ---
+            NotifikasiLog::create([
+                'sender_id' => null,
+                'receiver_id' => $sidang->penguji_2_id,
+                'judul' => "Tugas Menguji Baru",
+                'pesan' => "Anda telah ditugaskan sebagai Penguji 2 untuk sidang mahasiswa " . ($sidang->mahasiswa->user->name ?? '') . ". Silakan cek Jadwal Menguji.",
+                'target_url' => route('dosen.jadwal-menguji'),
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Penugasan penguji telah berhasil disubmit.');
-    }
 
     public function cancelSubmit(Request $request)
     {

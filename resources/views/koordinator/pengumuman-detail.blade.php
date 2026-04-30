@@ -36,7 +36,15 @@
                                     <div class="flex items-center gap-1 text-[13px] text-[#5f6368] mt-0.5">
                                         <span>kepada :
                                             <span class="text-[#5f6368] mt-0.5">
-                                                {{ $log->target_role ? 'Semua ' . ucfirst($log->target_role) : ($log->receiver->name ?? 'User') }}
+                                                @php
+                                                    $penerima = match($log->target_role) {
+                                                        'group_semua', 'semua' => 'Semua User',
+                                                        'group_mahasiswa', 'mahasiswa' => 'Semua Mahasiswa',
+                                                        'group_dosen', 'dosen' => 'Semua Dosen',
+                                                        default => ($log->receiver->name ?? 'User')
+                                                    };
+                                                @endphp
+                                                {{ $penerima }}
                                             </span>
                                         </span>
                                     </div>

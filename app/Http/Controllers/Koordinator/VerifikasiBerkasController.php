@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Koordinator;
 use App\Http\Controllers\Controller;
 use App\Models\PendaftaranSidang;
 use App\Models\RiwayatPenolakanSidang;
+use App\Models\NotifikasiLog;
 use Illuminate\Http\Request;
 
 class VerifikasiBerkasController extends Controller
@@ -64,7 +65,24 @@ class VerifikasiBerkasController extends Controller
                 'feedback' => $request->feedback,
                 'ditolak_oleh' => 'koordinator',
             ]);
+
+            // --- Kirim Notifikasi Sistem ---
+            NotifikasiLog::create([
+                'sender_id' => null,
+                'receiver_id' => $pengajuan->mahasiswa_id,
+                'judul' => "Verifikasi Berkas Sidang: DITOLAK",
+                'pesan' => "Berkas pendaftaran sidang Anda ditolak oleh Koordinator. Feedback: " . $request->feedback,
+                'target_url' => route('mahasiswa.pendaftaran-sidang.index'),
+            ]);
         } elseif ($request->status_koordinator === 'verified') {
+            // --- Kirim Notifikasi Sistem ---
+            NotifikasiLog::create([
+                'sender_id' => null,
+                'receiver_id' => $pengajuan->mahasiswa_id,
+                'judul' => "Verifikasi Berkas Sidang: DISETUJUI",
+                'pesan' => "Berkas pendaftaran sidang Anda telah diverifikasi dan disetujui oleh Koordinator. Tunggu penjadwalan sidang Anda.",
+                'target_url' => route('mahasiswa.pendaftaran-sidang.index'),
+            ]);
             // Jika verified dan External, generate token dan kirim email
             $pengajuan->loadMissing('pendaftaranKp.supervisorInstansi');
             

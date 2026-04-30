@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\LogBimbingan;
 use App\Models\Mahasiswa;
 use App\Models\PendaftaranKp;
+use App\Models\NotifikasiLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -143,6 +144,16 @@ class DaftarBimbinganController extends Controller
         $log = LogBimbingan::findOrFail($log_id);
         $log->update([
             'status_approval' => $request->status_approval,
+        ]);
+
+        // --- Kirim Notifikasi Sistem ---
+        $statusText = $request->status_approval === 'approved' ? 'DISETUJUI' : 'DITOLAK';
+        NotifikasiLog::create([
+            'sender_id' => null,
+            'receiver_id' => $log->mahasiswa_id,
+            'judul' => "Log Bimbingan: $statusText",
+            'pesan' => "Log bimbingan Anda tanggal " . date('d/m/Y', strtotime($log->tanggal)) . " telah $statusText oleh Pembimbing.",
+            'target_url' => route('mahasiswa.bimbingan-dosen'),
         ]);
 
         return back()->with('success', 'Status bimbingan berhasil diperbarui.');

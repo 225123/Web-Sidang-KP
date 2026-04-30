@@ -326,151 +326,149 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
     <script>
-        document.addEventListener('alpine:init', () => {
-            window.pendaftaranScope = function() {
-                return {
-                    tabJenis: 'Internal',
-                    searchQuery: '{{ request('main.search') }}', 
-                    searchQueryRejected: '{{ request('rejected.search') }}',
-                    isSelectionMode: sessionStorage.getItem('kpSelectionMode') === 'true',
-                    modalCatatanOpen: false,
-                    modalFormEl: null,
-                    modalPesan: '',
-                    modalCatatanValue: '',
+        window.pendaftaranScope = function() {
+            return {
+                tabJenis: 'Internal',
+                searchQuery: '{{ request('main.search') }}', 
+                searchQueryRejected: '{{ request('rejected.search') }}',
+                isSelectionMode: sessionStorage.getItem('kpSelectionMode') === 'true',
+                modalCatatanOpen: false,
+                modalFormEl: null,
+                modalPesan: '',
+                modalCatatanValue: '',
 
-                    searchStatus: '',
-                    filterStatusUpload: 'all',
-                    statusCurrentPage: 1,
-                    statusItemsPerPage: 10,
-                    statusRows: @json($allStatusRows ?? []),
-                    
-                    init() {
-                        this.$watch('tabJenis', val => this.$dispatch('update-jenis-main', val));
-                        this.$nextTick(() => this.$dispatch('update-jenis-main', this.tabJenis));
-                    },
+                searchStatus: '',
+                filterStatusUpload: 'all',
+                statusCurrentPage: 1,
+                statusItemsPerPage: 10,
+                statusRows: @json($allStatusRows ?? []),
+                
+                init() {
+                    this.$watch('tabJenis', val => this.$dispatch('update-jenis-main', val));
+                    this.$nextTick(() => this.$dispatch('update-jenis-main', this.tabJenis));
+                },
 
-                    openModalCatatan(formElement, pesan) {
-                        this.modalFormEl = formElement;
-                        this.modalPesan = pesan;
-                        this.modalCatatanValue = '';
-                        this.modalCatatanOpen = true;
-                    },
-                    submitModalCatatan() {
-                        let input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'catatan';
-                        input.value = this.modalCatatanValue;
-                        this.modalFormEl.appendChild(input);
-                        this.modalFormEl.submit();
-                    },
+                openModalCatatan(formElement, pesan) {
+                    this.modalFormEl = formElement;
+                    this.modalPesan = pesan;
+                    this.modalCatatanValue = '';
+                    this.modalCatatanOpen = true;
+                },
+                submitModalCatatan() {
+                    let input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'catatan';
+                    input.value = this.modalCatatanValue;
+                    this.modalFormEl.appendChild(input);
+                    this.modalFormEl.submit();
+                },
 
-                    get filteredStatusRows() {
-                        let filtered = this.statusRows;
-                        if (this.filterStatusUpload !== 'all') {
-                            if (this.filterStatusUpload === 'sudah') {
-                                filtered = filtered.filter(r => r.status === 'Sudah Mendaftar');
-                            } else if (this.filterStatusUpload === 'belum') {
-                                filtered = filtered.filter(r => r.status === 'Belum Mendaftar' || r.status === 'Belum Mendaftar (Proyek Ada)');
-                            }
+                get filteredStatusRows() {
+                    let filtered = this.statusRows;
+                    if (this.filterStatusUpload !== 'all') {
+                        if (this.filterStatusUpload === 'sudah') {
+                            filtered = filtered.filter(r => r.status === 'Sudah Mendaftar');
+                        } else if (this.filterStatusUpload === 'belum') {
+                            filtered = filtered.filter(r => r.status === 'Belum Mendaftar' || r.status === 'Belum Mendaftar (Proyek Ada)');
                         }
-                        if (this.searchStatus.trim() !== '') {
-                            const term = this.searchStatus.toLowerCase();
-                            filtered = filtered.filter(r => 
-                                (r.name && r.name.toLowerCase().includes(term)) || 
-                                (r.nim && r.nim.toLowerCase().includes(term))
-                            );
-                        }
-                        return filtered;
-                    },
-                    
-                    get totalStatusPages() {
-                        return Math.ceil(this.filteredStatusRows.length / this.statusItemsPerPage) || 1;
-                    },
-
-                    get paginatedStatusRows() {
-                        const start = (this.statusCurrentPage - 1) * this.statusItemsPerPage;
-                        return this.filteredStatusRows.slice(start, start + this.statusItemsPerPage);
-                    },
-
-                    nextStatusPage() { if (this.statusCurrentPage < this.totalStatusPages) this.statusCurrentPage++; },
-                    prevStatusPage() { if (this.statusCurrentPage > 1) this.statusCurrentPage--; },
-                    goToStatusPage(page) { this.statusCurrentPage = page; },
-
-                    exportPDF(mode) {
-                        let dataToExport = [];
-                        if (mode === 'sudah') {
-                            dataToExport = this.statusRows.filter(r => r.status === 'Sudah Mendaftar');
-                        } else if (mode === 'belum') {
-                            dataToExport = this.statusRows.filter(r => r.status === 'Belum Mendaftar' || r.status === 'Belum Mendaftar (Proyek Ada)');
-                        } else {
-                            dataToExport = this.statusRows;
-                        }
-                        
-                        if (dataToExport.length === 0) {
-                            alert('Tidak ada data untuk dieksport.');
-                            return;
-                        }
-                        
-                        if (typeof window.jspdf === 'undefined') {
-                            alert('Modul PDF sedang dimuat...');
-                            return;
-                        }
-
-                        const { jsPDF } = window.jspdf;
-                        const doc = new jsPDF();
-                        
-                        const phpLogo = '{!! $logoData !!}';
-                        const phpSig = '{!! $sigData !!}';
-                        const phpName = '{!! addslashes($koordName) !!}';
-                        const phpNidn = '{!! addslashes($koordNidn) !!}';
-
-                        if (phpLogo) { try { doc.addImage(phpLogo, 'PNG', 14, 12, 18, 18); } catch(e) {} }
-                        doc.setFont("helvetica", "bold");
-                        doc.setFontSize(14);
-                        doc.text("UNIVERSITAS KRISTEN KRIDA WACANA", 105, 18, { align: "center" });
-                        doc.setFontSize(12);
-                        doc.text("FAKULTAS TEKNOLOGI CERDAS", 105, 24, { align: "center" });
-                        doc.text("PROGRAM STUDI INFORMATIKA", 105, 30, { align: "center" });
-                        doc.line(14, 34, 196, 34);
-                        
-                        doc.setFontSize(11);
-                        doc.text("DAFTAR STATUS PENDAFTARAN KP MAHASISWA", 105, 45, { align: "center" });
-                        
-                        const printDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                        doc.setFontSize(9);
-                        doc.setFont("helvetica", "normal");
-                        doc.text("Dicetak pada: " + printDate, 14, 55);
-                        
-                        const tableData = dataToExport.map((row, index) => [
-                            index + 1,
-                            row.nim,
-                            row.name,
-                            row.status
-                        ]);
-                        
-                        doc.autoTable({
-                            head: [['No', 'NIM', 'Nama Mahasiswa', 'Status']],
-                            body: tableData,
-                            startY: 60,
-                            theme: 'grid',
-                            headStyles: { fillColor: [66, 133, 244] } // Sesuai warna biru Pendaftaran KP
-                        });
-                        
-                        let finalY = doc.lastAutoTable.finalY + 20;
-                        if (finalY > 250) { doc.addPage(); finalY = 20; }
-                        
-                        doc.text("Jakarta, " + printDate, 140, finalY);
-                        doc.text("Koordinator Kerja Praktik", 140, finalY + 5);
-                        if (phpSig) { try { doc.addImage(phpSig, 'PNG', 140, finalY + 8, 35, 15); } catch(e) {} }
-                        doc.setFont("helvetica", "bold");
-                        doc.text(phpName, 140, finalY + 30);
-                        doc.setFont("helvetica", "normal");
-                        doc.text("NIDN: " + phpNidn, 140, finalY + 35);
-                        
-                        doc.save("Status_Pendaftaran_KP.pdf");
                     }
+                    if (this.searchStatus.trim() !== '') {
+                        const term = this.searchStatus.toLowerCase();
+                        filtered = filtered.filter(r => 
+                            (r.name && r.name.toLowerCase().includes(term)) || 
+                            (r.nim && r.nim.toLowerCase().includes(term))
+                        );
+                    }
+                    return filtered;
+                },
+                
+                get totalStatusPages() {
+                    return Math.ceil(this.filteredStatusRows.length / this.statusItemsPerPage) || 1;
+                },
+
+                get paginatedStatusRows() {
+                    const start = (this.statusCurrentPage - 1) * this.statusItemsPerPage;
+                    return this.filteredStatusRows.slice(start, start + this.statusItemsPerPage);
+                },
+
+                nextStatusPage() { if (this.statusCurrentPage < this.totalStatusPages) this.statusCurrentPage++; },
+                prevStatusPage() { if (this.statusCurrentPage > 1) this.statusCurrentPage--; },
+                goToStatusPage(page) { this.statusCurrentPage = page; },
+
+                exportPDF(mode) {
+                    let dataToExport = [];
+                    if (mode === 'sudah') {
+                        dataToExport = this.statusRows.filter(r => r.status === 'Sudah Mendaftar');
+                    } else if (mode === 'belum') {
+                        dataToExport = this.statusRows.filter(r => r.status === 'Belum Mendaftar' || r.status === 'Belum Mendaftar (Proyek Ada)');
+                    } else {
+                        dataToExport = this.statusRows;
+                    }
+                    
+                    if (dataToExport.length === 0) {
+                        alert('Tidak ada data untuk dieksport.');
+                        return;
+                    }
+                    
+                    if (typeof window.jspdf === 'undefined') {
+                        alert('Modul PDF sedang dimuat...');
+                        return;
+                    }
+
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    
+                    const phpLogo = '{!! $logoData !!}';
+                    const phpSig = '{!! $sigData !!}';
+                    const phpName = '{!! addslashes($koordName) !!}';
+                    const phpNidn = '{!! addslashes($koordNidn) !!}';
+
+                    if (phpLogo) { try { doc.addImage(phpLogo, 'PNG', 14, 12, 18, 18); } catch(e) {} }
+                    doc.setFont("helvetica", "bold");
+                    doc.setFontSize(14);
+                    doc.text("UNIVERSITAS KRISTEN KRIDA WACANA", 105, 18, { align: "center" });
+                    doc.setFontSize(12);
+                    doc.text("FAKULTAS TEKNOLOGI CERDAS", 105, 24, { align: "center" });
+                    doc.text("PROGRAM STUDI INFORMATIKA", 105, 30, { align: "center" });
+                    doc.line(14, 34, 196, 34);
+                    
+                    doc.setFontSize(11);
+                    doc.text("DAFTAR STATUS PENDAFTARAN KP MAHASISWA", 105, 45, { align: "center" });
+                    
+                    const printDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    doc.setFontSize(9);
+                    doc.setFont("helvetica", "normal");
+                    doc.text("Dicetak pada: " + printDate, 14, 55);
+                    
+                    const tableData = dataToExport.map((row, index) => [
+                        index + 1,
+                        row.nim,
+                        row.name,
+                        row.status
+                    ]);
+                    
+                    doc.autoTable({
+                        head: [['No', 'NIM', 'Nama Mahasiswa', 'Status']],
+                        body: tableData,
+                        startY: 60,
+                        theme: 'grid',
+                        headStyles: { fillColor: [66, 133, 244] } // Sesuai warna biru Pendaftaran KP
+                    });
+                    
+                    let finalY = doc.lastAutoTable.finalY + 20;
+                    if (finalY > 250) { doc.addPage(); finalY = 20; }
+                    
+                    doc.text("Jakarta, " + printDate, 140, finalY);
+                    doc.text("Koordinator Kerja Praktik", 140, finalY + 5);
+                    if (phpSig) { try { doc.addImage(phpSig, 'PNG', 140, finalY + 8, 35, 15); } catch(e) {} }
+                    doc.setFont("helvetica", "bold");
+                    doc.text(phpName, 140, finalY + 30);
+                    doc.setFont("helvetica", "normal");
+                    doc.text("NIDN: " + phpNidn, 140, finalY + 35);
+                    
+                    doc.save("Status_Pendaftaran_KP.pdf");
                 }
             }
-        });
+        };
     </script>
 </x-dashboard-layout>

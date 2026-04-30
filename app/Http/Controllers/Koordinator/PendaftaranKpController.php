@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Koordinator;
 use App\Http\Controllers\Controller;
 use App\Models\PendaftaranKp;
 use App\Models\User;
+use App\Models\NotifikasiLog;
 use Illuminate\Http\Request;
 
 class PendaftaranKpController extends Controller
@@ -247,6 +248,45 @@ class PendaftaranKpController extends Controller
         $kp->catatan = empty(trim($catatan)) ? null : trim($catatan);
 
         $kp->save();
+
+        // --- Kirim Notifikasi Sistem ---
+        $statusText = $request->status === 'approved' ? 'DISETUJUI' : 'DITOLAK';
+        $judul = "Hasil Pendaftaran KP: $statusText";
+        $pesan = "Pendaftaran Kerja Praktik Anda telah $statusText oleh Koordinator.";
+        if ($kp->catatan) {
+            $pesan .= " Catatan: " . $kp->catatan;
+        }
+
+        // 1. Notifikasi untuk Ketua (Pendaftar Utama)
+        NotifikasiLog::create([
+            'sender_id' => null, // Sistem
+            'receiver_id' => $kp->mahasiswa_id,
+            'judul' => $judul,
+            'pesan' => $pesan,
+            'target_url' => route('mahasiswa.status-pendaftaran'),
+        ]);
+
+        // 2. Notifikasi untuk Anggota Kelompok
+        if ($kp->anggota_kelompok_ids) {
+            $anggotaIds = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
+            if (is_array($anggotaIds)) {
+                foreach ($anggotaIds as $aid) {
+                    if ($aid == $kp->mahasiswa_id) continue;
+                    
+                    // Cek apakah aid adalah ID user atau NIM
+                    $user = User::where('id', $aid)->orWhereHas('mahasiswa', fn($q) => $q->where('nim', $aid))->first();
+                    if ($user) {
+                        NotifikasiLog::create([
+                            'sender_id' => null,
+                            'receiver_id' => $user->id,
+                            'judul' => $judul,
+                            'pesan' => $pesan,
+                            'target_url' => route('mahasiswa.status-pendaftaran'),
+                        ]);
+                    }
+                }
+            }
+        }
 
         return redirect()->back()->with('success', 'Status pendaftaran berhasil diperbarui.');
     }

@@ -186,6 +186,10 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verifie
     Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi');
     Route::get('/notifikasi/{id}', [NotifikasiController::class, 'show'])->name('notifikasi.show');
 
+    // Laporan Dan Arsip
+    Route::get('/laporan-arsip', [App\Http\Controllers\Koordinator\LaporanArsipController::class, 'index'])->name('laporan-arsip');
+    Route::get('/laporan-arsip/download', [App\Http\Controllers\Koordinator\LaporanArsipController::class, 'downloadPdf'])->name('laporan-arsip.download');
+
     // 13. Catch-all for dummy routes on sidebar (Harus paling bawah di grup ini)
     Route::get('/{page}', function ($page) {
         $titles = [
@@ -203,6 +207,14 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verifie
             'audit-log' => 'Audit Log',
             'panduan' => 'Panduan Website',
         ];
+
+        if ($page === 'panduan') {
+            return view('koordinator.panduan', [
+                'active' => 'panduan',
+                'userName' => auth()->user()->name,
+                'roleName' => 'KOORDINATOR KP',
+            ]);
+        }
 
         return view('dummy', [
             'role' => 'koordinator',

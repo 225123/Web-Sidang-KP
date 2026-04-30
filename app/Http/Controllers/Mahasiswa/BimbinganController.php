@@ -91,14 +91,24 @@ class BimbinganController extends Controller
             'is_supervisor' => false,
         ]);
 
-        // Notifikasi ke Koordinator
+        // Notifikasi ke Pembimbing
+        if ($pendaftaran->pembimbing_id) {
+            NotifikasiLog::create([
+                'sender_id' => null, // Sistem
+                'receiver_id' => $pendaftaran->pembimbing_id,
+                'judul' => 'Update Bimbingan Mahasiswa',
+                'pesan' => auth()->user()->name . ' (' . (auth()->user()->mahasiswa->nim ?? '-') . ') telah menginput log bimbingan baru.',
+                'target_url' => route('dosen.daftar-mahasiswa.detail', $pendaftaran->id),
+            ]);
+        }
+
+        // Notifikasi ke Koordinator (Monitoring)
         NotifikasiLog::create([
-            'sender_id' => null, // Sistem
-            'target_role' => 'koordinator',
-            'judul' => 'Input Progress Bimbingan',
-            'pesan' => auth()->user()->name.' ('.(auth()->user()->mahasiswa->nim ?? '-').') telah menginput log bimbingan baru.',
-            'target_url' => route('koordinator.progress-umum'),
-            'is_read' => false,
+            'sender_id' => null,
+            'receiver_id' => \App\Models\User::where('role', 1)->first()->id ?? null,
+            'judul' => 'Monitoring Bimbingan Mahasiswa',
+            'pesan' => auth()->user()->name . ' (' . (auth()->user()->mahasiswa->nim ?? '-') . ') telah menginput log bimbingan baru.',
+            'target_url' => route('koordinator.progress-umum.detail', $pendaftaran->id),
         ]);
 
         return redirect()->route('mahasiswa.bimbingan-dosen')->with('success', 'Bimbingan berhasil ditambahkan.');

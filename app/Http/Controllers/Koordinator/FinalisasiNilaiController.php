@@ -57,14 +57,12 @@ class FinalisasiNilaiController extends Controller
             $sidang->nilai_dipublikasi = true;
             $sidang->save();
 
-            \App\Models\NotifikasiLog::create([
-                'sender_id' => auth()->id(),
+            NotifikasiLog::create([
+                'sender_id' => null, // Sistem
                 'receiver_id' => $sidang->mahasiswa->user_id,
-                'target_role' => 'mahasiswa',
                 'judul' => 'Nilai Sidang Terbit',
                 'pesan' => 'Koordinator telah mempublikasikan Nilai Akhir Sidang KP Anda. Silakan cek halaman Nilai Akhir untuk mengunduh dokumen terkait.',
-                'target_url' => '/mahasiswa/nilai-akhir',
-                'is_read' => false,
+                'target_url' => route('mahasiswa.nilai-akhir'),
             ]);
         }
 

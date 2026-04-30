@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Koordinator;
 
 use App\Http\Controllers\Controller;
 use App\Models\PendaftaranSidang;
+use App\Models\NotifikasiLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -49,6 +50,15 @@ class PersetujuanSidangController extends Controller
             'status_verifikasi' => 'verified',
         ]);
 
+        // --- Kirim Notifikasi Sistem ---
+        NotifikasiLog::create([
+            'sender_id' => null,
+            'receiver_id' => $pengajuan->mahasiswa_id,
+            'judul' => "Persetujuan Sidang: DISETUJUI",
+            'pesan' => "Pengajuan persetujuan sidang Anda telah disetujui oleh Koordinator (sebagai Pembimbing).",
+            'target_url' => route('mahasiswa.persetujuan-sidang.index'),
+        ]);
+
         return back()->with('success', 'Pengajuan mahasiswa berhasil disahkan.');
     }
 
@@ -64,6 +74,15 @@ class PersetujuanSidangController extends Controller
         $pengajuan->update([
             'status_verifikasi' => 'rejected',
             'dosen_feedback' => $request->feedback,
+        ]);
+
+        // --- Kirim Notifikasi Sistem ---
+        NotifikasiLog::create([
+            'sender_id' => null,
+            'receiver_id' => $pengajuan->mahasiswa_id,
+            'judul' => "Persetujuan Sidang: DITOLAK",
+            'pesan' => "Pengajuan persetujuan sidang Anda telah ditolak oleh Koordinator (sebagai Pembimbing). Feedback: " . $request->feedback,
+            'target_url' => route('mahasiswa.persetujuan-sidang.index'),
         ]);
 
         return back()->with('success', 'Pengajuan berhasil ditolak dan dipindahkan ke riwayat penolakan.');

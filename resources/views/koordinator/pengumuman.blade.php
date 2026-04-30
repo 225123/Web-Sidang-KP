@@ -88,7 +88,12 @@
         ],
         logs: {{ \Illuminate\Support\Js::from($logs->getCollection()->map(fn($l) => [
             'id' => $l->id,
-            'penerima' => $l->target_role ? 'Semua '.ucfirst($l->target_role) : ($l->receiver->name ?? 'User'),
+            'penerima' => match($l->target_role) {
+                'group_semua', 'semua' => 'Semua User',
+                'group_mahasiswa', 'mahasiswa' => 'Semua Mahasiswa',
+                'group_dosen', 'dosen' => 'Semua Dosen',
+                default => ($l->receiver->name ?? 'User')
+            },
             'penerima_id' => !$l->target_role && $l->receiver ? ($l->receiver->nim ?? $l->receiver->dosen->nidn ?? '') : '',
             'judul' => $l->judul,
             'pesan' => $l->pesan,

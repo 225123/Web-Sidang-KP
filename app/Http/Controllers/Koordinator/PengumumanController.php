@@ -19,6 +19,7 @@ class PengumumanController extends Controller
 
         $logs = NotifikasiLog::with(['receiver'])
             ->where('sender_id', Auth::id())
+            ->where('target_role', '!=', 'hidden')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -52,14 +53,36 @@ class PengumumanController extends Controller
         }
 
         if (in_array($target, ['semua', 'mahasiswa', 'dosen'])) {
-            // Jika target adalah role, simpan satu record dengan target_role
+            // 1. Create a Master record for History (receiver_id is null)
+            // Use 'group_' prefix to distinguish from old shared notifications
             NotifikasiLog::create([
                 'sender_id' => $senderId,
-                'target_role' => $target,
+                'target_role' => 'group_' . $target,
                 'judul' => $request->judul,
                 'pesan' => $request->pesan,
                 'file_path' => $filePath,
             ]);
+
+            // 2. Create Individual records for each user in the group
+            $query = User::where('id', '!=', $senderId);
+            if ($target === 'mahasiswa') {
+                $query->whereIn('role', [3, 'mahasiswa']);
+            } elseif ($target === 'dosen') {
+                $query->whereIn('role', [2, 'dosen']);
+            }
+            // If 'semua', no extra filter except excluding sender
+            
+            $users = $query->get();
+            foreach ($users as $u) {
+                NotifikasiLog::create([
+                    'sender_id' => $senderId,
+                    'receiver_id' => $u->id,
+                    'target_role' => 'hidden', // Mark as hidden from history but accessible to user
+                    'judul' => $request->judul,
+                    'pesan' => $request->pesan,
+                    'file_path' => $filePath,
+                ]);
+            }
         } else {
             // Jika target adalah user tertentu (user_id)
             NotifikasiLog::create([

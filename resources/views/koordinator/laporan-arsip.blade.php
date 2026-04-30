@@ -1,6 +1,6 @@
-<x-dashboard-layout header="Rekap Revisi Sidang" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR KP">
+<x-dashboard-layout header="Laporan Dan Arsip" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR KP">
     <x-slot:sidebar>
-        @include('koordinator.components.sidebar', ['active' => 'rekap-revisi'])
+        @include('koordinator.components.sidebar', ['active' => 'laporan-arsip'])
     </x-slot>
 
     <x-slot:headerActions>
@@ -28,27 +28,31 @@
         </div>
     </x-slot:headerActions>
 
-    <div x-data="rekapRevisiPage()" class="max-w-[1200px] mx-auto">
+    <div x-data="laporanPage()" class="max-w-[1200px] mx-auto">
         <!-- Main Container -->
         <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
             <!-- Header Section -->
             <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
                 <div>
-                    <h3 class="text-[18px] font-bold text-black tracking-tight uppercase">TABEL REKAP REVISI MAHASISWA</h3>
-                    <p class="text-[12px] text-black/60 font-medium mt-1">Daftar seluruh mahasiswa dengan status Lulus Dengan Revisi beserta status pengumpulannya.</p>
+                    <h3 class="text-[18px] font-bold text-black tracking-tight uppercase">TABEL KELULUSAN MAHASISWA</h3>
+                    <p class="text-[12px] text-black/60 font-medium mt-1">Laporan resmi hasil kelulusan mahasiswa yang telah disahkan dan difinalisasi oleh Koordinator.</p>
                 </div>
-                <div class="flex gap-2 shrink-0">
+                <div class="flex flex-wrap gap-2 shrink-0">
                     <div class="bg-[#4285F4] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-blue-600/20">
                         <span class="text-[16px] font-bold leading-none" x-text="stats.total"></span>
                         <span class="text-[11px] font-medium uppercase tracking-wider">Total</span>
                     </div>
-                    <div class="bg-[#FBBC05] text-black rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-yellow-500/20">
-                        <span class="text-[16px] font-bold leading-none" x-text="stats.menunggu"></span>
-                        <span class="text-[11px] font-medium uppercase tracking-wider">Diperiksa</span>
-                    </div>
                     <div class="bg-[#34A853] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-green-600/20">
-                        <span class="text-[16px] font-bold leading-none" x-text="stats.disahkan"></span>
-                        <span class="text-[11px] font-medium uppercase tracking-wider">Selesai</span>
+                        <span class="text-[16px] font-bold leading-none" x-text="stats.lulus"></span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Lulus</span>
+                    </div>
+                    <div class="bg-[#FBBC05] text-black rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-yellow-500/20">
+                        <span class="text-[16px] font-bold leading-none" x-text="stats.revisi"></span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Revisi</span>
+                    </div>
+                    <div class="bg-[#EA4335] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-red-600/20">
+                        <span class="text-[16px] font-bold leading-none" x-text="stats.lanjut"></span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Lanjut</span>
                     </div>
                 </div>
             </div>
@@ -69,10 +73,10 @@
                     </div>
 
                     <!-- Filter Status -->
-                    <div x-data="{ openFilter: false }" class="relative w-full sm:w-[150px] z-[50]">
+                    <div x-data="{ openFilter: false }" class="relative w-full sm:w-[200px] z-[50]">
                         <button type="button" @click="openFilter = !openFilter" @click.outside="openFilter = false"
                             class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
-                            <span x-text="filterStatus === 'all' ? 'Status Revisi' : (filterStatus === 'Menunggu' ? 'Diperiksa' : (filterStatus === 'Disahkan' ? 'Disetujui' : (filterStatus === 'Ditolak' ? 'Ditolak' : 'Belum Kumpul')))"></span>
+                            <span x-text="filterStatus === 'all' ? 'Status Kelulusan' : filterStatus"></span>
                             <svg :class="openFilter ? 'rotate-0' : 'rotate-90'"
                                 class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0"
                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,81 +86,63 @@
                         <div x-show="openFilter" x-transition x-cloak
                             class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
                             <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="all" x-model="filterStatus" class="hidden" @change="openFilter = false">Semua</label>
-                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Belum mengumpulkan" x-model="filterStatus" class="hidden" @change="openFilter = false">Belum Kumpul</label>
-                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Menunggu" x-model="filterStatus" class="hidden" @change="openFilter = false">Diperiksa</label>
-                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Disahkan" x-model="filterStatus" class="hidden" @change="openFilter = false">Disetujui</label>
-                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Ditolak" x-model="filterStatus" class="hidden" @change="openFilter = false">Ditolak</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Lulus" x-model="filterStatus" class="hidden" @change="openFilter = false">Lulus</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Lulus Dengan Revisi" x-model="filterStatus" class="hidden" @change="openFilter = false">Lulus Dengan Revisi</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Lanjut" x-model="filterStatus" class="hidden" @change="openFilter = false">Lanjut (Tidak Lulus)</label>
                         </div>
                     </div>
 
-                    <div class="flex gap-2 w-full sm:w-auto">
-                        <button type="button" @click="clearFilters()"
-                            class="flex-1 sm:flex-none border border-[#EA4335] bg-[#EA4335] text-white hover:bg-red-600 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm flex items-center justify-center">
-                            Clear Filter
-                        </button>
-                    </div>
+                    <button type="button" @click="clearFilters()"
+                        class="flex-1 sm:flex-none border border-[#EA4335] bg-[#EA4335] text-white hover:bg-red-600 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm">
+                        Clear Filter
+                    </button>
+                </div>
+                
+                <div class="flex gap-2">
+                    <a href="{{ route('koordinator.laporan-arsip.download') }}" class="bg-red-600 text-white hover:bg-red-700 font-bold text-[12px] px-4 py-1.5 rounded-[5px] transition-colors shadow-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"></path></svg>
+                        Download PDF
+                    </a>
                 </div>
             </div>
 
             <!-- Table Section -->
-            <div class="border border-gray-200 rounded-[10px] overflow-x-auto">
-                <table class="w-full border-collapse text-[12px] min-w-[1000px]">
+            <div class="border border-gray-200 rounded-[10px] overflow-hidden">
+                <table class="w-full border-collapse text-[12px]">
                     <thead class="bg-[#EBEBEB] text-black">
                         <tr>
                             <th class="py-3 px-4 font-bold text-center w-[60px] border-b border-r border-gray-300">No</th>
-                            <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300 w-[250px]">Mahasiswa</th>
-                            <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[180px]">Tanggal Sidang</th>
-                            <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[180px] whitespace-nowrap">Batas Pengumpulan</th>
-                            <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[150px]">Dikumpul Pada</th>
-                            <th class="py-3 px-4 font-bold text-center border-b border-gray-300 w-[180px]">Status Revisi</th>
+                            <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300 w-[150px]">NIM</th>
+                            <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300">Nama Mahasiswa</th>
+                            <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[100px]">Nilai</th>
+                            <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[100px]">Grade</th>
+                            <th class="py-3 px-4 font-bold text-center border-b border-gray-300 w-[200px]">Status Kelulusan</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-white">
                         <template x-for="(sidang, index) in paginatedSidangs" :key="sidang.id">
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="py-3 px-4 text-center text-black/60 border-r border-gray-200" x-text="((currentPage - 1) * itemsPerPage) + index + 1"></td>
-                                <td class="py-3 px-4 text-left border-r border-gray-200">
-                                    <div class="font-bold text-black uppercase" x-text="sidang.mahasiswa.user.name"></div>
-                                    <div class="text-gray-500 font-mono text-[12px]" x-text="sidang.mahasiswa.nim"></div>
-                                </td>
-                                <td class="py-3 px-4 text-center border-r border-gray-200">
-                                    <div class="font-bold text-black" x-text="formatDate(sidang.tanggal_sidang)"></div>
-                                    <div class="text-[12px] text-gray-500" x-text="formatTime(sidang.waktu_mulai_sidang) + ' - ' + formatTime(sidang.waktu_selesai_sidang)"></div>
-                                </td>
-                                <td class="py-3 px-4 text-center border-r border-gray-200">
-                                    <div class="font-bold text-red-600" x-text="getDeadline(sidang.tanggal_sidang)"></div>
-                                    <div class="text-[12px] text-gray-400 font-medium uppercase mt-0.5">Pukul 23:59 WIB</div>
-                                </td>
-                                <td class="py-3 px-4 text-center border-r border-gray-200">
-                                    <template x-if="sidang.tanggal_revisi">
-                                        <div>
-                                            <div class="font-bold text-blue-600" x-text="formatDate(sidang.tanggal_revisi)"></div>
-                                            <div class="text-[12px] text-gray-400 font-medium uppercase mt-0.5" x-text="formatTime(sidang.tanggal_revisi.split(' ')[1] || '') + ' WIB'"></div>
-                                        </div>
-                                    </template>
-                                    <template x-if="!sidang.tanggal_revisi">
-                                        <span class="text-gray-300 italic font-medium">-</span>
-                                    </template>
-                                </td>
+                                <td class="py-3 px-4 text-left font-mono text-black border-r border-gray-200" x-text="sidang.mahasiswa.nim"></td>
+                                <td class="py-3 px-4 text-left font-bold text-black uppercase border-r border-gray-200" x-text="sidang.mahasiswa.user.name"></td>
+                                <td class="py-3 px-4 text-center border-r border-gray-200 font-bold" x-text="Number(sidang.nilai_akhir_display).toFixed(2)"></td>
+                                <td class="py-3 px-4 text-center border-r border-gray-200 font-bold" x-text="sidang.grade_display"></td>
                                 <td class="py-3 px-4 text-center">
-                                    <template x-if="sidang.status_revisi === 'Disahkan' || sidang.status_revisi === 'Diterima'">
-                                        <span class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold text-[12px] uppercase shadow-sm">Disetujui</span>
+                                    <template x-if="sidang.status_kelulusan === 'Lulus'">
+                                        <span class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold text-[11px] uppercase shadow-sm border border-green-200">Lulus</span>
                                     </template>
-                                    <template x-if="sidang.status_revisi === 'Ditolak'">
-                                        <span class="inline-flex items-center gap-1.5 bg-red-100 text-red-700 px-3 py-1 rounded-full font-bold text-[12px] uppercase shadow-sm">Ditolak</span>
+                                    <template x-if="sidang.status_kelulusan === 'Lulus Dengan Revisi'">
+                                        <span class="inline-flex items-center gap-1.5 bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-bold text-[11px] uppercase shadow-sm border border-blue-200">Lulus Dengan Revisi</span>
                                     </template>
-                                    <template x-if="sidang.status_revisi === 'Menunggu'">
-                                        <span class="inline-flex items-center gap-1.5 bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-bold text-[12px] uppercase shadow-sm">Diperiksa</span>
-                                    </template>
-                                    <template x-if="sidang.status_revisi === 'Belum mengumpulkan'">
-                                        <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-500 px-3 py-1 rounded-full font-bold text-[12px] uppercase shadow-sm">Belum Kumpul</span>
+                                    <template x-if="sidang.status_kelulusan === 'Lanjut' || sidang.status_kelulusan === 'Tidak Lulus'">
+                                        <span class="inline-flex items-center gap-1.5 bg-red-100 text-red-700 px-3 py-1 rounded-full font-bold text-[11px] uppercase shadow-sm border border-red-200">Lanjut (Tidak Lulus)</span>
                                     </template>
                                 </td>
                             </tr>
                         </template>
                         <template x-if="filteredSidangs.length === 0">
                             <tr>
-                                <td colspan="6" class="py-12 text-center text-gray-500 italic text-[12px]">Tidak ada data rekap revisi yang sesuai pencarian/filter.</td>
+                                <td colspan="4" class="py-12 text-center text-gray-500 italic text-[12px]">Belum ada data kelulusan yang difinalisasi.</td>
                             </tr>
                         </template>
                     </tbody>
@@ -180,13 +166,13 @@
     </div>
 
     <script>
-        window.rekapRevisiPage = function() {
+        window.laporanPage = function() {
             return {
                 sidangs: @json($sidangs),
                 search: '',
                 filterStatus: 'all',
                 currentPage: 1,
-                itemsPerPage: 10,
+                itemsPerPage: 15,
 
                 init() {
                     this.$watch('search', () => this.currentPage = 1);
@@ -202,10 +188,9 @@
                 get stats() {
                     return {
                         total: this.sidangs.length,
-                        belum: this.sidangs.filter(s => s.status_revisi === 'Belum mengumpulkan').length,
-                        menunggu: this.sidangs.filter(s => s.status_revisi === 'Menunggu').length,
-                        disahkan: this.sidangs.filter(s => s.status_revisi === 'Disahkan' || s.status_revisi === 'Diterima').length,
-                        ditolak: this.sidangs.filter(s => s.status_revisi === 'Ditolak').length,
+                        lulus: this.sidangs.filter(s => s.status_kelulusan === 'Lulus').length,
+                        revisi: this.sidangs.filter(s => s.status_kelulusan === 'Lulus Dengan Revisi').length,
+                        lanjut: this.sidangs.filter(s => s.status_kelulusan === 'Lanjut' || s.status_kelulusan === 'Tidak Lulus').length,
                     }
                 },
 
@@ -217,8 +202,8 @@
                     }
                     if (this.filterStatus !== 'all') {
                         res = res.filter(s => {
-                            if (this.filterStatus === 'Disahkan') return s.status_revisi === 'Disahkan' || s.status_revisi === 'Diterima';
-                            return s.status_revisi === this.filterStatus;
+                            if (this.filterStatus === 'Lanjut') return s.status_kelulusan === 'Lanjut' || s.status_kelulusan === 'Tidak Lulus';
+                            return s.status_kelulusan === this.filterStatus;
                         });
                     }
                     return res;
@@ -231,31 +216,17 @@
 
                 get totalPages() {
                     return Math.ceil(this.filteredSidangs.length / this.itemsPerPage) || 1;
-                },
-
-                formatDate(dateString) {
-                    if (!dateString) return '-';
-                    return new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-                },
-
-                formatTime(timeString) {
-                    if (!timeString) return '-';
-                    return timeString.substring(0, 5);
-                },
-
-                getDeadline(dateString) {
-                    if (!dateString) return '-';
-                    const d = new Date(dateString);
-                    d.setDate(d.getDate() + 5);
-                    return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
                 }
             }
         }
     </script>
 
     <style>
-        .sentence-case { text-transform: lowercase; }
-        .sentence-case::first-letter { text-transform: uppercase; }
         [x-cloak] { display: none !important; }
+        @media print {
+            .no-print, header, nav, .header-actions, .controls-section, .sidebar, button { display: none !important; }
+            .bg-white { border: none !important; }
+            body { background: white !important; }
+        }
     </style>
 </x-dashboard-layout>

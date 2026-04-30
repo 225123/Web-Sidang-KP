@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Mahasiswa;
 use App\Http\Controllers\Controller;
 use App\Models\PendaftaranKp;
 use App\Models\PendaftaranSidang;
+use App\Models\NotifikasiLog;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -82,6 +83,17 @@ class PersetujuanSidangController extends Controller
                 'status_verifikasi' => 'pending', // Sesuai constraint DB ('pending', 'verified', 'rejected')
             ]
         );
+
+        // --- Kirim Notifikasi ke Pembimbing ---
+        if ($pendaftaran->pembimbing_id) {
+            NotifikasiLog::create([
+                'sender_id' => null,
+                'receiver_id' => $pendaftaran->pembimbing_id,
+                'judul' => "Permohonan Persetujuan Sidang",
+                'pesan' => auth()->user()->name . " (" . (auth()->user()->mahasiswa->nim ?? '-') . ") telah mengajukan laporan untuk persetujuan sidang.",
+                'target_url' => route('dosen.persetujuan-sidang.index'),
+            ]);
+        }
 
         return back()->with('success', 'Laporan berhasil diajukan. Silakan tunggu verifikasi dari Dosen Pembimbing.');
     }
