@@ -123,11 +123,12 @@ class PenugasanPembimbingController extends Controller
                 ];
             }
 
+            $individualKp = PendaftaranKp::where('mahasiswa_id', $m->id)->latest()->first();
             $clusters[$clusterId]['mahasiswas'][] = [
                 'user_id' => $m->id,
                 'nama' => $m->name,
                 'nim' => $m->mahasiswa->nim,
-                'judul_kp' => $approvedKp ? ($approvedKp->judul_kp ?? '-') : '-',
+                'judul_kp' => $individualKp ? ($individualKp->judul_kp ?? '-') : '-',
                 'dosen_id' => $latestKp ? $latestKp->pembimbing_id : null,
             ];
         }

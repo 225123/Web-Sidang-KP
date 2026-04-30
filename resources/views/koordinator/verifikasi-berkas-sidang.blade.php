@@ -3,6 +3,41 @@
         @include('koordinator.components.sidebar', ['active' => 'verifikasi'])
     </x-slot>
 
+    <x-slot:headerActions>
+        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
+            <button @click="open = !open" @click.outside="open = false" type="button"
+                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
+
+                <span x-text="selected"></span>
+
+                <svg :class="open ? 'rotate-0' : 'rotate-90'"
+                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+
+            <div x-show="open" x-transition style="display: none;"
+                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
+                <ul class="py-1 text-[13px] font-medium text-black">
+                    <li>
+                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Genap 2025/2026
+                        </button>
+                    </li>
+                    <li>
+                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Ganjil 2025/2026
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <input type="hidden" name="periode" :value="selected">
+        </div>
+    </x-slot:headerActions>
+
     <style>
         [x-cloak] { display: none !important; }
         .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -101,26 +136,34 @@
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
-                        <input type="text" x-model="searchQuery" @input="currentPage = 1" class="block w-full pl-9 pr-4 py-2 border border-gray-300 rounded-[5px] text-[12px] text-black focus:ring-blue-500" placeholder="Cari Nama/NIM...">
+                        <input type="text" x-model="searchQuery" @input="currentPage = 1" class="block w-full pl-9 pr-4 py-2 border border-gray-300 rounded-[5px] text-[12px] text-black focus:ring-[#4285F4] shadow-sm" placeholder="Cari Nama/NIM...">
                     </div>
 
-                    <div class="flex items-center gap-2 shrink-0 w-full sm:w-auto">
-                        <select x-model="filterStatus" @change="currentPage = 1" class="w-full sm:w-[140px] text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500">
-                            <option value="all">Semua Status</option>
-                            <option value="pending">Belum Diperiksa</option>
-                            <option value="verified">Disahkan</option>
-                        </select>
+                    <div x-data="{ openStatus: false }" class="relative w-full sm:w-[150px] z-[60]" @click.outside="openStatus = false">
+                        <button type="button" @click="openStatus = !openStatus" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                            <span class="truncate" x-text="filterStatus === 'all' ? 'Semua Status' : (filterStatus === 'pending' ? 'Belum Diperiksa' : 'Disahkan')"></span>
+                            <svg :class="openStatus ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openStatus" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="all" x-model="filterStatus" class="hidden" @change="openStatus = false; currentPage = 1">Semua Status</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="pending" x-model="filterStatus" class="hidden" @change="openStatus = false; currentPage = 1">Belum Diperiksa</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="verified" x-model="filterStatus" class="hidden" @change="openStatus = false; currentPage = 1">Disahkan</label>
+                        </div>
                     </div>
 
-                    <div class="flex items-center gap-2 shrink-0 w-full sm:w-auto">
-                        <select x-model="filterKondisiMain" @change="currentPage = 1" class="w-full sm:w-[140px] text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500">
-                            <option value="all">Semua Kondisi</option>
-                            <option value="lengkap">Lengkap</option>
-                            <option value="tidak_lengkap">Tidak Lengkap</option>
-                        </select>
+                    <div x-data="{ openKondisi: false }" class="relative w-full sm:w-[150px] z-[50]" @click.outside="openKondisi = false">
+                        <button type="button" @click="openKondisi = !openKondisi" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                            <span class="truncate" x-text="filterKondisiMain === 'all' ? 'Semua Kondisi' : (filterKondisiMain === 'lengkap' ? 'Lengkap' : 'Tidak Lengkap')"></span>
+                            <svg :class="openKondisi ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openKondisi" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="all" x-model="filterKondisiMain" class="hidden" @change="openKondisi = false; currentPage = 1">Semua Kondisi</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="lengkap" x-model="filterKondisiMain" class="hidden" @change="openKondisi = false; currentPage = 1">Lengkap</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="tidak_lengkap" x-model="filterKondisiMain" class="hidden" @change="openKondisi = false; currentPage = 1">Tidak Lengkap</label>
+                        </div>
                     </div>
 
-                    <button @click="clearMainFilter()" class="w-full sm:w-auto bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[12px] px-4 py-2 rounded-[5px] shadow-sm transition-colors whitespace-nowrap shrink-0">
+                    <button @click="clearMainFilter()" class="w-full sm:w-auto bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[12px] px-4 py-2 rounded-[5px] shadow-sm transition-colors whitespace-nowrap shrink-0 flex items-center justify-center">
                         Clear Filter
                     </button>
                 </div>
@@ -387,16 +430,16 @@
                 </div>
             </div>
 
-            <div class="px-6 py-4 bg-white border-t border-gray-200 flex items-center justify-between" x-show="totalPages > 1">
-                <span class="text-[12px] font-medium text-black/50" x-text="`Halaman ${currentPage} dari ${totalPages}`"></span>
+            <div class="pt-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 mt-6" x-show="totalPages > 1">
+                <span class="text-[12px] font-medium text-black/50" x-text="(filteredRows.length === 0 ? 0 : ((currentPage - 1) * itemsPerPage + 1)) + ' - ' + Math.min(currentPage * itemsPerPage, filteredRows.length) + ' dari ' + filteredRows.length + ' baris'"></span>
                 <div class="flex items-center gap-2">
-                    <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed">Previous</button>
+                    <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Previous</button>
                     <div class="flex items-center gap-1">
                         <template x-for="p in totalPages" :key="p">
                             <button @click="goToPage(p)" class="w-8 h-8 rounded text-[12px] font-bold transition-all" :class="currentPage === p ? 'bg-blue-600 text-white shadow-md' : 'text-black hover:bg-gray-100'" x-text="p"></button>
                         </template>
                     </div>
-                    <button @click="nextPage" :disabled="currentPage === totalPages" class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed">Next</button>
+                    <button @click="nextPage" :disabled="currentPage === totalPages" class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Next</button>
                 </div>
             </div>
         </div>
@@ -452,8 +495,8 @@
             </div>
 
             <!-- AlpineJS Dynamic Paginator for Riwayat Table -->
-            <div class="px-6 py-4 bg-white flex items-center justify-between border-t border-gray-200" x-show="totalRiwayatPages > 1">
-                <span class="text-[12px] font-medium text-black/50" x-text="`Halaman ${riwayatCurrentPage} dari ${totalRiwayatPages}`"></span>
+            <div class="pt-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 mt-6" x-show="totalRiwayatPages > 1">
+                <span class="text-[12px] font-medium text-black/50" x-text="(filteredRiwayatRows.length === 0 ? 0 : ((riwayatCurrentPage - 1) * riwayatItemsPerPage + 1)) + ' - ' + Math.min(riwayatCurrentPage * riwayatItemsPerPage, filteredRiwayatRows.length) + ' dari ' + filteredRiwayatRows.length + ' baris'"></span>
                 <div class="flex items-center gap-2">
                     <button @click="prevRiwayatPage" :disabled="riwayatCurrentPage === 1" class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Previous</button>
                     <div class="flex items-center gap-1">
@@ -547,8 +590,8 @@
             </div>
 
             <!-- AlpineJS Dynamic Paginator for Status Table -->
-            <div class="px-6 py-4 bg-white flex items-center justify-between border-t border-gray-200" x-show="totalStatusPages > 1">
-                <span class="text-[12px] font-medium text-black/50" x-text="`Halaman ${statusCurrentPage} dari ${totalStatusPages}`"></span>
+            <div class="pt-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 mt-6" x-show="totalStatusPages > 1">
+                <span class="text-[12px] font-medium text-black/50" x-text="(filteredStatusRows.length === 0 ? 0 : ((statusCurrentPage - 1) * statusItemsPerPage + 1)) + ' - ' + Math.min(statusCurrentPage * statusItemsPerPage, filteredStatusRows.length) + ' dari ' + filteredStatusRows.length + ' baris'"></span>
                 <div class="flex items-center gap-2">
                     <button @click="prevStatusPage" :disabled="statusCurrentPage === 1" class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Previous</button>
                     <div class="flex items-center gap-1">

@@ -3,24 +3,50 @@
         @include('koordinator.components.sidebar', ['active' => 'timeline'])
     </x-slot>
 
+    <x-slot:headerActions>
+        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
+            <button @click="open = !open" @click.outside="open = false" type="button"
+                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
+
+                <span x-text="selected"></span>
+
+                <svg :class="open ? 'rotate-0' : 'rotate-90'"
+                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+
+            <div x-show="open" x-transition style="display: none;"
+                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
+                <ul class="py-1 text-[13px] font-medium text-black">
+                    <li>
+                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Genap 2025/2026
+                        </button>
+                    </li>
+                    <li>
+                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Ganjil 2025/2026
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <input type="hidden" name="periode" :value="selected">
+        </div>
+    </x-slot:headerActions>
+
     <div class="mt-8 px-4 w-full max-w-6xl mx-auto pb-12 font-inter" x-data="timelinePage()">
         
-        <!-- Page Description Box (Same style as Pendaftaran KP) -->
-        <div class="bg-[#E6F0FA] border border-[#D0E3F5] rounded-[10px] p-4 lg:p-5 mb-8 flex items-start gap-4 shadow-sm">
-            <div class="w-6 h-6 rounded-full bg-[#4285F4] text-white flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
-                i
-            </div>
-            <p class="text-[14px] text-[#1A1A1A] font-medium leading-relaxed m-0 mt-0.5">
-                Buatlah Jadwal Timeline Penting Selama Proses KP
-            </p>
-        </div>
-
         <!-- Section 1: Buat Timeline Box -->
-        <div class="bg-white rounded-[10px] border border-[#CAC0C0] shadow-sm overflow-hidden mb-8">
-            <div class="bg-[#FBFBFB] border-b border-[#CAC0C0] px-6 py-4">
-                <h3 class="text-[16px] font-bold text-black uppercase tracking-tight">Buat Timeline</h3>
+        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
+            <div class="mb-6 border-b border-gray-100 pb-4">
+                <h3 class="text-[18px] font-bold text-black tracking-tight">Buat Timeline</h3>
+                <p class="text-[12px] text-black/60 font-medium mt-1">Buatlah jadwal timeline penting selama proses KP.</p>
             </div>
-            <div class="p-6">
+            <div class="px-2">
                 <form action="{{ route('koordinator.timeline.store') }}" method="POST" class="space-y-4">
                     @csrf
                     <input type="hidden" name="kategori" :value="tab">
@@ -59,60 +85,67 @@
         <!-- Tabs -->
         <div class="flex items-end h-[36px]">
             <button @click="switchTab('mahasiswa')" 
-               :class="tab === 'mahasiswa' ? 'bg-[#D9D9D9] border border-black/50 border-b-0 h-[36px] z-10' : 'bg-[#E8E8E8] border border-black/50 opacity-70 h-[34px] border-b-black'"
-               class="w-[110px] text-[14px] font-medium rounded-t-[5px] relative flex items-center justify-center text-black hover:opacity-100 transition-all">
+               :class="tab === 'mahasiswa' ? 'bg-white border border-gray-200 border-b-white h-[36px] z-10 font-bold' : 'bg-gray-100 border border-gray-200 text-gray-500 h-[34px] hover:bg-gray-50 border-b-gray-200'"
+               class="w-[120px] text-[14px] rounded-t-[10px] relative flex items-center justify-center transition-all">
                Mahasiswa
             </button>
             <button @click="switchTab('dosen')" 
-               :class="tab === 'dosen' ? 'bg-[#D9D9D9] border border-black/50 border-b-0 h-[36px] z-10' : 'bg-[#E8E8E8] border border-black/50 opacity-70 h-[34px] border-b-black'"
-               class="w-[110px] text-[14px] font-medium rounded-t-[5px] relative left-[-1px] flex items-center justify-center text-black hover:opacity-100 transition-all">
+               :class="tab === 'dosen' ? 'bg-white border border-gray-200 border-b-white h-[36px] z-10 font-bold text-black' : 'bg-gray-100 border border-gray-200 text-gray-500 h-[34px] hover:bg-gray-50 border-b-gray-200'"
+               class="w-[120px] text-[14px] rounded-t-[10px] relative left-[-1px] flex items-center justify-center transition-all">
                Dosen
             </button>
         </div>
 
         <!-- Section 2: Main Background Container for Table and Filters -->
-        <div class="bg-white rounded-b-[10px] rounded-tr-[10px] border border-[#CAC0C0] shadow-sm overflow-hidden relative top-[-1px]">
+        <div class="bg-white rounded-b-[15px] rounded-tr-[15px] border border-gray-200 shadow-sm overflow-hidden relative top-[-1px] mb-8 p-6">
             <!-- Header Section inside container -->
-            <div class="p-6">
+            <div>
                 <!-- Title & Description -->
-                <div class="mb-8">
-                    <h3 class="text-[20px] font-bold text-black tracking-tight" x-text="tab === 'mahasiswa' ? 'Tabel Timeline Mahasiswa' : 'Tabel Timeline Dosen'"></h3>
-                    <p class="text-[12px] text-black/60 font-medium mt-1">Daftar seluruh agenda dan jadwal kegiatan yang berkaitan dengan <span x-text="tab === 'mahasiswa' ? 'mahasiswa' : 'dosen'"></span> dalam pelaksanaan kerja praktik.</p>
-                </div>
-
-                <!-- Search bar -->
-                <div class="relative w-full mb-6">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
+                    <div>
+                        <h3 class="text-[18px] font-bold text-black tracking-tight" x-text="tab === 'mahasiswa' ? 'Tabel Timeline Mahasiswa' : 'Tabel Timeline Dosen'"></h3>
+                        <p class="text-[12px] text-black/60 font-medium mt-1">Daftar seluruh agenda dan jadwal kegiatan yang berkaitan dengan <span x-text="tab === 'mahasiswa' ? 'mahasiswa' : 'dosen'"></span> dalam pelaksanaan kerja praktik.</p>
                     </div>
-                    <input type="text" x-model="search" @input="currentPage = 1" class="block w-full pl-10 pr-4 h-[32px] border border-gray-300 rounded-[5px] text-sm text-black focus:ring-blue-500 focus:border-blue-500 shadow-sm" placeholder="Cari nama kegiatan...">
                 </div>
 
-                <!-- Filters -->
-                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-                    <div class="flex items-center gap-4">
-                        <div class="flex items-center gap-2">
-                            <label class="text-[13px] font-bold text-black whitespace-nowrap">Urutkan :</label>
-                            <select x-model="sort" class="w-[180px] h-[32px] text-[13px] border border-gray-300 rounded-[5px] px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm">
-                                <option value="closest">Terdekat</option>
-                                <option value="oldest">Terlama</option>
-                            </select>
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-6 mb-6">
+                    <div class="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+                        <!-- Search bar -->
+                        <div class="relative flex-1 sm:w-[300px]">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </div>
+                            <input type="text" x-model="search" @input="currentPage = 1" class="block w-full pl-9 pr-4 py-2 border border-gray-300 rounded-[5px] text-[12px] text-black focus:ring-[#4285F4] shadow-sm" placeholder="Cari nama kegiatan...">
                         </div>
 
-                        <button @click="toggleSelection()" 
-                                :class="isSelecting ? 'bg-[#456DA7] text-white border-[#456DA7]' : 'bg-white text-black border-gray-300 hover:bg-gray-100'"
-                                class="h-[32px] border font-bold text-[12px] px-6 rounded-[5px] shadow-sm transition-colors uppercase flex items-center gap-2">
-                            <span x-text="isSelecting ? 'Batal' : 'Pilih'"></span>
-                        </button>
+                        <!-- Urutkan Filter -->
+                        <div x-data="{ openSort: false }" class="relative w-full sm:w-[150px] z-[50]" @click.outside="openSort = false">
+                            <button type="button" @click="openSort = !openSort" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                                <span class="truncate" x-text="sort === 'closest' ? 'Terdekat' : 'Terlama'"></span>
+                                <svg :class="openSort ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <div x-show="openSort" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="closest" x-model="sort" class="hidden" @change="openSort = false; currentPage = 1">Terdekat</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="oldest" x-model="sort" class="hidden" @change="openSort = false; currentPage = 1">Terlama</label>
+                            </div>
+                        </div>
 
-                        <button x-show="isSelecting" @click="selectAllToggle()" 
-                                class="h-[32px] bg-[#EBEBEB] hover:bg-gray-300 text-black border border-[#CAC0C0] font-bold text-[12px] px-6 rounded-[5px] shadow-sm transition-colors uppercase">
-                            <span x-text="allSelected ? 'Batal Pilih Semua' : 'Pilih Semua'"></span>
-                        </button>
+                        <div class="flex gap-2">
+                            <button @click="toggleSelection()" 
+                                    :class="isSelecting ? 'bg-[#4285F4] text-white border-[#4285F4]' : 'bg-white text-black border-gray-300 hover:bg-gray-100'"
+                                    class="py-1.5 border font-bold text-[12px] px-4 rounded-[5px] shadow-sm transition-colors uppercase flex items-center justify-center">
+                                <span x-text="isSelecting ? 'Batal' : 'Pilih Multiple'"></span>
+                            </button>
+
+                            <button x-show="isSelecting" @click="selectAllToggle()" 
+                                    class="py-1.5 bg-[#EBEBEB] hover:bg-gray-300 text-black border border-[#CAC0C0] font-bold text-[12px] px-4 rounded-[5px] shadow-sm transition-colors uppercase flex items-center justify-center">
+                                <span x-text="allSelected ? 'Batal Pilih Semua' : 'Pilih Semua'"></span>
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="text-[12px] text-black/60 font-bold italic">
-                        Menampilkan <span x-text="startEntry"></span> sampai <span x-text="endEntry"></span> dari <span x-text="totalEntries"></span> data
+                    <div class="text-[11px] text-black/60 font-bold uppercase tracking-tight flex items-center gap-1 sm:w-auto w-full justify-end">
+                        <span x-text="(totalEntries === 0 ? 0 : ((currentPage - 1) * perPage + 1)) + ' - ' + Math.min(currentPage * perPage, totalEntries) + ' dari ' + totalEntries + ' baris'"></span>
                     </div>
                 </div>
 
@@ -167,30 +200,30 @@
                 </div>
 
                 <!-- Footer Actions: Delete Button -->
-                <div x-show="isSelecting && selectedIds.length > 0" class="mt-6 flex justify-start">
-                    <button @click="openBulkDelete()" class="bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[12px] px-8 h-[32px] rounded-[5px] shadow-md transition-colors uppercase flex items-center gap-2">
+                <div x-show="isSelecting && selectedIds.length > 0" class="mt-4 flex justify-start">
+                    <button @click="openBulkDelete()" class="bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[12px] px-8 py-2 rounded-[5px] shadow-sm transition-colors uppercase flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         Hapus Yang Terpilih (<span x-text="selectedIds.length"></span>)
                     </button>
                 </div>
 
                 <!-- Pagination Footer -->
-                <div class="mt-8 flex items-center justify-end">
-                    <nav class="inline-flex gap-1">
-                        <button @click="prevPage()" :disabled="currentPage === 1" class="px-3 py-1.5 rounded-[5px] border border-gray-300 bg-white text-[11px] font-bold text-black hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                            Previous
-                        </button>
-                        <template x-for="page in totalPages" :key="page">
-                            <button @click="currentPage = page" 
-                                    :class="currentPage === page ? 'bg-[#4CC098] text-white border-[#4CC098]' : 'bg-white text-black border-gray-300 hover:bg-gray-100'"
-                                    class="w-8 py-1.5 rounded-[5px] border text-[11px] font-bold transition-colors"
-                                    x-text="page">
-                            </button>
-                        </template>
-                        <button @click="nextPage()" :disabled="currentPage === totalPages" class="px-3 py-1.5 rounded-[5px] border border-gray-300 bg-white text-[11px] font-bold text-black hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                            Next
-                        </button>
-                    </nav>
+                <div class="pt-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 mt-6" x-show="totalPages > 1">
+                    <span class="text-[12px] font-medium text-black/50" x-text="(totalEntries === 0 ? 0 : ((currentPage - 1) * perPage + 1)) + ' - ' + Math.min(currentPage * perPage, totalEntries) + ' dari ' + totalEntries + ' baris'"></span>
+                    <div class="flex items-center gap-2">
+                        <button @click="prevPage()" :disabled="currentPage === 1" 
+                            class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Previous</button>
+                        <div class="flex items-center gap-1">
+                            <template x-for="p in totalPages" :key="p">
+                                <button @click="currentPage = p" 
+                                    class="w-8 h-8 rounded text-[12px] font-bold transition-all"
+                                    :class="currentPage === p ? 'bg-blue-600 text-white shadow-md' : 'text-black hover:bg-gray-100'"
+                                    x-text="p"></button>
+                            </template>
+                        </div>
+                        <button @click="nextPage()" :disabled="currentPage === totalPages" 
+                            class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Next</button>
+                    </div>
                 </div>
             </div>
         </div>

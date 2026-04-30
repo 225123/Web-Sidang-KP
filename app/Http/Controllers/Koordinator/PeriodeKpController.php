@@ -57,16 +57,74 @@ class PeriodeKpController extends Controller
         }
 
         // Auto-close current active period
-        TahunAjaran::where('is_active', true)->update(['is_active' => false]);
+        $oldActive = TahunAjaran::where('is_active', true)->first();
+        if ($oldActive) {
+            $oldActive->update(['is_active' => false]);
+        }
 
-        TahunAjaran::create([
+        $newPeriod = TahunAjaran::create([
             'semester'           => $request->semester,
             'tahun'              => $request->tahun,
             'label_tahun_ajaran' => $label,
             'is_active'          => true,
         ]);
 
+        if ($oldActive) {
+            $this->carryOverLanjutStudents($oldActive->id, $newPeriod->id);
+        }
+
         return back()->with('success', "Periode KP \"$label\" berhasil dibuka dan kini menjadi periode aktif.");
+    }
+
+    private function carryOverLanjutStudents($oldPeriodeId, $newPeriodeId)
+    {
+        $sidangs = \App\Models\PendaftaranSidang::with(['pendaftaranKp.supervisorInstansi'])
+            ->whereHas('pendaftaranKp', function ($q) use ($oldPeriodeId) {
+                $q->where('tahun_ajaran_id', $oldPeriodeId);
+            })
+            ->whereIn('status_kelulusan', ['Lanjut', 'Tidak Lulus'])
+            ->get();
+
+        foreach ($sidangs as $sidang) {
+            $oldKp = $sidang->pendaftaranKp;
+            if (!$oldKp) continue;
+
+            $exists = PendaftaranKp::where('mahasiswa_id', $oldKp->mahasiswa_id)
+                ->where('tahun_ajaran_id', $newPeriodeId)
+                ->where('is_lanjutan', true)
+                ->exists();
+
+            if (!$exists) {
+                $newKp = PendaftaranKp::create([
+                    'mahasiswa_id' => $oldKp->mahasiswa_id,
+                    'tahun_ajaran_id' => $newPeriodeId,
+                    'judul_kp' => $oldKp->judul_kp,
+                    'jenis_proyek' => $oldKp->jenis_proyek,
+                    'instansi_nama' => $oldKp->instansi_nama,
+                    'instansi_alamat' => $oldKp->instansi_alamat,
+                    'jenis_instansi' => $oldKp->jenis_instansi,
+                    'pembimbing_id' => $oldKp->pembimbing_id,
+                    'supervisor_internal_id' => $oldKp->supervisor_internal_id,
+                    'tipe_kp' => $oldKp->tipe_kp,
+                    'pengerjaan_kp' => $oldKp->pengerjaan_kp,
+                    'anggota_kelompok_ids' => $oldKp->anggota_kelompok_ids,
+                    'status_kp' => 'approved', // Langsung disetujui tanpa verifikasi
+                    'is_lanjutan' => true,
+                    'pendaftaran_asal_id' => $oldKp->id,
+                ]);
+
+                if ($oldKp->supervisorInstansi) {
+                    \App\Models\SupervisorInstansi::create([
+                        'pendaftaran_kp_id' => $newKp->id,
+                        'nama_supervisor' => $oldKp->supervisorInstansi->nama_supervisor,
+                        'kontak_supervisor' => $oldKp->supervisorInstansi->kontak_supervisor,
+                        'no_hp_supervisor' => $oldKp->supervisorInstansi->no_hp_supervisor,
+                        'email_supervisor' => $oldKp->supervisorInstansi->email_supervisor,
+                        'jabatan_supervisor' => $oldKp->supervisorInstansi->jabatan_supervisor,
+                    ]);
+                }
+            }
+        }
     }
 
     public function setActive(Request $request, $id)

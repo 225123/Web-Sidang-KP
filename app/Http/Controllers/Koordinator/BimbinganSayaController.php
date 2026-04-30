@@ -45,11 +45,13 @@ class BimbinganSayaController extends Controller
                     $myApprovedLogs = $myLogs->where('status_approval', 'approved');
                     $adaPending = $myLogs->where('status_approval', 'pending')->count() > 0;
 
+                    $ownKp = PendaftaranKp::where('mahasiswa_id', $mhs->user_id)->latest()->first();
+
                     $pendaftarans->push([
                         'id' => $kp->id,
                         'display_mahasiswa' => $mhs,
-                        'display_judul_kp' => $kp->judul_kp ?? '-',
-                        'display_instansi' => $kp->instansi_nama ?? '-',
+                        'display_judul_kp' => $ownKp ? ($ownKp->judul_kp ?? '-') : '-',
+                        'display_instansi' => $ownKp ? ($ownKp->instansi_nama ?? '-') : '-',
                         'display_supervisor' => ($kp->supervisorInstansi) ? $kp->supervisorInstansi->nama_supervisor : '-',
                         'total_log' => $myApprovedLogs->count(),
                         'status_approval_semua' => $myLogs->count() > 0 ? ($adaPending ? 'Menunggu pengecekan' : 'Diperiksa') : '-',

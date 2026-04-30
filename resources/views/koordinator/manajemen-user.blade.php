@@ -4,30 +4,43 @@
     </x-slot>
 
     <!-- Header Actions (Periode Box sama persis Dashboard) -->
-    <x-slot:headerActions>
-        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-full md:w-[212px]">
-            <button @click="open = !open" @click.outside="open = false" type="button" 
+        <x-slot:headerActions>
+        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
+            <button @click="open = !open" @click.outside="open = false" type="button"
                 class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
-                
+
                 <span x-text="selected"></span>
-                
-                <svg :class="open ? '-rotate-90' : 'rotate-0'" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+
+                <svg :class="open ? 'rotate-0' : 'rotate-90'"
+                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
-            <div x-show="open" x-transition style="display: none;" 
+            <div x-show="open" x-transition style="display: none;"
                 class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
                 <ul class="py-1 text-[13px] font-medium text-black">
-                    <li><button @click="selected = 'Genap 2025/2026'; open = false; document.getElementById('filterForm').submit()" type="button" class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">Genap 2025/2026</button></li>
-                    <li><button @click="selected = 'Ganjil 2025/2026'; open = false; document.getElementById('filterForm').submit()" type="button" class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">Ganjil 2025/2026</button></li>
+                    <li>
+                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Genap 2025/2026
+                        </button>
+                    </li>
+                    <li>
+                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Ganjil 2025/2026
+                        </button>
+                    </li>
                 </ul>
             </div>
+            <input type="hidden" name="periode" :value="selected">
         </div>
     </x-slot:headerActions>
 
     <!-- Shared Alpine State -->
-    <div class="mt-8 px-4 w-full max-w-6xl mx-auto pb-12 font-inter" x-data="userManager()" x-init="init()">
+    <div class="mt-6" x-data="userManager()" x-init="init()">
         
         <!-- Turbo-style Progress Bar -->
         <div class="fixed top-0 left-0 w-full z-[1000] pointer-events-none h-[3px]">
@@ -41,62 +54,6 @@
             ></div>
         </div>
 
-        <!-- Header and Tools -->
-        <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 mb-8">
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                <button @click="showAddModal = true" class="w-full sm:w-[104px] h-[36px] bg-[#4CAF50] rounded-[5px] flex items-center justify-center gap-1 text-white text-[14px] font-medium shadow-sm hover:bg-[#45a049] transition-colors flex-shrink-0">
-                    <span class="text-[20px] leading-none mb-1">+</span> Tambah
-                </button>
-
-                <div class="relative w-full sm:w-[340px] h-[36px]">
-                    <svg class="w-4 h-4 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    <input type="text" x-model="search" @input.debounce.500ms="fetchData()" placeholder="Cari berdasarkan Nama..." class="w-full h-full pl-10 pr-3 border border-black/50 rounded-[5px] text-[14px] focus:outline-none focus:border-black/70 bg-white">
-                </div>
-            </div>
-
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                
-                <template x-if="tab === 'dosen'">
-                    <div x-data="{ openStatus: false }" class="relative w-full sm:w-[130px] h-[36px]">
-                        <button @click="openStatus = !openStatus" @click.outside="openStatus = false" type="button" 
-                            class="w-full h-full flex items-center justify-between border border-black/50 bg-white rounded-[5px] text-[14px] text-gray-700 px-3 outline-none focus:border-black/70 cursor-pointer">
-                            <span x-text="selectedStatusLabel || 'Status'"></span>
-                            <svg :class="openStatus ? '-rotate-90' : 'rotate-0'" class="w-3 h-3 text-black font-bold transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path>
-                            </svg>
-                        </button>
-                        <div x-show="openStatus" x-transition style="display: none;" 
-                            class="absolute z-50 w-full mt-1 bg-white border border-black/50 rounded-[5px] shadow-sm overflow-hidden">
-                            <ul class="py-1 text-[13px] text-gray-700">
-                                <li><button @click="statusFilter = ''; openStatus = false; fetchData()" type="button" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100 transition-colors">Semua Status</button></li>
-                                <li><button @click="statusFilter = 'Aktif'; openStatus = false; fetchData()" type="button" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100 transition-colors">Aktif</button></li>
-                                <li><button @click="statusFilter = 'Tidak Aktif'; openStatus = false; fetchData()" type="button" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100 transition-colors">Tidak Aktif</button></li>
-                            </ul>
-                        </div>
-                    </div>
-                </template>
-
-                <!-- Export PDF Dropdown -->
-                <div x-data="{ openExport: false }" class="relative w-full sm:w-[150px] h-[36px]">
-                    <button @click="openExport = !openExport" @click.outside="openExport = false" type="button" 
-                        class="w-full h-full bg-[#E32727] hover:bg-red-700 transition-colors rounded-full flex items-center justify-center gap-2 text-white text-[14px] shadow-sm font-medium focus:outline-none">
-                        <div class="w-[14px] h-[18px] bg-black/30 border border-white flex items-center justify-center">
-                            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                        </div>
-                        Export PDF
-                    </button>
-                    <div x-show="openExport" x-transition style="display: none;" 
-                        class="absolute z-50 right-0 w-48 mt-2 bg-white border border-gray-200 rounded-[5px] shadow-lg overflow-hidden">
-                        <ul class="py-1 text-[13px] text-gray-700">
-                            <li><a href="{{ route('koordinator.user.export-pdf', ['type' => 'semua']) }}" target="_blank" class="block w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors font-medium">Export Semua User</a></li>
-                            <li><a href="{{ route('koordinator.user.export-pdf', ['type' => 'dosen']) }}" target="_blank" class="block w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors font-medium">Export Data Dosen</a></li>
-                            <li><a href="{{ route('koordinator.user.export-pdf', ['type' => 'mahasiswa']) }}" target="_blank" class="block w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors font-medium">Export Data Mahasiswa</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Notification -->
         <div x-show="notification.show" x-transition 
             :class="notification.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'"
@@ -106,106 +63,153 @@
             <span class="text-sm font-medium" x-text="notification.message"></span>
         </div>
 
-        <!-- Tabs & Table -->
-        <div :class="loading ? 'opacity-60 pointer-events-none' : ''" class="transition-opacity duration-300">
-            <!-- Tabs -->
-            <div class="flex items-end h-[36px]">
-                <button @click="switchTab('dosen')" 
-                   :class="tab === 'dosen' ? 'bg-[#D9D9D9] border border-black/50 border-b-0 h-[36px] z-10' : 'bg-[#E8E8E8] border border-black/50 opacity-70 h-[34px] border-b-black'"
-                   class="w-[110px] text-[14px] font-medium rounded-t-[5px] relative flex items-center justify-center text-black hover:opacity-100 transition-all">
-                   Dosen
+        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-6">
+                <div>
+                    <h3 class="text-[18px] font-bold text-black tracking-tight">Daftar Pengguna</h3>
+                    <p class="text-[12px] text-black/60 font-medium mt-1">Kelola data dosen dan mahasiswa dalam sistem.</p>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                    <button @click="showAddModal = true" class="w-full sm:w-auto bg-[#4CAF50] hover:bg-[#45a049] text-white font-bold text-[12px] px-4 py-2.5 rounded-[5px] shadow-sm transition-colors whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5">
+                        <span class="text-[14px] font-bold leading-none">+</span> Tambah
+                    </button>
+
+                    <div class="relative flex-1 w-full sm:w-[250px]">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="text" x-model="search" @input.debounce.500ms="fetchData()" class="block w-full pl-9 pr-4 py-2 border border-gray-300 rounded-[5px] text-[12px] text-black focus:ring-[#4285F4] shadow-sm" placeholder="Cari Nama...">
+                    </div>
+
+                    <template x-if="tab === 'dosen'">
+                        <div x-data="{ openStatus: false }" class="relative w-full sm:w-[150px] z-[60]" @click.outside="openStatus = false">
+                            <button type="button" @click="openStatus = !openStatus" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                                <span class="truncate" x-text="selectedStatusLabel"></span>
+                                <svg :class="openStatus ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <div x-show="openStatus" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="" x-model="statusFilter" class="hidden" @change="openStatus = false; fetchData()">Semua Status</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Aktif" x-model="statusFilter" class="hidden" @change="openStatus = false; fetchData()">Aktif</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Tidak Aktif" x-model="statusFilter" class="hidden" @change="openStatus = false; fetchData()">Tidak Aktif</label>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Export PDF Dropdown -->
+                    <div x-data="{ openExport: false }" class="relative w-full sm:w-[150px] z-[50]" @click.outside="openExport = false">
+                        <button type="button" @click="openExport = !openExport" class="w-full text-[12px] border border-red-600 bg-[#E32727] text-white rounded-[5px] py-2 px-3 font-medium flex justify-between items-center text-left shadow-sm hover:bg-red-700 transition-colors">
+                            <span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg> Export PDF</span>
+                            <svg :class="openExport ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openExport" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                            <a href="{{ route('koordinator.user.export-pdf', ['type' => 'semua']) }}" target="_blank" class="block px-3 py-2 text-[12px] hover:bg-gray-100 text-black">Export Semua User</a>
+                            <a href="{{ route('koordinator.user.export-pdf', ['type' => 'dosen']) }}" target="_blank" class="block px-3 py-2 text-[12px] hover:bg-gray-100 text-black">Export Data Dosen</a>
+                            <a href="{{ route('koordinator.user.export-pdf', ['type' => 'mahasiswa']) }}" target="_blank" class="block px-3 py-2 text-[12px] hover:bg-gray-100 text-black">Export Data Mahasiswa</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modern Tabs -->
+            <div class="flex items-center gap-4 border-b border-gray-200 mb-6">
+                <button @click="switchTab('dosen')"
+                        class="px-4 py-3 text-[14px] font-bold transition-all border-b-2"
+                        :class="tab === 'dosen' ? 'border-[#4285F4] text-[#4285F4]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'">
+                    Dosen
                 </button>
-                <button @click="switchTab('mahasiswa')" 
-                   :class="tab === 'mahasiswa' ? 'bg-[#D9D9D9] border border-black/50 border-b-0 h-[36px] z-10' : 'bg-[#E8E8E8] border border-black/50 opacity-70 h-[34px] border-b-black'"
-                   class="w-[110px] text-[14px] font-medium rounded-t-[5px] relative left-[-1px] flex items-center justify-center text-black hover:opacity-100 transition-all">
-                   Mahasiswa
+                <button @click="switchTab('mahasiswa')"
+                        class="px-4 py-3 text-[14px] font-bold transition-all border-b-2"
+                        :class="tab === 'mahasiswa' ? 'border-[#4285F4] text-[#4285F4]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'">
+                    Mahasiswa
                 </button>
             </div>
 
             <!-- Table Container -->
-            <div class="bg-white border border-black/50 border-t-0 rounded-b-[5px] rounded-tr-[5px] overflow-x-auto relative top-[-1px]">
-                <table class="w-full min-w-[1000px] text-left text-[13px] font-medium text-black border-collapse">
-                    <thead class="bg-[#B0AFB5]">
-                        <tr class="h-[40px] text-gray-900 border-b border-black/50">
-                            <th class="border-r border-black/40 font-medium w-[5%] pl-4">No</th>
-                            <th class="border-r border-black/40 font-medium w-[23%] px-4">Nama</th>
-                            <th class="border-r border-black/40 font-medium w-[12%] px-4">ID</th>
-                            <th class="border-r border-black/40 font-medium w-[15%] px-4">Role</th>
-                            <th class="border-r border-black/40 font-medium px-4 text-left" :class="tab === 'dosen' ? 'w-[20%]' : 'w-[30%]'">Email</th>
-                            <template x-if="tab === 'dosen'">
-                                <th class="border-r border-black/40 font-medium w-[15%] px-4">Status</th>
-                            </template>
-                            <th class="font-medium text-center" :class="tab === 'dosen' ? 'w-[10%]' : 'w-[15%]'">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-black/40">
-                        <template x-for="(user, index) in users" :key="user.id">
-                            <tr class="h-[45px] hover:bg-gray-50 transition-colors text-gray-900">
-                                <td class="border-r border-black/40 pl-4" x-text="pagination.from + index"></td>
-                                <td class="border-r border-black/40 text-left px-4" x-text="user.name"></td>
-                                <td class="border-r border-black/40 px-4" x-text="user.identifier_id || '-'"></td>
-                                <td class="border-r border-black/40 px-4" x-text="formatRole(user.role)"></td>
-                                <td class="border-r border-black/40 px-4 text-left break-all" x-text="user.email"></td>
-                                
-                                <template x-if="tab === 'dosen'">
-                                    <td class="border-r border-black/40 px-2 lg:text-[13px]">
-                                        <select @change="updateStatus(user.id, $event.target.value)" 
-                                            class="w-full bg-transparent border-none outline-none cursor-pointer text-left focus:ring-0 italic text-[13px] pr-6"
-                                            :class="(user.is_aktif == 1 || user.is_aktif === true) ? 'text-green-700' : 'text-red-700'">
-                                            <option class="text-green-700 italic text-[13px]" value="Aktif" :selected="user.is_aktif == 1 || user.is_aktif === true">Aktif</option>
-                                            <option class="text-red-700 italic text-[13px]" value="Nonaktif" :selected="user.is_aktif == 0 || user.is_aktif === false">Tidak Aktif</option>
-                                        </select>
-                                    </td>
+            <div :class="loading ? 'opacity-60 pointer-events-none' : ''" class="transition-opacity duration-300">
+                <div class="border border-gray-200 rounded-[10px] overflow-hidden">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left text-[12px] font-medium text-black border-collapse min-w-[800px]">
+                            <thead class="bg-[#EBEBEB]">
+                                <tr class="h-[45px] text-black">
+                                    <th class="border-b border-r border-gray-300 font-bold px-4 text-center w-[50px]">No</th>
+                                    <th class="border-b border-r border-gray-300 font-bold px-4">Nama</th>
+                                    <th class="border-b border-r border-gray-300 font-bold px-4">ID</th>
+                                    <th class="border-b border-r border-gray-300 font-bold px-4">Role</th>
+                                    <th class="border-b border-r border-gray-300 font-bold px-4 text-left">Email</th>
+                                    <template x-if="tab === 'dosen'">
+                                        <th class="border-b border-r border-gray-300 font-bold px-4 text-center w-[120px]">Status</th>
+                                    </template>
+                                    <th class="border-b border-gray-300 font-bold px-4 text-center w-[100px]">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                <template x-for="(user, index) in users" :key="user.id">
+                                    <tr class="h-[45px] hover:bg-gray-50 transition-colors">
+                                        <td class="border-r border-gray-200 text-center text-gray-500" x-text="pagination.from + index"></td>
+                                        <td class="border-r border-gray-200 text-left px-4 font-bold" x-text="user.name"></td>
+                                        <td class="border-r border-gray-200 px-4" x-text="user.identifier_id || '-'"></td>
+                                        <td class="border-r border-gray-200 px-4" x-text="formatRole(user.role)"></td>
+                                        <td class="border-r border-gray-200 px-4 text-left break-all text-gray-600" x-text="user.email"></td>
+                                        
+                                        <template x-if="tab === 'dosen'">
+                                            <td class="border-r border-gray-200 px-4 text-center">
+                                                <select @change="updateStatus(user.id, $event.target.value)" 
+                                                    class="w-full bg-transparent border-none outline-none cursor-pointer text-center focus:ring-0 font-bold text-[11px] uppercase tracking-wide"
+                                                    :class="(user.is_aktif == 1 || user.is_aktif === true) ? 'text-green-600' : 'text-red-500'">
+                                                    <option class="text-green-600 font-normal" value="Aktif" :selected="user.is_aktif == 1 || user.is_aktif === true">Aktif</option>
+                                                    <option class="text-red-500 font-normal" value="Nonaktif" :selected="user.is_aktif == 0 || user.is_aktif === false">Tidak Aktif</option>
+                                                </select>
+                                            </td>
+                                        </template>
+
+                                        <td class="px-4 text-center">
+                                            <div class="flex items-center justify-center gap-3">
+                                                <a :href="'/koordinator/manajemen-akses/' + user.id + '/edit'" class="text-gray-500 hover:text-[#4285F4] hover:bg-blue-50 p-1.5 rounded transition-colors" title="Edit Data">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                                </a>
+                                                <button @click="openDeleteConfirm(user.id)" class="text-gray-500 hover:text-[#EA3323] hover:bg-red-50 p-1.5 rounded transition-colors" title="Hapus Data">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 </template>
+                                <template x-if="users.length === 0">
+                                    <tr>
+                                        <td :colspan="tab === 'dosen' ? 7 : 6" class="py-12 text-gray-400 text-center font-medium italic tracking-widest uppercase bg-gray-50">Tidak ada data ditemukan</td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pt-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 mt-6" x-show="pagination.last_page > 1">
+                    <span class="text-[12px] font-medium text-black/50" x-text="pagination.from + ' - ' + pagination.to + ' dari ' + pagination.total + ' baris'"></span>
+                    <div class="flex items-center gap-2">
+                        <button @click="changePage(pagination.current_page - 1)" 
+                            :disabled="pagination.current_page === 1"
+                            class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                            Previous
+                        </button>
+                        
+                        <div class="flex items-center gap-1">
+                            <template x-for="p in pagination.last_page" :key="p">
+                                <button @click="changePage(p)"
+                                    :class="pagination.current_page === p ? 'bg-blue-600 text-white shadow-md' : 'text-black hover:bg-gray-100'"
+                                    class="w-8 h-8 rounded text-[12px] font-bold transition-all"
+                                    x-text="p"></button>
+                            </template>
+                        </div>
 
-                                <td class="px-2 text-center">
-                                    <div class="flex items-center justify-center gap-3">
-                                        <a :href="'/koordinator/manajemen-akses/' + user.id + '/edit'" class="text-gray-500 hover:text-[#456DA7] hover:bg-blue-50 p-1.5 rounded-md transition-colors" title="Edit Data">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                        </a>
-                                        <button @click="openDeleteConfirm(user.id)" class="text-gray-500 hover:text-[#E32727] hover:bg-red-50 p-1.5 rounded-md transition-colors" title="Hapus Data">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                        <form :id="'deleteForm-' + user.id" :action="'/koordinator/manajemen-akses/' + user.id + '/destroy'" method="POST" class="hidden">
-                                            @csrf
-                                            @method('DELETE')
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        </template>
-                        <template x-if="users.length === 0">
-                            <tr>
-                                <td :colspan="tab === 'dosen' ? 7 : 6" class="py-12 text-gray-500 text-center font-medium italic">Belum ada data user yang terdaftar atau tidak ditemukan...</td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Pagination -->
-            <div class="mt-4 flex justify-end" x-show="pagination.last_page > 1">
-                <div class="flex items-center gap-1">
-                    <button @click="changePage(pagination.current_page - 1)" 
-                        :disabled="pagination.current_page === 1"
-                        :class="pagination.current_page === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'"
-                        class="px-2 py-1 border border-black/30 rounded text-[12px] font-medium transition-colors">
-                        Sblm
-                    </button>
-                    
-                    <template x-for="p in pagination.last_page" :key="p">
-                        <button @click="changePage(p)"
-                            :class="pagination.current_page === p ? 'bg-[#456DA7] text-white border-[#456DA7]' : 'border-black/30 text-black hover:bg-gray-100'"
-                            class="w-8 h-8 flex items-center justify-center border rounded text-[12px] font-medium transition-colors"
-                            x-text="p"></button>
-                    </template>
-
-                    <button @click="changePage(pagination.current_page + 1)" 
-                        :disabled="pagination.current_page === pagination.last_page"
-                        :class="pagination.current_page === pagination.last_page ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'"
-                        class="px-2 py-1 border border-black/30 rounded text-[12px] font-medium transition-colors">
-                        Brkt
-                    </button>
+                        <button @click="changePage(pagination.current_page + 1)" 
+                            :disabled="pagination.current_page === pagination.last_page"
+                            class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                            Next
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

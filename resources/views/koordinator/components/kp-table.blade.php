@@ -8,16 +8,8 @@
         jenisFilter: 'All',
         statusFilter: 'All',
         pengerjaanFilter: 'All',
+        baruLanjutFilter: 'All',
         init() {
-            let prefix = '{{ $isRejected ? "rejected" : "main" }}';
-            window.addEventListener('update-jenis-' + prefix, e => { this.jenisFilter = e.detail; this.currentPage = 1; this.updateTable(); });
-            window.addEventListener('update-status-' + prefix, e => { this.statusFilter = e.detail; this.currentPage = 1; this.updateTable(); });
-            window.addEventListener('update-pengerjaan-' + prefix, e => { this.pengerjaanFilter = e.detail; this.currentPage = 1; this.updateTable(); });
-            window.addEventListener('clear-filters-' + prefix, e => {
-                this.jenisFilter = 'All'; this.statusFilter = 'All'; this.pengerjaanFilter = 'All';
-                this.currentPage = 1; this.updateTable();
-            });
-
             this.$watch('{{ $searchModel ?? "searchQuery" }}', value => {
                 this.currentPage = 1;
                 this.updateTable();
@@ -25,6 +17,7 @@
             this.$nextTick(() => this.updateTable());
         },
         updateTable() {
+            if (!this.$refs.tableRoot) return;
             let query = (this.{{ $searchModel ?? "searchQuery" }} || '').toLowerCase();
             let groups = Array.from(this.$refs.tableRoot.querySelectorAll('tbody.proposal-group'));
             let visibleGroups = [];
@@ -39,7 +32,10 @@
                 let checkPengerjaan = this.pengerjaanFilter.toLowerCase();
                 let matchPengerjaan = (this.pengerjaanFilter === 'All' || g.dataset.pengerjaan.toLowerCase().includes(checkPengerjaan));
 
-                if (matchSearch && matchJenis && matchStatus && matchPengerjaan) {
+                let checkBaruLanjut = this.baruLanjutFilter.toLowerCase();
+                let matchBaruLanjut = (this.baruLanjutFilter === 'All' || g.dataset.barulanjut.toLowerCase() === checkBaruLanjut);
+
+                if (matchSearch && matchJenis && matchStatus && matchPengerjaan && matchBaruLanjut) {
                     visibleGroups.push(g);
                 } else {
                     g.style.display = 'none';
@@ -73,6 +69,11 @@
         prevPage() { if (this.currentPage > 1) { this.currentPage--; this.updateTable(); window.scrollTo(0, this.$el.offsetTop - 100); } },
         goToPage(p) { this.currentPage = p; this.updateTable(); window.scrollTo(0, this.$el.offsetTop - 100); }
     }"
+    @update-jenis-{{ $isRejected ? 'rejected' : 'main' }}.window="jenisFilter = $event.detail; currentPage = 1; updateTable()"
+    @update-status-{{ $isRejected ? 'rejected' : 'main' }}.window="statusFilter = $event.detail; currentPage = 1; updateTable()"
+    @update-pengerjaan-{{ $isRejected ? 'rejected' : 'main' }}.window="pengerjaanFilter = $event.detail; currentPage = 1; updateTable()"
+    @update-barulanjut-{{ $isRejected ? 'rejected' : 'main' }}.window="baruLanjutFilter = $event.detail; currentPage = 1; updateTable()"
+    @clear-filters-{{ $isRejected ? 'rejected' : 'main' }}.window="jenisFilter = 'All'; statusFilter = 'All'; pengerjaanFilter = 'All'; baruLanjutFilter = 'All'; currentPage = 1; updateTable()"
 >
     <div class="overflow-x-auto w-full mb-0">
         <table class="w-full min-w-[1000px] border-collapse text-[13px] text-center" x-ref="tableRoot">
@@ -110,6 +111,7 @@
                     data-jenis="{{ $kp->jenis_instansi ?? '' }}"
                     data-status="{{ $kp->status_kp ?? '' }}"
                     data-pengerjaan="{{ $kp->pengerjaan_kp ?? 'individu' }}"
+                    data-barulanjut="{{ $kp->is_lanjutan ? 'lanjut' : 'baru' }}"
                     style="display: none;">
                     @foreach($mhsList as $mIdx => $m)
                     <tr class="bg-white hover:bg-gray-50 font-medium border-b border-gray-200">
@@ -132,7 +134,11 @@
                         @if($isRejected)
                         <td rowspan="{{ $rowspan }}" class="border-r border-gray-200 px-4 py-2 text-center align-middle">{{ $kp->jenis_instansi }}</td>
                         @endif
-                        <td rowspan="{{ $rowspan }}" class="border-r border-gray-200 px-4 py-2 align-middle text-left">{{ $kp->instansi_nama ?? '-' }}</td>
+                        @endif <!-- Close the first mIdx === 0 block -->
+                        
+                        <td class="border-r border-gray-200 px-4 py-2 align-middle text-left">{{ $m['instansi_nama'] ?? $kp->instansi_nama ?? '-' }}</td>
+                        
+                        @if($mIdx === 0)
                         <td rowspan="{{ $rowspan }}" class="border-r border-gray-200 px-4 py-2 align-middle text-left">{{ $kp->supervisorInstansi->nama_supervisor ?? '-' }}</td>
                         @endif
                         
@@ -140,7 +146,7 @@
                             @if(isset($m['has_registered']) && !$m['has_registered'])
                                 <span class="text-gray-400 font-bold block text-center">-</span>
                             @else
-                                {{ Str::limit($kp->judul_kp ?? '-', 50) }}
+                                {{ Str::limit($m['judul_kp'] ?? $kp->judul_kp ?? '-', 50) }}
                             @endif
                         </td>
                         
@@ -181,7 +187,7 @@
                     @endforeach
                 </tbody>
             @empty
-                <tbody class="divide-y divide-gray-200 proposal-group" data-search="" data-jenis="" data-status="" data-pengerjaan="">
+                <tbody class="divide-y divide-gray-200 proposal-group" data-search="" data-jenis="" data-status="" data-pengerjaan="" data-barulanjut="">
                     <tr>
                         <td colspan="{{ $isRejected ? 9 : 8 }}" class="py-12 text-center text-gray-400 italic font-medium bg-gray-50 tracking-widest border-b border-gray-300">
                             Tidak Ada Data
@@ -206,7 +212,7 @@
 
     <!-- AlpineJS Dynamic Paginator Footer -->
     <div class="px-6 py-4 bg-white flex items-center justify-between border-t border-gray-200 rounded-b-[10px]" x-show="totalPages > 1">
-        <span class="text-[12px] font-medium text-black/50" x-text="`Halaman ${currentPage} dari ${totalPages}`"></span>
+        <span class="text-[12px] font-medium text-black/50" x-text="(totalVisible === 0 ? 0 : ((currentPage - 1) * perPage + 1)) + ' - ' + Math.min(currentPage * perPage, totalVisible) + ' dari ' + totalVisible + ' baris'"></span>
         <div class="flex items-center gap-2">
             <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Previous</button>
             <div class="flex items-center gap-1">

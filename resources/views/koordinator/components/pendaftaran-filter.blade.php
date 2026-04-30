@@ -13,10 +13,10 @@
     <div class="flex flex-wrap items-center gap-4 w-full justify-start">
 
         @if($prefix === 'rejected')
-        <div class="relative w-full sm:w-[150px] mt-2 sm:mt-0" x-data="{ openJenis: false, selectedJenis: '{{ request($prefix.'.jenis_kp', 'All') }}' }" @reset-dropdowns-{{ $prefix }}.window="selectedJenis = 'All'">
+        <div class="relative w-full sm:w-[150px] mt-2 sm:mt-0" x-data="{ openJenis: false, selectedJenis: '{{ request($prefix.'.jenis_kp', '') }}' }" @reset-dropdowns-{{ $prefix }}.window="selectedJenis = ''">
             <button type="button" @click="openJenis = !openJenis" @click.outside="openJenis = false" 
                 class="w-full border border-[#CAC0C0] rounded px-3 py-1.5 focus:outline-none bg-white flex justify-between items-center text-[13px] font-medium cursor-pointer shadow-sm">
-                <span x-text="'Jenis KP: ' + selectedJenis"></span>
+                <span x-text="selectedJenis === '' ? 'Jenis KP' : selectedJenis"></span>
                 <svg :class="openJenis ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="openJenis" x-transition style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded shadow-lg overflow-hidden">
@@ -30,10 +30,10 @@
         @endif
 
         @if(!$hideStatus)
-        <div class="relative w-full sm:w-[150px] mt-2 sm:mt-0" x-data="{ openStatus: false, selectedStatus: '{{ request($prefix.'.status_approval', 'All') }}' }" @reset-dropdowns-{{ $prefix }}.window="selectedStatus = 'All'">
+        <div class="relative w-full sm:w-[150px] mt-2 sm:mt-0" x-data="{ openStatus: false, selectedStatus: '{{ request($prefix.'.status_approval', '') }}' }" @reset-dropdowns-{{ $prefix }}.window="selectedStatus = ''">
             <button type="button" @click="openStatus = !openStatus" @click.outside="openStatus = false" 
                 class="w-full border border-[#CAC0C0] rounded px-3 py-1.5 focus:outline-none bg-white flex justify-between items-center text-[13px] font-medium cursor-pointer shadow-sm">
-                <span x-text="'Status: ' + selectedStatus"></span>
+                <span x-text="selectedStatus === '' ? 'Status Approval' : selectedStatus"></span>
                 <svg :class="openStatus ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="openStatus" x-transition style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded shadow-lg overflow-hidden">
@@ -46,10 +46,10 @@
         </div>
         @endif
 
-        <div class="relative w-full sm:w-[160px] mt-2 sm:mt-0" x-data="{ openPengerjaan: false, selectedPengerjaan: '{{ request($prefix.'.pengerjaan', 'All') }}' }" @reset-dropdowns-{{ $prefix }}.window="selectedPengerjaan = 'All'">
+        <div class="relative w-full sm:w-[160px] mt-2 sm:mt-0" x-data="{ openPengerjaan: false, selectedPengerjaan: '{{ request($prefix.'.pengerjaan', '') }}' }" @reset-dropdowns-{{ $prefix }}.window="selectedPengerjaan = ''">
             <button type="button" @click="openPengerjaan = !openPengerjaan" @click.outside="openPengerjaan = false" 
                 class="w-full border border-[#CAC0C0] rounded px-3 py-1.5 focus:outline-none bg-white flex justify-between items-center text-[13px] font-medium cursor-pointer shadow-sm">
-                <span x-text="'Pengerjaan: ' + selectedPengerjaan"></span>
+                <span x-text="selectedPengerjaan === '' ? 'Pengerjaan' : selectedPengerjaan"></span>
                 <svg :class="openPengerjaan ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="openPengerjaan" x-transition style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded shadow-lg overflow-hidden">
@@ -60,6 +60,24 @@
                 </ul>
             </div>
         </div>
+
+        @if($prefix === 'main')
+        <div class="relative w-full sm:w-[150px] mt-2 sm:mt-0" x-data="{ openBaruLanjut: false, selectedBaruLanjut: '{{ request($prefix.'.status_baru_lanjut', '') }}' }" @reset-dropdowns-{{ $prefix }}.window="selectedBaruLanjut = ''">
+            <button type="button" @click="openBaruLanjut = !openBaruLanjut" @click.outside="openBaruLanjut = false" 
+                class="w-full border border-[#CAC0C0] rounded px-3 py-1.5 focus:outline-none bg-white flex justify-between items-center text-[13px] font-medium cursor-pointer shadow-sm">
+                <span x-text="selectedBaruLanjut === '' ? 'Status KP' : selectedBaruLanjut"></span>
+                <svg :class="openBaruLanjut ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div x-show="openBaruLanjut" x-transition style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded shadow-lg overflow-hidden">
+                <ul class="py-1 text-[13px]">
+                    <li><label class="block px-3 py-1.5 hover:bg-gray-100 cursor-pointer"><input type="radio" name="{{ $prefix }}[status_baru_lanjut]" value="All" class="hidden" x-model="selectedBaruLanjut" @change="$dispatch('update-barulanjut-' + '{{ $prefix }}', selectedBaruLanjut)">All</label></li>
+                    <li><label class="block px-3 py-1.5 hover:bg-gray-100 cursor-pointer"><input type="radio" name="{{ $prefix }}[status_baru_lanjut]" value="Baru" class="hidden" x-model="selectedBaruLanjut" @change="$dispatch('update-barulanjut-' + '{{ $prefix }}', selectedBaruLanjut)">Baru</label></li>
+                    <li><label class="block px-3 py-1.5 hover:bg-gray-100 cursor-pointer"><input type="radio" name="{{ $prefix }}[status_baru_lanjut]" value="Lanjut" class="hidden" x-model="selectedBaruLanjut" @change="$dispatch('update-barulanjut-' + '{{ $prefix }}', selectedBaruLanjut)">Lanjut</label></li>
+                </ul>
+            </div>
+        </div>
+        @endif
+
 
         <div class="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
             <!-- Clear Filter strictly DOM dispatch -->

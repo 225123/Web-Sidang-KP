@@ -86,8 +86,8 @@
         <p style="margin-top: 25px;">Sidang ini dihadiri dan dinilai oleh tim penguji sebagai berikut:</p>
 
         <table class="content-table">
-            <tr><td class="w-40">Dosen Penguji 1</td><td>: {{ $sidang->penguji1->user->name ?? '-' }}</td></tr>
-            <tr><td>Dosen Penguji 2</td><td>: {{ $sidang->penguji2->user->name ?? '-' }}</td></tr>
+            <tr><td class="w-40">Dosen Penguji 1</td><td>: {{ $sidang->penguji1->name ?? '-' }}</td></tr>
+            <tr><td>Dosen Penguji 2</td><td>: {{ $sidang->penguji2->name ?? '-' }}</td></tr>
         </table>
 
         <p class="text-justify" style="margin-top: 30px;">

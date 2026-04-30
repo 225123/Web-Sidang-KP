@@ -32,7 +32,43 @@ class FinalisasiNilaiController extends Controller
                 return $sidang;
             });
 
-        return view('koordinator.finalisasi-nilai', compact('sidangs'));
+        // Check if all "Selesai" sidangs have their berita acara submitted
+        $unsubmittedBA = PendaftaranSidang::where('pelaksanaan', 'Selesai')
+            ->where('berita_acara_disubmit', false)
+            ->exists();
+        
+        $allBeritaAcaraSubmitted = !$unsubmittedBA;
+
+        // Check if all valid sidangs are already dipublikasi
+        $hasSidangToSah = $sidangs->where('nilai_dipublikasi', false)->count() > 0;
+        $hasValidSidangs = $sidangs->count() > 0;
+        $isAllNilaiDisahkan = !$hasSidangToSah && $hasValidSidangs;
+
+        return view('koordinator.finalisasi-nilai', compact('sidangs', 'allBeritaAcaraSubmitted', 'isAllNilaiDisahkan', 'hasValidSidangs'));
+    }
+
+    public function sahkan()
+    {
+        $sidangs = PendaftaranSidang::whereIn('status_kelulusan', ['Lulus', 'Lulus Dengan Revisi', 'Lanjut', 'Tidak Lulus'])
+            ->where('nilai_dipublikasi', false)
+            ->get();
+
+        foreach ($sidangs as $sidang) {
+            $sidang->nilai_dipublikasi = true;
+            $sidang->save();
+
+            \App\Models\NotifikasiLog::create([
+                'sender_id' => auth()->id(),
+                'receiver_id' => $sidang->mahasiswa->user_id,
+                'target_role' => 'mahasiswa',
+                'judul' => 'Nilai Sidang Terbit',
+                'pesan' => 'Koordinator telah mempublikasikan Nilai Akhir Sidang KP Anda. Silakan cek halaman Nilai Akhir untuk mengunduh dokumen terkait.',
+                'target_url' => '/mahasiswa/nilai-akhir',
+                'is_read' => false,
+            ]);
+        }
+
+        return back()->with('success', 'Finalisasi Nilai berhasil disahkan dan diterbitkan ke mahasiswa.');
     }
 
     public function show($id)

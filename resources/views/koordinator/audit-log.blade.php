@@ -3,6 +3,41 @@
         @include('koordinator.components.sidebar', ['active' => 'audit-log'])
     </x-slot>
 
+    <x-slot:headerActions>
+        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
+            <button @click="open = !open" @click.outside="open = false" type="button"
+                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
+
+                <span x-text="selected"></span>
+
+                <svg :class="open ? 'rotate-0' : 'rotate-90'"
+                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+
+            <div x-show="open" x-transition style="display: none;"
+                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
+                <ul class="py-1 text-[13px] font-medium text-black">
+                    <li>
+                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Genap 2025/2026
+                        </button>
+                    </li>
+                    <li>
+                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Ganjil 2025/2026
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <input type="hidden" name="periode" :value="selected">
+        </div>
+    </x-slot:headerActions>
+
     <div class="mt-6 max-w-7xl mx-auto space-y-6 px-4 sm:px-6 lg:px-8">
         <!-- Top Charts Section -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -62,57 +97,81 @@
         </div>
 
         <!-- Table Section -->
-        <div class="bg-white rounded-[10px] p-4 sm:p-8 shadow-sm border border-[#CAC0C0]">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
+            <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
                 <div>
-                    <h3 class="text-[18px] font-bold text-black uppercase tracking-tight">Tabel Aktivitas User</h3>
-                    <p class="text-[12px] text-gray-500 mt-1 font-medium italic">Data diperbarui otomatis setiap 5 detik tanpa refresh</p>
+                    <h3 class="text-[18px] font-bold text-black tracking-tight">Tabel Aktivitas User</h3>
+                    <p class="text-[12px] text-black/60 font-medium mt-1">Data diperbarui otomatis setiap 5 detik tanpa refresh.</p>
                 </div>
             </div>
 
             <!-- Filters & Search (Responsive Grid) -->
-            <form id="filterForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
-                <div class="sm:col-span-2 relative">
-                    <input type="text" name="search" id="searchInput" value="{{ request('search') }}" placeholder="Cari Nama, NIM, Modul, atau Aksi.." class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-[5px] text-[13px] focus:ring-[#4CC098] focus:border-[#4CC098]">
-                    <svg class="w-4 h-4 text-gray-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                </div>
+            <form id="filterForm" class="flex flex-col sm:flex-row justify-between items-center gap-6 mb-6" x-data="{ role: '{{ request('role') }}', module: '{{ request('module') }}' }">
+                <input type="hidden" id="roleFilter" name="role" :value="role">
+                <input type="hidden" id="moduleFilter" name="module" :value="module">
                 
-                <select name="role" id="roleFilter" class="border border-gray-300 rounded-[5px] text-[13px] px-4 py-2.5 focus:ring-[#4CC098] focus:border-[#4CC098] bg-white">
-                    <option value="">Semua Role</option>
-                    <option value="Mahasiswa" {{ request('role') == 'Mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
-                    <option value="Dosen" {{ request('role') == 'Dosen' ? 'selected' : '' }}>Dosen</option>
-                    <option value="Koordinator KP" {{ request('role') == 'Koordinator KP' ? 'selected' : '' }}>Koordinator KP</option>
-                    <option value="Kaprodi" {{ request('role') == 'Kaprodi' ? 'selected' : '' }}>Kaprodi</option>
-                </select>
+                <div class="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+                    <!-- Search Input -->
+                    <div class="relative flex-1 sm:w-[300px]">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="text" name="search" id="searchInput" value="{{ request('search') }}" class="block w-full pl-9 pr-4 py-2 border border-gray-300 rounded-[5px] text-[12px] text-black focus:ring-[#4285F4]" placeholder="Cari Nama, NIM, Modul, atau Aksi...">
+                    </div>
 
-                <select name="module" id="moduleFilter" class="border border-gray-300 rounded-[5px] text-[13px] px-4 py-2.5 focus:ring-[#4CC098] focus:border-[#4CC098] bg-white">
-                    <option value="">Semua Modul</option>
-                    <option value="Autentikasi" {{ request('module') == 'Autentikasi' ? 'selected' : '' }}>Autentikasi</option>
-                    <option value="User/Profile" {{ request('module') == 'User/Profile' ? 'selected' : '' }}>User/Profile</option>
-                    <option value="Pendaftaran KP" {{ request('module') == 'Pendaftaran KP' ? 'selected' : '' }}>Pendaftaran KP</option>
-                    <option value="Bimbingan" {{ request('module') == 'Bimbingan' ? 'selected' : '' }}>Bimbingan</option>
-                    <option value="Sidang" {{ request('module') == 'Sidang' ? 'selected' : '' }}>Sidang</option>
-                    <option value="Penilaian" {{ request('module') == 'Penilaian' ? 'selected' : '' }}>Penilaian</option>
-                    <option value="Manajemen Timeline" {{ request('module') == 'Manajemen Timeline' ? 'selected' : '' }}>Timeline</option>
-                    <option value="Pengumuman" {{ request('module') == 'Pengumuman' ? 'selected' : '' }}>Pengumuman</option>
-                    <option value="Audit Log" {{ request('module') == 'Audit Log' ? 'selected' : '' }}>Audit Log</option>
-                </select>
+                    <!-- Role Filter Dropdown -->
+                    <div x-data="{ openRole: false }" class="relative w-full sm:w-[180px] z-[60]">
+                        <button type="button" @click="openRole = !openRole" @click.outside="openRole = false" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                            <span x-text="role === '' ? 'Semua Role' : role"></span>
+                            <svg :class="openRole ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openRole" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="" x-model="role" class="hidden" @change="openRole = false">Semua Role</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Mahasiswa" x-model="role" class="hidden" @change="openRole = false">Mahasiswa</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Dosen" x-model="role" class="hidden" @change="openRole = false">Dosen</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Koordinator KP" x-model="role" class="hidden" @change="openRole = false">Koordinator KP</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Kaprodi" x-model="role" class="hidden" @change="openRole = false">Kaprodi</label>
+                        </div>
+                    </div>
 
-                <div class="flex gap-2">
-                    <button type="submit" class="flex-1 bg-[#4CC098] text-white font-bold text-[12px] rounded-[5px] uppercase tracking-wide hover:bg-[#3da884] transition-all shadow-md active:scale-95">Filter</button>
-                    <button type="button" id="resetFilters" class="px-4 flex items-center justify-center bg-gray-200 text-gray-700 rounded-[5px] hover:bg-gray-300 transition-all active:scale-95">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    </button>
+                    <!-- Module Filter Dropdown -->
+                    <div x-data="{ openModule: false }" class="relative w-full sm:w-[180px] z-[50]">
+                        <button type="button" @click="openModule = !openModule" @click.outside="openModule = false" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                            <span x-text="module === '' ? 'Semua Modul' : module"></span>
+                            <svg :class="openModule ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openModule" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="" x-model="module" class="hidden" @change="openModule = false">Semua Modul</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Autentikasi" x-model="module" class="hidden" @change="openModule = false">Autentikasi</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="User/Profile" x-model="module" class="hidden" @change="openModule = false">User/Profile</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Pendaftaran KP" x-model="module" class="hidden" @change="openModule = false">Pendaftaran KP</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Bimbingan" x-model="module" class="hidden" @change="openModule = false">Bimbingan</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Sidang" x-model="module" class="hidden" @change="openModule = false">Sidang</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Penilaian" x-model="module" class="hidden" @change="openModule = false">Penilaian</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Manajemen Timeline" x-model="module" class="hidden" @change="openModule = false">Timeline</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Pengumuman" x-model="module" class="hidden" @change="openModule = false">Pengumuman</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Audit Log" x-model="module" class="hidden" @change="openModule = false">Audit Log</label>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button type="submit" class="flex-1 sm:flex-none border border-[#34A853] bg-[#34A853] text-white hover:bg-green-700 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm flex items-center justify-center">
+                            Filter
+                        </button>
+                        <button type="button" @click="role = ''; module = ''; document.getElementById('searchInput').value = ''; document.getElementById('filterForm').dispatchEvent(new Event('submit', { cancelable: true }))" id="resetFilters" class="flex-1 sm:flex-none border border-[#EA4335] bg-[#EA4335] text-white hover:bg-red-600 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm flex items-center justify-center">
+                            Clear Filter
+                        </button>
+                    </div>
                 </div>
             </form>
 
             <!-- Table Container with Loading Overlay -->
-            <div class="relative">
+            <div class="relative border border-gray-200 rounded-[10px] overflow-hidden">
                 <div id="tableLoading" class="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center opacity-0 pointer-events-none transition-opacity">
                     <div class="w-8 h-8 border-4 border-[#4CC098] border-t-transparent rounded-full animate-spin"></div>
                 </div>
 
-                <div class="overflow-x-auto rounded-t-[5px] border-x border-t border-gray-300 shadow-sm">
+                <div class="overflow-x-auto">
                     <table class="w-full text-center border-collapse">
                         <thead>
                             <tr class="bg-[#BBB8B8] text-black text-[13px] font-bold uppercase tracking-wide">
@@ -131,8 +190,8 @@
             </div>
 
             <!-- Custom Pagination Container -->
-            <div class="mt-6 flex justify-end" id="paginationContainer">
-                {{ $logs->appends(request()->query())->links() }}
+            <div class="mt-6" id="paginationContainer">
+                {{ $logs->appends(request()->query())->links('vendor.pagination.custom') }}
             </div>
         </div>
     </div>

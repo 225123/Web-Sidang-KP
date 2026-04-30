@@ -3,28 +3,32 @@
         @include('koordinator.components.sidebar', ['active' => 'penugasan-pembimbing'])
     </x-slot>
 
-    <x-slot:headerActions>
+        <x-slot:headerActions>
         <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
-            <button @click="open = !open" @click.outside="open = false" type="button" 
+            <button @click="open = !open" @click.outside="open = false" type="button"
                 class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
-                
+
                 <span x-text="selected"></span>
-                
-                <svg :class="open ? 'rotate-0' : 'rotate-180'" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                <svg :class="open ? 'rotate-0' : 'rotate-90'"
+                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
-            <div x-show="open" x-transition style="display: none;" 
+            <div x-show="open" x-transition style="display: none;"
                 class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
                 <ul class="py-1 text-[13px] font-medium text-black">
                     <li>
-                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button" class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
                             Genap 2025/2026
                         </button>
                     </li>
                     <li>
-                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button" class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
                             Ganjil 2025/2026
                         </button>
                     </li>
@@ -68,7 +72,7 @@
                 <button type="button" @click="autoPlot()" :disabled="isLoadingAuto" class="bg-[#4285F4] hover:bg-blue-600 font-bold text-white rounded-[5px] px-6 py-2.5 text-[13px] flex items-center justify-center gap-2 shadow-sm w-full lg:w-[140px] transition-colors disabled:opacity-50" title="Bagi rata beban dosen pada mahasiswa yang belum ditugaskan">
                     <svg x-show="!isLoadingAuto" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                     <div x-show="isLoadingAuto" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white" style="display: none;"></div>
-                    <span x-text="isLoadingAuto ? 'Proses...' : 'Auto-Plotting'"></span>
+                    <span x-text="isLoadingAuto ? 'Proses...' : 'Auto'"></span>
                 </button>
             </div>
         </div>
@@ -151,23 +155,44 @@
 
                         <!-- Bottom Row: Other Filters + Actions -->
                         <div class="flex flex-wrap items-center gap-3">
-                            <select name="jenis_kp" @clear-filters.window="$el.value = 'All'" class="w-[140px] text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm" @change="submitForm()">
-                                <option value="All">Semua Jenis KP</option>
-                                <option value="Internal" {{ request('jenis_kp') == 'Internal' ? 'selected' : '' }}>Internal</option>
-                                <option value="Eksternal" {{ request('jenis_kp') == 'Eksternal' ? 'selected' : '' }}>Eksternal</option>
-                            </select>
+                            <div x-data="{ openJenis: false, selectedJenis: '{{ request('jenis_kp', 'All') }}' }" class="relative w-full sm:w-[150px] z-[60]" @click.outside="openJenis = false" @clear-filters.window="selectedJenis = 'All'">
+                                <input type="hidden" name="jenis_kp" :value="selectedJenis">
+                                <button type="button" @click="openJenis = !openJenis" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                                    <span class="truncate" x-text="selectedJenis === 'All' ? 'Semua Jenis KP' : selectedJenis"></span>
+                                    <svg :class="openJenis ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </button>
+                                <div x-show="openJenis" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                                    <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="All" x-model="selectedJenis" class="hidden" @change="openJenis = false; submitForm()">Semua Jenis KP</label>
+                                    <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Internal" x-model="selectedJenis" class="hidden" @change="openJenis = false; submitForm()">Internal</label>
+                                    <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Eksternal" x-model="selectedJenis" class="hidden" @change="openJenis = false; submitForm()">Eksternal</label>
+                                </div>
+                            </div>
 
-                            <select name="pengerjaan" @clear-filters.window="$el.value = 'All'" class="w-[150px] text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm" @change="submitForm()">
-                                <option value="All">Semua Pengerjaan</option>
-                                <option value="Individu" {{ request('pengerjaan') == 'Individu' ? 'selected' : '' }}>Individu</option>
-                                <option value="Berkelompok" {{ request('pengerjaan') == 'Berkelompok' ? 'selected' : '' }}>Berkelompok</option>
-                            </select>
+                            <div x-data="{ openKerja: false, selectedKerja: '{{ request('pengerjaan', 'All') }}' }" class="relative w-full sm:w-[160px] z-[50]" @click.outside="openKerja = false" @clear-filters.window="selectedKerja = 'All'">
+                                <input type="hidden" name="pengerjaan" :value="selectedKerja">
+                                <button type="button" @click="openKerja = !openKerja" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                                    <span class="truncate" x-text="selectedKerja === 'All' ? 'Semua Pengerjaan' : selectedKerja"></span>
+                                    <svg :class="openKerja ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </button>
+                                <div x-show="openKerja" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                                    <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="All" x-model="selectedKerja" class="hidden" @change="openKerja = false; submitForm()">Semua Pengerjaan</label>
+                                    <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Individu" x-model="selectedKerja" class="hidden" @change="openKerja = false; submitForm()">Individu</label>
+                                    <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Berkelompok" x-model="selectedKerja" class="hidden" @change="openKerja = false; submitForm()">Berkelompok</label>
+                                </div>
+                            </div>
 
-                            <select name="status_filter" @clear-filters.window="$el.value = 'All'" class="w-[140px] text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm" @change="submitForm()">
-                                <option value="All">Semua Status</option>
-                                <option value="Menunggu" {{ request('status_filter') == 'Menunggu' ? 'selected' : '' }}>Menunggu</option>
-                                <option value="Ditugaskan" {{ request('status_filter') == 'Ditugaskan' ? 'selected' : '' }}>Ditugaskan</option>
-                            </select>
+                            <div x-data="{ openStatus: false, selectedStatus: '{{ request('status_filter', 'All') }}' }" class="relative w-full sm:w-[150px] z-[40]" @click.outside="openStatus = false" @clear-filters.window="selectedStatus = 'All'">
+                                <input type="hidden" name="status_filter" :value="selectedStatus">
+                                <button type="button" @click="openStatus = !openStatus" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                                    <span class="truncate" x-text="selectedStatus === 'All' ? 'Semua Status' : selectedStatus"></span>
+                                    <svg :class="openStatus ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </button>
+                                <div x-show="openStatus" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                                    <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="All" x-model="selectedStatus" class="hidden" @change="openStatus = false; submitForm()">Semua Status</label>
+                                    <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Menunggu" x-model="selectedStatus" class="hidden" @change="openStatus = false; submitForm()">Menunggu</label>
+                                    <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Ditugaskan" x-model="selectedStatus" class="hidden" @change="openStatus = false; submitForm()">Ditugaskan</label>
+                                </div>
+                            </div>
 
                             <div class="flex items-center gap-2 shrink-0" x-data="{ 
                                 openDosen: false, 
@@ -196,10 +221,10 @@
                                 </div>
                             </div>
 
-                            <button type="button" @click="$dispatch('clear-filters'); setTimeout(() => submitForm(), 50)" class="bg-[#757575] hover:bg-[#616161] text-white font-bold text-[12px] px-5 py-2.5 rounded-[5px] shadow-sm transition-colors whitespace-nowrap">
+                            <button type="button" @click="$dispatch('clear-filters'); setTimeout(() => submitForm(), 50)" class="bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[12px] px-4 py-2.5 rounded-[5px] shadow-sm transition-colors whitespace-nowrap shrink-0 flex items-center justify-center">
                                 Clear Filter
                             </button>
-                            <button @click="resetPlotting()" type="button" class="bg-[#EA4335] hover:bg-red-700 text-white font-bold py-2.5 px-5 rounded-[5px] shadow-sm flex items-center gap-2 transition-colors text-[12px] whitespace-nowrap">
+                            <button @click="resetPlotting()" type="button" class="bg-white border border-red-500 text-red-600 hover:bg-red-50 font-bold py-2 px-4 rounded-[5px] shadow-sm flex items-center gap-2 transition-colors text-[12px] whitespace-nowrap">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                 Reset Penugasan
                             </button>
@@ -363,7 +388,7 @@
                     </table>
                     
                     <!-- Footer Pagination -->
-                    <div class="px-6 py-4 bg-white border-t border-gray-200 flex items-center justify-between">
+                    <div class="pt-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
                         @if(method_exists($paginator, 'hasPages'))
                             <span class="text-[12px] font-medium text-black/50">{{ $startNumber }} - {{ $endNumber }} dari {{ $filteredMahasiswaCount }} baris</span>
                             @if ($paginator->hasPages())

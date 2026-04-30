@@ -144,6 +144,8 @@ class PendaftaranKpController extends Controller
                     'nim' => $p->user->mahasiswa->nim,
                     'has_registered' => true,
                     'is_leader' => true,
+                    'judul_kp' => $p->judul_kp,
+                    'instansi_nama' => $p->instansi_nama,
                 ];
             }
 
@@ -160,15 +162,18 @@ class PendaftaranKpController extends Controller
                             continue;
                         }
 
-                        $hasRegistered = PendaftaranKp::where('mahasiswa_id', $member->id)
+                        $memberKp = PendaftaranKp::where('mahasiswa_id', $member->id)
                             ->whereIn('status_kp', ['pending', 'approved'])
-                            ->exists();
+                            ->latest()
+                            ->first();
 
                         $mahasiswas[] = [
                             'nama' => $member->name,
                             'nim' => $member->mahasiswa ? $member->mahasiswa->nim : '-',
-                            'has_registered' => $hasRegistered,
+                            'has_registered' => $memberKp ? true : false,
                             'is_leader' => false,
+                            'judul_kp' => $memberKp ? $memberKp->judul_kp : null,
+                            'instansi_nama' => $memberKp ? $memberKp->instansi_nama : null,
                         ];
                     }
                 }
@@ -293,6 +298,16 @@ class PendaftaranKpController extends Controller
                 $pengerjaan = 'berkelompok';
             }
             $query->where('pengerjaan_kp', $pengerjaan);
+        }
+
+        if ($request->has('status_baru_lanjut') && $request->status_baru_lanjut != 'All') {
+            if ($request->status_baru_lanjut === 'Baru') {
+                $query->where(function ($q) {
+                    $q->where('is_lanjutan', false)->orWhereNull('is_lanjutan');
+                });
+            } elseif ($request->status_baru_lanjut === 'Lanjut') {
+                $query->where('is_lanjutan', true);
+            }
         }
     }
 }

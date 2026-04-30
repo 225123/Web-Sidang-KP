@@ -3,6 +3,41 @@
         @include('koordinator.components.sidebar', ['active' => 'dosen-penguji'])
     </x-slot>
 
+    <x-slot:headerActions>
+        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
+            <button @click="open = !open" @click.outside="open = false" type="button"
+                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
+
+                <span x-text="selected"></span>
+
+                <svg :class="open ? 'rotate-0' : 'rotate-90'"
+                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+
+            <div x-show="open" x-transition style="display: none;"
+                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
+                <ul class="py-1 text-[13px] font-medium text-black">
+                    <li>
+                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Genap 2025/2026
+                        </button>
+                    </li>
+                    <li>
+                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Ganjil 2025/2026
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <input type="hidden" name="periode" :value="selected">
+        </div>
+    </x-slot:headerActions>
+
     <style>
         .filter-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
         .search-box { position: relative; width: 300px; max-width: 100%; }
@@ -554,77 +589,92 @@
             </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row justify-between items-center border-b border-gray-200 pb-3 mb-6 gap-4">
-            <h2 class="text-[18px] font-bold text-black tracking-tight">Daftar mahasiswa terjadwal</h2>
-            <div class="flex items-center gap-3">
-                <form action="{{ route('koordinator.dosen-penguji.submit') }}" method="POST">
-                    @csrf
-                    <button type="submit"
-                        class="text-black font-bold rounded-[20px] px-8 py-2 text-[13px] flex items-center gap-2 shadow hover:shadow-md transition-colors"
-                        :class="hasDraftChanges ? 'bg-[#4285F4] hover:bg-blue-600 text-white' : (hasOnlySubmitted ? 'bg-[#FDE293] hover:bg-yellow-400 text-[#A67C00]' : 'bg-gray-300 cursor-not-allowed text-gray-500')"
-                        :disabled="terjadwal.length === 0">
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
-                            <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-                        </svg>
-                        <span
-                            x-text="hasDraftChanges ? (hasOnlySubmitted ? 'Submit pembaruan' : 'Submit') : (hasOnlySubmitted ? 'Telah disubmit' : 'Kosong')"></span>
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Filter & Search Section -->
-        <div class="filter-bar bg-white p-4 rounded-[5px] shadow-sm border border-[#CAC0C0] mb-6">
-            <div class="flex flex-wrap gap-4 flex-1">
-                <div class="search-box">
-                    <span class="search-icon"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></span>
-                    <input type="text" x-model="searchQuery" placeholder="Cari nama, nim, atau judul kp...">
+        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
+            <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
+                <div>
+                    <h3 class="text-[18px] font-bold text-black tracking-tight">Daftar Mahasiswa Terjadwal</h3>
+                    <p class="text-[12px] text-black/60 font-medium mt-1">Daftar mahasiswa yang telah mendapatkan plot dosen penguji.</p>
                 </div>
-                
-                <div class="flex items-center gap-3">
-                    <div class="relative w-[220px]" x-data="{ open: false, dSearch: '' }" @click.outside="open = false">
-                        <button @click="open = !open" class="w-full h-[35px] border border-gray-300 rounded px-3 text-[12px] font-normal flex items-center justify-between bg-[#FBFBFB] text-black">
-                            <span class="truncate" x-text="getDosenName(filterPenguji) || 'Semua penguji'"></span>
-                            <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                <div class="flex items-center gap-3 shrink-0">
+                    <form action="{{ route('koordinator.dosen-penguji.submit') }}" method="POST">
+                        @csrf
+                        <button type="submit"
+                            class="text-black font-bold rounded-[5px] px-6 py-2 text-[12px] flex items-center gap-2 shadow-sm hover:shadow transition-colors"
+                            :class="hasDraftChanges ? 'bg-[#4285F4] hover:bg-blue-600 text-white' : (hasOnlySubmitted ? 'bg-[#FDE293] hover:bg-yellow-400 text-[#A67C00]' : 'bg-gray-300 cursor-not-allowed text-gray-500')"
+                            :disabled="terjadwal.length === 0">
+                            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
+                                <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
+                            </svg>
+                            <span
+                                x-text="hasDraftChanges ? (hasOnlySubmitted ? 'Submit Pembaruan' : 'Submit') : (hasOnlySubmitted ? 'Telah Disubmit' : 'Kosong')"></span>
                         </button>
-                        <div x-show="open" x-cloak class="absolute z-[60] mt-1 w-full bg-white border border-gray-300 rounded shadow-xl max-h-[200px] overflow-y-auto custom-scrollbar">
-                            <div class="p-2 border-b bg-gray-50"><input type="text" x-model="dSearch" class="w-full text-xs p-1.5 border rounded outline-none" placeholder="Cari dosen..."></div>
-                            <div @click="filterPenguji = null; open = false" class="px-3 py-2 text-xs font-normal text-red-600 hover:bg-red-50 cursor-pointer">Tampilkan semua</div>
-                            <template x-for="d in dosenList" :key="d.id">
-                                <div x-show="d.nama.toLowerCase().includes(dSearch.toLowerCase())" @click="filterPenguji = d.id; open = false" class="px-3 py-2 text-xs font-normal hover:bg-blue-50 cursor-pointer text-black" :class="filterPenguji == d.id ? 'bg-blue-100' : ''" x-text="d.nama"></div>
-                            </template>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-6 mb-6">
+                <div class="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+                    <!-- Search Input -->
+                    <div class="relative flex-1 sm:w-[300px]">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="text" x-model="searchQuery" class="block w-full pl-9 pr-4 py-2 border border-gray-300 rounded-[5px] text-[12px] text-black focus:ring-[#4285F4]" placeholder="Cari Nama, NIM, atau Judul KP...">
+                    </div>
+
+                    <!-- Dosen Dropdown Filter -->
+                    <div x-data="{ openDosen: false, dSearch: '' }" class="relative w-full sm:w-[180px] z-[60]" @click.outside="openDosen = false">
+                        <button type="button" @click="openDosen = !openDosen" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                            <span class="truncate" x-text="filterPenguji === null ? 'Semua Penguji' : (getDosenName(filterPenguji))"></span>
+                            <svg :class="openDosen ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openDosen" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                            <div class="p-2 border-b bg-gray-50">
+                                <input type="text" x-model="dSearch" class="w-full text-xs p-1.5 border border-gray-300 rounded-[3px] outline-none focus:border-[#4285F4]" placeholder="Cari dosen...">
+                            </div>
+                            <ul class="max-h-[200px] overflow-y-auto custom-scrollbar">
+                                <li class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black">
+                                    <input type="radio" :value="null" x-model="filterPenguji" class="hidden" @change="openDosen = false">Semua Penguji
+                                </li>
+                                <template x-for="d in dosenList" :key="d.id">
+                                    <li x-show="d.nama.toLowerCase().includes(dSearch.toLowerCase())" class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black" :class="filterPenguji == d.id ? 'bg-blue-50 text-blue-700 font-bold' : ''">
+                                        <input type="radio" :value="d.id" x-model="filterPenguji" class="hidden" @change="openDosen = false">
+                                        <span x-text="d.nama"></span>
+                                    </li>
+                                </template>
+                            </ul>
                         </div>
                     </div>
 
                     <button x-show="isSelectingMode" x-cloak @click="bulkDestroy()" type="button"
-                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded text-sm font-normal transition-colors shadow-sm disabled:opacity-50 h-[35px]"
+                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm transition-colors disabled:opacity-50 h-[35px]"
                         :disabled="selectedIds.length === 0">
-                        Hapus terpilih (<span x-text="selectedIds.length"></span>)
+                        Hapus Terpilih (<span x-text="selectedIds.length"></span>)
                     </button>
 
                     <button x-show="isSelectingMode" x-cloak @click="selectAll()" type="button"
-                        class="bg-gray-200 hover:bg-gray-300 text-black px-3 py-1.5 rounded text-sm font-normal transition-colors border border-gray-300 shadow-sm h-[35px]">
-                        <span x-text="selectedIds.length === filteredTerjadwal.length && filteredTerjadwal.length > 0 ? 'Batal pilih semua' : 'Pilih semua'"></span>
+                        class="bg-gray-200 hover:bg-gray-300 text-black px-3 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm transition-colors border border-gray-300 h-[35px]">
+                        <span x-text="selectedIds.length === filteredTerjadwal.length && filteredTerjadwal.length > 0 ? 'Batal Pilih Semua' : 'Pilih Semua'"></span>
                     </button>
 
                     <button @click="toggleSelectingMode()" type="button"
-                        class="px-3 py-1.5 rounded text-sm font-normal transition-colors shadow-sm h-[35px]"
+                        class="px-3 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm transition-colors h-[35px]"
                         :class="isSelectingMode ? 'bg-[#1A1A1A] text-white hover:bg-black' : 'bg-white border border-gray-300 text-black hover:bg-gray-100'">
-                        <span x-text="isSelectingMode ? 'Batal pilih' : 'Pilih'"></span>
+                        <span x-text="isSelectingMode ? 'Batal Pilih' : 'Pilih'"></span>
+                    </button>
+                </div>
+                
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button type="button" @click="clearFilters()" class="flex-1 sm:flex-none border border-[#EA4335] bg-[#EA4335] text-white hover:bg-red-600 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm flex items-center justify-center">
+                        Clear Filter
                     </button>
                 </div>
             </div>
             
-            <div class="flex flex-wrap gap-4 items-center">
-                <button @click="clearFilters()" class="bg-red-500 hover:bg-red-600 text-white font-normal text-[12px] px-6 py-2 rounded-[5px] shadow-sm transition-colors whitespace-nowrap h-[35px]">
-                    Clear filter
-                </button>
-            </div>
-        </div>
-
-        <!-- Terjadwal Table -->
-        <div class="overflow-x-auto bg-white rounded-t-[10px] shadow-sm border border-[#CAC0C0] mb-2">
-            <table class="w-full text-left border-collapse text-[12px] text-center min-w-[1000px]">
+            <div class="border border-gray-200 rounded-[10px] overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-[12px] text-center min-w-[1000px]">
                 <thead class="bg-[#E0DFDF] font-bold text-black border-b border-[#CAC0C0] h-[45px]">
                     <tr>
                         <th class="border-r border-[#CAC0C0] px-4 py-2 w-[50px]">No</th>
@@ -686,17 +736,25 @@
                     </template>
                 </tbody>
             </table>
-        </div>
+            </div>
 
-        <!-- Pagination -->
-        <div class="flex items-center gap-2 text-[12px] font-medium text-gray-600 justify-end w-full border border-[#CAC0C0] bg-white px-2 py-1.5 rounded shadow-sm" x-show="totalPages > 1">
-            <span class="mr-4 text-[13px]">Halaman <span x-text="currentPage"></span> dari <span x-text="totalPages"></span></span>
-            <div class="flex overflow-hidden">
-                <button @click="if(currentPage > 1) currentPage--" :class="currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-gray-100 transition-colors'" class="px-3 py-1 font-bold">&lt;</button>
-                <template x-for="p in totalPages" :key="p">
-                    <button @click="currentPage = p" class="px-3 py-1 font-medium mx-0.5 rounded-sm" :class="currentPage === p ? 'bg-[#4285F4] text-white font-bold' : 'hover:bg-gray-100 transition-colors text-gray-700'" x-text="p"></button>
-                </template>
-                <button @click="if(currentPage < totalPages) currentPage++" :class="currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-gray-100 transition-colors'" class="px-3 py-1 font-bold">&gt;</button>
+            <!-- Pagination -->
+            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between mt-4" x-show="totalPages > 1">
+                <span class="text-[12px] font-medium text-black/50" x-text="(filteredTerjadwal.length === 0 ? 0 : ((currentPage - 1) * itemsPerPage + 1)) + ' - ' + Math.min(currentPage * itemsPerPage, filteredTerjadwal.length) + ' dari ' + filteredTerjadwal.length + ' baris'"></span>
+                <div class="flex items-center gap-2">
+                    <button @click="if(currentPage > 1) currentPage--" :disabled="currentPage === 1" 
+                        class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Previous</button>
+                    <div class="flex items-center gap-1">
+                        <template x-for="p in totalPages" :key="p">
+                            <button @click="currentPage = p" 
+                                class="w-8 h-8 rounded text-[12px] font-bold transition-all"
+                                :class="currentPage === p ? 'bg-blue-600 text-white shadow-md' : 'text-black hover:bg-gray-100'"
+                                x-text="p"></button>
+                        </template>
+                    </div>
+                    <button @click="if(currentPage < totalPages) currentPage++" :disabled="currentPage === totalPages" 
+                        class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Next</button>
+                </div>
             </div>
         </div>
 

@@ -3,28 +3,32 @@
         @include('koordinator.components.sidebar', ['active' => 'pendaftaran-kp'])
     </x-slot>
 
-    <x-slot:headerActions>
+        <x-slot:headerActions>
         <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
-            <button @click="open = !open" @click.outside="open = false" type="button" 
+            <button @click="open = !open" @click.outside="open = false" type="button"
                 class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
-                
+
                 <span x-text="selected"></span>
-                
-                <svg :class="open ? 'rotate-0' : 'rotate-180'" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                <svg :class="open ? 'rotate-0' : 'rotate-90'"
+                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
-            <div x-show="open" x-transition style="display: none;" 
+            <div x-show="open" x-transition style="display: none;"
                 class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
                 <ul class="py-1 text-[13px] font-medium text-black">
                     <li>
-                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button" class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
                             Genap 2025/2026
                         </button>
                     </li>
                     <li>
-                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button" class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
                             Ganjil 2025/2026
                         </button>
                     </li>
@@ -202,29 +206,37 @@
 
                     <div x-data="{ openFilter: false }" class="relative w-full sm:w-[180px] z-[60]">
                         <button type="button" @click="openFilter = !openFilter" @click.outside="openFilter = false" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
-                            <span x-text="filterStatusUpload === 'all' ? 'Semua Status' : (filterStatusUpload === 'sudah' ? 'Sudah Mendaftar' : 'Belum Mendaftar')"></span>
+                            <span x-text="filterStatusUpload === 'all' ? 'Status Pendaftaran' : (filterStatusUpload === 'sudah' ? 'Sudah Mendaftar' : 'Belum Mendaftar')"></span>
                             <svg :class="openFilter ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </button>
                         <div x-show="openFilter" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
-                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="all" x-model="filterStatusUpload" class="hidden" @change="openFilter = false">Semua Status</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="all" x-model="filterStatusUpload" class="hidden" @change="openFilter = false">All</label>
                             <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="sudah" x-model="filterStatusUpload" class="hidden" @change="openFilter = false">Sudah Mendaftar</label>
                             <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="belum" x-model="filterStatusUpload" class="hidden" @change="openFilter = false">Belum Mendaftar</label>
                         </div>
                     </div>
 
-                    <div class="relative shrink-0" x-data="{ exportOpen: false }" @click.outside="exportOpen = false">
-                        <button @click="exportOpen = !exportOpen" class="bg-[#EA4335] hover:bg-red-700 text-white px-4 py-1.5 rounded-[5px] text-[12px] font-bold flex items-center shadow-sm transition-colors">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            Cetak PDF
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button type="button" @click="filterStatusUpload = 'all'; searchStatus = ''" class="flex-1 sm:flex-none border border-[#EA4335] bg-[#EA4335] text-white hover:bg-red-600 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm flex items-center justify-center">
+                            Clear Filter
                         </button>
-                        <div x-cloak x-show="exportOpen" class="absolute right-0 mt-2 w-52 bg-white rounded-[8px] shadow-xl border border-gray-200 z-[70] overflow-hidden">
-                            <div class="bg-gray-50 px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-200">Format Laporan</div>
-                            <button @click="exportPDF('all'); exportOpen = false" class="w-full text-left px-4 py-2.5 hover:bg-gray-50 text-[12px] text-black font-medium transition-colors">Semua Data</button>
-                            <button @click="exportPDF('sudah'); exportOpen = false" class="w-full text-left px-4 py-2.5 hover:bg-gray-50 text-[12px] text-black font-medium transition-colors">Sudah Mendaftar</button>
-                            <button @click="exportPDF('belum'); exportOpen = false" class="w-full text-left px-4 py-2.5 hover:bg-gray-50 text-[12px] text-black font-medium transition-colors border-t border-gray-100">Belum Mendaftar</button>
-                        </div>
                     </div>
                 </div>
+
+                <!-- Export Button to the Right -->
+                <div class="relative shrink-0 w-full sm:w-auto flex sm:justify-end" x-data="{ exportOpen: false }" @click.outside="exportOpen = false">
+                    <button @click="exportOpen = !exportOpen" class="bg-[#EA4335] hover:bg-red-700 text-white px-4 py-1.5 rounded-[5px] text-[12px] font-bold flex items-center justify-center sm:justify-start w-full sm:w-auto shadow-sm transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Cetak PDF
+                    </button>
+                    <div x-cloak x-show="exportOpen" class="absolute right-0 top-full mt-2 w-52 bg-white rounded-[8px] shadow-xl border border-gray-200 z-[70] overflow-hidden">
+                        <div class="bg-gray-50 px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-200">Format Laporan</div>
+                        <button @click="exportPDF('all'); exportOpen = false" class="w-full text-left px-4 py-2.5 hover:bg-gray-50 text-[12px] text-black font-medium transition-colors">Semua Data</button>
+                        <button @click="exportPDF('sudah'); exportOpen = false" class="w-full text-left px-4 py-2.5 hover:bg-gray-50 text-[12px] text-black font-medium transition-colors">Sudah Mendaftar</button>
+                        <button @click="exportPDF('belum'); exportOpen = false" class="w-full text-left px-4 py-2.5 hover:bg-gray-50 text-[12px] text-black font-medium transition-colors border-t border-gray-100">Belum Mendaftar</button>
+                    </div>
+                </div>
+
             </div>
 
             <div class="border border-gray-200 rounded-[10px] overflow-hidden">
@@ -271,7 +283,7 @@
 
             <!-- Pagination Footer Status -->
             <div class="px-6 py-4 bg-white flex items-center justify-between border-t border-gray-200" x-show="totalStatusPages > 1">
-                <span class="text-[12px] font-medium text-black/50" x-text="`Halaman ${statusCurrentPage} dari ${totalStatusPages}`"></span>
+                <span class="text-[12px] font-medium text-black/50" x-text="(filteredStatusRows.length === 0 ? 0 : ((statusCurrentPage - 1) * statusItemsPerPage + 1)) + ' - ' + Math.min(statusCurrentPage * statusItemsPerPage, filteredStatusRows.length) + ' dari ' + filteredStatusRows.length + ' baris'"></span>
                 <div class="flex items-center gap-2">
                     <button @click="prevStatusPage" :disabled="statusCurrentPage === 1" class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Previous</button>
                     <div class="flex items-center gap-1">

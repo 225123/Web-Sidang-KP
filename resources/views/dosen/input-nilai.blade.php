@@ -3,147 +3,176 @@
         @include('dosen.components.sidebar', ['active' => 'input-nilai'])
     </x-slot>
 
-    <div x-data="inputNilaiPage()" class="p-6">
+        <x-slot:headerActions>
+        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px] mt-2 md:mt-0">
+            <button @click="open = !open" @click.outside="open = false" type="button"
+                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#CDA057] focus:ring-[#CDA057] focus:ring-1 cursor-pointer text-black h-[32px]">
+
+                <span x-text="selected"></span>
+
+                <svg :class="open ? 'rotate-0' : 'rotate-90'"
+                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+
+            <div x-show="open" x-transition style="display: none;"
+                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
+                <ul class="py-1 text-[13px] font-medium text-black">
+                    <li>
+                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Genap 2025/2026
+                        </button>
+                    </li>
+                    <li>
+                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Ganjil 2025/2026
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <input type="hidden" name="periode" :value="selected">
+        </div>
+    </x-slot:headerActions>
+
+    <div class="mt-8 px-2 w-full max-w-[1200px] mx-auto" x-data="inputNilaiPage()">
         
         <!-- Global Info -->
-        <div class="bg-[#EAEFFF] border border-[#BACDFB] rounded-[10px] p-4 flex items-center gap-4 shadow-sm mb-10">
-            <div class="bg-[#4285F4] w-6 h-6 rounded-full flex items-center justify-center text-white shrink-0 shadow-sm font-bold text-sm">i</div>
-            <p class="text-[14px] text-black font-medium leading-relaxed">
+        <div class="bg-[#E6F0FA] border border-[#D0E3F5] rounded-[10px] p-4 lg:p-5 mb-6 flex items-start gap-4 shadow-sm">
+            <div class="w-6 h-6 rounded-full bg-[#4285F4] text-white flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
+                i
+            </div>
+            <p class="text-[14px] text-[#1A1A1A] font-medium leading-relaxed m-0 mt-0.5">
                 Lakukan penginputan nilai berdasarkan peran anda terhadap KP Mahasiswa.
             </p>
         </div>
 
         <!-- SECTION 1: TABEL INPUT NILAI PENGUJI -->
-        <div class="mb-20">
-            <!-- Unified Table Container -->
-            <div class="bg-white rounded-[10px] border border-[#CAC0C0] shadow-sm overflow-hidden">
-                <!-- Header, Stats, Search & Filters Section -->
-                <div class="p-6 border-b border-[#CAC0C0]">
-                    <!-- Title & Stats Row -->
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-                        <div>
-                            <h3 class="text-[18px] font-bold text-black tracking-tight uppercase">TABEL INPUT NILAI PENGUJI</h3>
-                            <p class="text-[12px] text-black/60 font-medium mt-1">Manajemen penilaian mahasiswa bimbingan dan penguji sidang KP.</p>
-                        </div>
-                        <div class="flex gap-4">
-                            <div class="bg-[#4285F4] rounded-[10px] p-3 flex flex-col justify-center items-center w-[90px] shadow-sm text-white">
-                                <div class="flex items-center gap-2">
-                                    <div class="bg-white/20 p-1 rounded-full"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg></div>
-                                    <span class="text-xl font-bold" x-text="pengujiTotal">0</span>
-                                </div>
-                                <span class="text-[11px] font-medium mt-1">Total</span>
-                            </div>
-                            <div class="bg-[#FBC610] rounded-[10px] p-3 flex flex-col justify-center items-center w-[90px] shadow-sm text-black">
-                                <div class="flex items-center gap-2">
-                                    <div class="border border-black p-0.5 rounded-sm"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg></div>
-                                    <span class="text-xl font-bold" x-text="pengujiMenunggu">0</span>
-                                </div>
-                                <span class="text-[11px] font-medium mt-1 text-center leading-tight">Menunggu</span>
-                            </div>
-                            <div class="bg-[#38913B] rounded-[10px] p-3 flex flex-col justify-center items-center w-[90px] shadow-sm text-white">
-                                <div class="flex items-center gap-2">
-                                    <div class="bg-white/20 p-1 rounded-full"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div>
-                                    <span class="text-xl font-bold" x-text="pengujiDinilai">0</span>
-                                </div>
-                                <span class="text-[11px] font-medium mt-1">Dinilai</span>
-                            </div>
-                        </div>
+        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
+            <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
+                <div>
+                    <h3 class="text-[18px] font-bold text-black tracking-tight uppercase">TABEL INPUT NILAI PENGUJI</h3>
+                    <p class="text-[12px] text-black/60 font-medium mt-1">Manajemen penilaian mahasiswa bimbingan dan penguji sidang KP.</p>
+                </div>
+                <div class="flex gap-2 shrink-0">
+                    <div class="bg-[#4285F4] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-blue-600/20">
+                        <span class="text-[16px] font-bold leading-none" x-text="pengujiTotal"></span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Total</span>
                     </div>
+                    <div class="bg-[#FBBC05] text-black rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-yellow-500/20">
+                        <span class="text-[16px] font-bold leading-none" x-text="pengujiMenunggu"></span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Menunggu</span>
+                    </div>
+                    <div class="bg-[#34A853] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-green-600/20">
+                        <span class="text-[16px] font-bold leading-none" x-text="pengujiDinilai"></span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Dinilai</span>
+                    </div>
+                </div>
+            </div>
 
-                    <!-- Search (Top) -->
-                    <div class="relative w-full mb-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-6 mb-6">
+                <div class="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+                    <!-- Search -->
+                    <div class="relative flex-1 sm:w-[300px]">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
-                        <input type="text" x-model="searchPenguji" class="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-[5px] text-sm text-black focus:ring-blue-500 focus:border-blue-500 shadow-sm" placeholder="Cari nama, NIM, atau judul KP...">
+                        <input type="text" x-model="searchPenguji" class="block w-full pl-9 pr-4 py-2 border border-gray-300 rounded-[5px] text-[12px] text-black focus:ring-[#4285F4]" placeholder="Cari Nama/NIM, atau Judul KP...">
                     </div>
 
-                    <!-- Filters (Bottom) -->
-                    <div class="flex flex-wrap items-center gap-4">
-                        <div class="flex items-center gap-2">
-                            <label class="text-[13px] font-bold text-black whitespace-nowrap">Pelaksanaan :</label>
-                            <select x-model="filterPelaksanaanPenguji" class="w-[140px] text-[13px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                <option value="all">Semua Kondisi</option>
-                                <option value="Selesai">Selesai</option>
-                                <option value="Berjalan">Berjalan</option>
-                                <option value="Menunggu">Menunggu</option>
-                                <option value="Dibatalkan">Dibatalkan</option>
-                            </select>
+                    <!-- Filter Pelaksanaan -->
+                    <div x-data="{ openFilter: false }" class="relative w-full sm:w-[150px] z-[60]">
+                        <button type="button" @click="openFilter = !openFilter" @click.outside="openFilter = false" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                            <span x-text="filterPelaksanaanPenguji === 'all' ? 'Pelaksanaan' : filterPelaksanaanPenguji"></span>
+                            <svg :class="openFilter ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openFilter" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="all" x-model="filterPelaksanaanPenguji" class="hidden" @change="openFilter = false">Semua</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Selesai" x-model="filterPelaksanaanPenguji" class="hidden" @change="openFilter = false">Selesai</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Berjalan" x-model="filterPelaksanaanPenguji" class="hidden" @change="openFilter = false">Berjalan</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Menunggu" x-model="filterPelaksanaanPenguji" class="hidden" @change="openFilter = false">Menunggu</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Dibatalkan" x-model="filterPelaksanaanPenguji" class="hidden" @change="openFilter = false">Dibatalkan</label>
                         </div>
+                    </div>
 
-                        <div class="flex items-center gap-2">
-                            <label class="text-[13px] font-bold text-black whitespace-nowrap">Penilaian :</label>
-                            <select x-model="filterPenilaianPenguji" class="w-[130px] text-[13px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                <option value="all">Semua</option>
-                                <option value="sudah">Sudah Input</option>
-                                <option value="belum">Belum Input</option>
-                            </select>
+                    <!-- Filter Penilaian -->
+                    <div x-data="{ openFilter: false }" class="relative w-full sm:w-[150px] z-[50]">
+                        <button type="button" @click="openFilter = !openFilter" @click.outside="openFilter = false" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                            <span x-text="filterPenilaianPenguji === 'all' ? 'Penilaian' : (filterPenilaianPenguji === 'sudah' ? 'Sudah Input' : 'Belum Input')"></span>
+                            <svg :class="openFilter ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openFilter" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="all" x-model="filterPenilaianPenguji" class="hidden" @change="openFilter = false">Semua</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="sudah" x-model="filterPenilaianPenguji" class="hidden" @change="openFilter = false">Sudah Input</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="belum" x-model="filterPenilaianPenguji" class="hidden" @change="openFilter = false">Belum Input</label>
                         </div>
-                        
-                        <div class="flex items-center gap-2">
-                            <label class="text-[13px] font-bold text-black whitespace-nowrap">Peran :</label>
-                            <select x-model="filterPeranPenguji" class="w-[120px] text-[13px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                <option value="all">Semua Peran</option>
-                                <option value="PENGUJI 1">Penguji 1</option>
-                                <option value="PENGUJI 2">Penguji 2</option>
-                            </select>
-                        </div>
+                    </div>
 
-                        <div class="flex items-center gap-2">
-                            <label class="text-[13px] font-bold text-black whitespace-nowrap">Jadwal :</label>
-                            <select x-model="sortPenguji" class="w-[120px] text-[13px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                <option value="date_near">Terdekat</option>
-                                <option value="date_far">Terjauh</option>
-                            </select>
+                    <!-- Filter Peran -->
+                    <div x-data="{ openFilter: false }" class="relative w-full sm:w-[150px] z-[40]">
+                        <button type="button" @click="openFilter = !openFilter" @click.outside="openFilter = false" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                            <span x-text="filterPeranPenguji === 'all' ? 'Peran' : (filterPeranPenguji === 'PENGUJI 1' ? 'Penguji 1' : 'Penguji 2')"></span>
+                            <svg :class="openFilter ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openFilter" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="all" x-model="filterPeranPenguji" class="hidden" @change="openFilter = false">Semua Peran</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="PENGUJI 1" x-model="filterPeranPenguji" class="hidden" @change="openFilter = false">Penguji 1</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="PENGUJI 2" x-model="filterPeranPenguji" class="hidden" @change="openFilter = false">Penguji 2</label>
                         </div>
+                    </div>
 
-                        <button @click="clearPenguji()" class="bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[12px] px-4 py-2 rounded-[5px] shadow-sm transition-colors whitespace-nowrap uppercase">
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button type="button" @click="clearPenguji()" class="flex-1 sm:flex-none border border-[#EA4335] bg-[#EA4335] text-white hover:bg-red-600 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm flex items-center justify-center">
                             Clear Filter
                         </button>
                     </div>
                 </div>
+            </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-center border-collapse text-[12px] min-w-[1000px]">
-                        <thead class="bg-[#EBEBEB] font-bold text-black border-b border-[#CAC0C0] h-[45px]">
+            <div class="border border-gray-200 rounded-[10px] overflow-x-auto">
+                <table class="w-full border-collapse text-[13px] min-w-[1000px]">
+                    <thead class="bg-[#EBEBEB] text-black">
                             <tr>
-                                <th class="border-r border-[#CAC0C0] px-3 py-2 w-[50px]">No</th>
-                                <th class="border-r border-[#CAC0C0] px-4 py-2 text-left w-[180px]">Jadwal</th>
-                                <th class="border-r border-[#CAC0C0] px-4 py-2 text-left w-[150px]">Peran Sidang</th>
-                                <th class="border-r border-[#CAC0C0] px-4 py-2 text-left w-[180px]">Mahasiswa</th>
-                                <th class="border-r border-[#CAC0C0] px-4 py-2 text-left">Judul KP</th>
-                                <th class="border-r border-[#CAC0C0] px-4 py-2 w-[120px]">Status Kelulusan</th>
-                                <th class="border-r border-[#CAC0C0] px-4 py-2 w-[140px]">Pelaksanaan</th>
-                                <th class="px-4 py-2 w-[150px]">Penilaian</th>
+                                <th class="py-3 px-4 font-bold text-center w-[60px] border-b border-r border-gray-300">No</th>
+                                <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300 w-[180px]">Jadwal</th>
+                                <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300 w-[150px]">Peran Sidang</th>
+                                <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300 w-[180px]">Mahasiswa</th>
+                                <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300">Judul KP</th>
+                                <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[120px]">Status Kelulusan</th>
+                                <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[140px]">Pelaksanaan</th>
+                                <th class="py-3 px-4 font-bold text-center border-b border-gray-300 w-[150px]">Penilaian</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white">
-                            <template x-for="(sidang, index) in filteredPenguji" :key="'p-' + sidang.id">
-                                <tr class="border-b border-[#CAC0C0] hover:bg-gray-50 transition-colors">
-                                    <td class="border-r border-[#CAC0C0] px-3 py-4 text-gray-700" x-text="index + 1"></td>
-                                    <td class="border-r border-[#CAC0C0] px-4 py-4 text-left">
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            <template x-for="(sidang, index) in paginatedPenguji" :key="'p-' + sidang.id">
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="py-3 px-4 text-center text-black/60 border-r border-gray-200" x-text="((currentPagePenguji - 1) * itemsPerPagePenguji) + index + 1"></td>
+                                    <td class="py-3 px-4 text-left border-r border-gray-200">
                                         <div class="font-bold text-black uppercase" x-text="formatDate(sidang.tanggal_sidang)"></div>
                                         <div class="text-gray-600 mt-1" x-text="formatTime(sidang.waktu_mulai_sidang) + ' - ' + formatTime(sidang.waktu_selesai_sidang) + ' WIB'"></div>
                                         <div class="text-gray-400 italic mt-1" x-text="sidang.ruang_sidang || '-'"></div>
                                     </td>
-                                    <td class="border-r border-[#CAC0C0] px-4 py-4 text-left">
+                                    <td class="py-3 px-4 text-left border-r border-gray-200">
                                         <div class="flex flex-col gap-1">
                                             <template x-for="role in getSpecificRoles(sidang, ['PENGUJI 1', 'PENGUJI 2'])">
                                                 <span class="text-[10px] font-bold bg-[#F0F0F0] text-gray-600 px-2 py-0.5 rounded-[3px] border border-gray-200" x-text="role"></span>
                                             </template>
                                         </div>
                                     </td>
-                                    <td class="border-r border-[#CAC0C0] px-4 py-4 text-left">
+                                    <td class="py-3 px-4 text-left border-r border-gray-200">
                                         <div class="font-bold text-black uppercase" x-text="sidang.mahasiswa.user.name"></div>
                                         <div class="text-gray-500 font-mono text-[11px]" x-text="sidang.mahasiswa.nim"></div>
                                     </td>
-                                    <td class="border-r border-[#CAC0C0] px-4 py-4 text-left">
+                                    <td class="py-3 px-4 text-left border-r border-gray-200">
                                         <p class="sentence-case leading-snug line-clamp-2 text-black font-normal" x-text="sidang.pendaftaran_kp.judul_kp" :title="sidang.pendaftaran_kp.judul_kp"></p>
                                     </td>
                                     <td class="border-r border-[#CAC0C0] px-4 py-4 text-center">
                                         <span class="font-bold text-gray-700" x-text="sidang.status_kelulusan || '-'"></span>
                                     </td>
-                                    <td class="border-r border-[#CAC0C0] px-4 py-4">
+                                    <td class="py-3 px-4 text-center border-r border-gray-200">
                                         <div class="flex flex-col items-center gap-2">
                                             <template x-if="sidang.is_penguji_1">
                                                 <div class="relative w-full min-w-[115px]">
@@ -172,7 +201,7 @@
                                             </template>
                                         </div>
                                     </td>
-                                    <td class="px-4 py-4">
+                                    <td class="py-3 px-4 text-center">
                                         <div class="flex flex-col gap-2">
                                             <template x-for="role in getSpecificRoles(sidang, ['PENGUJI 1', 'PENGUJI 2'])">
                                                 <a :href="'{{ url('dosen/input-nilai') }}/' + sidang.id + '/' + role.toLowerCase().replace(' ', '')"
@@ -193,100 +222,103 @@
                             </template>
                         </tbody>
                     </table>
-                </div>
             </div>
-        </div>
+
+            <!-- Pagination Matching Standard Style -->
+            <div class="px-6 py-4 bg-white flex items-center justify-between border-t border-gray-200" x-show="totalPagesPenguji > 1">
+                <span class="text-[12px] font-medium text-black/50" x-text="(filteredPenguji.length === 0 ? 0 : ((currentPagePenguji - 1) * itemsPerPagePenguji + 1)) + ' - ' + Math.min(currentPagePenguji * itemsPerPagePenguji, filteredPenguji.length) + ' dari ' + filteredPenguji.length + ' baris'"></span>
+                <div class="flex items-center gap-2">
+                    <button @click="if(currentPagePenguji > 1) currentPagePenguji--" :disabled="currentPagePenguji === 1" 
+                        class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Previous</button>
+                    <div class="flex items-center gap-1">
+                        <template x-for="p in totalPagesPenguji" :key="p">
+                            <button @click="currentPagePenguji = p" 
+                                class="w-8 h-8 rounded text-[12px] font-bold transition-all"
+                                :class="currentPagePenguji === p ? 'bg-blue-600 text-white shadow-md' : 'text-black hover:bg-gray-100'"
+                                    x-text="p"></button>
+                            </template>
+                        </div>
+                        <button @click="if(currentPagePenguji < totalPagesPenguji) currentPagePenguji++" :disabled="currentPagePenguji === totalPagesPenguji" 
+                            class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Next</button>
+                    </div>
+                </div>
+
+            </div>
 
         <!-- SECTION 2: TABEL INPUT NILAI PEMBIMBING -->
-        <div class="mb-20">
-            <!-- Unified Table Container -->
-            <div class="bg-white rounded-[10px] border border-[#CAC0C0] shadow-sm overflow-hidden">
-                <!-- Header, Stats, Search & Filters Section -->
-                <div class="p-6 border-b border-[#CAC0C0]">
-                    <!-- Title & Stats Row -->
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-                        <div>
-                            <h3 class="text-[18px] font-bold text-black tracking-tight uppercase">TABEL INPUT NILAI PEMBIMBING</h3>
-                            <p class="text-[12px] text-black/60 font-medium mt-1">Manajemen penilaian mahasiswa khusus untuk peran Anda sebagai Dosen Pembimbing.</p>
-                        </div>
-                        <div class="flex gap-4">
-                            <div class="bg-[#4285F4] rounded-[10px] p-3 flex flex-col justify-center items-center w-[90px] shadow-sm text-white">
-                                <div class="flex items-center gap-2">
-                                    <div class="bg-white/20 p-1 rounded-full"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg></div>
-                                    <span class="text-xl font-bold" x-text="pembimbingTotal">0</span>
-                                </div>
-                                <span class="text-[11px] font-medium mt-1">Total</span>
-                            </div>
-                            <div class="bg-[#FBC610] rounded-[10px] p-3 flex flex-col justify-center items-center w-[90px] shadow-sm text-black">
-                                <div class="flex items-center gap-2">
-                                    <div class="border border-black p-0.5 rounded-sm"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg></div>
-                                    <span class="text-xl font-bold" x-text="pembimbingMenunggu">0</span>
-                                </div>
-                                <span class="text-[11px] font-medium mt-1 text-center leading-tight">Menunggu</span>
-                            </div>
-                            <div class="bg-[#38913B] rounded-[10px] p-3 flex flex-col justify-center items-center w-[90px] shadow-sm text-white">
-                                <div class="flex items-center gap-2">
-                                    <div class="bg-white/20 p-1 rounded-full"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div>
-                                    <span class="text-xl font-bold" x-text="pembimbingDinilai">0</span>
-                                </div>
-                                <span class="text-[11px] font-medium mt-1">Dinilai</span>
-                            </div>
-                        </div>
+        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
+            <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
+                <div>
+                    <h3 class="text-[18px] font-bold text-black tracking-tight uppercase">TABEL INPUT NILAI PEMBIMBING</h3>
+                    <p class="text-[12px] text-black/60 font-medium mt-1">Manajemen penilaian mahasiswa khusus untuk peran Anda sebagai Dosen Pembimbing.</p>
+                </div>
+                <div class="flex gap-2 shrink-0">
+                    <div class="bg-[#4285F4] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-blue-600/20">
+                        <span class="text-[16px] font-bold leading-none" x-text="pembimbingTotal"></span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Total</span>
                     </div>
+                    <div class="bg-[#FBBC05] text-black rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-yellow-500/20">
+                        <span class="text-[16px] font-bold leading-none" x-text="pembimbingMenunggu"></span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Menunggu</span>
+                    </div>
+                    <div class="bg-[#34A853] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-green-600/20">
+                        <span class="text-[16px] font-bold leading-none" x-text="pembimbingDinilai"></span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Dinilai</span>
+                    </div>
+                </div>
+            </div>
 
-                    <!-- Search (Top) -->
-                    <div class="relative w-full mb-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-6 mb-6">
+                <div class="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+                    <!-- Search -->
+                    <div class="relative flex-1 sm:w-[300px]">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
-                        <input type="text" x-model="searchPembimbing" class="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-[5px] text-sm text-black focus:ring-blue-500 focus:border-blue-500 shadow-sm" placeholder="Cari nama, NIM, atau judul KP...">
+                        <input type="text" x-model="searchPembimbing" class="block w-full pl-9 pr-4 py-2 border border-gray-300 rounded-[5px] text-[12px] text-black focus:ring-[#4285F4]" placeholder="Cari Nama/NIM, atau Judul KP...">
                     </div>
 
-                    <!-- Filters (Bottom) -->
-                    <div class="flex flex-wrap items-center gap-4">
-                        <div class="flex items-center gap-2">
-                            <label class="text-[13px] font-bold text-black whitespace-nowrap">Penilaian :</label>
-                            <select x-model="filterPenilaianPembimbing" class="w-[140px] text-[13px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                <option value="all">Semua Kondisi</option>
-                                <option value="sudah">Sudah Input</option>
-                                <option value="belum">Belum Input</option>
-                            </select>
+                    <!-- Filter Penilaian -->
+                    <div x-data="{ openFilter: false }" class="relative w-full sm:w-[150px] z-[50]">
+                        <button type="button" @click="openFilter = !openFilter" @click.outside="openFilter = false" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                            <span x-text="filterPenilaianPembimbing === 'all' ? 'Penilaian' : (filterPenilaianPembimbing === 'sudah' ? 'Sudah Input' : 'Belum Input')"></span>
+                            <svg :class="openFilter ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openFilter" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="all" x-model="filterPenilaianPembimbing" class="hidden" @change="openFilter = false">Semua</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="sudah" x-model="filterPenilaianPembimbing" class="hidden" @change="openFilter = false">Sudah Input</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="belum" x-model="filterPenilaianPembimbing" class="hidden" @change="openFilter = false">Belum Input</label>
                         </div>
+                    </div>
 
-                        <div class="flex items-center gap-2">
-                            <label class="text-[13px] font-bold text-black whitespace-nowrap">Jadwal :</label>
-                            <select x-model="sortPembimbing" class="w-[120px] text-[13px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                <option value="date_near">Terdekat</option>
-                                <option value="date_far">Terjauh</option>
-                            </select>
-                        </div>
-
-                        <button @click="clearPembimbing()" class="bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[12px] px-4 py-2 rounded-[5px] shadow-sm transition-colors whitespace-nowrap uppercase">
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button type="button" @click="clearPembimbing()" class="flex-1 sm:flex-none border border-[#EA4335] bg-[#EA4335] text-white hover:bg-red-600 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm flex items-center justify-center">
                             Clear Filter
                         </button>
                     </div>
                 </div>
+            </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-center border-collapse text-[12px] min-w-[800px]">
-                        <thead class="bg-[#EBEBEB] font-bold text-black border-b border-[#CAC0C0] h-[45px]">
-                            <tr>
-                                <th class="border-r border-[#CAC0C0] px-3 py-2 w-[50px]">No</th>
-                                <th class="border-r border-[#CAC0C0] px-4 py-2 text-left w-[250px]">Mahasiswa</th>
-                                <th class="border-r border-[#CAC0C0] px-4 py-2 text-left">Judul KP</th>
-                                <th class="border-r border-[#CAC0C0] px-4 py-2 w-[150px]">Status</th>
-                                <th class="px-4 py-2 w-[200px]">Penilaian</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white">
-                            <template x-for="(sidang, index) in filteredPembimbing" :key="'pb-' + sidang.id">
-                                <tr class="border-b border-[#CAC0C0] hover:bg-gray-50 transition-colors">
-                                    <td class="border-r border-[#CAC0C0] px-3 py-4 text-gray-700" x-text="index + 1"></td>
-                                    <td class="border-r border-[#CAC0C0] px-4 py-4 text-left">
+            <div class="border border-gray-200 rounded-[10px] overflow-x-auto">
+                <table class="w-full border-collapse text-[13px] min-w-[1000px]">
+                    <thead class="bg-[#EBEBEB] text-black">
+                        <tr>
+                            <th class="py-3 px-4 font-bold text-center w-[60px] border-b border-r border-gray-300">No</th>
+                            <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300 w-[250px]">Mahasiswa</th>
+                            <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300">Judul KP</th>
+                            <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[150px]">Status</th>
+                            <th class="py-3 px-4 font-bold text-center border-b border-gray-300 w-[200px]">Penilaian</th>
+                        </tr>
+                    </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            <template x-for="(sidang, index) in paginatedPembimbing" :key="'pb-' + sidang.id">
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="py-3 px-4 text-center text-black/60 border-r border-gray-200" x-text="((currentPagePembimbing - 1) * itemsPerPagePembimbing) + index + 1"></td>
+                                    <td class="py-3 px-4 text-left border-r border-gray-200">
                                         <div class="font-bold text-black uppercase" x-text="sidang.mahasiswa.user.name"></div>
                                         <div class="text-gray-500 font-mono text-[11px]" x-text="sidang.mahasiswa.nim"></div>
                                     </td>
-                                    <td class="border-r border-[#CAC0C0] px-4 py-4 text-left">
+                                    <td class="py-3 px-4 text-left border-r border-gray-200">
                                         <p class="sentence-case leading-snug line-clamp-2 text-black font-normal" x-text="sidang.pendaftaran_kp.judul_kp" :title="sidang.pendaftaran_kp.judul_kp"></p>
                                     </td>
                                     <td class="border-r border-[#CAC0C0] px-4 py-4 text-center">
@@ -301,7 +333,7 @@
                                             </span>
                                         </template>
                                     </td>
-                                    <td class="px-4 py-4">
+                                    <td class="py-3 px-4 text-center">
                                         <a :href="'{{ url('dosen/input-nilai') }}/' + sidang.id + '/pembimbing'"
                                             class="w-full text-center bg-[#4CC098] hover:bg-[#3da681] text-white py-2 rounded-[4px] text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 uppercase">
                                             Input Nilai Pembimbing
@@ -318,100 +350,101 @@
                             </template>
                         </tbody>
                     </table>
+            </div>
+
+            <!-- Pagination Matching Standard Style -->
+            <div class="px-6 py-4 bg-white flex items-center justify-between border-t border-gray-200" x-show="totalPagesPembimbing > 1">
+                <span class="text-[12px] font-medium text-black/50" x-text="(filteredPembimbing.length === 0 ? 0 : ((currentPagePembimbing - 1) * itemsPerPagePembimbing + 1)) + ' - ' + Math.min(currentPagePembimbing * itemsPerPagePembimbing, filteredPembimbing.length) + ' dari ' + filteredPembimbing.length + ' baris'"></span>
+                <div class="flex items-center gap-2">
+                    <button @click="if(currentPagePembimbing > 1) currentPagePembimbing--" :disabled="currentPagePembimbing === 1" 
+                        class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Previous</button>
+                    <div class="flex items-center gap-1">
+                        <template x-for="p in totalPagesPembimbing" :key="p">
+                            <button @click="currentPagePembimbing = p" 
+                                class="w-8 h-8 rounded text-[12px] font-bold transition-all"
+                                :class="currentPagePembimbing === p ? 'bg-blue-600 text-white shadow-md' : 'text-black hover:bg-gray-100'"
+                                x-text="p"></button>
+                        </template>
+                    </div>
+                    <button @click="if(currentPagePembimbing < totalPagesPembimbing) currentPagePembimbing++" :disabled="currentPagePembimbing === totalPagesPembimbing" 
+                        class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Next</button>
                 </div>
             </div>
         </div>
 
-        <!-- SECTION 3: TABEL INPUT NILAI SUPERVISOR -->
-        <div class="mb-20">
-            <!-- Unified Table Container -->
-            <div class="bg-white rounded-[10px] border border-[#CAC0C0] shadow-sm overflow-hidden">
-                <!-- Header, Stats, Search & Filters Section -->
-                <div class="p-6 border-b border-[#CAC0C0]">
-                    <!-- Title & Stats Row -->
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-                        <div>
-                            <h3 class="text-[18px] font-bold text-black tracking-tight uppercase">TABEL INPUT NILAI SUPERVISOR</h3>
-                            <p class="text-[12px] text-black/60 font-medium mt-1">Manajemen penilaian mahasiswa untuk peran Anda sebagai Supervisor (Pembimbing Lapangan).</p>
-                        </div>
-                        <div class="flex gap-4">
-                            <div class="bg-[#4285F4] rounded-[10px] p-3 flex flex-col justify-center items-center w-[90px] shadow-sm text-white">
-                                <div class="flex items-center gap-2">
-                                    <div class="bg-white/20 p-1 rounded-full"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg></div>
-                                    <span class="text-xl font-bold" x-text="supervisorTotal">0</span>
-                                </div>
-                                <span class="text-[11px] font-medium mt-1">Total</span>
-                            </div>
-                            <div class="bg-[#FBC610] rounded-[10px] p-3 flex flex-col justify-center items-center w-[90px] shadow-sm text-black">
-                                <div class="flex items-center gap-2">
-                                    <div class="border border-black p-0.5 rounded-sm"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg></div>
-                                    <span class="text-xl font-bold" x-text="supervisorMenunggu">0</span>
-                                </div>
-                                <span class="text-[11px] font-medium mt-1 text-center leading-tight">Menunggu</span>
-                            </div>
-                            <div class="bg-[#38913B] rounded-[10px] p-3 flex flex-col justify-center items-center w-[90px] shadow-sm text-white">
-                                <div class="flex items-center gap-2">
-                                    <div class="bg-white/20 p-1 rounded-full"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div>
-                                    <span class="text-xl font-bold" x-text="supervisorDinilai">0</span>
-                                </div>
-                                <span class="text-[11px] font-medium mt-1">Dinilai</span>
-                            </div>
-                        </div>
+        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
+            <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
+                <div>
+                    <h3 class="text-[18px] font-bold text-black tracking-tight uppercase">TABEL INPUT NILAI SUPERVISOR</h3>
+                    <p class="text-[12px] text-black/60 font-medium mt-1">Manajemen penilaian mahasiswa untuk peran Anda sebagai Supervisor (Pembimbing Lapangan).</p>
+                </div>
+                <div class="flex gap-2 shrink-0">
+                    <div class="bg-[#4285F4] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-blue-600/20">
+                        <span class="text-[16px] font-bold leading-none" x-text="supervisorTotal"></span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Total</span>
                     </div>
+                    <div class="bg-[#FBBC05] text-black rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-yellow-500/20">
+                        <span class="text-[16px] font-bold leading-none" x-text="supervisorMenunggu"></span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Menunggu</span>
+                    </div>
+                    <div class="bg-[#34A853] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-green-600/20">
+                        <span class="text-[16px] font-bold leading-none" x-text="supervisorDinilai"></span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Dinilai</span>
+                    </div>
+                </div>
+            </div>
 
-                    <!-- Search (Top) -->
-                    <div class="relative w-full mb-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-6 mb-6">
+                <div class="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+                    <!-- Search -->
+                    <div class="relative flex-1 sm:w-[300px]">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
-                        <input type="text" x-model="searchSupervisor" class="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-[5px] text-sm text-black focus:ring-blue-500 focus:border-blue-500 shadow-sm" placeholder="Cari nama, NIM, atau judul KP...">
+                        <input type="text" x-model="searchSupervisor" class="block w-full pl-9 pr-4 py-2 border border-gray-300 rounded-[5px] text-[12px] text-black focus:ring-[#4285F4]" placeholder="Cari Nama/NIM, atau Judul KP...">
                     </div>
 
-                    <!-- Filters (Bottom) -->
-                    <div class="flex flex-wrap items-center gap-4">
-                        <div class="flex items-center gap-2">
-                            <label class="text-[13px] font-bold text-black whitespace-nowrap">Penilaian :</label>
-                            <select x-model="filterPenilaianSupervisor" class="w-[140px] text-[13px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                <option value="all">Semua Kondisi</option>
-                                <option value="sudah">Sudah Input</option>
-                                <option value="belum">Belum Input</option>
-                            </select>
+                    <!-- Filter Penilaian -->
+                    <div x-data="{ openFilter: false }" class="relative w-full sm:w-[150px] z-[50]">
+                        <button type="button" @click="openFilter = !openFilter" @click.outside="openFilter = false" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                            <span x-text="filterPenilaianSupervisor === 'all' ? 'Penilaian' : (filterPenilaianSupervisor === 'sudah' ? 'Sudah Input' : 'Belum Input')"></span>
+                            <svg :class="openFilter ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openFilter" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="all" x-model="filterPenilaianSupervisor" class="hidden" @change="openFilter = false">Semua</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="sudah" x-model="filterPenilaianSupervisor" class="hidden" @change="openFilter = false">Sudah Input</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="belum" x-model="filterPenilaianSupervisor" class="hidden" @change="openFilter = false">Belum Input</label>
                         </div>
+                    </div>
 
-                        <div class="flex items-center gap-2">
-                            <label class="text-[13px] font-bold text-black whitespace-nowrap">Jadwal :</label>
-                            <select x-model="sortSupervisor" class="w-[120px] text-[13px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                <option value="date_near">Terdekat</option>
-                                <option value="date_far">Terjauh</option>
-                            </select>
-                        </div>
-
-                        <button @click="clearSupervisor()" class="bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[12px] px-4 py-2 rounded-[5px] shadow-sm transition-colors whitespace-nowrap uppercase">
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button type="button" @click="clearSupervisor()" class="flex-1 sm:flex-none border border-[#EA4335] bg-[#EA4335] text-white hover:bg-red-600 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm flex items-center justify-center">
                             Clear Filter
                         </button>
                     </div>
                 </div>
+            </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-center border-collapse text-[12px] min-w-[800px]">
-                        <thead class="bg-[#EBEBEB] font-bold text-black border-b border-[#CAC0C0] h-[45px]">
+            <div class="border border-gray-200 rounded-[10px] overflow-x-auto">
+                <table class="w-full border-collapse text-[13px] min-w-[1000px]">
+                    <thead class="bg-[#EBEBEB] text-black">
                             <tr>
-                                <th class="border-r border-[#CAC0C0] px-3 py-2 w-[50px]">No</th>
-                                <th class="border-r border-[#CAC0C0] px-4 py-2 text-left w-[250px]">Mahasiswa</th>
-                                <th class="border-r border-[#CAC0C0] px-4 py-2 text-left">Judul KP</th>
-                                <th class="border-r border-[#CAC0C0] px-4 py-2 w-[150px]">Status</th>
-                                <th class="px-4 py-2 w-[200px]">Penilaian</th>
+                                <th class="py-3 px-4 font-bold text-center w-[60px] border-b border-r border-gray-300">No</th>
+                                <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300 w-[250px]">Mahasiswa</th>
+                                <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300">Judul KP</th>
+                                <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[150px]">Status</th>
+                                <th class="py-3 px-4 font-bold text-center border-b border-gray-300 w-[200px]">Penilaian</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white">
-                            <template x-for="(sidang, index) in filteredSupervisor" :key="'sv-' + sidang.id">
-                                <tr class="border-b border-[#CAC0C0] hover:bg-gray-50 transition-colors">
-                                    <td class="border-r border-[#CAC0C0] px-3 py-4 text-gray-700" x-text="index + 1"></td>
-                                    <td class="border-r border-[#CAC0C0] px-4 py-4 text-left">
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            <template x-for="(sidang, index) in paginatedSupervisor" :key="'sv-' + sidang.id">
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="py-3 px-4 text-center text-black/60 border-r border-gray-200" x-text="((currentPageSupervisor - 1) * itemsPerPageSupervisor) + index + 1"></td>
+                                    <td class="py-3 px-4 text-left border-r border-gray-200">
                                         <div class="font-bold text-black uppercase" x-text="sidang.mahasiswa.user.name"></div>
                                         <div class="text-gray-500 font-mono text-[11px]" x-text="sidang.mahasiswa.nim"></div>
                                     </td>
-                                    <td class="border-r border-[#CAC0C0] px-4 py-4 text-left">
+                                    <td class="py-3 px-4 text-left border-r border-gray-200">
                                         <p class="sentence-case leading-snug line-clamp-2 text-black font-normal" x-text="sidang.pendaftaran_kp.judul_kp" :title="sidang.pendaftaran_kp.judul_kp"></p>
                                     </td>
                                     <td class="border-r border-[#CAC0C0] px-4 py-4 text-center">
@@ -426,7 +459,7 @@
                                             </span>
                                         </template>
                                     </td>
-                                    <td class="px-4 py-4">
+                                    <td class="py-3 px-4 text-center">
                                         <a :href="'{{ url('dosen/input-nilai') }}/' + sidang.id + '/supervisior'"
                                             class="w-full text-center bg-[#4CC098] hover:bg-[#3da681] text-white py-2 rounded-[4px] text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 uppercase">
                                             Input Nilai Supervisior
@@ -443,9 +476,28 @@
                             </template>
                         </tbody>
                     </table>
-                </div>
             </div>
-        </div>
+
+            <!-- Pagination Matching Standard Style -->
+            <div class="px-6 py-4 bg-white flex items-center justify-between border-t border-gray-200" x-show="totalPagesSupervisor > 1">
+                <span class="text-[12px] font-medium text-black/50" x-text="(filteredSupervisor.length === 0 ? 0 : ((currentPageSupervisor - 1) * itemsPerPageSupervisor + 1)) + ' - ' + Math.min(currentPageSupervisor * itemsPerPageSupervisor, filteredSupervisor.length) + ' dari ' + filteredSupervisor.length + ' baris'"></span>
+                <div class="flex items-center gap-2">
+                        <button @click="if(currentPageSupervisor > 1) currentPageSupervisor--" :disabled="currentPageSupervisor === 1" 
+                            class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Previous</button>
+                        <div class="flex items-center gap-1">
+                            <template x-for="p in totalPagesSupervisor" :key="p">
+                                <button @click="currentPageSupervisor = p" 
+                                    class="w-8 h-8 rounded text-[12px] font-bold transition-all"
+                                    :class="currentPageSupervisor === p ? 'bg-blue-600 text-white shadow-md' : 'text-black hover:bg-gray-100'"
+                                    x-text="p"></button>
+                            </template>
+                        </div>
+                        <button @click="if(currentPageSupervisor < totalPagesSupervisor) currentPageSupervisor++" :disabled="currentPageSupervisor === totalPagesSupervisor" 
+                            class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Next</button>
+                    </div>
+                </div>
+
+            </div>
         
         <!-- Custom Global Confirm Modal -->
         <div x-show="showConfirmModal" style="display: none;" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
@@ -511,30 +563,13 @@
                 sortPenguji: 'date_near',
 
                 searchPembimbing: '',
+                filterPelaksanaanPembimbing: 'all',
                 filterPenilaianPembimbing: 'all',
                 sortPembimbing: 'date_near',
 
                 searchSupervisor: '',
                 filterPenilaianSupervisor: 'all',
                 sortSupervisor: 'date_near',
-
-                clearPenguji() {
-                    this.searchPenguji = '';
-                    this.filterPelaksanaanPenguji = 'all';
-                    this.filterPenilaianPenguji = 'all';
-                    this.filterPeranPenguji = 'all';
-                    this.sortPenguji = 'date_near';
-                },
-                clearPembimbing() {
-                    this.searchPembimbing = '';
-                    this.filterPenilaianPembimbing = 'all';
-                    this.sortPembimbing = 'date_near';
-                },
-                clearSupervisor() {
-                    this.searchSupervisor = '';
-                    this.filterPenilaianSupervisor = 'all';
-                    this.sortSupervisor = 'date_near';
-                },
 
                 showConfirmModal: false,
                 confirmData: null,
@@ -543,8 +578,52 @@
                 showSuccessModal: false,
                 successMessage: '',
 
+                currentPagePenguji: 1, itemsPerPagePenguji: 10,
+                currentPagePembimbing: 1, itemsPerPagePembimbing: 10,
+                currentPageSupervisor: 1, itemsPerPageSupervisor: 10,
+
                 init() {
                     setInterval(() => { this.now = new Date(); }, 60000);
+                    
+                    this.$watch('searchPenguji', () => this.currentPagePenguji = 1);
+                    this.$watch('filterPelaksanaanPenguji', () => this.currentPagePenguji = 1);
+                    this.$watch('filterPenilaianPenguji', () => this.currentPagePenguji = 1);
+                    this.$watch('filterPeranPenguji', () => this.currentPagePenguji = 1);
+                    this.$watch('sortPenguji', () => this.currentPagePenguji = 1);
+
+                    this.$watch('searchPembimbing', () => this.currentPagePembimbing = 1);
+                    this.$watch('filterPelaksanaanPembimbing', () => this.currentPagePembimbing = 1);
+                    this.$watch('filterPenilaianPembimbing', () => this.currentPagePembimbing = 1);
+                    this.$watch('sortPembimbing', () => this.currentPagePembimbing = 1);
+
+                    this.$watch('searchSupervisor', () => this.currentPageSupervisor = 1);
+                    this.$watch('filterPenilaianSupervisor', () => this.currentPageSupervisor = 1);
+                    this.$watch('sortSupervisor', () => this.currentPageSupervisor = 1);
+                },
+
+                // ---------------- ACTIONS ----------------
+                clearPenguji() {
+                    this.searchPenguji = '';
+                    this.filterPelaksanaanPenguji = 'all';
+                    this.filterPenilaianPenguji = 'all';
+                    this.filterPeranPenguji = 'all';
+                    this.sortPenguji = 'date_near';
+                    this.currentPagePenguji = 1;
+                },
+
+                clearPembimbing() {
+                    this.searchPembimbing = '';
+                    this.filterPelaksanaanPembimbing = 'all';
+                    this.filterPenilaianPembimbing = 'all';
+                    this.sortPembimbing = 'date_near';
+                    this.currentPagePembimbing = 1;
+                },
+
+                clearSupervisor() {
+                    this.searchSupervisor = '';
+                    this.filterPenilaianSupervisor = 'all';
+                    this.sortSupervisor = 'date_near';
+                    this.currentPageSupervisor = 1;
                 },
 
                 // ---------------- STATS ----------------
@@ -598,12 +677,22 @@
                     });
                     return res;
                 },
+                get paginatedPenguji() {
+                    const start = (this.currentPagePenguji - 1) * this.itemsPerPagePenguji;
+                    return this.filteredPenguji.slice(start, start + this.itemsPerPagePenguji);
+                },
+                get totalPagesPenguji() {
+                    return Math.ceil(this.filteredPenguji.length / this.itemsPerPagePenguji);
+                },
 
                 get filteredPembimbing() {
                     let res = [...this.basePembimbing];
                     if (this.searchPembimbing) {
                         const q = this.searchPembimbing.toLowerCase();
                         res = res.filter(s => s.mahasiswa.user.name.toLowerCase().includes(q) || s.mahasiswa.nim.includes(q) || (s.pendaftaran_kp.judul_kp && s.pendaftaran_kp.judul_kp.toLowerCase().includes(q)));
+                    }
+                    if (this.filterPelaksanaanPembimbing !== 'all') {
+                        res = res.filter(s => this.getExecutionStatus(s) === this.filterPelaksanaanPembimbing);
                     }
                     if (this.filterPenilaianPembimbing !== 'all') {
                         res = res.filter(s => this.filterPenilaianPembimbing === 'sudah' ? s.nilai_pembimbing !== null : s.nilai_pembimbing === null);
@@ -612,6 +701,13 @@
                         return this.sortPembimbing === 'date_near' ? new Date(a.tanggal_sidang) - new Date(b.tanggal_sidang) : new Date(b.tanggal_sidang) - new Date(a.tanggal_sidang);
                     });
                     return res;
+                },
+                get paginatedPembimbing() {
+                    const start = (this.currentPagePembimbing - 1) * this.itemsPerPagePembimbing;
+                    return this.filteredPembimbing.slice(start, start + this.itemsPerPagePembimbing);
+                },
+                get totalPagesPembimbing() {
+                    return Math.ceil(this.filteredPembimbing.length / this.itemsPerPagePembimbing);
                 },
 
                 get filteredSupervisor() {
@@ -627,6 +723,13 @@
                         return this.sortSupervisor === 'date_near' ? new Date(a.tanggal_sidang) - new Date(b.tanggal_sidang) : new Date(b.tanggal_sidang) - new Date(a.tanggal_sidang);
                     });
                     return res;
+                },
+                get paginatedSupervisor() {
+                    const start = (this.currentPageSupervisor - 1) * this.itemsPerPageSupervisor;
+                    return this.filteredSupervisor.slice(start, start + this.itemsPerPageSupervisor);
+                },
+                get totalPagesSupervisor() {
+                    return Math.ceil(this.filteredSupervisor.length / this.itemsPerPageSupervisor);
                 },
 
                 // ---------------- HELPERS ----------------

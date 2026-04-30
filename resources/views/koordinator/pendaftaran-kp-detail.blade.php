@@ -100,7 +100,9 @@
                 <!-- Status KP (Baru/Lanjut) -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Status KP</div>
                 <div class="hidden md:block">:</div>
-                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">Baru /Lanjut</div> 
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px] {{ $kp->is_lanjutan ? 'text-[#EA4335] font-bold' : 'text-[#34A853]' }}">
+                    {{ $kp->is_lanjutan ? 'Lanjutan' : 'Baru' }}
+                </div> 
                 
                 <!-- Detail KP -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A] align-top md:pt-2">Detail KP</div>

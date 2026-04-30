@@ -3,6 +3,41 @@
         @include('dosen.components.sidebar', ['active' => 'persetujuan-sidang'])
         </x-slot>
 
+        <x-slot:headerActions>
+        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px] mt-2 md:mt-0">
+            <button @click="open = !open" @click.outside="open = false" type="button"
+                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#CDA057] focus:ring-[#CDA057] focus:ring-1 cursor-pointer text-black h-[32px]">
+
+                <span x-text="selected"></span>
+
+                <svg :class="open ? 'rotate-0' : 'rotate-90'"
+                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+
+            <div x-show="open" x-transition style="display: none;"
+                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
+                <ul class="py-1 text-[13px] font-medium text-black">
+                    <li>
+                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Genap 2025/2026
+                        </button>
+                    </li>
+                    <li>
+                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Ganjil 2025/2026
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <input type="hidden" name="periode" :value="selected">
+        </div>
+    </x-slot:headerActions>
+
         <div class="mt-6" x-data="{ 
             showTolakModal: false, 
             selectedId: null,
@@ -33,91 +68,74 @@
                 });
             }
         }">
-            <div class="flex flex-col xl:flex-row gap-6 mb-8 items-start xl:items-stretch">
-                <div
-                    class="flex-1 bg-[#EAEFFF] border border-[#BACDFB] rounded-[10px] p-4 flex items-center gap-4 shadow-sm">
-                    <div
-                        class="bg-[#7896F8] w-6 h-6 rounded-full flex items-center justify-center text-white shrink-0 shadow-sm font-serif italic text-sm">
-                        i</div>
-                    <p class="text-[14px] text-black font-medium leading-relaxed">
-                        Berikut adalah daftar mahasiswa bimbingan Anda yang sedang mengajukan permohonan persetujuan
-                        untuk mendaftar Sidang KP.
-                    </p>
+            <!-- Unified Table Container -->
+            <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8 mt-6">
+                <!-- Header Section -->
+                <div class="border-b border-gray-200 pb-6 mb-6">
+                    <!-- Title & Description Row with Stats -->
+                    <div class="mb-8 flex flex-col sm:flex-row justify-between items-start gap-4">
+                        <div>
+                            <h3 class="text-[18px] font-bold text-black tracking-tight uppercase">Tabel Persetujuan Sidang KP</h3>
+                            <p class="text-[12px] text-black/60 font-medium mt-1">Berikut adalah daftar mahasiswa bimbingan Anda yang sedang mengajukan permohonan persetujuan untuk mendaftar Sidang KP.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 shrink-0">
+                            <div class="bg-[#38913B] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-green-600/20">
+                                <span class="text-[16px] font-bold leading-none">{{ $jumlahDisetujui ?? 0 }}</span>
+                                <span class="text-[11px] font-medium uppercase tracking-wider">Disetujui</span>
+                            </div>
+                            <div class="bg-[#FBC610] text-black rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-yellow-500/20">
+                                <span class="text-[16px] font-bold leading-none">{{ $jumlahBelum ?? 0 }}</span>
+                                <span class="text-[11px] font-medium uppercase tracking-wider">Belum Disetujui</span>
+                            </div>
+                            <div class="bg-[#EA3323] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-red-600/20">
+                                <span class="text-[16px] font-bold leading-none">{{ $jumlahDitolak ?? 0 }}</span>
+                                <span class="text-[11px] font-medium uppercase tracking-wider">Ditolak</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search & Filters Row -->
+                    <div class="flex flex-col xl:flex-row gap-4">
+                        <!-- Search Bar -->
+                        <div class="relative w-full xl:w-[350px] shrink-0">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </div>
+                            <input type="text" x-model="searchQuery" 
+                                class="w-full h-[36px] pl-10 pr-4 text-[13px] bg-white border border-[#CAC0C0] rounded-[5px] text-black focus:outline-none focus:border-gray-400 focus:ring-0 transition-colors shadow-sm placeholder:text-gray-400" 
+                                placeholder="Cari nama, NIM, atau judul KP...">
+                        </div>
+
+                        <!-- Dropdown Filters -->
+                        <div class="flex flex-wrap items-center gap-3">
+                            <div x-data="{ openStatus: false, selectedStatus: 'all' }" class="relative w-full sm:w-[220px]" @click.outside="openStatus = false" @clear-filters.window="selectedStatus = 'all'">
+                                <input type="hidden" name="status_filter" :value="selectedStatus">
+                                <button type="button" @click="openStatus = !openStatus" class="w-full h-[36px] flex items-center justify-between border border-[#CAC0C0] bg-white rounded-[5px] px-3 text-[13px] text-black hover:bg-gray-50 transition-colors shadow-sm focus:outline-none focus:border-gray-400 focus:ring-0">
+                                    <span class="font-medium truncate" x-text="selectedStatus === 'all' ? 'Status Approval' : (selectedStatus === 'pending' ? 'Belum Disetujui' : (selectedStatus === 'verified' ? 'Selesai/Disetujui' : 'Ditolak'))"></span>
+                                    <svg :class="openStatus ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                                <div x-show="openStatus" x-transition.opacity.duration.200ms style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded-[5px] shadow-lg py-1">
+                                    <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black">
+                                        <input type="radio" value="all" x-model="statusFilter" @change="selectedStatus = 'all'; openStatus = false" class="hidden">Semua Status
+                                    </label>
+                                    <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black">
+                                        <input type="radio" value="pending" x-model="statusFilter" @change="selectedStatus = 'pending'; openStatus = false" class="hidden">Belum Disetujui
+                                    </label>
+                                    <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black">
+                                        <input type="radio" value="verified" x-model="statusFilter" @change="selectedStatus = 'verified'; openStatus = false" class="hidden">Selesai/Disetujui
+                                    </label>
+                                    <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black">
+                                        <input type="radio" value="rejected" x-model="statusFilter" @change="selectedStatus = 'rejected'; openStatus = false" class="hidden">Ditolak
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button @click="searchQuery = ''; statusFilter = 'all'; $dispatch('clear-filters')" class="h-[36px] bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[12px] px-4 rounded-[5px] shadow-sm transition-colors uppercase whitespace-nowrap">
+                                Clear Filter
+                            </button>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="flex gap-4">
-                    <div
-                        class="bg-[#38913B] rounded-[10px] p-3 flex flex-col justify-center items-center w-[90px] shadow-sm text-white">
-                        <div class="flex items-center gap-2">
-                            <div class="bg-white/20 p-1 rounded-full"><svg class="w-3 h-3" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 13l4 4L19 7"></path>
-                                </svg></div>
-                            <span class="text-xl font-bold">{{ $jumlahDisetujui ?? 0 }}</span>
-                        </div>
-                        <span class="text-[11px] font-medium mt-1">Disetujui</span>
-                    </div>
-                    <div
-                        class="bg-[#FBC610] rounded-[10px] p-3 flex flex-col justify-center items-center w-[90px] shadow-sm text-black">
-                        <div class="flex items-center gap-2">
-                            <div class="border border-black p-0.5 rounded-sm"><svg class="w-3 h-3" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z">
-                                    </path>
-                                </svg></div>
-                            <span class="text-xl font-bold">{{ $jumlahBelum ?? 0 }}</span>
-                        </div>
-                        <span class="text-[11px] font-medium text-center leading-tight mt-1">Belum<br>Disetujui</span>
-                    </div>
-                    <div
-                        class="bg-[#EA3323] rounded-[10px] p-3 flex flex-col justify-center items-center w-[90px] shadow-sm text-white">
-                        <div class="flex items-center gap-2">
-                            <div class="bg-white/20 p-1 rounded-full"><svg class="w-3 h-3" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12"></path>
-                                </svg></div>
-                            <span class="text-xl font-bold">{{ $jumlahDitolak ?? 0 }}</span>
-                        </div>
-                        <span class="text-[11px] font-medium mt-1">Ditolak</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modern Search & Filter Bar -->
-            <div class="bg-white p-4 rounded-[10px] border border-gray-200 shadow-sm mb-6">
-                <div class="flex flex-col lg:flex-row items-center gap-4">
-                    <div class="relative flex-1 w-full">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
-                        </div>
-                        <input type="text" x-model="searchQuery"
-                            class="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-[5px] text-sm text-black focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Cari Nama Mahasiswa, NIM, atau Judul KP...">
-                    </div>
-
-                    <div class="flex items-center gap-2 shrink-0">
-                        <label class="text-[13px] font-bold text-black whitespace-nowrap uppercase">Status :</label>
-                        <select x-model="statusFilter"
-                            class="w-[180px] text-[13px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500">
-                            <option value="all">Semua Status</option>
-                            <option value="pending">Belum Disetujui</option>
-                            <option value="verified">Selesai/Disetujui</option>
-                            <option value="rejected">Ditolak</option>
-                        </select>
-                    </div>
-
-                    <button @click="searchQuery = ''; statusFilter = 'all'"
-                        class="bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[12px] px-6 py-2.5 rounded-[5px] shadow-sm transition-colors uppercase whitespace-nowrap">
-                        Clear Filter
-                    </button>
-                </div>
-            </div>
 
             @if(session('success'))
                 <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-[5px] relative shadow-sm flex items-center gap-3">
@@ -128,7 +146,7 @@
                 </div>
             @endif
 
-            <div class="bg-white border border-gray-200 rounded-[10px] overflow-hidden shadow-sm">
+            <div class="border border-gray-200 rounded-[10px] overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full border-collapse text-[13px]">
                         <thead>
@@ -164,17 +182,7 @@
                                     </td>
                                     <td class="py-4 px-4 text-center">
                                         <template x-if="p.status === 'pending'">
-                                            <div class="flex items-center justify-center gap-2">
-                                                <form :action="'{{ url('dosen/persetujuan-sidang') }}/' + p.id + '/update'" method="POST">
-                                                    @csrf @method('PUT')
-                                                    <button type="submit" class="bg-[#38913B] hover:bg-green-700 text-white text-[11px] font-bold px-3 py-1.5 rounded flex items-center gap-1 shadow-sm uppercase transition-colors">
-                                                        Sahkan
-                                                    </button>
-                                                </form>
-                                                <button type="button" @click="showTolakModal = true; selectedId = p.id" class="bg-[#EA3323] hover:bg-red-700 text-white text-[11px] font-bold px-3 py-1.5 rounded flex items-center gap-1 shadow-sm uppercase transition-colors">
-                                                    Tolak
-                                                </button>
-                                            </div>
+                                            <span class="bg-yellow-100 text-yellow-800 font-bold px-4 py-1.5 rounded-full text-[11px] uppercase flex items-center justify-center w-max mx-auto shadow-sm">Belum Disetujui</span>
                                         </template>
                                         <template x-if="p.status === 'verified'">
                                             <span class="bg-[#86EFAC] text-[#166534] font-bold px-4 py-1.5 rounded-full text-[11px] uppercase flex items-center justify-center w-max mx-auto gap-1.5 shadow-sm">
@@ -183,17 +191,28 @@
                                         </template>
                                         <template x-if="p.status === 'rejected'">
                                             <div class="flex flex-col items-center gap-1">
-                                                <span class="bg-red-100 text-red-700 font-bold px-4 py-1.5 rounded-full text-[11px] uppercase shadow-sm">
-                                                    Ditolak
-                                                </span>
+                                                <span class="bg-red-100 text-red-700 font-bold px-4 py-1.5 rounded-full text-[11px] uppercase shadow-sm">Ditolak</span>
                                                 <span class="text-[10px] text-red-500 italic max-w-[150px] truncate" :title="p.feedback" x-text="'Feedback: ' + p.feedback"></span>
                                             </div>
                                         </template>
                                     </td>
                                     <td class="py-4 px-4 text-center">
-                                        <a href="#" class="bg-[#3B5998] hover:bg-blue-800 text-white text-[11px] font-bold px-5 py-2 rounded-full inline-block shadow-sm transition-all uppercase shadow-blue-900/10">
-                                            Detail
-                                        </a>
+                                        <template x-if="p.status === 'pending'">
+                                            <div class="flex items-center justify-center gap-2">
+                                                <form :action="'{{ url('dosen/persetujuan-sidang') }}/' + p.id + '/update'" method="POST">
+                                                    @csrf @method('PUT')
+                                                    <button type="submit" class="bg-[#38913B] hover:bg-green-700 text-white font-bold text-[11px] px-3 py-1.5 rounded flex items-center justify-center shadow-sm uppercase transition-colors">
+                                                        Sahkan
+                                                    </button>
+                                                </form>
+                                                <button type="button" @click="showTolakModal = true; selectedId = p.id" class="bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[11px] px-3 py-1.5 rounded flex items-center justify-center shadow-sm uppercase transition-colors">
+                                                        Tolak
+                                                </button>
+                                            </div>
+                                        </template>
+                                        <template x-if="p.status !== 'pending'">
+                                            <span class="text-gray-400 font-bold">-</span>
+                                        </template>
                                     </td>
                                 </tr>
                             </template>
@@ -208,6 +227,7 @@
                     </table>
                 </div>
             </div>
+        </div>
 
             <!-- Rejection Modal -->
             <div x-cloak x-show="showTolakModal" style="display:none;"

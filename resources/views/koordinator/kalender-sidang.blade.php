@@ -3,6 +3,41 @@
         @include('koordinator.components.sidebar', ['active' => 'kalender-sidang'])
     </x-slot>
 
+    <x-slot:headerActions>
+        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
+            <button @click="open = !open" @click.outside="open = false" type="button"
+                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
+
+                <span x-text="selected"></span>
+
+                <svg :class="open ? 'rotate-0' : 'rotate-90'"
+                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+
+            <div x-show="open" x-transition style="display: none;"
+                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
+                <ul class="py-1 text-[13px] font-medium text-black">
+                    <li>
+                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Genap 2025/2026
+                        </button>
+                    </li>
+                    <li>
+                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Ganjil 2025/2026
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <input type="hidden" name="periode" :value="selected">
+        </div>
+    </x-slot:headerActions>
+
     <div class="w-full flex-1 pb-10" x-data="calendarManager()" x-init="init()">
         <style>
             [x-cloak] { display: none !important; }
@@ -102,47 +137,90 @@
             </div>
 
             <!-- Bottom Side: Details -->
-            <div class="bg-white rounded-[5px] border border-[#CAC0C0] flex flex-col shadow-sm overflow-hidden">
-                <div class="p-4 border-b bg-gray-50/50">
-                    <div class="flex flex-col gap-4">
-                        <h3 class="text-[16px] font-black text-black uppercase">
-                            Detail Sidang : <span class="text-blue-600 normal-case font-bold" x-text="selectedDate ? formatReadableDate(selectedDate) : ''"></span>
+            <!-- Bottom Side: Details -->
+            <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mt-8 mb-8">
+                <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
+                    <div>
+                        <h3 class="text-[18px] font-bold text-black tracking-tight">
+                            Detail Sidang: <span class="text-blue-600 font-bold" x-text="selectedDate ? formatReadableDate(selectedDate) : ''"></span>
                         </h3>
-                        
-                        <!-- Filter Bar Integrated -->
-                        <div class="flex flex-wrap items-center gap-3">
-                            <select x-model="filters.waktu" class="filter-select min-w-[110px] h-[32px]">
-                                <option value="">Waktu</option>
-                                <option value="pagi">Pagi (08:00-12:00)</option>
-                                <option value="siang">Siang (13:00-17:00)</option>
-                            </select>
-                            <select x-model="filters.ruangan" class="filter-select min-w-[120px] h-[32px]">
-                                <option value="">Ruangan</option>
+                        <p class="text-[12px] text-black/60 font-medium mt-1">Daftar jadwal sidang mahasiswa pada tanggal yang dipilih.</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-6 mb-6">
+                    <!-- Filter Bar Integrated -->
+                    <div class="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+                        <!-- Waktu Dropdown -->
+                        <div x-data="{ openWaktu: false }" class="relative w-full sm:w-[160px] z-[60]">
+                            <button type="button" @click="openWaktu = !openWaktu" @click.outside="openWaktu = false" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                                <span class="truncate" x-text="filters.waktu === '' ? 'Semua Waktu' : (filters.waktu === 'pagi' ? 'Pagi (08:00-12:00)' : 'Siang (13:00-17:00)')"></span>
+                                <svg :class="openWaktu ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <div x-show="openWaktu" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="" x-model="filters.waktu" class="hidden" @change="openWaktu = false; currentPage = 1">Semua Waktu</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="pagi" x-model="filters.waktu" class="hidden" @change="openWaktu = false; currentPage = 1">Pagi (08:00-12:00)</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="siang" x-model="filters.waktu" class="hidden" @change="openWaktu = false; currentPage = 1">Siang (13:00-17:00)</label>
+                            </div>
+                        </div>
+
+                        <!-- Ruangan Dropdown -->
+                        <div x-data="{ openRuangan: false }" class="relative w-full sm:w-[150px] z-[50]">
+                            <button type="button" @click="openRuangan = !openRuangan" @click.outside="openRuangan = false" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                                <span class="truncate" x-text="filters.ruangan === '' ? 'Semua Ruangan' : filters.ruangan"></span>
+                                <svg :class="openRuangan ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <div x-show="openRuangan" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-y-auto max-h-[200px] py-1 z-50 custom-scrollbar">
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="" x-model="filters.ruangan" class="hidden" @change="openRuangan = false; currentPage = 1">Semua Ruangan</label>
                                 <template x-for="r in allRooms" :key="r">
-                                    <option :value="r" x-text="r"></option>
+                                    <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" :value="r" x-model="filters.ruangan" class="hidden" @change="openRuangan = false; currentPage = 1"><span x-text="r"></span></label>
                                 </template>
-                            </select>
-                            <select x-model="filters.penguji" class="filter-select min-w-[160px] h-[32px]">
-                                <option value="">Dosen Penguji</option>
-                                <template x-for="p in allExaminers" :key="p">
-                                    <option :value="p" x-text="p"></option>
-                                </template>
-                            </select>
-                            <select x-model="filters.status" class="filter-select min-w-[110px] h-[32px]">
-                                <option value="">Status</option>
-                                <option value="Selesai">Selesai</option>
-                                <option value="Terjadwal">Terjadwal</option>
-                            </select>
-                            
-                            <button @click="resetFilters()" class="bg-red-500 hover:bg-red-600 text-white font-normal text-[11px] px-4 py-2 rounded-[5px] shadow-sm transition-colors whitespace-nowrap h-[32px] flex items-center justify-center">
-                                Clear filter
+                            </div>
+                        </div>
+
+                        <!-- Penguji Dropdown -->
+                        <div x-data="{ openPenguji: false, search: '' }" class="relative w-full sm:w-[180px] z-[40]">
+                            <button type="button" @click="openPenguji = !openPenguji" @click.outside="openPenguji = false" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                                <span class="truncate" x-text="filters.penguji === '' ? 'Semua Penguji' : filters.penguji"></span>
+                                <svg :class="openPenguji ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <div x-show="openPenguji" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden z-50">
+                                <div class="p-2 border-b border-gray-200 bg-gray-50">
+                                    <input type="text" x-model="search" class="w-full text-[11px] p-1.5 border border-gray-300 rounded-[3px] outline-none focus:border-[#4285F4]" placeholder="Cari dosen...">
+                                </div>
+                                <div class="max-h-[200px] overflow-y-auto custom-scrollbar py-1">
+                                    <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="" x-model="filters.penguji" class="hidden" @change="openPenguji = false; currentPage = 1">Semua Penguji</label>
+                                    <template x-for="p in allExaminers" :key="p">
+                                        <label x-show="p.toLowerCase().includes(search.toLowerCase())" class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" :value="p" x-model="filters.penguji" class="hidden" @change="openPenguji = false; currentPage = 1"><span x-text="p"></span></label>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Dropdown -->
+                        <div x-data="{ openStatus: false }" class="relative w-full sm:w-[130px] z-[30]">
+                            <button type="button" @click="openStatus = !openStatus" @click.outside="openStatus = false" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                                <span x-text="filters.status === '' ? 'Semua Status' : filters.status"></span>
+                                <svg :class="openStatus ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <div x-show="openStatus" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="" x-model="filters.status" class="hidden" @change="openStatus = false; currentPage = 1">Semua Status</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Selesai" x-model="filters.status" class="hidden" @change="openStatus = false; currentPage = 1">Selesai</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Terjadwal" x-model="filters.status" class="hidden" @change="openStatus = false; currentPage = 1">Terjadwal</label>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <button @click="resetFilters()" class="flex-1 sm:flex-none border border-[#EA4335] bg-[#EA4335] text-white hover:bg-red-600 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm flex items-center justify-center">
+                                Clear Filter
                             </button>
                         </div>
                     </div>
                 </div>
                 
-                <div class="overflow-x-auto">
-                    <table class="w-full detail-table border-collapse">
+                <div class="border border-gray-200 rounded-[10px] overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full detail-table border-collapse text-[12px] min-w-[800px]">
                         <thead>
                             <tr>
                                 <th class="w-12 text-center">No</th>
@@ -196,18 +274,22 @@
                     </table>
                 </div>
 
-                <!-- Pagination Matching Dosen Penguji Style -->
-                <div class="flex items-center gap-2 text-[12px] font-medium text-gray-600 justify-end w-full border-t border-[#CAC0C0] bg-white px-2 py-1.5" x-show="totalPages > 1">
-                    <span class="mr-4 text-[11px] font-bold uppercase tracking-tight">Halaman <span x-text="currentPage"></span> dari <span x-text="totalPages"></span></span>
-                    <div class="flex overflow-hidden border border-gray-200 rounded">
-                        <button @click="if(currentPage > 1) currentPage--" :class="currentPage === 1 ? 'text-gray-300 cursor-not-allowed bg-gray-50' : 'hover:bg-gray-100 transition-colors'" class="px-3 py-1 font-bold border-r">&lt;</button>
-                        <template x-for="p in totalPages" :key="p">
-                            <button @click="currentPage = p" 
-                                class="px-3 py-1 font-medium border-r last:border-r-0" 
-                                :class="currentPage === p ? 'bg-[#4285F4] text-white font-bold' : 'hover:bg-gray-100 transition-colors text-gray-700'" 
-                                x-text="p"></button>
-                        </template>
-                        <button @click="if(currentPage < totalPages) currentPage++" :class="currentPage === totalPages ? 'text-gray-300 cursor-not-allowed bg-gray-50' : 'hover:bg-gray-100 transition-colors'" class="px-3 py-1 font-bold">&gt;</button>
+                <!-- Pagination Matching Standard Style -->
+                <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between mt-4" x-show="totalPages > 1">
+                    <span class="text-[12px] font-medium text-black/50" x-text="(filteredSessions.length === 0 ? 0 : ((currentPage - 1) * itemsPerPage + 1)) + ' - ' + Math.min(currentPage * itemsPerPage, filteredSessions.length) + ' dari ' + filteredSessions.length + ' baris'"></span>
+                    <div class="flex items-center gap-2">
+                        <button @click="if(currentPage > 1) currentPage--" :disabled="currentPage === 1" 
+                            class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Previous</button>
+                        <div class="flex items-center gap-1">
+                            <template x-for="p in totalPages" :key="p">
+                                <button @click="currentPage = p" 
+                                    class="w-8 h-8 rounded text-[12px] font-bold transition-all"
+                                    :class="currentPage === p ? 'bg-blue-600 text-white shadow-md' : 'text-black hover:bg-gray-100'"
+                                    x-text="p"></button>
+                            </template>
+                        </div>
+                        <button @click="if(currentPage < totalPages) currentPage++" :disabled="currentPage === totalPages" 
+                            class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Next</button>
                     </div>
                 </div>
             </div>

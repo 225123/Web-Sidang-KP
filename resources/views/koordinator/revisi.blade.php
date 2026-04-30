@@ -3,14 +3,49 @@
         @include('koordinator.components.sidebar', ['active' => 'revisi'])
     </x-slot>
 
+    <x-slot:headerActions>
+        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
+            <button @click="open = !open" @click.outside="open = false" type="button"
+                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
+
+                <span x-text="selected"></span>
+
+                <svg :class="open ? 'rotate-0' : 'rotate-90'"
+                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+
+            <div x-show="open" x-transition style="display: none;"
+                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
+                <ul class="py-1 text-[13px] font-medium text-black">
+                    <li>
+                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Genap 2025/2026
+                        </button>
+                    </li>
+                    <li>
+                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Ganjil 2025/2026
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <input type="hidden" name="periode" :value="selected">
+        </div>
+    </x-slot:headerActions>
+
     <div x-data="pemeriksaanRevisiPage()" class="mt-6">
         <!-- Unified Table Container -->
-        <div class="bg-white rounded-[10px] border border-[#CAC0C0] shadow-sm overflow-hidden">
+        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
             <!-- Header Section -->
-            <div class="p-6 border-b border-[#CAC0C0]">
+            <div class="border-b border-gray-200 pb-6 mb-6">
                 <!-- Row 1: Title & Description -->
                 <div class="mb-8">
-                    <h3 class="text-[20px] font-bold text-black tracking-tight uppercase">TABEL PEMERIKSAAN REVISI MAHASISWA</h3>
+                    <h3 class="text-[18px] font-bold text-black tracking-tight uppercase">Tabel Pemeriksaan Revisi Mahasiswa</h3>
                     <p class="text-[12px] text-black/60 font-medium mt-1">Daftar mahasiswa yang memerlukan pemeriksaan berkas revisi pasca sidang sebagai Dosen Penguji 1.</p>
                 </div>
 
@@ -58,35 +93,61 @@
                     </div>
                 </div>
 
-                <!-- Row 3: Search Bar -->
-                <div class="relative w-full mb-4">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </div>
-                    <input type="text" x-model="search" class="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-[5px] text-sm text-black focus:ring-blue-500 focus:border-blue-500 shadow-sm" placeholder="Cari nama atau NIM...">
-                </div>
-
-                <!-- Row 4: Filters Row -->
-                <div class="flex flex-wrap items-center gap-4">
-                    <div class="flex items-center gap-2">
-                        <label class="text-[13px] font-bold text-black whitespace-nowrap">Status :</label>
-                        <select x-model="filterStatus" class="w-[180px] text-[13px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm">
-                            <option value="all">Semua Status</option>
-                            <option value="Belum mengumpulkan">Belum Mengumpulkan</option>
-                            <option value="Menunggu">Sedang Diperiksa</option>
-                            <option value="Disahkan">Disetujui</option>
-                            <option value="Ditolak">Ditolak</option>
-                        </select>
+                <!-- Search & Filters Row -->
+                <div class="flex flex-col xl:flex-row gap-4">
+                    <!-- Search Bar -->
+                    <div class="relative w-full xl:w-[350px] shrink-0">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="text" x-model="search" 
+                            class="w-full h-[36px] pl-10 pr-4 text-[13px] bg-white border border-[#CAC0C0] rounded-[10px] text-black focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] transition-colors shadow-sm placeholder:text-gray-400" 
+                            placeholder="Cari nama atau NIM...">
                     </div>
 
-                    <button @click="clearFilters()" class="bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[12px] px-6 py-2 rounded-[5px] shadow-sm transition-colors whitespace-nowrap uppercase">
-                        Clear Filter
-                    </button>
+                    <!-- Dropdown Filters -->
+                    <div class="flex flex-wrap items-center gap-3">
+                        <!-- Filter Status -->
+                        <div x-data="{ open: false }" class="relative w-full sm:w-[220px]">
+                            <button @click="open = !open" @click.outside="open = false" type="button" 
+                                class="w-full h-[36px] flex items-center justify-between border border-[#CAC0C0] bg-white rounded-[10px] px-3 text-[13px] text-black hover:bg-gray-50 transition-colors shadow-sm focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098]">
+                                <div class="flex items-center gap-1.5 truncate">
+                                    <span class="font-bold text-black shrink-0">Status:</span>
+                                    <span class="font-medium truncate" x-text="filterStatus === 'all' ? 'Semua Status' : (filterStatus === 'Belum mengumpulkan' ? 'Belum Mengumpulkan' : (filterStatus === 'Menunggu' ? 'Sedang Diperiksa' : (filterStatus === 'Disahkan' ? 'Disetujui' : 'Ditolak')))"></span>
+                                </div>
+                                <svg :class="open ? 'rotate-180' : ''" class="w-4 h-4 text-gray-500 transition-transform duration-200 shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div x-show="open" x-transition.opacity.duration.200ms style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded-[10px] shadow-lg py-1">
+                                <template x-for="option in [
+                                    {value: 'all', label: 'Semua Status'},
+                                    {value: 'Belum mengumpulkan', label: 'Belum Mengumpulkan'},
+                                    {value: 'Menunggu', label: 'Sedang Diperiksa'},
+                                    {value: 'Disahkan', label: 'Disetujui'},
+                                    {value: 'Ditolak', label: 'Ditolak'}
+                                ]" :key="option.value">
+                                    <label class="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer transition-colors group">
+                                        <input type="radio" x-model="filterStatus" :value="option.value" class="sr-only" @change="open = false">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-3 h-3 rounded-full border flex items-center justify-center transition-colors" :class="filterStatus === option.value ? 'border-[#4CC098]' : 'border-gray-300 group-hover:border-[#4CC098]'">
+                                                <div class="w-1.5 h-1.5 rounded-full bg-[#4CC098] transition-opacity" :class="filterStatus === option.value ? 'opacity-100' : 'opacity-0'"></div>
+                                            </div>
+                                            <span class="text-[13px] text-black group-hover:text-[#4CC098] transition-colors" :class="filterStatus === option.value ? 'font-bold' : 'font-medium'" x-text="option.label"></span>
+                                        </div>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+
+                        <button @click="clearFilters()" class="h-[36px] bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[12px] px-4 rounded-[10px] shadow-sm transition-colors uppercase whitespace-nowrap">
+                            Clear Filter
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="overflow-x-auto w-full mb-0">
-                <table class="w-full min-w-[1250px] border-collapse text-[12px] text-center">
+            <div class="border border-gray-200 rounded-[10px] overflow-hidden">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full min-w-[1250px] border-collapse text-[12px] text-center">
                     <thead>
                         <tr class="bg-[#EBEBEB] text-black h-[45px] font-bold border-b border-[#CAC0C0]">
                             <th class="py-2 px-3 w-[50px] border-r border-[#CAC0C0]">No</th>
@@ -197,6 +258,7 @@
                         </template>
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </div>

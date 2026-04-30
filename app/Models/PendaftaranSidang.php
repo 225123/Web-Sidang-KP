@@ -61,6 +61,8 @@ class PendaftaranSidang extends Model
         'link_revisi',
         'status_revisi',
         'tanggal_revisi',
+        'berita_acara_disubmit',
+        'nilai_dipublikasi',
     ];
 
     public function pendaftaranKp()

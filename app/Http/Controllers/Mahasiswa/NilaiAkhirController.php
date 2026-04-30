@@ -70,6 +70,10 @@ class NilaiAkhirController extends Controller
             ->latest()
             ->firstOrFail();
 
+        if (!$sidang->nilai_dipublikasi) {
+            abort(403, 'Nilai belum dipublikasi oleh koordinator.');
+        }
+
         $logic = $this->calculateFinalLogic($sidang);
         $sidang->nilai_akhir_display = $logic['nilai'];
         $sidang->grade_display = $logic['grade'];
@@ -89,6 +93,10 @@ class NilaiAkhirController extends Controller
             })
             ->latest()
             ->firstOrFail();
+
+        if (!$sidang->nilai_dipublikasi || !$sidang->berita_acara_disubmit) {
+            abort(403, 'Berita acara belum diterbitkan atau disubmit oleh koordinator.');
+        }
 
         // Get Koordinator (Role 1)
         $koordinator = \App\Models\User::where('role', 1)->first();

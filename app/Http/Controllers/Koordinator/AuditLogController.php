@@ -44,7 +44,7 @@ class AuditLogController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'table' => view('koordinator.components.audit-log-table-rows', compact('logs'))->render(),
-                'pagination' => (string) $logs->links(),
+                'pagination' => (string) $logs->appends(request()->query())->links('vendor.pagination.custom'),
                 'chartData' => $chartData,
                 'donutData' => $donutData
             ]);

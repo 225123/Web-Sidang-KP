@@ -14,23 +14,46 @@ class JadwalMengujiController extends Controller
         app()->setLocale('id');
         $userId = Auth::user()->id;
 
-        // Ambil mahasiswa di mana dosen ini menjadi:
-        // 1. Penguji 1
-        // 2. Penguji 2
-        // 3. Pembimbing (Supervisor Internal)
-
-        $sidangs = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp.supervisorInternal'])
-            ->whereNotNull('tanggal_sidang') // Hanya yang sudah dijadwal
+        // Ambil mahasiswa di mana dosen ini menjadi Penguji 1 atau Penguji 2
+        $sidangs = PendaftaranSidang::with(['mahasiswa.user', 'penguji1', 'penguji2', 'pendaftaranKp.supervisorInternal'])
+            ->whereNotNull('tanggal_sidang')
             ->where(function ($query) use ($userId) {
                 $query->where('penguji_1_id', $userId)
-                    ->orWhere('penguji_2_id', $userId)
-                    ->orWhereHas('pendaftaranKp', function ($q) use ($userId) {
-                        $q->where('supervisor_internal_id', $userId);
-                    });
+                      ->orWhere('penguji_2_id', $userId);
             })
             ->get();
 
-        return view('dosen.jadwal-menguji', compact('sidangs'));
+        $allEvents = $sidangs->map(function ($s) {
+            return [
+                'id' => $s->id,
+                'nama' => strtoupper($s->mahasiswa->user->name ?? 'Mahasiswa'),
+                'nim' => $s->mahasiswa->nim ?? '-',
+                'penguji1' => $s->penguji1->name ?? '-',
+                'penguji2' => $s->penguji2->name ?? '-',
+                'penguji' => [
+                    $s->penguji1->name ?? '-',
+                    $s->penguji2->name ?? '-',
+                ],
+                'tanggal' => $s->tanggal_sidang,
+                'jadwal' => [
+                    'tanggal' => date('d/m/Y', strtotime($s->tanggal_sidang)),
+                    'waktu' => date('H:i', strtotime($s->waktu_mulai_sidang)).'-'.date('H:i', strtotime($s->waktu_selesai_sidang)),
+                    'ruang' => $s->ruang_sidang ?? '-',
+                ],
+                'waktu_mulai' => $s->waktu_mulai_sidang,
+                'ruangan' => $s->ruang_sidang ?? '-',
+                'status' => 'Terjadwal',
+                'status_raw' => $s->status_jadwal,
+                'pelaksanaan' => $s->pelaksanaan ?? '-',
+                'tanggal_sidang' => $s->tanggal_sidang,
+                'waktu_mulai_sidang' => $s->waktu_mulai_sidang,
+                'waktu_selesai_sidang' => $s->waktu_selesai_sidang,
+            ];
+        });
+
+        return view('dosen.jadwal-menguji', [
+            'events' => $allEvents,
+        ]);
     }
 
     public function inputNilai($id)

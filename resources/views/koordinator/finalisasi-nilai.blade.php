@@ -3,6 +3,41 @@
         @include('koordinator.components.sidebar', ['active' => 'finalisasi-nilai'])
         </x-slot>
 
+    <x-slot:headerActions>
+        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
+            <button @click="open = !open" @click.outside="open = false" type="button"
+                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
+
+                <span x-text="selected"></span>
+
+                <svg :class="open ? 'rotate-0' : 'rotate-90'"
+                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+
+            <div x-show="open" x-transition style="display: none;"
+                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
+                <ul class="py-1 text-[13px] font-medium text-black">
+                    <li>
+                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Genap 2025/2026
+                        </button>
+                    </li>
+                    <li>
+                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
+                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
+                            Ganjil 2025/2026
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <input type="hidden" name="periode" :value="selected">
+        </div>
+    </x-slot:headerActions>
+
         <div x-data="finalisasiNilaiPage()" class="mt-6 space-y-6">
 
             <!-- Summary Cards Section -->
@@ -41,58 +76,65 @@
             <!-- Unified Table Container -->
             <div class="mt-8 bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-12">
                 <!-- Header Section -->
-                <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-8">
+                <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
                     <div>
-                        <h3 class="text-[18px] font-bold text-black tracking-tight uppercase">Tabel Finalisai Nilai
-                            Mahasiswa</h3>
-                        <p class="text-[12px] text-black/60 font-medium mt-1">Data rekapitulasi nilai mahasiswa
-                            berdasarkan status kelulusan yang sah (Lulus, Lulus Revisi, dan Lanjut).</p>
+                        <h3 class="text-[18px] font-bold text-black tracking-tight">Tabel Finalisasi Nilai Mahasiswa</h3>
+                        <p class="text-[12px] text-black/60 font-medium mt-1">Data rekapitulasi nilai mahasiswa berdasarkan status kelulusan yang sah (Lulus, Lulus Revisi, dan Lanjut).</p>
                     </div>
+                </div>
 
-                    <div class="flex flex-col sm:flex-row items-center gap-4 w-full xl:w-auto">
-                        <div class="relative flex-1 w-full sm:w-[250px]">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-6 mb-6">
+                    <div class="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+                        <div class="relative flex-1 sm:w-[250px]">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                 </svg>
                             </div>
                             <input type="text" x-model="search" @input="currentPage = 1"
-                                class="block w-full pl-9 pr-4 py-2 border border-gray-300 rounded-[5px] text-[12px] text-black focus:ring-blue-500"
+                                class="block w-full pl-9 pr-4 py-2 border border-gray-300 rounded-[5px] text-[12px] text-black focus:ring-[#4285F4]"
                                 placeholder="Cari nama, NIM, atau judul KP...">
                         </div>
 
-                        <div class="flex items-center gap-2 shrink-0 w-full sm:w-auto">
-                            <select x-model="filterStatus" @change="currentPage = 1"
-                                class="w-full sm:w-[140px] text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                <option value="all">Semua Status</option>
-                                <option value="Lulus">Lulus</option>
-                                <option value="Lulus Dengan Revisi">Lulus Dengan Revisi</option>
-                                <option value="Lanjut">Lanjut</option>
-                            </select>
+                        <!-- Status Filter Dropdown -->
+                        <div x-data="{ openStatus: false }" class="relative w-full sm:w-[150px] z-[60]">
+                            <button type="button" @click="openStatus = !openStatus" @click.outside="openStatus = false" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                                <span x-text="filterStatus === 'all' ? 'Semua Status' : filterStatus"></span>
+                                <svg :class="openStatus ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <div x-show="openStatus" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="all" x-model="filterStatus" class="hidden" @change="openStatus = false; currentPage = 1">Semua Status</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Lulus" x-model="filterStatus" class="hidden" @change="openStatus = false; currentPage = 1">Lulus</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Lulus Dengan Revisi" x-model="filterStatus" class="hidden" @change="openStatus = false; currentPage = 1">Lulus Dengan Revisi</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Lanjut" x-model="filterStatus" class="hidden" @change="openStatus = false; currentPage = 1">Lanjut</label>
+                            </div>
                         </div>
 
-                        <div class="flex items-center gap-2 shrink-0 w-full sm:w-auto">
-                            <select x-model="filterGrade" @change="currentPage = 1"
-                                class="w-full sm:w-[140px] text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                <option value="all">Semua Grade</option>
-                                <option value="A">A</option>
-                                <option value="A-">A-</option>
-                                <option value="B+">B+</option>
-                                <option value="B">B</option>
-                                <option value="B-">B-</option>
-                                <option value="C+">C+</option>
-                                <option value="C">C</option>
-                                <option value="D">D</option>
-                                <option value="E">E</option>
-                            </select>
+                        <!-- Grade Filter Dropdown -->
+                        <div x-data="{ openGrade: false }" class="relative w-full sm:w-[130px] z-[50]">
+                            <button type="button" @click="openGrade = !openGrade" @click.outside="openGrade = false" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                                <span x-text="filterGrade === 'all' ? 'Semua Grade' : filterGrade"></span>
+                                <svg :class="openGrade ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <div x-show="openGrade" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-y-auto max-h-[200px] py-1 z-50 custom-scrollbar">
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="all" x-model="filterGrade" class="hidden" @change="openGrade = false; currentPage = 1">Semua Grade</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="A" x-model="filterGrade" class="hidden" @change="openGrade = false; currentPage = 1">A</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="A-" x-model="filterGrade" class="hidden" @change="openGrade = false; currentPage = 1">A-</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="B+" x-model="filterGrade" class="hidden" @change="openGrade = false; currentPage = 1">B+</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="B" x-model="filterGrade" class="hidden" @change="openGrade = false; currentPage = 1">B</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="B-" x-model="filterGrade" class="hidden" @change="openGrade = false; currentPage = 1">B-</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="C+" x-model="filterGrade" class="hidden" @change="openGrade = false; currentPage = 1">C+</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="C" x-model="filterGrade" class="hidden" @change="openGrade = false; currentPage = 1">C</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="D" x-model="filterGrade" class="hidden" @change="openGrade = false; currentPage = 1">D</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="E" x-model="filterGrade" class="hidden" @change="openGrade = false; currentPage = 1">E</label>
+                            </div>
                         </div>
-
-                        <button @click="clearFilters()"
-                            class="w-full sm:w-auto bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[12px] px-4 py-2 rounded-[5px] shadow-sm transition-colors whitespace-nowrap shrink-0">
-                            Clear Filter
-                        </button>
+                        
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <button @click="clearFilters()" class="flex-1 sm:flex-none border border-[#EA4335] bg-[#EA4335] text-white hover:bg-red-600 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm flex items-center justify-center">
+                                Clear Filter
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -280,7 +322,7 @@
                 <div class="px-6 py-4 bg-white border-t border-gray-200 flex items-center justify-between"
                     x-show="totalPages > 1">
                     <span class="text-[12px] font-medium text-black/50"
-                        x-text="`Halaman ${currentPage} dari ${totalPages}`"></span>
+                        x-text="(filteredSidangs.length === 0 ? 0 : ((currentPage - 1) * itemsPerPage + 1)) + ' - ' + Math.min(currentPage * itemsPerPage, filteredSidangs.length) + ' dari ' + filteredSidangs.length + ' baris'"></span>
                     <div class="flex items-center gap-2">
                         <button @click="prevPage" :disabled="currentPage === 1"
                             class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed">Previous</button>
@@ -300,18 +342,26 @@
 
             <!-- Cek Kelengkapan Input Section -->
             <div class="mt-16 bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-12">
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-6 mb-8">
+                <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
                     <div>
                         <h3 class="text-[18px] font-bold text-black tracking-tight">Cek Kelengkapan Input</h3>
-                        <p class="text-[12px] text-black/60 font-medium">Pantau kelengkapan nilai mahasiswa yang terinput oleh pemberi nilai</p>
+                        <p class="text-[12px] text-black/60 font-medium mt-1">Pantau kelengkapan nilai mahasiswa yang terinput oleh pemberi nilai.</p>
                     </div>
+                </div>
 
-                    <div class="flex items-center w-full sm:w-auto">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-6 mb-6">
+                    <div class="flex flex-wrap items-center gap-4 w-full sm:w-auto">
                         <div class="relative flex-1 sm:w-[300px]">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                             </div>
-                            <input type="text" x-model="searchStatus" @input="statusCurrentPage = 1" class="block w-full pl-9 pr-4 py-2 border border-gray-300 rounded-[5px] text-[12px] text-black focus:ring-blue-500" placeholder="Cari Nama/NIM...">
+                            <input type="text" x-model="searchStatus" @input="statusCurrentPage = 1" class="block w-full pl-9 pr-4 py-2 border border-gray-300 rounded-[5px] text-[12px] text-black focus:ring-[#4285F4]" placeholder="Cari Nama/NIM...">
+                        </div>
+
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <button type="button" @click="searchStatus = ''; statusCurrentPage = 1" class="flex-1 sm:flex-none border border-[#EA4335] bg-[#EA4335] text-white hover:bg-red-600 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm flex items-center justify-center">
+                                Clear Filter
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -355,7 +405,7 @@
 
                 <!-- Pagination Footer -->
                 <div class="px-6 py-4 bg-white flex items-center justify-between border-t border-gray-200" x-show="totalStatusPages > 1">
-                    <span class="text-[12px] font-medium text-black/50" x-text="`Halaman ${statusCurrentPage} dari ${totalStatusPages}`"></span>
+                    <span class="text-[12px] font-medium text-black/50" x-text="(filteredInputStatusRows.length === 0 ? 0 : ((statusCurrentPage - 1) * statusPerPage + 1)) + ' - ' + Math.min(statusCurrentPage * statusPerPage, filteredInputStatusRows.length) + ' dari ' + filteredInputStatusRows.length + ' baris'"></span>
                     <div class="flex items-center gap-2">
                         <button @click="prevStatusPage" :disabled="statusCurrentPage === 1" class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Previous</button>
                         <div class="flex items-center gap-1">
@@ -366,17 +416,37 @@
                         <button @click="nextStatusPage" :disabled="statusCurrentPage === totalStatusPages" class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Next</button>
                     </div>
                 </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Submit Button Section -->
-            <div class="flex justify-end mt-8 mb-4">
-                <button type="button" @click="sahkanNilai()" 
-                    class="bg-[#4285F4] hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-[10px] shadow-md flex items-center gap-2 transition-all text-[14px] uppercase tracking-wide">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                    Sahkan Finalisasi Nilai
-                </button>
+            <div class="flex flex-col items-end justify-end mt-8 mb-4">
+                @if(!$allBeritaAcaraSubmitted)
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-[8px] mb-3 flex items-center gap-2 shadow-sm max-w-xl text-[13px] font-medium">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <span>Anda harus men-submit Berita Acara terlebih dahulu sebelum dapat mengesahkan Finalisasi Nilai.</span>
+                    </div>
+                @endif
+                @if(!$hasValidSidangs)
+                    <button type="button" disabled class="bg-gray-400 text-white font-bold py-3 px-8 rounded-[10px] shadow-md flex items-center gap-2 text-[14px] uppercase tracking-wide cursor-not-allowed">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        Belum Ada Data Nilai
+                    </button>
+                @elseif($isAllNilaiDisahkan)
+                    <button type="button" disabled class="bg-green-600 border-2 border-green-700 text-white font-bold py-3 px-8 rounded-[10px] shadow-md flex items-center gap-2 text-[14px] uppercase tracking-wide cursor-not-allowed opacity-90">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        NILAI TELAH DISAHKAN & DITERBITKAN
+                    </button>
+                    <p class="text-[11px] font-bold text-green-600 mt-2 text-right w-full">Seluruh Finalisasi Nilai telah berhasil dikunci dan diterbitkan.</p>
+                @else
+                    <form id="sahkan-form" action="{{ route('koordinator.finalisasi-nilai.sahkan') }}" method="POST">
+                        @csrf
+                        <button type="button" @click="sahkanNilai()" 
+                            class="bg-[#4285F4] hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-[10px] shadow-md flex items-center gap-2 transition-all text-[14px] uppercase tracking-wide">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            Sahkan Finalisasi Nilai
+                        </button>
+                    </form>
+                @endif
             </div>
 
             <!-- Custom Global Confirm Modal -->
@@ -429,16 +499,30 @@
                     confirmDialog: { show: false, title: '', message: '', type: 'info', confirmText: 'Iya, Lanjutkan', callback: null },
 
                     sahkanNilai() {
+                        const allBASubmitted = @json($allBeritaAcaraSubmitted);
+
+                        if (!allBASubmitted) {
+                            this.confirmDialog = {
+                                show: true,
+                                title: 'Berita Acara Belum Disubmit',
+                                message: 'Anda belum mensubmit Berita Acara untuk seluruh mahasiswa yang telah selesai sidang. Harap ke halaman Berita Acara untuk melakukan submit terlebih dahulu.',
+                                type: 'danger',
+                                confirmText: 'Ke Halaman Berita Acara',
+                                callback: () => {
+                                    window.location.href = "{{ route('koordinator.berita-acara.index') }}";
+                                }
+                            };
+                            return;
+                        }
+
                         this.confirmDialog = {
                             show: true,
                             title: 'Sahkan Finalisasi Nilai',
-                            message: 'Pastikan telah memeriksa seluruh kelengkapan nilai dan semacamnya karena hasil ini akan menjadi nilai akhir bagi mahasiswa.',
+                            message: 'Pastikan telah memeriksa seluruh kelengkapan nilai dan semacamnya karena hasil ini akan menjadi nilai akhir bagi mahasiswa. Nilai dan Berita Acara akan langsung terbit ke mahasiswa.',
                             type: 'info',
-                            confirmText: 'Lanjutkan',
+                            confirmText: 'Sahkan & Terbitkan',
                             callback: () => {
-                                // Add form submission logic here later
-                                this.confirmDialog.show = false;
-                                alert('Finalisasi Nilai Disahkan!');
+                                document.getElementById('sahkan-form').submit();
                             }
                         };
                     },

@@ -144,6 +144,7 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verifie
 
     // 9. Berita Acara (Koordinator)
     Route::get('/berita-acara', [BeritaAcaraController::class, 'index'])->name('berita-acara.index');
+    Route::post('/berita-acara/submit', [BeritaAcaraController::class, 'submit'])->name('berita-acara.submit');
     Route::get('/berita-acara/preview-pdf', [BeritaAcaraController::class, 'previewPdf'])->name('berita-acara.preview-pdf');
 
     // Revisi (Jika Koordinator bertindak sebagai Penguji 1)
@@ -156,6 +157,7 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verifie
 
     // 10. Finalisasi Nilai (Rekap Nilai Akhir & Grade)
     Route::get('/finalisasi-nilai', [FinalisasiNilaiController::class, 'index'])->name('finalisasi-nilai.index');
+    Route::post('/finalisasi-nilai/sahkan', [FinalisasiNilaiController::class, 'sahkan'])->name('finalisasi-nilai.sahkan');
     Route::get('/finalisasi-nilai/{id}', [FinalisasiNilaiController::class, 'show'])->name('finalisasi-nilai.show');
     Route::get('/finalisasi-nilai/{id}/download', [FinalisasiNilaiController::class, 'downloadPdf'])->name('finalisasi-nilai.download');
     Route::get('/finalisasi-nilai/{id}/download-berita-acara', [FinalisasiNilaiController::class, 'downloadBeritaAcara'])->name('finalisasi-nilai.download-berita-acara');
