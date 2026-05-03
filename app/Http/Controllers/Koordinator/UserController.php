@@ -15,6 +15,53 @@ use Maatwebsite\Excel\Facades\Excel;
 class UserController extends Controller
 {
     /**
+     * Mengecek ketersediaan ID (NIM/NIDN) melalui AJAX untuk form tambah user
+     */
+    public function checkId(Request $request)
+    {
+        $id = $request->input('id_user');
+        if (!$id) {
+            return response()->json(['exists' => false]);
+        }
+
+        // Cek di tabel mahasiswa
+        $mhs = DB::table('mahasiswa')
+            ->join('users', 'mahasiswa.user_id', '=', 'users.id')
+            ->where('mahasiswa.nim', $id)
+            ->select('users.name', 'users.email', 'users.role')
+            ->first();
+
+        if ($mhs) {
+            return response()->json([
+                'exists' => true,
+                'role_type' => 'mahasiswa',
+                'name' => $mhs->name,
+                'email' => $mhs->email,
+                'role' => $mhs->role == 'mahasiswa' ? 'Mahasiswa' : ucfirst($mhs->role)
+            ]);
+        }
+
+        // Cek di tabel dosen
+        $dosen = DB::table('dosen')
+            ->join('users', 'dosen.user_id', '=', 'users.id')
+            ->where('dosen.nidn', $id)
+            ->select('users.name', 'users.email', 'users.role')
+            ->first();
+
+        if ($dosen) {
+            return response()->json([
+                'exists' => true,
+                'role_type' => 'dosen',
+                'name' => $dosen->name,
+                'email' => $dosen->email,
+                'role' => $dosen->role == 'dosen' ? 'Dosen' : 'Koordinator KP'
+            ]);
+        }
+
+        return response()->json(['exists' => false]);
+    }
+
+    /**
      * Menampilkan halaman Manajemen Akses
      */
     public function index(Request $request)
@@ -101,28 +148,103 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'id_user' => 'required|string|unique:mahasiswa,nim|unique:dosen,nidn',
-            'email' => 'required|email|unique:users,email',
+            'id_user' => 'required|string',
+            'email' => 'required|email',
             'role' => 'required|in:mahasiswa,dosen,koordinator_kp',
         ]);
 
-        DB::transaction(function () use ($request) {
-            // 1. Simpan ke tabel public.users
+        // Pastikan pendaftaran manual selalu masuk ke periode AKTIF secara global, bukan bergantung pada filter dropdown
+        $activePeriodId = \App\Models\TahunAjaran::aktif()->id;
+
+        // Validasi dan Pengecekan Duplikat ID
+        if ($request->role === 'mahasiswa') {
+            $existingMahasiswa = DB::table('mahasiswa')->where('nim', $request->id_user)->first();
+            
+            if ($existingMahasiswa) {
+                // Jika sudah ada di periode yang sama
+                if ($existingMahasiswa->tahun_ajaran_id == $activePeriodId) {
+                    return back()->withErrors(['id_user' => 'Mahasiswa dengan NIM ini sudah terdaftar di periode saat ini.'])->withInput();
+                }
+
+                // Cek data KP terakhir
+                $latestKp = DB::table('pendaftaran_kp')
+                    ->where('mahasiswa_id', $existingMahasiswa->user_id)
+                    ->orderBy('id', 'desc')
+                    ->first();
+
+                $isAllowed = false;
+
+                if (!$latestKp) {
+                    $isAllowed = true; // Belum pernah mendaftar KP sama sekali
+                } else {
+                    $latestSidang = DB::table('pendaftaran_sidang')
+                        ->where('pendaftaran_kp_id', $latestKp->id)
+                        ->first();
+
+                    if (!$latestSidang) {
+                        $isAllowed = true; // Tidak mengikuti sidang
+                    } else {
+                        if (in_array($latestSidang->status_kelulusan, ['Lanjut', 'Tidak Lulus'])) {
+                            $isAllowed = true;
+                        } elseif (in_array($latestSidang->grade, ['D', 'E'])) {
+                            $isAllowed = true;
+                        }
+                    }
+                }
+
+                if (!$isAllowed) {
+                    return back()->withErrors(['id_user' => 'Penambahan ditolak: Mahasiswa ini sudah dinyatakan Lulus di periode sebelumnya dan tidak memenuhi syarat mengulang (Lanjut/Tidak ikut sidang/Nilai D/E).'])->withInput();
+                }
+
+                // Cek apakah email baru ini bentrok dengan user LAIN
+                $emailConflict = User::where('email', $request->email)->where('id', '!=', $existingMahasiswa->user_id)->first();
+                if ($emailConflict) {
+                    return back()->withErrors(['email' => 'Email ini sudah digunakan oleh pengguna lain.'])->withInput();
+                }
+
+                // Lolos pengecekan, perbarui data mahasiswa ini ke periode saat ini
+                DB::transaction(function () use ($request, $existingMahasiswa, $activePeriodId) {
+                    User::where('id', $existingMahasiswa->user_id)->update([
+                        'name' => $request->name,
+                        'email' => $request->email,
+                    ]);
+                    DB::table('mahasiswa')->where('nim', $request->id_user)->update([
+                        'email' => $request->email,
+                        'tahun_ajaran_id' => $activePeriodId,
+                    ]);
+                });
+
+                return back()->with('success', 'Mahasiswa (Lanjut) berhasil diperbarui ke periode saat ini.');
+            }
+        } elseif (in_array($request->role, ['dosen', 'koordinator_kp'])) {
+            $existingDosen = DB::table('dosen')->where('nidn', $request->id_user)->first();
+            if ($existingDosen) {
+                return back()->withErrors(['id_user' => 'Dosen/Koordinator dengan ID ini sudah terdaftar.'])->withInput();
+            }
+        }
+
+        // Cek duplikasi email untuk user baru
+        $existingEmail = User::where('email', $request->email)->first();
+        if ($existingEmail) {
+            return back()->withErrors(['email' => 'Email ini sudah digunakan oleh pengguna lain.'])->withInput();
+        }
+
+        // Eksekusi Pembuatan User Baru
+        DB::transaction(function () use ($request, $activePeriodId) {
             $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make('password123'), // Password default
-                'role' => $request->role,
+                'name'     => $request->name,
+                'email'    => $request->email,
+                'password' => bcrypt($request->id_user), // Password default disamakan dengan ID (NIM/NIDN/NIDK)
+                'role'     => $request->role,
             ]);
 
-            // 2. Simpan ke tabel detail sesuai Role (Sinkron dengan PostgreSQL)
             if ($request->role === 'mahasiswa') {
                 DB::table('mahasiswa')->insert([
                     'user_id' => $user->id,
                     'nim' => $request->id_user,
                     'email' => $request->email,
                     'prodi' => 'Informatika',
-                    'tahun_ajaran_id' => session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id,
+                    'tahun_ajaran_id' => $activePeriodId,
                 ]);
             } elseif (in_array($request->role, ['dosen', 'koordinator_kp'])) {
                 DB::table('dosen')->insert([
@@ -327,10 +449,10 @@ class UserController extends Controller
             foreach ($validRowsFinal as $row) {
                 // 1. Simpan ke tabel users
                 $user = User::create([
-                    'name' => $row['nama'],
-                    'email' => $row['email'],
-                    'password' => Hash::make('password123'),
-                    'role' => strtolower(str_replace(' ', '_', $row['role'])),
+                    'name'     => $row['nama'],
+                    'email'    => $row['email'],
+                    'password' => bcrypt($row['id']), // Password default disamakan dengan ID (NIM/NIDN/NIDK)
+                    'role'     => strtolower(str_replace(' ', '_', $row['role'])),
                 ]);
 
                 // 2. Simpan ke tabel detail
@@ -374,7 +496,14 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        $user = User::findOrFail($id);
+        $user = User::find($id);
+
+        if (!$user) {
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'User tidak ditemukan atau sudah dihapus sebelumnya.']);
+            }
+            return back()->with('error', 'User tidak ditemukan atau sudah dihapus sebelumnya.');
+        }
 
         // Prevent self deletion
         if ($user->id === auth()->id()) {

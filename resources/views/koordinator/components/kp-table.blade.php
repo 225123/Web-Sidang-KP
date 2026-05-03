@@ -200,13 +200,10 @@
                 </tbody>
             @endforelse
 
-            <tbody x-show="totalVisible === 0 && {{ count($pendaftarans->items()) }} > 0" style="display: none;">
+            <tbody x-show="totalVisible === 0 && {{ count($pendaftarans->items()) }} > 0" style="display: none;" class="divide-y divide-gray-200 bg-gray-50/30">
                 <tr>
-                    <td colspan="{{ $isRejected ? 9 : 8 }}" class="border border-gray-200 px-4 py-16 text-center bg-white">
-                        <div class="flex flex-col items-center justify-center text-gray-400">
-                            <svg class="w-12 h-12 mb-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                            <p class="text-[14px] font-medium text-gray-500">Pencarian tidak membuahkan hasil.</p>
-                        </div>
+                    <td colspan="{{ $isRejected ? 9 : 8 }}" class="py-12 text-center text-gray-400 italic font-medium bg-gray-50 tracking-widest border-b border-gray-300">
+                        Belum Ada Data Pendaftaran
                     </td>
                 </tr>
             </tbody>

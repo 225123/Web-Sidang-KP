@@ -63,8 +63,7 @@
                     <div>Bimbingan Disahkan</div>
                     <div>: {{ $totalBimbingan ?? '12' }}/12</div>
 
-                    <div>Periode KP</div>
-                    <div>: Genap 2025/2026</div>
+
 
                     @if(!$persetujuan || in_array($persetujuan->status_verifikasi, ['Ditolak', 'rejected']))
                         <div class="pt-2">Upload Laporan KP</div>

@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             EnsureTtdExists::class,
             \App\Http\Middleware\LogActivity::class,
             \App\Http\Middleware\SetActivePeriode::class,
+            \App\Http\Middleware\CheckPeriodeLock::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

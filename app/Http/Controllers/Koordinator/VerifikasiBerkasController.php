@@ -12,9 +12,15 @@ class VerifikasiBerkasController extends Controller
 {
     public function index()
     {
+        $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id;
+
         // Ambil semua data sidang yang sudah diajukan ke Koordinator (status_koordinator != 'unsubmitted')
         // Dan hanya ambil yang status_verifikasi (Dosen) = 'verified' karena itu prasyarat
+        // Serta filter berdasarkan periode aktif
         $semuaPengajuan = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp'])
+            ->whereHas('pendaftaranKp', function($query) use ($activePeriodId) {
+                $query->where('tahun_ajaran_id', $activePeriodId);
+            })
             ->where('status_verifikasi', 'verified')
             ->where('status_koordinator', '!=', 'unsubmitted')
             ->get();
@@ -22,13 +28,19 @@ class VerifikasiBerkasController extends Controller
         // 1. Yang ada di tabel utama (Pending, Verified, Rejected) -> Semua yang sudah diajukan
         $pengajuans = $semuaPengajuan->values();
 
-        // 2. Riwayat Penolakan (semua history penolakan)
+        // 2. Riwayat Penolakan (semua history penolakan) - Filter by period
         $ditolaks = RiwayatPenolakanSidang::with(['mahasiswa.user'])
+            ->whereHas('pendaftaranSidang.pendaftaranKp', function($query) use ($activePeriodId) {
+                $query->where('tahun_ajaran_id', $activePeriodId);
+            })
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // 3. Yang belum submit sama sekali (Tapi sudah ACC dosen)
+        // 3. Yang belum submit sama sekali (Tapi sudah ACC dosen) - Filter by period
         $belumKumpuls = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp'])
+            ->whereHas('pendaftaranKp', function($query) use ($activePeriodId) {
+                $query->where('tahun_ajaran_id', $activePeriodId);
+            })
             ->where('status_verifikasi', 'verified')
             ->where('status_koordinator', 'unsubmitted')
             ->get();
@@ -115,7 +127,12 @@ class VerifikasiBerkasController extends Controller
 
         if ($request->ajax()) {
             // Re-calculate stats for real-time update
-            $semua = PendaftaranSidang::where('status_verifikasi', 'verified')
+            $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id;
+            
+            $semua = PendaftaranSidang::whereHas('pendaftaranKp', function($query) use ($activePeriodId) {
+                    $query->where('tahun_ajaran_id', $activePeriodId);
+                })
+                ->where('status_verifikasi', 'verified')
                 ->where('status_koordinator', '!=', 'unsubmitted')
                 ->get();
 

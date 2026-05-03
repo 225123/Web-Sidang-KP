@@ -10,7 +10,7 @@
         <!-- Section 1: Buat Timeline Box -->
         <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
             <div class="mb-6 border-b border-gray-100 pb-4">
-                <h3 class="text-[18px] font-bold text-black tracking-tight">Buat Timeline</h3>
+                <h3 class="text-[18px] font-bold text-black tracking-tight" x-text="tab === 'mahasiswa' ? 'Buat Timeline Mahasiswa' : 'Buat Timeline Dosen'"></h3>
                 <p class="text-[12px] text-black/60 font-medium mt-1">Buatlah jadwal timeline penting selama proses KP.</p>
             </div>
             <div class="px-2">

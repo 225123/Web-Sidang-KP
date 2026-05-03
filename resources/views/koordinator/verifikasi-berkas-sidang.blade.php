@@ -45,7 +45,16 @@
 
         $allVerifikasiRows = $mainRows->sortBy('nim')->values();
 
-        $semuaMahasiswa = \App\Models\Mahasiswa::with('user')->get();
+        $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id;
+        
+        // Get students who have a KP registration in this period
+        $semuaMahasiswa = \App\Models\Mahasiswa::with('user')
+            ->whereIn('user_id', function($query) use ($activePeriodId) {
+                $query->select('mahasiswa_id')
+                      ->from('pendaftaran_kp')
+                      ->where('tahun_ajaran_id', $activePeriodId);
+            })->get();
+
         $allStatusRows = $semuaMahasiswa->map(function($mhs) use ($pengajuans) {
             $pengajuan = $pengajuans->where('mahasiswa_id', $mhs->user_id)->first();
             $isSudah = $pengajuan && $pengajuan->status_koordinator !== 'rejected';

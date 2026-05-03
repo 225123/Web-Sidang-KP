@@ -126,7 +126,7 @@
                             <th class="py-3 px-4 font-bold text-center w-[60px] border-b border-r border-gray-300 uppercase tracking-wider text-[11px]">No</th>
                             <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300 uppercase tracking-wider text-[11px]">Proyek & Instansi</th>
                             <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 uppercase tracking-wider text-[11px] w-[150px]">Jenis KP</th>
-                            <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 uppercase tracking-wider text-[11px] w-[150px]">Periode</th>
+
                             <th class="py-3 px-4 font-bold text-center border-b border-gray-300 uppercase tracking-wider text-[11px] w-[180px]">Status Approval</th>
                         </tr>
                     </thead>
@@ -147,9 +147,7 @@
                                     @endif
                                 </td>
                                 <td class="py-3 px-4 text-center border-r border-gray-200 font-medium">{{ $kp->jenis_instansi }}</td>
-                                <td class="py-3 px-4 text-center border-r border-gray-200 font-medium">
-                                    {{ ($kp->created_at->format('n') > 6 ? 'Ganjil' : 'Genap') . '/' . $kp->created_at->format('Y') }}
-                                </td>
+
                                 <td class="py-3 px-4 text-center">
                                     @if($kp->status_kp === 'approved')
                                         <span class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-4 py-1 rounded-full font-bold text-[10px] uppercase">
@@ -169,7 +167,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="py-12 text-center text-gray-400 italic font-medium bg-gray-50 tracking-widest">
+                                <td colspan="4" class="py-12 text-center text-gray-400 italic font-medium bg-gray-50 tracking-widest">
                                     Riwayat pendaftaran Anda belum tersedia.
                                 </td>
                             </tr>

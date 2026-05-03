@@ -175,6 +175,96 @@
                 @endif
                 
                 <div class="mt-4 w-full relative z-0">
+                    @if(isset($is_locked) && $is_locked)
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded shadow-sm">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-[13px] text-yellow-700 font-medium">
+                                        <strong>Mode Lihat Saja:</strong> Anda sedang melihat data dari periode akademik lama. Semua aksi perubahan data telah dikunci.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', () => {
+                                const actionKeywords = ['simpan', 'tambah', 'update', 'sahkan', 'hapus', 'terima', 'tolak', 'setujui', 'generate', 'auto', 'reset', 'cancel', 'kirim', 'upload', 'buka', 'tutup'];
+                                const safeKeywords = ['download', 'export', 'detail', 'lihat', 'cari', 'clear', 'next', 'previous'];
+
+                                function lockElements() {
+                                    // 1. Disable all forms except GET forms and specific exclusions like periode-form
+                                    document.querySelectorAll('form').forEach(form => {
+                                        if (form.id === 'periode-form' || form.method.toUpperCase() === 'GET' || form.dataset.locked) return;
+                                        form.dataset.locked = 'true';
+                                        form.addEventListener('submit', e => {
+                                            e.preventDefault();
+                                            alert('Aksi tidak diizinkan: Anda berada di mode lihat saja (periode lama).');
+                                        });
+                                    });
+
+                                    // 2. Disable buttons, links, selects, and inputs based on keywords
+                                    document.querySelectorAll('button:not([data-locked="true"]), a:not([data-locked="true"]), select:not([data-locked="true"]), input[type="radio"]:not([data-locked="true"]), input[type="checkbox"]:not([data-locked="true"])').forEach(el => {
+                                        const text = (el.textContent || el.title || el.placeholder || '').toLowerCase().trim();
+                                        const alpineClick = (el.getAttribute('@click') || el.getAttribute('@change') || el.getAttribute('x-on:click') || el.getAttribute('x-on:change') || '').toLowerCase();
+                                        
+                                        // 1. ALWAYS skip specific safe zones
+                                        if (el.closest('.pagination') || el.closest('#periode-form')) return;
+
+                                        // 2. Detect Actions
+                                        const actionKeywordsExtended = [...actionKeywords, 'edit', 'import', 'reset', 'pilih'];
+                                        const isSubmit = el.tagName === 'BUTTON' && el.type === 'submit' && el.closest('form') !== null;
+                                        const hasActionText = actionKeywordsExtended.some(kw => text.includes(kw));
+                                        const isAlpineAction = alpineClick.includes('store') || alpineClick.includes('update') || alpineClick.includes('destroy') || alpineClick.includes('delete') || alpineClick.includes('save') || alpineClick.includes('status');
+
+                                        if (isSubmit || hasActionText || isAlpineAction) {
+                                            // DOUBLE CHECK: Even if it looks like an action, some things are explicitly safe
+                                            // but ONLY if they aren't explicitly destructive/modifying
+                                            const isExplicitlySafe = safeKeywords.some(kw => text.includes(kw));
+                                            
+                                            if (!isExplicitlySafe) {
+                                                if (el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT') {
+                                                    el.disabled = true;
+                                                } else if (el.tagName === 'A') {
+                                                    el.removeAttribute('href');
+                                                    el.style.pointerEvents = 'none';
+                                                }
+                                                el.classList.add('opacity-50', 'cursor-not-allowed', 'grayscale');
+                                                el.title = 'Terkunci di periode lama';
+                                                el.dataset.locked = 'true';
+                                                return; // Locked!
+                                            }
+                                        }
+
+                                        // 3. Detect UI Toggles/Safe Keywords
+                                        const isSafeKeyword = safeKeywords.some(kw => text.includes(kw));
+                                        const isUIToggle = alpineClick.includes('tab') || alpineClick.includes('switch') || alpineClick.includes('open') || alpineClick.includes('toggle') || alpineClick.includes('show');
+
+                                        if (isSafeKeyword || isUIToggle) {
+                                            return; // It's a safe UI interaction
+                                        }
+                                    });
+                                }
+
+                                // Initial lock
+                                lockElements();
+
+                                // Observe DOM changes for AlpineJS dynamic renders
+                                const observer = new MutationObserver((mutations) => {
+                                    let shouldRun = false;
+                                    mutations.forEach(m => {
+                                        if (m.addedNodes.length > 0) shouldRun = true;
+                                    });
+                                    if (shouldRun) lockElements();
+                                });
+
+                                observer.observe(document.body, { childList: true, subtree: true });
+                            });
+                        </script>
+                    @endif
                     {{ $slot }}
                 </div>
             </div>

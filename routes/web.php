@@ -74,6 +74,7 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verifie
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/manajemen-akses', [UserController::class, 'index'])->name('manajemen-akses');
+    Route::get('/manajemen-akses/check-id', [UserController::class, 'checkId'])->name('user.check-id');
     Route::post('/manajemen-akses/store', [UserController::class, 'store'])->name('user.store');
     Route::get('/manajemen-akses/export-pdf', [UserController::class, 'exportPdf'])->name('user.export-pdf');
     Route::get('/manajemen-akses/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
@@ -229,7 +230,7 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verifie
 // ==========================================
 // SIMULASI UI DASHBOARD MAHASISWA
 // ==========================================
-Route::prefix('mahasiswa')->name('mahasiswa.')->middleware('auth')->group(function () {
+Route::prefix('mahasiswa')->name('mahasiswa.')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Mahasiswa\DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/pendaftaran-kp', [MahasiswaPendaftaranKpController::class, 'create'])->name('pendaftaran-kp.create');
@@ -303,7 +304,7 @@ Route::prefix('mahasiswa')->name('mahasiswa.')->middleware('auth')->group(functi
 // ==========================================
 // SIMULASI UI DASHBOARD DOSEN
 // ==========================================
-Route::prefix('dosen')->name('dosen.')->middleware('auth')->group(function () {
+Route::prefix('dosen')->name('dosen.')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Dosen\DashboardController::class, 'index'])->name('dashboard');
 
     // Daftar Mahasiswa (Dosen)

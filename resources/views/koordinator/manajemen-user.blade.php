@@ -182,8 +182,9 @@
         </div>
 
         <!-- Tambah User Modal -->
-        <div x-show="showAddModal" style="display: none;" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" x-transition>
-            <div @click.away="showAddModal = false" class="bg-[#F4F3F3] border border-black/50 rounded-[30px] w-full max-w-[850px] shadow-2xl relative overflow-hidden">
+        <template x-teleport="body">
+            <div x-show="showAddModal" style="display: none;" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" x-transition>
+                <div @click.away="showAddModal = false" class="bg-[#F4F3F3] border border-black/50 rounded-[30px] w-full max-w-[850px] shadow-2xl relative overflow-hidden">
                 
                 <div class="px-10 pt-8 pb-4">
                     <h2 class="text-[24px] font-bold text-black font-inter mb-4">Tambah User</h2>
@@ -196,36 +197,45 @@
                         </p>
                     </div>
 
-                    <!-- Upload Error Warning Alerts (Indonesian) -->
-                    @if($errors->has('file_import'))
-                    <div class="bg-red-50 border border-red-300 rounded-lg p-3 mb-6 flex items-start gap-2">
-                        <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <p class="text-sm font-bold text-red-700">{{ $errors->first('file_import') }}</p>
+                    <!-- Validation Error Alerts (Indonesian) -->
+                    @if($errors->any())
+                    <div class="bg-red-50 border border-red-300 rounded-lg p-3 mb-6">
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <p class="text-sm font-bold text-red-700">Terdapat kesalahan pada isian form:</p>
+                        </div>
+                        <ul class="list-disc ml-8 mt-1 text-xs text-red-600">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
                     </div>
                     @endif
                     
                     <form action="{{ route('koordinator.user.store') }}" method="POST" id="formManual">
                         @csrf
                         <div class="space-y-4 max-w-[600px] mb-12">
+                            <!-- ID -->
+                            <div class="flex flex-col md:flex-row md:items-center">
+                                <label class="w-full md:w-[200px] text-[15px] text-black font-medium mb-1 md:mb-0">ID (NIM/NIDN/NIDK)</label>
+                                <span class="hidden md:inline text-black mx-4">:</span>
+                                <input type="text" name="id_user" x-model="formData.id_user" @blur="checkIdUser" required class="flex-1 w-full md:max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Input ID User">
+                            </div>
+                            <div x-show="isDosenDuplicate" class="text-red-600 text-[13px] md:ml-[230px] font-bold mt-1">ID ini sudah terdaftar sebagai Dosen/Koordinator. Duplikasi ditolak.</div>
+                            <div x-show="isCheckingId" class="text-blue-500 text-[12px] md:ml-[230px] mt-1">Mengecek ID...</div>
+
                             <!-- Nama -->
                             <div class="flex flex-col md:flex-row md:items-center">
                                 <label class="w-full md:w-[200px] text-[15px] text-black font-medium mb-1 md:mb-0">Nama Lengkap</label>
                                 <span class="hidden md:inline text-black mx-4">:</span>
-                                <input type="text" name="name" required class="flex-1 w-full md:max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Ketik nama...">
-                            </div>
-
-                            <!-- ID -->
-                            <div class="flex flex-col md:flex-row md:items-center">
-                                <label class="w-full md:w-[200px] text-[15px] text-black font-medium mb-1 md:mb-0">ID (NIM/NIDN)</label>
-                                <span class="hidden md:inline text-black mx-4">:</span>
-                                <input type="text" name="id_user" required class="flex-1 w-full md:max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Input ID User">
+                                <input type="text" name="name" x-model="formData.name" required class="flex-1 w-full md:max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Ketik nama...">
                             </div>
 
                             <!-- Email -->
                             <div class="flex flex-col md:flex-row md:items-center">
                                 <label class="w-full md:w-[200px] text-[15px] text-black font-medium mb-1 md:mb-0">Email Utama</label>
                                 <span class="hidden md:inline text-black mx-4">:</span>
-                                <input type="email" name="email" required class="flex-1 w-full md:max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Input Email User">
+                                <input type="email" name="email" x-model="formData.email" required class="flex-1 w-full md:max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Input Email User">
                             </div>
 
                             <!-- Role Dropdown -->
@@ -276,15 +286,16 @@
                     </form>
                 </div>
             </div>
-        </div>
+        </template>
 
         <form id="importForm" action="{{ route('koordinator.user.import') }}" method="POST" enctype="multipart/form-data" class="hidden">
             @csrf
         </form>
 
         <!-- Custom Global Confirm Modal -->
-        <div x-show="showConfirmModal" style="display: none;" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" x-transition>
-            <div @click.away="showConfirmModal = false" class="bg-white rounded-[10px] w-full max-w-[450px] p-8 shadow-2xl flex flex-col items-center justify-center text-center transform transition-all">
+        <template x-teleport="body">
+            <div x-show="showConfirmModal" style="display: none;" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" x-transition>
+                <div @click.away="showConfirmModal = false" class="bg-white rounded-[10px] w-full max-w-[450px] p-8 shadow-2xl flex flex-col items-center justify-center text-center transform transition-all">
                 
                 <div x-show="confirmType === 'add'" class="mb-5">
                     <svg class="w-16 h-16 text-[#4CAF50]" viewBox="0 0 24 24" fill="currentColor">
@@ -303,12 +314,13 @@
                     <button @click="showConfirmModal = false" type="button" class="w-[100px] h-[34px] bg-[#E32727] hover:bg-red-700 text-white rounded-[5px] text-[14px] font-medium transition-colors shadow-sm">
                         Batal
                     </button>
-                    <button @click="executeConfirm()" type="button" class="w-[100px] h-[34px] bg-[#456DA7] hover:bg-blue-700 text-white rounded-[5px] text-[14px] font-medium transition-colors shadow-sm">
+                    <button @click="executeConfirm()" :disabled="confirmType === 'add' && isDosenDuplicate" type="button" :class="confirmType === 'add' && isDosenDuplicate ? 'opacity-50 cursor-not-allowed bg-gray-400' : 'bg-[#456DA7] hover:bg-blue-700 shadow-sm'" class="w-[100px] h-[34px] text-white rounded-[5px] text-[14px] font-medium transition-colors">
                         Iya
                     </button>
                 </div>
             </div>
         </div>
+        </template>
 
     </div>
 
@@ -330,12 +342,51 @@
                 progress: 0,
                 progressInterval: null,
                 notification: { show: false, message: '', type: 'success' },
-                showAddModal: false,
+                showAddModal: {{ $errors->any() ? 'true' : 'false' }},
                 selectedRole: 'Input Role User',
                 openRole: false,
                 confirmType: '',
                 confirmActionId: null,
                 showConfirmModal: false,
+                formData: {
+                    id_user: '{{ old("id_user") }}',
+                    name: '{{ old("name") }}',
+                    email: '{{ old("email") }}',
+                    role: '{{ old("role") ? (old("role") == "koordinator_kp" ? "Koordinator KP" : ucfirst(old("role"))) : "Input Role User" }}'
+                },
+                isCheckingId: false,
+                isDosenDuplicate: false,
+
+                async checkIdUser() {
+                    if (!this.formData.id_user) {
+                        this.isDosenDuplicate = false;
+                        return;
+                    }
+                    
+                    this.isCheckingId = true;
+                    try {
+                        const response = await fetch(`{{ route('koordinator.user.check-id') }}?id_user=${this.formData.id_user}`);
+                        const data = await response.json();
+                        
+                        if (data.exists) {
+                            this.formData.name = data.name;
+                            this.formData.email = data.email;
+                            this.selectedRole = data.role;
+                            
+                            if (data.role_type === 'dosen') {
+                                this.isDosenDuplicate = true;
+                            } else {
+                                this.isDosenDuplicate = false;
+                            }
+                        } else {
+                            this.isDosenDuplicate = false;
+                        }
+                    } catch (error) {
+                        console.error('Error checking ID:', error);
+                    } finally {
+                        this.isCheckingId = false;
+                    }
+                },
 
                 init() {
                     // Sync URL state on initial load
@@ -344,6 +395,22 @@
                     this.search = urlParams.get('search') || '';
                     this.statusFilter = urlParams.get('status') || '';
                     this.pagination.current_page = parseInt(urlParams.get('page')) || 1;
+
+                    // Handle session messages
+                    @if(session('success'))
+                    this.notification = { show: true, message: '{{ session('success') }}', type: 'success' };
+                    setTimeout(() => this.notification.show = false, 3000);
+                    @endif
+
+                    @if(session('error'))
+                    this.notification = { show: true, message: '{{ session('error') }}', type: 'error' };
+                    setTimeout(() => this.notification.show = false, 5000);
+                    @endif
+
+                    @if($errors->any())
+                    this.notification = { show: true, message: 'Gagal menambahkan user! Silakan periksa kembali form untuk melihat detail error.', type: 'error' };
+                    setTimeout(() => this.notification.show = false, 6000);
+                    @endif
                 },
 
                 get selectedStatusLabel() {

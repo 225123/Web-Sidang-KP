@@ -61,10 +61,7 @@
                             <div class="w-[180px]">Bimbingan Dosen Disahkan</div>
                             <div>: {{ $bimbinganDosen['current'] }} / {{ $bimbinganDosen['target'] }}</div>
                         </div>
-                        <div class="flex">
-                            <div class="w-[180px]">Bimbingan Supervisor Disahkan</div>
-                            <div>: {{ $bimbinganSupervisor['current'] }} / {{ $bimbinganSupervisor['target'] }}</div>
-                        </div>
+
                         <div class="flex">
                             <div class="w-[180px]">Progress KP</div>
                             <div>: {{ $progress }} %</div>

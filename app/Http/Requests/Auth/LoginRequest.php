@@ -56,7 +56,22 @@ class LoginRequest extends FormRequest
             $user = $dosen ? $dosen->user : null;
         }
 
-        if (! $user || ! Auth::attempt(['email' => $user->email, 'password' => $this->input('password')], $this->boolean('remember'))) {
+        if (! $user) {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'login_id' => 'NIM/NIDN tidak ditemukan dalam sistem.',
+            ]);
+        }
+
+        // Jika akun belum memiliki password (belum mendaftar sendiri)
+        if (! $user->password) {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'login_id' => 'Akun Anda belum diaktifkan. Silakan <a href="'.route('register').'" class="underline font-semibold text-blue-600">daftar di sini</a> menggunakan email yang terdaftar.',
+            ]);
+        }
+
+        if (! Auth::attempt(['email' => $user->email, 'password' => $this->input('password')], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([

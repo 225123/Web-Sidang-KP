@@ -48,7 +48,13 @@ class ViewComposerServiceProvider extends ServiceProvider
             
             $selected_period_label = $available_periods->where('id', $selected_period_id)->first()->label_tahun_ajaran ?? 'Pilih Periode';
 
-            $view->with(compact('available_periods', 'selected_period_id', 'selected_period_label'));
+            // Cek apakah periode yang dipilih adalah periode absolut terbaru di database
+            $latest_all = TahunAjaran::terbaru()->first();
+            $is_locked = $selected_period_id && $latest_all && ($selected_period_id != $latest_all->id);
+
+            View::share('is_locked', $is_locked);
+
+            $view->with(compact('available_periods', 'selected_period_id', 'selected_period_label', 'is_locked'));
         });
     }
 }
