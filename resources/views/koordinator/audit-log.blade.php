@@ -1,42 +1,9 @@
-<x-dashboard-layout header="Audit Log Sistem" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR">
+<x-dashboard-layout header="Audit Log Sistem" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR" hidePeriodSelector="true">
     <x-slot:sidebar>
         @include('koordinator.components.sidebar', ['active' => 'audit-log'])
     </x-slot>
 
-    <x-slot:headerActions>
-        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
-            <button @click="open = !open" @click.outside="open = false" type="button"
-                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
-
-                <span x-text="selected"></span>
-
-                <svg :class="open ? 'rotate-0' : 'rotate-90'"
-                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-
-            <div x-show="open" x-transition style="display: none;"
-                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
-                <ul class="py-1 text-[13px] font-medium text-black">
-                    <li>
-                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Genap 2025/2026
-                        </button>
-                    </li>
-                    <li>
-                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Ganjil 2025/2026
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <input type="hidden" name="periode" :value="selected">
-        </div>
-    </x-slot:headerActions>
+    
 
     <div class="mt-6 max-w-7xl mx-auto space-y-6 px-4 sm:px-6 lg:px-8">
         <!-- Top Charts Section -->
@@ -106,7 +73,7 @@
             </div>
 
             <!-- Filters & Search (Responsive Grid) -->
-            <form id="filterForm" class="flex flex-col sm:flex-row justify-between items-center gap-6 mb-6" x-data="{ role: '{{ request('role') }}', module: '{{ request('module') }}' }">
+            <form id="auditLogFilterForm" class="flex flex-col sm:flex-row justify-between items-center gap-6 mb-6" x-data="{ role: '{{ request('role') }}', module: '{{ request('module') }}' }">
                 <input type="hidden" id="roleFilter" name="role" :value="role">
                 <input type="hidden" id="moduleFilter" name="module" :value="module">
                 
@@ -158,7 +125,7 @@
                         <button type="submit" class="flex-1 sm:flex-none border border-[#34A853] bg-[#34A853] text-white hover:bg-green-700 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm flex items-center justify-center">
                             Filter
                         </button>
-                        <button type="button" @click="role = ''; module = ''; document.getElementById('searchInput').value = ''; document.getElementById('filterForm').dispatchEvent(new Event('submit', { cancelable: true }))" id="resetFilters" class="flex-1 sm:flex-none border border-[#EA4335] bg-[#EA4335] text-white hover:bg-red-600 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm flex items-center justify-center">
+                        <button type="button" @click="role = ''; module = ''; document.getElementById('searchInput').value = ''; document.getElementById('auditLogFilterForm').dispatchEvent(new Event('submit', { cancelable: true }))" id="resetFilters" class="flex-1 sm:flex-none border border-[#EA4335] bg-[#EA4335] text-white hover:bg-red-600 transition-colors px-4 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm flex items-center justify-center">
                             Clear Filter
                         </button>
                     </div>
@@ -302,7 +269,10 @@
 
             // Refresh Function
             function refreshData(url = null) {
-                const formData = new FormData(document.getElementById('filterForm'));
+                const form = document.getElementById('auditLogFilterForm');
+                if (!form) return;
+
+                const formData = new FormData(form);
                 const searchParams = new URLSearchParams(formData);
                 searchParams.append('timeframe', currentTimeframe);
 
@@ -355,9 +325,24 @@
                 .catch(err => console.warn('Polling suspended due to network or server error.'));
             }
 
-            document.getElementById('filterForm').addEventListener('submit', (e) => { e.preventDefault(); refreshData(); });
-            document.getElementById('resetFilters').addEventListener('click', () => { document.getElementById('filterForm').reset(); refreshData(); });
-            document.getElementById('timeframeSelector').addEventListener('change', function() { currentTimeframe = this.value; refreshData(); });
+            const mainForm = document.getElementById('auditLogFilterForm');
+            if (mainForm) {
+                mainForm.addEventListener('submit', (e) => { e.preventDefault(); refreshData(); });
+            }
+
+            const resetBtn = document.getElementById('resetFilters');
+            if (resetBtn && mainForm) {
+                resetBtn.addEventListener('click', () => { 
+                    mainForm.reset(); 
+                    // Manual reset for alpine handled by the button's @click
+                    setTimeout(() => refreshData(), 10); 
+                });
+            }
+            
+            const tfSelector = document.getElementById('timeframeSelector');
+            if (tfSelector) {
+                tfSelector.addEventListener('change', function() { currentTimeframe = this.value; refreshData(); });
+            }
 
             setInterval(() => refreshData(), 5000);
         });

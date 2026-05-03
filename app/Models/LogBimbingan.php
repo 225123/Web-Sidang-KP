@@ -11,6 +11,17 @@ class LogBimbingan extends Model
 
     protected $table = 'log_bimbingan';
 
+    protected static function booted()
+    {
+        static::addGlobalScope('periode', function (\Illuminate\Database\Eloquent\Builder $builder) {
+            if (request() && session()->has('selected_periode_id')) {
+                $builder->whereHas('pendaftaranKp', function ($query) {
+                    $query->withoutGlobalScope('periode')->where('pendaftaran_kp.tahun_ajaran_id', session('selected_periode_id'));
+                });
+            }
+        });
+    }
+
     protected $fillable = [
         'pendaftaran_kp_id',
         'mahasiswa_id',

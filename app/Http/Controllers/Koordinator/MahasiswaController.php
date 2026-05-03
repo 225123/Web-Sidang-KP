@@ -14,21 +14,10 @@ class MahasiswaController extends Controller
     {
         // Ambil data mahasiswa yang sudah memiliki pendaftaran KP
         $pendaftarans = PendaftaranKp::with(['mahasiswa.user', 'pembimbing', 'supervisorInstansi'])
-            ->latest()
-            ->get();
+            ->get()
+            ->sortBy(fn($p) => $p->mahasiswa->nim ?? '')
+            ->values();
 
         return view('koordinator.data-mahasiswa', compact('pendaftarans'));
-    }
-
-    public function show($id)
-    {
-        $pendaftaran = PendaftaranKp::with(['mahasiswa.user', 'pembimbing', 'supervisorInstansi', 'logBimbingans'])
-            ->findOrFail($id);
-
-        $jumlahDiterima = $pendaftaran->logBimbingans->where('status_approval', 'approved')->count();
-        $jumlahBelumDiperiksa = $pendaftaran->logBimbingans->where('status_approval', 'pending')->count();
-        $jumlahDitolak = $pendaftaran->logBimbingans->where('status_approval', 'rejected')->count();
-
-        return view('koordinator.data-mahasiswa-detail', compact('pendaftaran', 'jumlahDiterima', 'jumlahBelumDiperiksa', 'jumlahDitolak'));
     }
 }

@@ -11,6 +11,15 @@ class PendaftaranKp extends Model
 
     protected $table = 'pendaftaran_kp';
 
+    protected static function booted()
+    {
+        static::addGlobalScope('periode', function (\Illuminate\Database\Eloquent\Builder $builder) {
+            if (request() && session()->has('selected_periode_id')) {
+                $builder->where('pendaftaran_kp.tahun_ajaran_id', session('selected_periode_id'));
+            }
+        });
+    }
+
     // We recently added updated_at via migration to support feature logic constraints
 
     protected $fillable = [
@@ -29,6 +38,7 @@ class PendaftaranKp extends Model
         'tipe_kp',
         'pengerjaan_kp',
         'anggota_kelompok_ids',
+        'catatan',
     ];
 
     protected function casts(): array
@@ -66,5 +76,10 @@ class PendaftaranKp extends Model
     public function logBimbingans()
     {
         return $this->hasMany(LogBimbingan::class, 'pendaftaran_kp_id');
+    }
+
+    public function pendaftaranSidang()
+    {
+        return $this->hasOne(PendaftaranSidang::class, 'pendaftaran_kp_id');
     }
 }

@@ -3,40 +3,7 @@
         @include('koordinator.components.sidebar', ['active' => 'data-mahasiswa'])
     </x-slot>
 
-    <x-slot:headerActions>
-        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
-            <button @click="open = !open" @click.outside="open = false" type="button"
-                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
-
-                <span x-text="selected"></span>
-
-                <svg :class="open ? 'rotate-0' : 'rotate-90'"
-                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-
-            <div x-show="open" x-transition style="display: none;"
-                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
-                <ul class="py-1 text-[13px] font-medium text-black">
-                    <li>
-                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Genap 2025/2026
-                        </button>
-                    </li>
-                    <li>
-                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Ganjil 2025/2026
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <input type="hidden" name="periode" :value="selected">
-        </div>
-    </x-slot:headerActions>
+    
 
     <style>
         [x-cloak] { display: none !important; }
@@ -59,7 +26,14 @@
             'instansi' => $p->instansi_nama ?? '-',
             'pembimbing' => $p->pembimbing->name ?? '-',
             'status' => $p->status_kp,
-            'show_url' => route('koordinator.data-mahasiswa.show', $p->id)
+            'pengerjaan_kp' => in_array(strtolower($p->pengerjaan_kp ?? ''), ['kelompok', 'berkelompok']) ? 'Kelompok' : 'Individu',
+            'anggota_lain' => $p->anggotaLainList ?? [],
+            'jenis_instansi' => $p->jenis_instansi ?? 'External',
+            'supervisor' => $p->supervisorInstansi->nama_supervisor ?? '-',
+            'email_supervisor' => $p->supervisorInstansi->email_supervisor ?? '-',
+            'is_lanjutan' => $p->is_lanjutan ? true : false,
+            'jenis_proyek' => $p->jenis_proyek ?? '-',
+            'expanded' => false
         ])) }},
 
         get filteredList() {
@@ -85,6 +59,15 @@
             return Math.ceil(this.filteredList.length / this.itemsPerPage) || 1;
         }
     }">
+
+        <div class="flex-1 bg-[#E6F0FA] border border-[#D0E3F5] rounded-[10px] p-4 lg:p-5 flex items-start gap-4 shadow-sm w-full mb-6">
+            <div class="w-6 h-6 rounded-full bg-[#4285F4] text-white flex items-center justify-center font-bold flex-shrink-0 mt-0.5">i</div>
+            <div class="flex flex-col gap-1">
+                <p class="text-[14px] text-[#1A1A1A] font-medium leading-relaxed m-0">
+                    Halaman ini menampilkan seluruh data mahasiswa KP secara lengkap. Silakan klik pada baris mahasiswa untuk melihat detail data KP.
+                </p>
+            </div>
+        </div>
 
         <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
             <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
@@ -133,37 +116,105 @@
                             <th class="py-3 px-4 font-bold text-left border-b border-gray-300 border-r border-gray-300">Mahasiswa</th>
                             <th class="py-3 px-4 font-bold border-b border-gray-300 border-r border-gray-300">Judul KP</th>
                             <th class="py-3 px-4 font-bold border-b border-gray-300 border-r border-gray-300">Instansi</th>
-                            <th class="py-3 px-4 font-bold border-b border-gray-300 border-r border-gray-300">Pembimbing</th>
-                            <th class="py-3 px-4 font-bold border-b border-gray-300">Aksi</th>
+                            <th class="py-3 px-4 font-bold border-b border-gray-300">Pembimbing</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <template x-for="(p, index) in paginatedList" :key="p.id">
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="py-3 px-4 text-center text-black/60 border-r border-gray-200" x-text="(currentPage - 1) * itemsPerPage + index + 1"></td>
-                                <td class="py-3 px-4 text-left border-r border-gray-200">
-                                    <div class="font-bold text-black text-[12px]" x-text="p.nama"></div>
-                                    <div class="text-black/60 text-[10px]" x-text="p.nim"></div>
-                                </td>
-                                <td class="py-3 px-4 text-center text-black/80 font-medium leading-relaxed border-r border-gray-200 text-[11px]" x-text="p.judul"></td>
-                                <td class="py-3 px-4 text-center text-black/70 italic font-medium border-r border-gray-200 text-[11px]" x-text="p.instansi"></td>
-                                <td class="py-3 px-4 text-center text-black font-bold text-[10px] border-r border-gray-200" x-text="p.pembimbing"></td>
-                                <td class="py-3 px-4 text-center">
-                                    <a :href="p.show_url" class="bg-[#3B5998] hover:bg-blue-800 text-white font-bold text-[10px] px-4 py-1.5 rounded-full shadow-sm transition-all uppercase tracking-wider">
-                                        Lihat Detail
-                                    </a>
-                                </td>
-                            </tr>
+                    <template x-for="(p, index) in paginatedList" :key="p.id">
+                        <tbody class="bg-white border-b border-gray-100 transition-colors">
+                                <tr class="hover:bg-blue-50/40 transition-all duration-200 cursor-pointer group" @click="p.expanded = !p.expanded">
+                                    <td class="py-3 px-4 text-center text-black/60 border-r border-gray-200" x-text="(currentPage - 1) * itemsPerPage + index + 1"></td>
+                                    <td class="py-3 px-4 text-left border-r border-gray-200">
+                                        <div class="flex items-center justify-between gap-2">
+                                            <div>
+                                                <div class="font-bold text-black text-[12px]" x-text="p.nama"></div>
+                                                <div class="text-black/60 text-[10px]" x-text="p.nim"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-center text-black/80 font-medium leading-relaxed border-r border-gray-200 text-[11px]" x-text="p.judul"></td>
+                                    <td class="py-3 px-4 text-center text-black/70 italic font-medium border-r border-gray-200 text-[11px]" x-text="p.instansi"></td>
+                                    <td class="py-3 px-4 text-center text-black font-bold text-[10px]" x-text="p.pembimbing"></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-[#F8FAFC] border-r border-gray-200"></td>
+                                    <td colspan="4" class="p-0 border-0">
+                                        <div class="grid transition-all duration-300 ease-in-out bg-[#F8FAFC]" :class="p.expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'">
+                                            <div class="overflow-hidden">
+                                                <div class="p-6 border-t border-gray-100 shadow-[inset_0_4px_6px_-4px_rgba(0,0,0,0.05)] text-[12px] text-black space-y-4">
+                                                    <h4 class="text-[12px] font-bold text-black border-b border-gray-200 pb-2 flex items-center gap-2">
+                                                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                        Informasi mahasiswa (pendaftaran kp)
+                                                    </h4>
+                                                    <div class="grid grid-cols-1 md:grid-cols-[180px_10px_1fr] gap-x-4 gap-y-3 font-medium text-[12px] leading-relaxed">
+                                                        <div class="text-gray-500 font-medium md:text-black">Nama</div>
+                                                        <div class="hidden md:block">:</div>
+                                                        <div class="font-semibold text-black" x-text="p.nama"></div>
+
+                                                        <div class="text-gray-500 font-medium md:text-black">NIM</div>
+                                                        <div class="hidden md:block">:</div>
+                                                        <div class="font-semibold text-black" x-text="p.nim"></div>
+
+                                                        <div class="text-gray-500 font-medium md:text-black">Pengerjaan KP</div>
+                                                        <div class="hidden md:block">:</div>
+                                                        <div class="font-semibold text-black" x-text="p.pengerjaan_kp"></div>
+
+                                                        <template x-if="p.pengerjaan_kp === 'Kelompok' && p.anggota_lain && p.anggota_lain.length">
+                                                            <div class="contents">
+                                                                <div class="text-gray-500 font-medium md:text-black">Anggota Kelompok</div>
+                                                                <div class="hidden md:block">:</div>
+                                                                <div class="font-semibold text-black">
+                                                                    <ul class="list-disc list-inside">
+                                                                        <template x-for="ang in p.anggota_lain" :key="ang.nim">
+                                                                            <li x-text="ang.nim + ' - ' + ang.nama"></li>
+                                                                        </template>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </template>
+
+                                                        <div class="text-gray-500 font-medium md:text-black">Jenis KP</div>
+                                                        <div class="hidden md:block">:</div>
+                                                        <div class="font-semibold text-black" x-text="p.jenis_instansi"></div>
+
+                                                        <div class="text-gray-500 font-medium md:text-black">Nama Instansi</div>
+                                                        <div class="hidden md:block">:</div>
+                                                        <div class="font-semibold text-black" x-text="p.instansi"></div>
+
+                                                        <div class="text-gray-500 font-medium md:text-black">Supervisor</div>
+                                                        <div class="hidden md:block">:</div>
+                                                        <div class="font-semibold text-black" x-text="p.supervisor"></div>
+
+                                                        <div class="text-gray-500 font-medium md:text-black">Email Supervisor</div>
+                                                        <div class="hidden md:block">:</div>
+                                                        <div class="font-semibold text-black" x-text="p.email_supervisor"></div>
+
+                                                        <div class="text-gray-500 font-medium md:text-black">Judul KP</div>
+                                                        <div class="hidden md:block">:</div>
+                                                        <div class="font-semibold text-black" x-text="p.judul"></div>
+
+                                                        <div class="text-gray-500 font-medium md:text-black">Status KP</div>
+                                                        <div class="hidden md:block">:</div>
+                                                        <div class="font-bold" :class="p.is_lanjutan ? 'text-red-500' : 'text-green-600'" x-text="p.is_lanjutan ? 'Lanjutan' : 'Baru'"></div>
+
+                                                        <div class="text-gray-500 font-medium md:text-black align-top">Detail KP</div>
+                                                        <div class="hidden md:block align-top">:</div>
+                                                        <div class="font-semibold text-black leading-relaxed whitespace-pre-wrap" x-text="p.jenis_proyek"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
                         </template>
-                        <template x-if="filteredList.length === 0">
+                        <tbody x-show="filteredList.length === 0">
                             <tr>
-                                <td colspan="6" class="text-center py-20 text-gray-400 italic bg-gray-50 font-medium text-[12px]">
+                                <td colspan="5" class="text-center py-20 text-gray-400 italic bg-gray-50 font-medium text-[12px]">
                                     Tidak ada data mahasiswa yang ditemukan.
                                 </td>
                             </tr>
-                        </template>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
             </div>
 
             <div class="px-6 py-4 bg-white border-t border-gray-200 flex items-center justify-between" x-show="totalPages > 1">

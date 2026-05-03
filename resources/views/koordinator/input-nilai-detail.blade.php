@@ -7,18 +7,12 @@
         default => 'Sidang'
     };
 @endphp
-<x-dashboard-layout header="Input Nilai {{ $roleTitle }}" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR KP">
+<x-dashboard-layout header="Input Nilai {{ $roleTitle }}" :backUrl="route('koordinator.input-nilai.index')" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR KP">
     <x-slot:sidebar>
         @include('koordinator.components.sidebar', ['active' => 'input-nilai'])
     </x-slot>
 
     <div x-data="inputDetail()" class="p-6 max-w-5xl mx-auto">
-        <!-- Breadcrumbs -->
-        <div class="flex items-center gap-2 text-[12px] text-gray-500 mb-6">
-            <a href="{{ route('koordinator.input-nilai.index') }}" class="hover:text-[#4CC098] transition-colors">Input Nilai Sidang</a>
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            <span class="text-black font-medium sentence-case">Input Nilai {{ $roleTitle }}</span>
-        </div>
 
 
 

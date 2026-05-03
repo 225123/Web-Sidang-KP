@@ -78,7 +78,7 @@ class BeritaAcaraController extends Controller
             ]);
         }
 
-        $koordinator = \App\Models\User::with('dosen')->where('role', 'koordinator')->first();
+        $koordinator = \App\Models\User::with('dosen')->where('role', 'koordinator_kp')->first();
 
         // Load the view into dompdf and stream it directly
         $pdf = Pdf::loadView('koordinator.berita-acara-pdf-template', compact('sidang', 'koordinator'));

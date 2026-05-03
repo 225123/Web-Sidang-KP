@@ -19,6 +19,16 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('mahasiswa', 'tahun_ajaran_id')) {
+            \Illuminate\Support\Facades\Schema::table('mahasiswa', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->unsignedBigInteger('tahun_ajaran_id')->nullable();
+            });
+            $activeId = \App\Models\TahunAjaran::where('is_active', true)->value('id');
+            if ($activeId) {
+                \Illuminate\Support\Facades\DB::table('mahasiswa')->update(['tahun_ajaran_id' => $activeId]);
+            }
+        }
+
         $tab = $request->input('tab', 'dosen');
 
         $query = User::leftJoin('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
@@ -29,6 +39,16 @@ class UserController extends Controller
             $query->whereIn('users.role', ['dosen', 'koordinator_kp']);
         } else {
             $query->where('users.role', 'mahasiswa');
+            // Filter Mahasiswa by selected period
+            if (session()->has('selected_periode_id')) {
+                $periodeId = session('selected_periode_id');
+                $query->where(function($q) use ($periodeId) {
+                    $q->where('mahasiswa.tahun_ajaran_id', $periodeId)
+                      ->orWhereIn('users.id', function($sub) use ($periodeId) {
+                          $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
+                      });
+                });
+            }
         }
 
         if ($request->filled('search')) {
@@ -102,6 +122,7 @@ class UserController extends Controller
                     'nim' => $request->id_user,
                     'email' => $request->email,
                     'prodi' => 'Informatika',
+                    'tahun_ajaran_id' => session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id,
                 ]);
             } elseif (in_array($request->role, ['dosen', 'koordinator_kp'])) {
                 DB::table('dosen')->insert([
@@ -319,6 +340,7 @@ class UserController extends Controller
                         'nim' => $row['id'],
                         'email' => $row['email'],
                         'prodi' => 'Informatika',
+                        'tahun_ajaran_id' => session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id,
                     ]);
                 } elseif (in_array($user->role, ['dosen', 'koordinator_kp'])) {
                     DB::table('dosen')->insert([
@@ -399,6 +421,15 @@ class UserController extends Controller
             $title = 'DAFTAR DATA DOSEN DAN KOORDINATOR KP';
         } elseif ($type === 'mahasiswa') {
             $query->where('users.role', 'mahasiswa');
+            if (session()->has('selected_periode_id')) {
+                $periodeId = session('selected_periode_id');
+                $query->where(function($q) use ($periodeId) {
+                    $q->where('mahasiswa.tahun_ajaran_id', $periodeId)
+                      ->orWhereIn('users.id', function($sub) use ($periodeId) {
+                          $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
+                      });
+                });
+            }
             $title = 'DAFTAR DATA MAHASISWA';
         }
 

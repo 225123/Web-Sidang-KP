@@ -1,4 +1,4 @@
-<x-dashboard-layout userName="{{ auth()->user()->name }}" roleName="KOORDINATOR">
+<x-dashboard-layout userName="{{ auth()->user()->name }}" roleName="KOORDINATOR" hidePeriodSelector="true">
     <x-slot name="sidebar">
         @include('koordinator.components.sidebar', ['active' => 'backup'])
     </x-slot>

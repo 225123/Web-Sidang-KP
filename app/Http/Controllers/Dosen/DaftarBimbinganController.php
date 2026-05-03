@@ -15,7 +15,7 @@ class DaftarBimbinganController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $isKoordinator = ($user->role === 'koordinator_kp');
+        $isKoordinator = ($user->role === 'koordinator');
         $dosenId = $user->id;
 
         // 1. Ambil pendaftaran KP. Jika koordinator, ambil SEMUA yang sudah mendaftar (untuk memantau).
@@ -114,7 +114,7 @@ class DaftarBimbinganController extends Controller
             },
         ])->where('id', $id)->firstOrFail();
 
-        if ($pendaftaran->pembimbing_id != $dosenId && Auth::user()->role != 'koordinator_kp') {
+        if ($pendaftaran->pembimbing_id != $dosenId && Auth::user()->role != 'koordinator') {
             abort(403, 'Unauthorized access.');
         }
 

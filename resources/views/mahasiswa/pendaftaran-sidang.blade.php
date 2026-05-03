@@ -3,40 +3,7 @@
         @include('mahasiswa.components.sidebar', ['active' => 'pendaftaran-sidang'])
         </x-slot>
 
-        <x-slot:headerActions>
-        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px] mt-2 md:mt-0">
-            <button @click="open = !open" @click.outside="open = false" type="button"
-                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#F48200] focus:ring-[#F48200] focus:ring-1 cursor-pointer text-black h-[32px]">
-
-                <span x-text="selected"></span>
-
-                <svg :class="open ? 'rotate-0' : 'rotate-90'"
-                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-
-            <div x-show="open" x-transition style="display: none;"
-                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
-                <ul class="py-1 text-[13px] font-medium text-black">
-                    <li>
-                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Genap 2025/2026
-                        </button>
-                    </li>
-                    <li>
-                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Ganjil 2025/2026
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <input type="hidden" name="periode" :value="selected">
-        </div>
-    </x-slot:headerActions>
+        
 
         <div class="mt-6">
             @if(session('success'))
@@ -126,36 +93,54 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
                         <!-- Laporan KP -->
-                        <div
+                        <div x-data="{ hasFile: false }"
                             class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
                             <div class="text-[13px] font-bold text-black mb-3">Laporan KP <span
                                     class="text-red-500 ml-1">*</span></div>
-                            <input type="file" name="file_laporan" required accept=".pdf"
-                                class="text-[11px] text-gray-600 w-full mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <div class="flex items-start gap-2">
+                                <input type="file" name="file_laporan" required accept=".pdf" x-ref="laporan" @change="hasFile = $refs.laporan.files.length > 0"
+                                    class="flex-1 text-[11px] text-gray-600 mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                <button type="button" x-cloak x-show="hasFile" @click="$refs.laporan.value = ''; hasFile = false" 
+                                    class="shrink-0 p-1 mt-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Hapus File">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </div>
                             <div class="text-[10px] text-gray-400 font-medium">Maks. 5 MB (PDF)</div>
                         </div>
 
                         <!-- Laporan Bimbingan KP -->
-                        <div
+                        <div x-data="{ hasFile: false }"
                             class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
                             <div class="text-[13px] font-bold text-black mb-3">Laporan Bimbingan KP <span
                                     class="text-red-500 ml-1">*</span></div>
-                            <input type="file" name="file_log_bimbingan" required accept=".pdf"
-                                class="text-[11px] text-gray-600 w-full mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <div class="flex items-start gap-2">
+                                <input type="file" name="file_log_bimbingan" required accept=".pdf" x-ref="bimbingan" @change="hasFile = $refs.bimbingan.files.length > 0"
+                                    class="flex-1 text-[11px] text-gray-600 mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                <button type="button" x-cloak x-show="hasFile" @click="$refs.bimbingan.value = ''; hasFile = false" 
+                                    class="shrink-0 p-1 mt-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Hapus File">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </div>
                             <div class="text-[10px] text-gray-400 font-medium">Maks. 5 MB (PDF)</div>
                         </div>
 
                         @if($pendaftaran && $pendaftaran->jenis_instansi === 'Internal')
                             <!-- Surat Penilaian Supervisor (Hanya Internal) -->
-                            <div
+                            <div x-data="{ hasFile: false }"
                                 class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
                                 <div class="text-[13px] font-bold text-black mb-3 flex justify-between items-start">
                                     <span>Surat Nilai SPV</span>
                                     <a href="{{ route('mahasiswa.pendaftaran-sidang.template-supervisor') }}"
                                         class="text-[9px] bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold hover:bg-blue-200 transition-colors">Template</a>
                                 </div>
-                                <input type="file" name="file_nilai_supervisor" accept=".pdf"
-                                    class="text-[11px] text-gray-600 w-full mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                <div class="flex items-start gap-2">
+                                    <input type="file" name="file_nilai_supervisor" accept=".pdf" x-ref="supervisor" @change="hasFile = $refs.supervisor.files.length > 0"
+                                        class="flex-1 text-[11px] text-gray-600 mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                    <button type="button" x-cloak x-show="hasFile" @click="$refs.supervisor.value = ''; hasFile = false" 
+                                        class="shrink-0 p-1 mt-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Hapus File">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                </div>
                                 <div class="text-[10px] text-gray-400 font-medium">Opsional - Maks. 5 MB (PDF)</div>
                             </div>
                         @else
@@ -169,11 +154,17 @@
                         @endif
 
                         <!-- Berkas Lainnya -->
-                        <div
+                        <div x-data="{ hasFile: false }"
                             class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
                             <div class="text-[13px] font-bold text-black mb-3">Berkas Lainnya</div>
-                            <input type="file" name="file_berkas_lainnya" accept=".pdf"
-                                class="text-[11px] text-gray-600 w-full mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <div class="flex items-start gap-2">
+                                <input type="file" name="file_berkas_lainnya" accept=".pdf" x-ref="lainnya" @change="hasFile = $refs.lainnya.files.length > 0"
+                                    class="flex-1 text-[11px] text-gray-600 mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                <button type="button" x-cloak x-show="hasFile" @click="$refs.lainnya.value = ''; hasFile = false" 
+                                    class="shrink-0 p-1 mt-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Hapus File">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </div>
                             <div class="text-[10px] text-gray-400 font-medium">Opsional - Maks. 5 MB (PDF)</div>
                         </div>
 

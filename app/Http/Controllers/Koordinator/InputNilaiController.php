@@ -119,6 +119,9 @@ class InputNilaiController extends Controller
                 'n_produk' => 'required|numeric|min:1|max:100',
                 'n_presentasi' => 'required|numeric|min:1|max:100',
             ];
+            if ($role === 'penguji1') {
+                $rules['status_kelulusan'] = 'required|in:Lulus,Lulus Dengan Revisi,Lanjut';
+            }
         } elseif ($role === 'supervisior') {
             $rules = [
                 'ns_motivasi' => 'required|numeric|min:1|max:100',
@@ -144,6 +147,7 @@ class InputNilaiController extends Controller
             $sidang->n1_produk = $request->n_produk;
             $sidang->n1_presentasi = $request->n_presentasi;
             $sidang->nilai_penguji_1 = ($request->n_laporan * 0.4) + ($request->n_produk * 0.4) + ($request->n_presentasi * 0.2);
+            $sidang->status_kelulusan = $request->status_kelulusan;
         } elseif ($role === 'penguji2') {
             $sidang->n2_laporan = $request->n_laporan;
             $sidang->n2_produk = $request->n_produk;
@@ -254,7 +258,6 @@ class InputNilaiController extends Controller
                 $sidang->grade = 'D/E';
             }
 
-            $sidang->status_kelulusan = ($avg >= 60) ? 'Lulus' : 'Tidak Lulus';
             $sidang->save();
         }
     }

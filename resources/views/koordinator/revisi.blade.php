@@ -3,30 +3,7 @@
         @include('koordinator.components.sidebar', ['active' => 'revisi'])
     </x-slot>
 
-    <x-slot:headerActions>
-        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
-            <button @click="open = !open" @click.outside="open = false" type="button"
-                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
-                <span x-text="selected"></span>
-                <svg :class="open ? 'rotate-0' : 'rotate-90'"
-                    class="w-3.5 h-3.5 text-gray-500 transition-all duration-200" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
-            <div x-show="open" x-transition x-cloak
-                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg">
-                <ul class="py-1 text-[13px] font-medium">
-                    <li><button @click="selected = 'Genap 2025/2026'; open = false"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5]">Genap 2025/2026</button>
-                    </li>
-                    <li><button @click="selected = 'Ganjil 2025/2026'; open = false"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5]">Ganjil 2025/2026</button>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </x-slot:headerActions>
+    
 
     <div x-data="revisiPage()" class="max-w-[1200px] mx-auto">
         <!-- Main Container -->

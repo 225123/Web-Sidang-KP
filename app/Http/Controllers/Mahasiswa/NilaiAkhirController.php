@@ -94,12 +94,12 @@ class NilaiAkhirController extends Controller
             ->latest()
             ->firstOrFail();
 
-        if (!$sidang->nilai_dipublikasi || !$sidang->berita_acara_disubmit) {
-            abort(403, 'Berita acara belum diterbitkan atau disubmit oleh koordinator.');
+        if (!$sidang->nilai_dipublikasi || $sidang->pelaksanaan !== 'Selesai') {
+            abort(403, 'Berita acara belum tersedia. Pastikan sidang telah selesai dan nilai telah dipublikasi oleh koordinator.');
         }
 
-        // Get Koordinator (Role 1)
-        $koordinator = \App\Models\User::where('role', 1)->first();
+        // Get Koordinator
+        $koordinator = \App\Models\User::where('role', 'koordinator_kp')->with('dosen')->first();
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('koordinator.berita-acara-pdf-template', compact('sidang', 'koordinator'));
         return $pdf->download('Berita_Acara_' . ($sidang->mahasiswa->nim ?? 'Mahasiswa') . '.pdf');

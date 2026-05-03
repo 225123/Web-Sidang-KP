@@ -3,42 +3,9 @@
         @include('mahasiswa.components.sidebar', ['active' => 'revisi'])
     </x-slot>
 
-        <x-slot:headerActions>
-        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px] mt-2 md:mt-0">
-            <button @click="open = !open" @click.outside="open = false" type="button"
-                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#F48200] focus:ring-[#F48200] focus:ring-1 cursor-pointer text-black h-[32px]">
+        
 
-                <span x-text="selected"></span>
-
-                <svg :class="open ? 'rotate-0' : 'rotate-90'"
-                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-
-            <div x-show="open" x-transition style="display: none;"
-                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
-                <ul class="py-1 text-[13px] font-medium text-black">
-                    <li>
-                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Genap 2025/2026
-                        </button>
-                    </li>
-                    <li>
-                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Ganjil 2025/2026
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <input type="hidden" name="periode" :value="selected">
-        </div>
-    </x-slot:headerActions>
-
-    <div class="mt-6 max-w-5xl mx-auto" x-data="{ uploadType: 'file', fileName: '' }">
+    <div class="mt-6 max-w-5xl mx-auto" x-data="{ uploadType: '', fileName: '', linkDrive: '' }">
         @if($sidang && $sidang->status_kelulusan === 'Lulus Dengan Revisi')
         <div class="bg-[#EAEFFF] border border-[#BACDFB] rounded-[10px] p-4 flex items-start gap-4 shadow-sm mb-8">
             <div class="bg-[#7896F8] w-6 h-6 rounded-full flex items-center justify-center text-white shrink-0 shadow-sm font-serif italic text-sm mt-0.5">i</div>
@@ -80,17 +47,16 @@
                 <div>Nilai Akhir Sidang</div>
                 <div>: {{ $sidang->nilai_akhir ? number_format((float)$sidang->nilai_akhir, 2) : '-' }} ({{ $sidang->grade ?? '-' }})</div>
 
-                <div class="mt-4 pt-4 border-t border-gray-400">Catatan Revisi</div>
-                <div class="mt-4 pt-4 border-t border-gray-400">: "{{ $sidang->catatan_sidang ?? 'Tidak ada catatan' }}"</div>
 
-                @if($sidang->status_revisi === 'Belum mengumpulkan')
+
+                @if(!$sidang->status_revisi || strtolower($sidang->status_revisi) === 'belum mengumpulkan')
                     <div class="pt-6">Upload Berkas Revisi</div>
                     <div class="pt-6 flex items-center gap-2">
                         <span class="mr-2">:</span>
                         <form id="formAjukan" action="{{ route('mahasiswa.revisi.store') }}" method="POST" enctype="multipart/form-data" class="flex-1 flex items-center gap-4">
                             @csrf
 
-                            <div class="relative flex items-center">
+                            <div class="relative flex items-center gap-2" x-show="uploadType === 'file' || uploadType === ''">
                                 <input type="file" name="file_revisi" id="file_revisi" accept=".pdf" class="hidden" @change="fileName = $event.target.files[0].name; uploadType = 'file'" x-ref="fileInput">
                                 <button type="button" @click="$refs.fileInput.click()" class="bg-[#F0F0F0] border border-gray-300 text-gray-600 text-[13px] px-4 py-1.5 rounded-[20px] flex items-center gap-2 hover:bg-gray-200 transition-colors">
                                     <svg class="w-4 h-4 text-[#8A9CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,12 +64,16 @@
                                     </svg>
                                     <span x-text="fileName === '' ? 'Pilih file (Max 5MB)' : fileName"></span>
                                 </button>
+                                <button type="button" x-cloak x-show="fileName !== ''" @click="fileName = ''; uploadType = ''; $refs.fileInput.value = ''" 
+                                    class="shrink-0 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Hapus File">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
                             </div>
 
-                            <span class="text-sm font-bold">ATAU</span>
+                            <span class="text-sm font-medium" x-show="uploadType === ''">atau</span>
 
-                            <div class="flex-1">
-                                <input type="url" name="link_revisi" placeholder="Link GDrive jika > 5MB..." @input="uploadType = 'link'; fileName = ''" class="w-full bg-white border border-gray-300 text-[13px] px-3 py-1.5 rounded-[5px] focus:ring-1 focus:ring-blue-500 outline-none">
+                            <div class="flex-1" x-show="uploadType === 'link' || uploadType === ''">
+                                <input type="url" name="link_revisi" x-model="linkDrive" @input="uploadType = (linkDrive.trim() !== '') ? 'link' : ''; fileName = ''" placeholder="Link GDrive jika > 5MB..." class="w-full bg-white border border-gray-300 text-[13px] px-3 py-1.5 rounded-[5px] focus:ring-1 focus:ring-blue-500 outline-none">
                             </div>
                         </form>
                     </div>
@@ -132,6 +102,17 @@
                     @endif
                 @endif
             </div>
+
+            <!-- Catatan Revisi Section -->
+            <div class="mt-6 pt-6 border-t border-gray-300">
+                <h4 class="text-[14px] font-bold text-gray-800 mb-2 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    Catatan Revisi
+                </h4>
+                <div class="text-[13px] text-gray-700 leading-relaxed font-normal whitespace-pre-line bg-white/60 p-4 rounded-[6px] border border-gray-200 min-h-[60px]">
+                    {!! !empty($sidang->catatan_sidang) && $sidang->catatan_sidang !== '-' ? nl2br(e($sidang->catatan_sidang)) : '<span class="text-gray-400 italic">Tidak ada catatan dari dosen penguji.</span>' !!}
+                </div>
+            </div>
         </div>
 
         <hr class="border-t-2 border-[#D9D9D9] mb-12">
@@ -139,7 +120,7 @@
         <div class="text-center pb-12">
             <h2 class="text-[18px] font-bold text-black mb-4">Status Pemeriksaan Berkas Revisi</h2>
 
-            @if($sidang->status_revisi === 'Belum mengumpulkan')
+            @if(!$sidang->status_revisi || strtolower($sidang->status_revisi) === 'belum mengumpulkan')
                 <p class="text-[14px] text-gray-700 font-medium mb-8">Klik 'Submit Revisi' untuk mengirimkan berkas revisi Anda ke Dosen Penguji 1.</p>
                 <button type="button" onclick="document.getElementById('formAjukan').submit()" class="bg-[#008000] hover:bg-green-700 text-white font-bold text-[14px] px-8 py-2.5 rounded-full shadow-md flex items-center justify-center gap-2 mx-auto transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>

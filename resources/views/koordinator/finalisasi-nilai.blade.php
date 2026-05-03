@@ -3,42 +3,9 @@
         @include('koordinator.components.sidebar', ['active' => 'finalisasi-nilai'])
         </x-slot>
 
-    <x-slot:headerActions>
-        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
-            <button @click="open = !open" @click.outside="open = false" type="button"
-                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
+    
 
-                <span x-text="selected"></span>
-
-                <svg :class="open ? 'rotate-0' : 'rotate-90'"
-                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-
-            <div x-show="open" x-transition style="display: none;"
-                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
-                <ul class="py-1 text-[13px] font-medium text-black">
-                    <li>
-                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Genap 2025/2026
-                        </button>
-                    </li>
-                    <li>
-                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Ganjil 2025/2026
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <input type="hidden" name="periode" :value="selected">
-        </div>
-    </x-slot:headerActions>
-
-        <div x-data="finalisasiNilaiPage()" class="mt-6 space-y-6">
+        <div x-data="finalisasiNilaiPage()" class="mt-6 space-y-6 pb-40">
 
             <!-- Summary Cards Section -->
             <div class="flex flex-col xl:flex-row gap-6 mb-8 items-start xl:items-stretch">
@@ -419,13 +386,7 @@
             </div>
 
             <!-- Submit Button Section -->
-            <div class="flex flex-col items-end justify-end mt-8 mb-4">
-                @if(!$allBeritaAcaraSubmitted)
-                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-[8px] mb-3 flex items-center gap-2 shadow-sm max-w-xl text-[13px] font-medium">
-                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        <span>Anda harus men-submit Berita Acara terlebih dahulu sebelum dapat mengesahkan Finalisasi Nilai.</span>
-                    </div>
-                @endif
+            <div class="flex flex-col items-end justify-end mt-8 mb-10">
                 @if(!$hasValidSidangs)
                     <button type="button" disabled class="bg-gray-400 text-white font-bold py-3 px-8 rounded-[10px] shadow-md flex items-center gap-2 text-[14px] uppercase tracking-wide cursor-not-allowed">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
@@ -499,21 +460,6 @@
                     confirmDialog: { show: false, title: '', message: '', type: 'info', confirmText: 'Iya, Lanjutkan', callback: null },
 
                     sahkanNilai() {
-                        const allBASubmitted = @json($allBeritaAcaraSubmitted);
-
-                        if (!allBASubmitted) {
-                            this.confirmDialog = {
-                                show: true,
-                                title: 'Berita Acara Belum Disubmit',
-                                message: 'Anda belum mensubmit Berita Acara untuk seluruh mahasiswa yang telah selesai sidang. Harap ke halaman Berita Acara untuk melakukan submit terlebih dahulu.',
-                                type: 'danger',
-                                confirmText: 'Ke Halaman Berita Acara',
-                                callback: () => {
-                                    window.location.href = "{{ route('koordinator.berita-acara.index') }}";
-                                }
-                            };
-                            return;
-                        }
 
                         this.confirmDialog = {
                             show: true,

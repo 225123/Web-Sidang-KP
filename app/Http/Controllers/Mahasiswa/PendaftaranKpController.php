@@ -34,11 +34,12 @@ class PendaftaranKpController extends Controller
         }
         $unavailableIds = array_unique($unavailableIds);
 
-        // Fetch all other users with role = mahasiswa, eager load mahasiswa relation to sort by NIM
-        $allMahasiswa = User::with('mahasiswa')
+        // Fetch all other users with role = mahasiswa
+        $allMahasiswaQuery = User::with('mahasiswa')
             ->where('role', 'mahasiswa')
-            ->where('id', '!=', auth()->id())
-            ->get()
+            ->where('id', '!=', auth()->id());
+            
+        $allMahasiswa = $allMahasiswaQuery->get()
             ->map(function ($user) use ($unavailableIds) {
                 $user->is_unavailable = in_array((string) $user->id, $unavailableIds);
 
@@ -192,6 +193,7 @@ class PendaftaranKpController extends Controller
 
             $dataKp = [
                 'mahasiswa_id' => auth()->id(),
+                'tahun_ajaran_id' => \App\Models\TahunAjaran::aktif()->id ?? null,
                 'judul_kp' => $request->judul_kp,
                 'jenis_instansi' => $request->jenis_instansi,
                 'tipe_kp' => strtolower($request->jenis_instansi),
@@ -222,7 +224,7 @@ class PendaftaranKpController extends Controller
                 'target_role' => 'koordinator',
                 'judul' => 'Pendaftaran KP Baru',
                 'pesan' => auth()->user()->name.' ('.(auth()->user()->mahasiswa->nim ?? '-').') telah melakukan pendaftaran KP.',
-                'target_url' => route('koordinator.pendaftaran-kp.detail', $pendaftaranKp->id),
+                'target_url' => route('koordinator.pendaftaran-kp'),
                 'is_read' => false,
             ]);
 

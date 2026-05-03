@@ -12,9 +12,7 @@ class PeriodeKpController extends Controller
 {
     public function index()
     {
-        $periodes = TahunAjaran::orderByRaw("CAST(SUBSTR(tahun, 1, INSTR(tahun, '/') - 1) AS INTEGER) DESC")
-            ->orderByRaw("CASE semester WHEN 'Genap' THEN 1 ELSE 0 END DESC")
-            ->get();
+        $periodes = TahunAjaran::terbaru()->get();
 
         $last = $periodes->first();
         $nextPeriod = $this->generateNext($last);
@@ -68,6 +66,9 @@ class PeriodeKpController extends Controller
             'label_tahun_ajaran' => $label,
             'is_active'          => true,
         ]);
+
+        // Berpusat di periode yang baru dibuka
+        session(['selected_periode_id' => $newPeriod->id]);
 
         if ($oldActive) {
             $this->carryOverLanjutStudents($oldActive->id, $newPeriod->id);
@@ -132,6 +133,9 @@ class PeriodeKpController extends Controller
         $periode = TahunAjaran::findOrFail($id);
         TahunAjaran::where('is_active', true)->update(['is_active' => false]);
         $periode->update(['is_active' => true]);
+
+        // Berpusat di periode yang dipilih
+        session(['selected_periode_id' => $periode->id]);
 
         return back()->with('success', "Periode \"{$periode->label_tahun_ajaran}\" sekarang menjadi periode aktif.");
     }

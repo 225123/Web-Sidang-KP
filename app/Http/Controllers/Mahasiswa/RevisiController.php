@@ -42,9 +42,9 @@ class RevisiController extends Controller
             return back()->with('error', 'Data revisi tidak valid.');
         }
 
-        // Cek jika status sudah selain Belum mengumpulkan
-        if ($sidang->status_revisi !== 'Belum mengumpulkan') {
-            return back()->with('error', 'Anda tidak dapat mengunggah revisi ulang.');
+        // Cek jika status sudah disahkan
+        if (in_array(strtolower($sidang->status_revisi), ['disetujui', 'verified', 'disahkan'])) {
+            return back()->with('error', 'Anda tidak dapat mengunggah revisi ulang karena berkas telah disahkan.');
         }
 
         if ($request->hasFile('file_revisi')) {

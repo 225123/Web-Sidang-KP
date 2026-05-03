@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Koordinator;
 
 use App\Http\Controllers\Controller;
 use App\Models\PendaftaranSidang;
+use App\Models\NotifikasiLog;
 
 class FinalisasiNilaiController extends Controller
 {
@@ -32,12 +33,8 @@ class FinalisasiNilaiController extends Controller
                 return $sidang;
             });
 
-        // Check if all "Selesai" sidangs have their berita acara submitted
-        $unsubmittedBA = PendaftaranSidang::where('pelaksanaan', 'Selesai')
-            ->where('berita_acara_disubmit', false)
-            ->exists();
-        
-        $allBeritaAcaraSubmitted = !$unsubmittedBA;
+        // Berita Acara is now automatically available to students who finished defense
+        $allBeritaAcaraSubmitted = true;
 
         // Check if all valid sidangs are already dipublikasi
         $hasSidangToSah = $sidangs->where('nilai_dipublikasi', false)->count() > 0;
@@ -108,8 +105,12 @@ class FinalisasiNilaiController extends Controller
         $sidang = PendaftaranSidang::with(['mahasiswa.user', 'penguji1.dosen', 'penguji2.dosen', 'pendaftaranKp.pembimbing.dosen', 'pendaftaranKp.supervisorInstansi'])
             ->findOrFail($id);
 
-        // Get Koordinator (Role 1)
-        $koordinator = \App\Models\User::where('role', 1)->first();
+        if ($sidang->pelaksanaan !== 'Selesai') {
+            abort(403, 'Berita acara belum tersedia karena sidang belum selesai.');
+        }
+
+        // Get Koordinator (Official role)
+        $koordinator = \App\Models\User::where('role', 'koordinator_kp')->with('dosen')->first();
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('koordinator.berita-acara-pdf-template', compact('sidang', 'koordinator'));
         return $pdf->download('Berita_Acara_' . ($sidang->mahasiswa->nim ?? 'Mahasiswa') . '.pdf');

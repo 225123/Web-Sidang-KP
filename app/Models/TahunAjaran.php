@@ -56,4 +56,16 @@ class TahunAjaran extends Model
 
         return compact('semester', 'tahun', 'label');
     }
+    /**
+     * Scope to sort periods from newest to oldest.
+     */
+    public function scopeTerbaru($query)
+    {
+        return $query->orderByRaw("CAST(SUBSTR(tahun, 1, INSTR(tahun, '/') - 1) AS INTEGER) DESC")
+            ->orderByRaw("CASE semester WHEN 'Genap' THEN 1 ELSE 0 END DESC");
+    }
+    public function pendaftaranKps()
+    {
+        return $this->hasMany(PendaftaranKp::class, 'tahun_ajaran_id');
+    }
 }

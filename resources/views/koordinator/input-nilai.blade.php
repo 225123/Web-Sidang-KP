@@ -1,4 +1,4 @@
-<x-dashboard-layout header="Input Nilai Sidang" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR KP">
+<x-dashboard-layout header="Input Nilai" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR KP">
     <x-slot:sidebar>
         @include('koordinator.components.sidebar', ['active' => 'input-nilai'])
     </x-slot>
@@ -15,8 +15,31 @@
             </p>
         </div>
 
-        <!-- SECTION 1: TABEL INPUT NILAI PENGUJI -->
-        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
+        <!-- Tabs -->
+        <div class="flex items-end h-[36px]">
+            <button @click="activeTab = 'penguji'" 
+               :class="activeTab === 'penguji' ? 'bg-white border border-gray-200 border-b-white h-[36px] z-10 font-bold text-black' : 'bg-gray-100 border border-gray-200 text-gray-500 h-[34px] hover:bg-gray-50 border-b-gray-200'"
+               class="px-5 text-[12px] rounded-t-[10px] relative flex items-center justify-center transition-all gap-2">
+               Penguji Sidang
+               <span class="bg-[#4285F4]/10 text-[#4285F4] py-0.5 px-2 rounded-full text-[10px]" x-text="pengujiTotal"></span>
+            </button>
+            <button @click="activeTab = 'pembimbing'" 
+               :class="activeTab === 'pembimbing' ? 'bg-white border border-gray-200 border-b-white h-[36px] z-10 font-bold text-black' : 'bg-gray-100 border border-gray-200 text-gray-500 h-[34px] hover:bg-gray-50 border-b-gray-200'"
+               class="px-5 text-[12px] rounded-t-[10px] relative left-[-1px] flex items-center justify-center transition-all gap-2">
+               Pembimbing KP
+               <span class="bg-[#4285F4]/10 text-[#4285F4] py-0.5 px-2 rounded-full text-[10px]" x-text="pembimbingTotal"></span>
+            </button>
+            <button @click="activeTab = 'supervisor'" 
+               :class="activeTab === 'supervisor' ? 'bg-white border border-gray-200 border-b-white h-[36px] z-10 font-bold text-black' : 'bg-gray-100 border border-gray-200 text-gray-500 h-[34px] hover:bg-gray-50 border-b-gray-200'"
+               class="px-5 text-[12px] rounded-t-[10px] relative left-[-2px] flex items-center justify-center transition-all gap-2">
+               Supervisor Lapangan
+               <span class="bg-[#4285F4]/10 text-[#4285F4] py-0.5 px-2 rounded-full text-[10px]" x-text="supervisorTotal"></span>
+            </button>
+        </div>
+
+        <div class="bg-white rounded-b-[15px] rounded-tr-[15px] border border-gray-200 shadow-sm overflow-hidden relative top-[-1px] mb-8">
+            <!-- SECTION 1: TABEL INPUT NILAI PENGUJI -->
+            <div x-show="activeTab === 'penguji'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="p-6" x-cloak>
             <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
                 <div>
                     <h3 class="text-[18px] font-bold text-black tracking-tight uppercase">TABEL INPUT NILAI PENGUJI</h3>
@@ -98,14 +121,14 @@
             </div>
 
             <div class="border border-gray-200 rounded-[10px] overflow-x-auto">
-                <table class="w-full border-collapse text-[13px]">
+                <table class="w-full border-collapse text-[12px] min-w-[1100px]">
                     <thead class="bg-[#EBEBEB] text-black">
                             <tr>
                                 <th class="py-3 px-4 font-bold text-center w-[60px] border-b border-r border-gray-300">No</th>
                                 <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300 w-[180px]">Jadwal</th>
                                 <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300 w-[150px]">Peran Sidang</th>
                                 <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300 w-[180px]">Mahasiswa</th>
-                                <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300">Judul KP</th>
+                                <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300 min-w-[300px]">Judul KP</th>
                                 <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[120px]">Status Kelulusan</th>
                                 <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[140px]">Pelaksanaan</th>
                                 <th class="py-3 px-4 font-bold text-center border-b border-gray-300 w-[150px]">Penilaian</th>
@@ -139,20 +162,20 @@
                                     </td>
                                     <td class="py-3 px-4 text-center border-r border-gray-200">
                                         <div class="flex flex-col items-center gap-2">
-                                            <template x-if="sidang.is_penguji_1">
-                                                <div class="relative w-full min-w-[115px]">
-                                                    <select @change="confirmUpdateStatus(sidang.id, $event.target)" 
-                                                        :class="getStatusClass(sidang)"
-                                                        class="w-full appearance-none text-[10px] font-bold pl-3 pr-6 py-1.5 rounded-[20px] shadow-sm text-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#4CC098] transition-colors border">
-                                                        <option value="" disabled :selected="!['Selesai', 'Dibatalkan'].includes(sidang.pelaksanaan)" x-text="getExecutionStatus(sidang)" class="bg-white text-black font-medium"></option>
-                                                        <option value="Selesai" :selected="sidang.pelaksanaan === 'Selesai'" class="bg-white text-black font-medium">Selesai</option>
-                                                        <option value="Dibatalkan" :selected="sidang.pelaksanaan === 'Dibatalkan'" class="bg-white text-black font-medium">Dibatalkan</option>
-                                                    </select>
-                                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2" :class="getStatusTextClass(sidang)">
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                                    </div>
-                                                </div>
-                                            </template>
+                                             <template x-if="sidang.is_penguji_1">
+                                                 <div x-data="{ openExec: false }" class="relative w-full min-w-[115px]" @click.outside="openExec = false">
+                                                     <button type="button" @click="openExec = !openExec"
+                                                         :class="getStatusClass(sidang)"
+                                                         class="w-full text-[10px] font-bold px-3 py-1.5 rounded-[20px] shadow-sm cursor-pointer focus:outline-none transition-all border flex items-center justify-between gap-1">
+                                                         <span class="truncate flex-1 text-center" x-text="getExecutionStatus(sidang)"></span>
+                                                         <svg :class="openExec ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                                     </button>
+                                                     <div x-show="openExec" x-transition x-cloak class="absolute left-0 right-0 bottom-full mb-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-[100] min-w-[115px]">
+                                                         <button type="button" @click="confirmUpdateStatus(sidang.id, 'Selesai'); openExec = false" class="block w-full text-left px-3 py-1.5 text-[11px] font-medium hover:bg-gray-100 text-black">Selesai</button>
+                                                         <button type="button" @click="confirmUpdateStatus(sidang.id, 'Dibatalkan'); openExec = false" class="block w-full text-left px-3 py-1.5 text-[11px] font-medium hover:bg-gray-100 text-black">Dibatalkan</button>
+                                                     </div>
+                                                 </div>
+                                             </template>
                                             
                                             <template x-if="!sidang.is_penguji_1">
                                                 <div class="flex flex-col items-center gap-1">
@@ -180,7 +203,7 @@
                             </template>
                             <template x-if="filteredPenguji.length === 0">
                                 <tr>
-                                    <td colspan="8" class="py-12 text-center text-gray-500 italic text-[13px]">
+                                    <td colspan="8" class="py-12 text-center text-gray-500 italic text-[12px]">
                                         Tidak ada data penguji yang sesuai pencarian/filter.
                                     </td>
                                 </tr>
@@ -205,7 +228,7 @@
         </div>
 
         <!-- SECTION 2: TABEL INPUT NILAI PEMBIMBING -->
-        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
+        <div x-show="activeTab === 'pembimbing'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="p-6" x-cloak>
             <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
                 <div>
                     <h3 class="text-[18px] font-bold text-black tracking-tight uppercase">TABEL INPUT NILAI PEMBIMBING</h3>
@@ -259,12 +282,12 @@
             </div>
 
             <div class="border border-gray-200 rounded-[10px] overflow-x-auto">
-                <table class="w-full border-collapse text-[13px]">
+                <table class="w-full border-collapse text-[12px] min-w-[1100px]">
                     <thead class="bg-[#EBEBEB] text-black">
                             <tr>
                                 <th class="py-3 px-4 font-bold text-center w-[60px] border-b border-r border-gray-300">No</th>
                                 <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300 w-[250px]">Mahasiswa</th>
-                                <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300">Judul KP</th>
+                                <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300 min-w-[300px]">Judul KP</th>
                                 <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[150px]">Status</th>
                                 <th class="py-3 px-4 font-bold text-center border-b border-gray-300 w-[200px]">Penilaian</th>
                             </tr>
@@ -302,7 +325,7 @@
                             </template>
                             <template x-if="filteredPembimbing.length === 0">
                                 <tr>
-                                    <td colspan="5" class="py-12 text-center text-gray-500 italic text-[13px]">
+                                    <td colspan="5" class="py-12 text-center text-gray-500 italic text-[12px]">
                                         Tidak ada data pembimbing yang sesuai pencarian/filter.
                                     </td>
                                 </tr>
@@ -327,7 +350,7 @@
         </div>
 
         <!-- SECTION 3: TABEL INPUT NILAI SUPERVISOR -->
-        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
+        <div x-show="activeTab === 'supervisor'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="p-6" x-cloak>
             <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
                 <div>
                     <h3 class="text-[18px] font-bold text-black tracking-tight uppercase">TABEL INPUT NILAI SUPERVISOR</h3>
@@ -381,12 +404,12 @@
             </div>
 
             <div class="border border-gray-200 rounded-[10px] overflow-x-auto">
-                <table class="w-full border-collapse text-[13px]">
+                <table class="w-full border-collapse text-[12px] min-w-[1100px]">
                     <thead class="bg-[#EBEBEB] text-black">
                             <tr>
                                 <th class="py-3 px-4 font-bold text-center w-[60px] border-b border-r border-gray-300">No</th>
                                 <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300 w-[250px]">Mahasiswa</th>
-                                <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300">Judul KP</th>
+                                <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300 min-w-[300px]">Judul KP</th>
                                 <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[150px]">Status</th>
                                 <th class="py-3 px-4 font-bold text-center border-b border-gray-300 w-[200px]">Penilaian</th>
                             </tr>
@@ -424,7 +447,7 @@
                             </template>
                             <template x-if="filteredSupervisor.length === 0">
                                 <tr>
-                                    <td colspan="5" class="py-12 text-center text-gray-500 italic text-[13px]">
+                                    <td colspan="5" class="py-12 text-center text-gray-500 italic text-[12px]">
                                         Tidak ada data supervisior yang sesuai pencarian/filter.
                                     </td>
                                 </tr>
@@ -448,6 +471,8 @@
             </div>
         </div>
         
+        </div>
+
         <!-- Custom Global Confirm Modal -->
         <div x-show="showConfirmModal" style="display: none;" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
             <div @click.away="cancelUpdate()" class="bg-white rounded-[10px] w-full max-w-[450px] p-8 shadow-2xl flex flex-col items-center justify-center text-center transform transition-all">
@@ -502,6 +527,7 @@
     <script>
         function inputNilaiPage() {
             return {
+                activeTab: 'penguji',
                 sidangs: @json($sidangs),
                 now: new Date(),
                 
@@ -748,18 +774,18 @@
                     return timeString.substring(0, 5);
                 },
 
-                confirmUpdateStatus(id, selectElement) {
-                    const newStatus = selectElement.value;
+                confirmUpdateStatus(id, valueOrSelect) {
+                    const newStatus = typeof valueOrSelect === 'object' && valueOrSelect !== null ? valueOrSelect.value : valueOrSelect;
                     const sidang = this.sidangs.find(s => s.id === id);
                     if (!sidang) return;
 
                     const originalStatus = sidang.pelaksanaan;
-                    this.confirmData = { id, newStatus, selectElement, originalStatus };
+                    this.confirmData = { id, newStatus, selectElement: typeof valueOrSelect === 'object' && valueOrSelect !== null ? valueOrSelect : null, originalStatus };
                     this.showConfirmModal = true;
                 },
 
                 cancelUpdate() {
-                    if (this.confirmData) {
+                    if (this.confirmData && this.confirmData.selectElement) {
                         if (!['Selesai', 'Dibatalkan'].includes(this.confirmData.originalStatus)) {
                             this.confirmData.selectElement.value = "";
                         } else {

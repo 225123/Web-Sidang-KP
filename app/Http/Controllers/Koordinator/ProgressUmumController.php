@@ -12,8 +12,18 @@ class ProgressUmumController extends Controller
 {
     public function index()
     {
-        // Ambil SEMUA Mahasiswa agar tampil secara individu
-        $mahasiswas = Mahasiswa::with('user')->get();
+        // Ambil SEMUA Mahasiswa agar tampil secara individu, difilter per periode aktif
+        $mahasiswaQuery = Mahasiswa::with('user');
+        if (session()->has('selected_periode_id')) {
+            $periodeId = session('selected_periode_id');
+            $mahasiswaQuery->where(function($q) use ($periodeId) {
+                $q->where('tahun_ajaran_id', $periodeId)
+                  ->orWhereIn('user_id', function($sub) use ($periodeId) {
+                      $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
+                  });
+            });
+        }
+        $mahasiswas = $mahasiswaQuery->get();
 
         $pendaftarans = collect();
 
@@ -71,33 +81,5 @@ class ProgressUmumController extends Controller
         ]);
     }
 
-    public function detail($id, Request $request)
-    {
-        // Detail log bimbingan untuk mahasiswa spesifik (dari perspektif pemantauan koordinator)
-        $pendaftaran = PendaftaranKp::findOrFail($id);
-        $mhsId = $request->query('mhs_id', $pendaftaran->mahasiswa_id);
 
-        $mhs = Mahasiswa::with('user')->where('user_id', $mhsId)->firstOrFail();
-
-        $pendaftaranLoad = PendaftaranKp::with([
-            'logBimbingans' => function ($q) use ($mhsId) {
-                $q->where('mahasiswa_id', $mhsId)->orderBy('tanggal', 'desc');
-            },
-            'pembimbing',
-        ])->where('id', $id)->firstOrFail();
-
-        $pendaftaranLoad->display_mahasiswa = $mhs;
-
-        $jumlahDiterima = $pendaftaranLoad->logBimbingans->where('status_approval', 'approved')->count();
-        $jumlahBelumDiperiksa = $pendaftaranLoad->logBimbingans->where('status_approval', 'pending')->count();
-        $jumlahDitolak = $pendaftaranLoad->logBimbingans->where('status_approval', 'rejected')->count();
-
-        return view('koordinator.progress-umum-detail', [
-            'active' => 'progress-umum',
-            'pendaftaran' => $pendaftaranLoad,
-            'jumlahDiterima' => $jumlahDiterima,
-            'jumlahBelumDiperiksa' => $jumlahBelumDiperiksa,
-            'jumlahDitolak' => $jumlahDitolak,
-        ]);
-    }
 }

@@ -12,11 +12,16 @@ class JadwalMengujiController extends Controller
     public function index()
     {
         app()->setLocale('id');
-        $userId = Auth::user()->id;
+        $userId = Auth::id();
+        $periodeId = session('selected_periode_id');
 
-        // Ambil mahasiswa di mana dosen ini menjadi Penguji 1 atau Penguji 2
+        // Ambil semua sidang yang dosen tsb menjadi penguji 1 atau 2,
+        // dan filter secara eksplisit sesuai periode aktif.
         $sidangs = PendaftaranSidang::with(['mahasiswa.user', 'penguji1', 'penguji2', 'pendaftaranKp.supervisorInternal'])
             ->whereNotNull('tanggal_sidang')
+            ->whereHas('pendaftaranKp', function ($q) use ($periodeId) {
+                $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+            })
             ->where(function ($query) use ($userId) {
                 $query->where('penguji_1_id', $userId)
                       ->orWhere('penguji_2_id', $userId);
@@ -149,9 +154,6 @@ class JadwalMengujiController extends Controller
             } else {
                 $sidang->grade = 'D/E';
             }
-
-            // Status Kelulusan
-            $sidang->status_kelulusan = ($avg >= 60) ? 'lulus' : 'tidak_lulus';
 
             $sidang->save();
         }

@@ -3,40 +3,7 @@
         @include('koordinator.components.sidebar', ['active' => 'pendaftaran-kp'])
     </x-slot>
 
-        <x-slot:headerActions>
-        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
-            <button @click="open = !open" @click.outside="open = false" type="button"
-                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
-
-                <span x-text="selected"></span>
-
-                <svg :class="open ? 'rotate-0' : 'rotate-90'"
-                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-
-            <div x-show="open" x-transition style="display: none;"
-                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
-                <ul class="py-1 text-[13px] font-medium text-black">
-                    <li>
-                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Genap 2025/2026
-                        </button>
-                    </li>
-                    <li>
-                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Ganjil 2025/2026
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <input type="hidden" name="periode" :value="selected">
-        </div>
-    </x-slot:headerActions>
+        
 
     <style>
         .counter-body { counter-reset: row-number {{ ($pendaftarans->currentPage() - 1) * $pendaftarans->perPage() }}; }
@@ -105,6 +72,10 @@
                 'External' => [
                     'menunggu' => $items->where('jenis_instansi', 'External')->where('status_kp', 'pending')->count(),
                     'disetujui' => $items->where('jenis_instansi', 'External')->where('status_kp', 'approved')->count()
+                ],
+                'Semua' => [
+                    'menunggu' => $items->where('status_kp', 'pending')->count(),
+                    'disetujui' => $items->where('status_kp', 'approved')->count()
                 ]
             ];
             $statsRejectedCount = $rejectedPendaftarans->total();
@@ -117,31 +88,36 @@
 
         <!-- Tabs -->
         <div class="flex items-end h-[36px] mt-8">
-            <button @click="tabJenis = 'Internal'; $dispatch('update-jenis-main', 'Internal')" 
-               :class="tabJenis === 'Internal' ? 'bg-[#D9D9D9] border border-black/50 border-b-0 h-[36px] z-10' : 'bg-[#E8E8E8] border border-black/50 opacity-70 h-[34px] border-b-black'"
+            <button @click="tabJenis = 'Semua'" 
+               :class="tabJenis === 'Semua' ? 'bg-[#D9D9D9] border border-black/50 border-b-0 h-[36px] z-10' : 'bg-[#E8E8E8] border border-black/50 opacity-70 h-[34px] border-b-black'"
                class="w-[110px] text-[14px] font-medium rounded-t-[5px] relative flex items-center justify-center text-black hover:opacity-100 transition-all">
+               Semua
+            </button>
+            <button @click="tabJenis = 'Internal'" 
+               :class="tabJenis === 'Internal' ? 'bg-[#D9D9D9] border border-black/50 border-b-0 h-[36px] z-10' : 'bg-[#E8E8E8] border border-black/50 opacity-70 h-[34px] border-b-black'"
+               class="w-[110px] text-[14px] font-medium rounded-t-[5px] relative left-[-1px] flex items-center justify-center text-black hover:opacity-100 transition-all">
                Internal
             </button>
-            <button @click="tabJenis = 'External'; $dispatch('update-jenis-main', 'External')" 
+            <button @click="tabJenis = 'External'" 
                :class="tabJenis === 'External' ? 'bg-[#D9D9D9] border border-black/50 border-b-0 h-[36px] z-10' : 'bg-[#E8E8E8] border border-black/50 opacity-70 h-[34px] border-b-black'"
-               class="w-[110px] text-[14px] font-medium rounded-t-[5px] relative left-[-1px] flex items-center justify-center text-black hover:opacity-100 transition-all">
+               class="w-[110px] text-[14px] font-medium rounded-t-[5px] relative left-[-2px] flex items-center justify-center text-black hover:opacity-100 transition-all">
                Eksternal
             </button>
         </div>
 
-        <div class="bg-white rounded-b-[15px] rounded-tr-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8 relative top-[-1px]" id="main">
+        <div class="bg-white rounded-b-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8 relative top-[-1px]" :class="tabJenis === 'Semua' ? 'rounded-tr-[15px]' : 'rounded-tr-[15px]'" id="main">
             <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
                 <div>
-                    <h3 class="text-[18px] font-bold text-black tracking-tight">Daftar Pengajuan KP <span x-text="tabJenis === 'External' ? 'Eksternal' : 'Internal'"></span></h3>
+                    <h3 class="text-[18px] font-bold text-black tracking-tight">Daftar Pengajuan KP <span x-text="tabJenis === 'External' ? 'Eksternal' : (tabJenis === 'Semua' ? 'Semua' : 'Internal')"></span></h3>
                     <p class="text-[12px] text-black/60 font-medium mt-1">Berdasarkan data pengajuan kerja praktik terbaru dari mahasiswa yang perlu ditinjau koordinator.</p>
                 </div>
                 <div class="flex gap-2 shrink-0">
                     <div class="bg-[#FBBC05] text-black rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-yellow-500/20">
-                        <span class="text-[16px] font-bold leading-none" x-text="tabJenis === 'Internal' ? {{ $statsMain['Internal']['menunggu'] }} : {{ $statsMain['External']['menunggu'] }}"></span>
+                        <span class="text-[16px] font-bold leading-none" x-text="tabJenis === 'Internal' ? {{ $statsMain['Internal']['menunggu'] }} : (tabJenis === 'External' ? {{ $statsMain['External']['menunggu'] }} : {{ $statsMain['Semua']['menunggu'] }})"></span>
                         <span class="text-[11px] font-medium uppercase tracking-wider">Menunggu</span>
                     </div>
                     <div class="bg-[#34A853] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-green-600/20">
-                        <span class="text-[16px] font-bold leading-none" x-text="tabJenis === 'Internal' ? {{ $statsMain['Internal']['disetujui'] }} : {{ $statsMain['External']['disetujui'] }}"></span>
+                        <span class="text-[16px] font-bold leading-none" x-text="tabJenis === 'Internal' ? {{ $statsMain['Internal']['disetujui'] }} : (tabJenis === 'External' ? {{ $statsMain['External']['disetujui'] }} : {{ $statsMain['Semua']['disetujui'] }})"></span>
                         <span class="text-[11px] font-medium uppercase tracking-wider">Disetujui</span>
                     </div>
                 </div>
@@ -328,7 +304,7 @@
     <script>
         window.pendaftaranScope = function() {
             return {
-                tabJenis: 'Internal',
+                tabJenis: 'Semua',
                 searchQuery: '{{ request('main.search') }}', 
                 searchQueryRejected: '{{ request('rejected.search') }}',
                 isSelectionMode: sessionStorage.getItem('kpSelectionMode') === 'true',
@@ -344,8 +320,8 @@
                 statusRows: @json($allStatusRows ?? []),
                 
                 init() {
-                    this.$watch('tabJenis', val => this.$dispatch('update-jenis-main', val));
-                    this.$nextTick(() => this.$dispatch('update-jenis-main', this.tabJenis));
+                    this.$watch('tabJenis', val => this.$dispatch('update-jenis-main', val === 'Semua' ? 'All' : val));
+                    this.$nextTick(() => this.$dispatch('update-jenis-main', this.tabJenis === 'Semua' ? 'All' : this.tabJenis));
                 },
 
                 openModalCatatan(formElement, pesan) {

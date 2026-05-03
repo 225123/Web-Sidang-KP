@@ -10,8 +10,12 @@ class KalenderSidangController extends Controller
     public function index()
     {
         // Ambil semua yang sudah ada jadwalnya
+        $periodeId = session('selected_periode_id');
         $sidangs = PendaftaranSidang::with(['mahasiswa.user', 'penguji1', 'penguji2', 'pendaftaranKp.supervisorInternal'])
             ->whereNotNull('tanggal_sidang')
+            ->whereHas('pendaftaranKp', function ($q) use ($periodeId) {
+                $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+            })
             ->get();
 
         $allEvents = $sidangs->map(function ($s) {

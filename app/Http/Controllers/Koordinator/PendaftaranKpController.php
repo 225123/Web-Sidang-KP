@@ -12,7 +12,10 @@ class PendaftaranKpController extends Controller
 {
     public function index(Request $request)
     {
-        $queryMain = PendaftaranKp::with(['supervisorInstansi', 'user.mahasiswa'])->where('status_kp', '!=', 'rejected')->latest();
+        $queryMain = PendaftaranKp::with(['supervisorInstansi', 'user.mahasiswa'])
+            ->where('status_kp', '!=', 'rejected')
+            ->orderByRaw("CASE WHEN status_kp = 'approved' THEN 1 ELSE 0 END")
+            ->orderBy('created_at', 'asc');
         $queryRejected = PendaftaranKp::with(['supervisorInstansi', 'user.mahasiswa'])->where('status_kp', 'rejected')->latest();
 
         $mainReq = new Request($request->input('main', []));
@@ -39,7 +42,18 @@ class PendaftaranKpController extends Controller
         $pendingCount = 0;
         $ditolakCount = 0;
 
-        $usersMahasiswa = User::where('role', 'mahasiswa')->get();
+        $usersMahasiswaQuery = User::where('role', 'mahasiswa');
+        if (session()->has('selected_periode_id')) {
+            $periodeId = session('selected_periode_id');
+            $usersMahasiswaQuery->where(function($q) use ($periodeId) {
+                $q->whereHas('mahasiswa', function($sq) use ($periodeId) {
+                    $sq->where('tahun_ajaran_id', $periodeId);
+                })->orWhereIn('id', function($sub) use ($periodeId) {
+                    $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
+                });
+            });
+        }
+        $usersMahasiswa = $usersMahasiswaQuery->get();
         $totalMahasiswa = $usersMahasiswa->count();
 
         foreach ($usersMahasiswa as $u) {

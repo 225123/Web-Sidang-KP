@@ -1,5 +1,5 @@
-<div class="bg-white rounded-lg p-6 shadow-sm max-w-4xl mx-auto" x-data="profileManager()">
-    <h1 class="text-2xl font-bold mb-6 text-black">Profil</h1>
+<div class="w-full max-w-4xl mx-auto" x-data="profileManager()">
+    <h1 class="text-2xl font-bold mb-6 text-black hidden">Profil</h1>
 
     @if(session('error'))
     <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md shadow-sm flex items-start gap-3">
@@ -36,62 +36,73 @@
     @endif
 
     <!-- Personal Information Card -->
-    <div class="bg-[#f0f0f0] rounded-[12px] p-8 flex flex-col md:flex-row justify-between items-start mb-8 relative">
-        <div class="flex flex-col gap-4 w-full md:w-[60%]">
-            <div class="font-bold text-lg text-black mb-2">Informasi Pribadi</div>
+    <div class="bg-white border border-gray-200 rounded-[10px] p-6 md:p-8 flex flex-col md:flex-row justify-between items-center md:items-start mb-6 shadow-sm relative gap-8 md:gap-0">
+        <div class="flex flex-col gap-6 w-full md:w-[65%]">
+            <h2 class="font-bold text-[16px] text-black border-b border-gray-100 pb-3 flex items-center gap-2 uppercase tracking-tight">
+                <svg class="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                Informasi Pribadi
+            </h2>
             
-            <form action="{{ route('profil.updateInfo') }}" method="POST" id="profile-form" class="flex flex-col gap-4">
+            <form action="{{ route('profil.updateInfo') }}" method="POST" id="profile-form" class="flex flex-col gap-5">
                 @csrf
-                <div class="flex items-center">
-                    <span class="w-[120px] text-gray-600">Nama</span>
-                    <span class="w-[15px] text-center text-gray-600">:</span>
-                    <span class="flex-1 text-black font-semibold uppercase">{{ $profileData['name'] }}</span>
-                </div>
-                <div class="flex items-center">
-                    <span class="w-[120px] text-gray-600">{{ $profileData['id_label'] }}</span>
-                    <span class="w-[15px] text-center text-gray-600">:</span>
-                    <span class="flex-1 text-black font-semibold">{{ $profileData['id_value'] }}</span>
-                </div>
-                <div class="flex items-center">
-                    <span class="w-[120px] text-gray-600">Email</span>
-                    <span class="w-[15px] text-center text-gray-600">:</span>
-                    <div class="flex-1">
-                        <span x-show="!editMode" class="text-black break-all">{{ $profileData['email'] }}</span>
-                        <input x-cloak x-show="editMode" type="email" name="email" value="{{ $profileData['email'] }}" class="w-full border rounded px-2 py-1 text-sm outline-none focus:border-blue-500">
+                <div class="grid grid-cols-1 sm:grid-cols-[120px_1fr] gap-2 sm:gap-4 items-center">
+                    <span class="font-bold text-gray-600 text-[13px] uppercase">Nama</span>
+                    <div class="bg-gray-50 border border-gray-200 rounded-[5px] px-4 py-2 font-bold text-black uppercase shadow-inner text-[13px]">
+                        {{ $profileData['name'] }}
                     </div>
                 </div>
-                <div class="flex items-center">
-                    <span class="w-[120px] text-gray-600">No HP</span>
-                    <span class="w-[15px] text-center text-gray-600">:</span>
-                    <div class="flex-1">
-                        <span x-show="!editMode" class="text-black">{{ $profileData['no_hp'] }}</span>
-                        <input x-cloak x-show="editMode" type="text" name="no_hp" value="{{ $profileData['no_hp'] == '-' ? '' : $profileData['no_hp'] }}" class="w-full border rounded px-2 py-1 text-sm outline-none focus:border-blue-500">
+                <div class="grid grid-cols-1 sm:grid-cols-[120px_1fr] gap-2 sm:gap-4 items-center">
+                    <span class="font-bold text-gray-600 text-[13px] uppercase">{{ $profileData['id_label'] }}</span>
+                    <div class="bg-gray-50 border border-gray-200 rounded-[5px] px-4 py-2 font-bold text-black shadow-inner text-[13px]">
+                        {{ $profileData['id_value'] }}
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-[120px_1fr] gap-2 sm:gap-4 items-center">
+                    <span class="font-bold text-gray-600 text-[13px] uppercase">Email</span>
+                    <div class="relative w-full">
+                        <div x-show="!editMode" class="bg-gray-50 border border-gray-200 rounded-[5px] px-4 py-2 text-black shadow-inner break-all text-[13px]">
+                            {{ $profileData['email'] }}
+                        </div>
+                        <input x-cloak x-show="editMode" type="email" name="email" value="{{ $profileData['email'] }}" class="w-full border border-gray-300 rounded-[5px] px-4 py-2 text-[13px] outline-none focus:border-[#4285F4] focus:ring-1 focus:ring-[#4285F4] transition-all">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-[120px_1fr] gap-2 sm:gap-4 items-center">
+                    <span class="font-bold text-gray-600 text-[13px] uppercase">No HP</span>
+                    <div class="relative w-full">
+                        <div x-show="!editMode" class="bg-gray-50 border border-gray-200 rounded-[5px] px-4 py-2 text-black shadow-inner text-[13px]">
+                            {{ $profileData['no_hp'] }}
+                        </div>
+                        <input x-cloak x-show="editMode" type="text" name="no_hp" value="{{ $profileData['no_hp'] == '-' ? '' : $profileData['no_hp'] }}" class="w-full border border-gray-300 rounded-[5px] px-4 py-2 text-[13px] outline-none focus:border-[#4285F4] focus:ring-1 focus:ring-[#4285F4] transition-all">
                     </div>
                 </div>
 
-                <div class="mt-4 flex gap-2">
-                    <button type="button" x-show="!editMode" @click="editMode = true" class="bg-transparent border-none cursor-pointer flex items-center gap-2 text-gray-500 hover:text-black">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                        <span>Edit</span>
+                <div class="mt-2 flex gap-3">
+                    <button type="button" x-show="!editMode" @click="editMode = true" class="bg-white border border-gray-300 shadow-sm text-black px-6 py-2 rounded-[5px] text-[13px] font-bold hover:bg-gray-50 flex items-center gap-2 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        <span>Edit Kontak</span>
                     </button>
-                    <button type="submit" x-cloak x-show="editMode" class="bg-blue-600 text-white px-4 py-1.5 rounded text-sm font-semibold hover:bg-blue-700">Simpan Detail</button>
-                    <button type="button" x-cloak x-show="editMode" @click="editMode = false" class="bg-gray-400 text-white px-4 py-1.5 rounded text-sm font-semibold hover:bg-gray-500">Batal</button>
+                    <button type="submit" x-cloak x-show="editMode" class="bg-[#34A853] shadow-sm text-white px-6 py-2 rounded-[5px] text-[13px] font-bold hover:bg-green-700 flex items-center gap-2 transition-colors">Simpan Perubahan</button>
+                    <button type="button" x-cloak x-show="editMode" @click="editMode = false" class="bg-white border border-gray-300 shadow-sm text-black px-6 py-2 rounded-[5px] text-[13px] font-bold hover:bg-gray-50 flex items-center gap-2 transition-colors">Batal</button>
                 </div>
             </form>
         </div>
 
-        <div class="flex flex-col items-center w-full md:w-[30%] mt-6 md:mt-0 relative group">
-            <div class="w-[120px] h-[120px] rounded-full bg-[#6c5ce7] flex justify-center items-center text-white overflow-hidden shadow-sm relative">
+        <div class="flex flex-col items-center w-full md:w-[30%] relative group">
+            <div class="w-[140px] h-[140px] md:w-[160px] md:h-[160px] rounded-full bg-[#E6F0FA] border-4 border-white flex justify-center items-center text-gray-400 overflow-hidden shadow-lg relative">
                 @if($user->avatar)
                     <img src="{{ asset('storage/' . $user->avatar) }}" alt="Avatar" class="w-full h-full object-cover">
                 @else
-                    <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    <svg class="w-[80px] h-[80px]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                 @endif
                 
                 <!-- Hover Upload Overlay -->
-                <label for="avatar-upload" class="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center cursor-pointer text-xs text-center font-bold">Ubah Foto</label>
+                <label for="avatar-upload" class="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center cursor-pointer text-[13px] text-white font-bold transition-opacity">
+                    <div class="flex flex-col items-center gap-1">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 16V8a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v6m-3-3h6"></path></svg>
+                        Ubah Foto
+                    </div>
+                </label>
             </div>
-            <div class="absolute bottom-2 right-4 text-gray-500 cursor-pointer pointer-events-none text-2xl drop-shadow-md">&#128394;</div>
             <form action="{{ route('profil.updateAvatar') }}" method="POST" enctype="multipart/form-data" id="avatar-form" class="hidden">
                 @csrf
                 <input type="file" id="avatar-upload" name="avatar" accept="image/*" onchange="document.getElementById('avatar-form').submit()">
@@ -100,37 +111,42 @@
     </div>
 
     <!-- Tanda Tangan Digital Section -->
-    <div class="bg-[#e6e6e6] rounded-[12px] p-6 flex flex-col items-center mb-10 w-full max-w-md mx-auto relative shadow-inner">
-        <div class="font-bold mb-4 text-[16px] text-black">Tanda Tangan Digital</div>
+    <div class="bg-white border border-gray-200 rounded-[10px] p-6 md:p-8 flex flex-col items-center mb-8 shadow-sm relative">
+        <h2 class="font-bold text-[16px] text-black border-b border-gray-100 w-full text-center pb-3 mb-6 uppercase tracking-tight flex items-center justify-center gap-2">
+            <svg class="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+            Tanda Tangan Digital
+        </h2>
         
-        <div class="bg-white w-full h-[120px] border border-[#dcdcdc] rounded-[8px] flex justify-center items-center mb-4 overflow-hidden relative">
+        <div class="bg-gray-50 w-full max-w-[400px] h-[160px] border border-gray-300 border-dashed rounded-[10px] flex justify-center items-center mb-5 overflow-hidden relative shadow-inner">
             @if($user->signature_path)
                 <img src="{{ asset('storage/' . $user->signature_path) }}" alt="Tanda Tangan" class="max-w-[80%] max-h-[80%] object-contain">
             @else
-                <span class="text-sm text-gray-400 italic">Belum ada tanda tangan.</span>
+                <div class="flex flex-col items-center text-gray-400 gap-2">
+                    <svg class="w-8 h-8 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    <span class="text-[13px] italic">Belum ada tanda tangan.</span>
+                </div>
             @endif
         </div>
 
-        <div class="flex justify-center w-full mt-2">
-            <button @click="showSigModal = true" type="button" class="bg-white border border-gray-300 shadow-sm px-6 py-2 rounded-md font-semibold text-sm text-gray-700 flex items-center hover:bg-gray-50 focus:outline-none transition-colors">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="mr-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+        <div class="flex justify-center w-full">
+            <button @click="showSigModal = true" type="button" class="bg-[#4285F4] hover:bg-blue-600 text-white shadow-sm px-8 py-2.5 rounded-[5px] font-bold text-[13px] flex items-center gap-2 transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                 Buat / Ubah Tanda Tangan
             </button>
         </div>
     </div>
 
-    <!-- Reset Password & Sign Out Context -->
-    <div class="flex justify-center mb-10">
-        <button type="button" onclick="alert('Fitur Reset Password (Dummy)')" class="px-5 py-2 bg-white text-gray-800 border border-gray-400 hover:border-gray-600 rounded-full font-bold text-sm shadow-sm transition-colors">
+    <!-- Actions Section -->
+    <div class="flex flex-col sm:flex-row justify-center items-center gap-4 pt-6 border-t border-gray-200 mt-2 mb-4">
+        <button type="button" onclick="alert('Fitur Reset Password (Dummy)')" class="w-full sm:w-auto bg-white text-black border border-[#CAC0C0] hover:bg-gray-100 rounded-[25px] px-10 py-2.5 font-bold text-[13px] shadow-sm transition-colors flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
             Reset Password
         </button>
-    </div>
-
-    <div class="flex justify-end border-t border-[#eaeaea] pt-4">
-        <form action="{{ route('logout') }}" method="POST">
+        <form action="{{ route('logout') }}" method="POST" class="w-full sm:w-auto m-0">
             @csrf
-            <button type="submit" class="flex items-center gap-2 bg-transparent border-none text-[#d63031] font-bold text-sm cursor-pointer hover:text-red-800">
-                <span class="text-lg">&#10141;</span> <span>Sign Out</span>
+            <button type="submit" class="w-full bg-[#EA4335] hover:bg-red-700 text-white rounded-[25px] px-10 py-2.5 font-bold text-[13px] shadow-md transition-colors flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                Sign Out
             </button>
         </form>
     </div>

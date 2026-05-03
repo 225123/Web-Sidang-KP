@@ -1,4 +1,4 @@
-<x-dashboard-layout header="Detail Notifikasi" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR KP">
+<x-dashboard-layout header="Detail Notifikasi" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR KP" hidePeriodSelector="true">
     <x-slot:sidebar>
         @include('koordinator.components.sidebar', ['active' => 'notifikasi'])
     </x-slot>

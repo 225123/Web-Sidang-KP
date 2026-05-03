@@ -25,20 +25,20 @@
     <header class="bg-[#D9D9D9] flex-shrink-0 relative top-0 z-50 shadow-[0px_4px_4px_rgba(0,0,0,0.25)] border-b border-gray-300 h-[76px]">
         <div class="flex items-center justify-between px-4 md:px-9 h-full">
             <div class="flex items-center gap-4 md:gap-6 shrink-0">
-                <a href="{{ route('profil.index') }}" class="p-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition-colors focus:outline-none z-50 relative flex items-center justify-center">
+                <button @click="sidebarOpen = !sidebarOpen" type="button" class="p-1.5 md:p-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition-colors focus:outline-none z-50 relative flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                </a>
+                </button>
                 @php
                     $dashboardRoute = '#';
                     if (auth()->check()) {
-                        $role = auth()->user()->role;
-                        if ($role === 'koordinator_kp') $dashboardRoute = route('koordinator.dashboard');
-                        elseif ($role === 'dosen') $dashboardRoute = route('dosen.dashboard');
-                        elseif ($role === 'mahasiswa') $dashboardRoute = route('mahasiswa.dashboard');
+                        $roleStr = strtolower(auth()->user()->role);
+                        if ($roleStr === 'koordinator_kp' || str_contains($roleStr, 'koordinator')) $dashboardRoute = route('koordinator.dashboard');
+                        elseif ($roleStr === 'dosen') $dashboardRoute = route('dosen.dashboard');
+                        elseif ($roleStr === 'mahasiswa') $dashboardRoute = route('mahasiswa.dashboard');
                     }
                 @endphp
-                <a href="{{ $dashboardRoute }}" class="hidden md:block hover:opacity-70 transition-opacity">
-                    <h1 class="text-[16px] lg:text-[20px] font-bold uppercase leading-tight text-black font-serif tracking-widest mt-2">
+                <a href="{{ $dashboardRoute }}" class="block hover:opacity-70 transition-opacity shrink-0">
+                    <h1 class="text-[11px] sm:text-[14px] md:text-[16px] lg:text-[20px] font-bold uppercase leading-tight text-black font-serif tracking-widest mt-1 md:mt-2">
                         KERJA<br/>PRAKTEK
                     </h1>
                 </a>
@@ -49,12 +49,12 @@
                     $unreadCount = 0;
                     if (auth()->check()) {
                         $user = auth()->user();
-                        $roleMap = [
-                            'koordinator_kp' => 'koordinator',
-                            'dosen' => 'dosen',
-                            'mahasiswa' => 'mahasiswa'
-                        ];
-                        $roleToken = $roleMap[$user->role] ?? null;
+                        $roleStr = strtolower($user->role);
+                        $roleToken = null;
+                        
+                        if ($roleStr === 'koordinator_kp' || str_contains($roleStr, 'koordinator')) $roleToken = 'koordinator';
+                        elseif ($roleStr === 'dosen') $roleToken = 'dosen';
+                        elseif ($roleStr === 'mahasiswa') $roleToken = 'mahasiswa';
 
                         $unreadCount = \App\Models\NotifikasiLog::where('is_read', false)
                             ->where(function($q) use ($user, $roleToken) {
@@ -69,34 +69,35 @@
                     
                     $notifRoute = '#';
                     if (auth()->check()) {
-                        $role = auth()->user()->role;
-                        if ($role === 'koordinator_kp') $notifRoute = route('koordinator.notifikasi');
-                        elseif ($role === 'dosen') $notifRoute = route('dosen.notifikasi');
-                        elseif ($role === 'mahasiswa') $notifRoute = route('mahasiswa.notifikasi');
+                        $roleStr = strtolower(auth()->user()->role);
+                        if ($roleStr === 'koordinator_kp' || str_contains($roleStr, 'koordinator')) $notifRoute = route('koordinator.notifikasi');
+                        elseif ($roleStr === 'dosen') $notifRoute = route('dosen.notifikasi');
+                        elseif ($roleStr === 'mahasiswa') $notifRoute = route('mahasiswa.notifikasi');
                     }
                 @endphp
-                <a href="{{ $notifRoute }}" class="relative p-2 md:p-2.5 bg-[#9F9F9F] rounded-full hover:bg-gray-500 transition-colors flex items-center justify-center group">
-                    <svg class="w-5 h-5 md:w-6 md:h-6 text-black group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="{{ $notifRoute }}" class="relative p-1.5 sm:p-2 md:p-2.5 bg-[#9F9F9F] rounded-full hover:bg-gray-500 transition-colors flex items-center justify-center group shrink-0">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 text-black group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
                     @if($unreadCount > 0)
-                        <span class="absolute -top-1 -right-1 bg-[#FF0000] text-white text-[9px] md:text-[11px] font-bold rounded-full h-[15px] w-[15px] md:h-[18px] md:w-[18px] flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.3)] ring-2 ring-[#D9D9D9]">
+                        <span class="absolute -top-1 -right-1 bg-[#FF0000] text-white text-[8px] sm:text-[9px] md:text-[11px] font-bold rounded-full h-[14px] w-[14px] sm:h-[16px] sm:w-[16px] md:h-[18px] md:w-[18px] flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.3)] ring-2 ring-[#D9D9D9]">
                             {{ $unreadCount > 99 ? '99+' : $unreadCount }}
                         </span>
                     @endif
                 </a>
 
                 <div class="flex items-center gap-3 md:gap-4">
-                    <div class="text-right hidden md:flex flex-col justify-center">
-                        <span class="text-[14px] lg:text-[17px] font-bree uppercase text-black font-normal">{{ $roleName ?? 'ROLE' }}</span>
-                        <span class="text-[14px] lg:text-[17px] font-bree text-black font-normal">
+                    <div class="text-right flex flex-col justify-center max-w-[90px] sm:max-w-[150px] md:max-w-none">
+                        <span class="text-[10px] sm:text-[12px] md:text-[14px] lg:text-[17px] font-bree uppercase text-black font-normal truncate">{{ $roleName ?? 'ROLE' }}</span>
+                        <span class="text-[10px] sm:text-[12px] md:text-[14px] lg:text-[17px] font-bree text-black font-normal truncate">
                             @php
                                 $dUser = auth()->user();
                                 $dId = '';
                                 if ($dUser) {
-                                    if ($dUser->role === 'mahasiswa') {
+                                    $roleStr = strtolower($dUser->role);
+                                    if ($roleStr === 'mahasiswa') {
                                         $dId = optional($dUser->mahasiswa)->nim;
-                                    } elseif (in_array($dUser->role, ['dosen', 'koordinator_kp'])) {
+                                    } elseif ($roleStr === 'dosen' || str_contains($roleStr, 'koordinator')) {
                                         $dId = optional($dUser->dosen)->nidn;
                                     }
                                 }
@@ -104,7 +105,7 @@
                             {{ $userName ?? 'User' }}{{ $dId ? ' - ' . $dId : '' }}
                         </span>
                     </div>
-                    <a href="{{ route('profil.index') }}" class="h-[40px] w-[40px] md:h-[58px] md:w-[58px] lg:h-[68px] lg:w-[68px] rounded-full bg-[#140EBF] flex items-center justify-center text-white font-bold text-lg md:text-xl lg:text-2xl border-[2px] md:border-[3px] lg:border-4 border-[#D9D9D9] overflow-hidden shadow-sm hover:scale-105 transition-transform">
+                    <a href="{{ route('profil.index') }}" class="h-[32px] w-[32px] sm:h-[40px] sm:w-[40px] md:h-[58px] md:w-[58px] lg:h-[68px] lg:w-[68px] rounded-full bg-[#140EBF] flex items-center justify-center text-white font-bold text-sm md:text-xl lg:text-2xl border-[2px] md:border-[3px] lg:border-4 border-[#D9D9D9] overflow-hidden shadow-sm hover:scale-105 transition-transform shrink-0">
                         @if(auth()->user() && auth()->user()->avatar)
                             <img src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Avatar" class="w-full h-full object-cover">
                         @else
@@ -130,9 +131,45 @@
             <div class="p-4 md:p-8 pb-10 flex-1 w-full max-w-[100vw] overflow-x-hidden">
                 @if(isset($header))
                     <div class="mb-8 flex flex-col md:flex-row md:justify-between md:items-center gap-4 w-full">
-                        <h2 class="text-2xl font-bold font-inter text-black">{{ $header }}</h2>
-                        @if(isset($headerActions))
-                            <div>{{ $headerActions }}</div>
+                        <h2 class="text-2xl font-bold font-inter text-black flex items-center gap-4">
+                            @if(isset($backUrl))
+                                <a href="{{ $backUrl }}" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 transition-colors text-gray-700">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                                </a>
+                            @endif
+                            {{ $header }}
+                        </h2>
+                        @if(!isset($hidePeriodSelector) && isset($available_periods) && $available_periods->isNotEmpty())
+                            <div class="relative w-full md:w-[212px] mt-2 md:mt-0 z-50">
+                                <form method="POST" action="{{ route('set-periode') }}" id="periode-form">
+                                    @csrf
+                                    <input type="hidden" name="periode_id" id="periode-id-input" value="{{ $selected_period_id }}">
+                                    <div x-data="{ open: false }" class="relative">
+                                        <button @click="open = !open" @click.outside="open = false" type="button"
+                                            class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
+                                            <span class="truncate">{{ $selected_period_label }}</span>
+                                            <svg :class="open ? 'rotate-0' : 'rotate-90'"
+                                                class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                        </button>
+                                        <div x-show="open" x-transition x-cloak style="display: none;"
+                                            class="absolute right-0 z-50 w-full md:w-[212px] mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden max-h-60 overflow-y-auto">
+                                            <ul class="py-1 text-[13px] font-medium text-black">
+                                                @foreach($available_periods as $period)
+                                                    <li>
+                                                        <button type="button" onclick="document.getElementById('periode-id-input').value = '{{ $period->id }}'; document.getElementById('periode-form').submit();"
+                                                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer {{ $selected_period_id == $period->id ? 'bg-[#E8E5E5]' : '' }}">
+                                                            {{ $period->label_tahun_ajaran }}
+                                                        </button>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
                         @endif
                     </div>
                 @endif

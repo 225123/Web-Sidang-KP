@@ -38,7 +38,7 @@ class PendaftaranSidangController extends Controller
             }
         }
 
-        return view('mahasiswa.pendaftaran-sidang', compact('pengajuan', 'isVerifiedByDosen'));
+        return view('mahasiswa.pendaftaran-sidang', compact('pengajuan', 'isVerifiedByDosen', 'pendaftaran'));
     }
 
     public function store(Request $request)

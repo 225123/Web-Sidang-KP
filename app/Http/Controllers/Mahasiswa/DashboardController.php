@@ -65,6 +65,23 @@ class DashboardController extends Controller
             ->latest()
             ->first();
 
+        // 4. Notifikasi (Dynamic)
+        $notifikasi = \App\Models\NotifikasiLog::where(function ($query) use ($userId) {
+                $query->where('receiver_id', $userId)
+                    ->orWhere('target_role', 'mahasiswa');
+            })
+            ->where('is_read', false)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+            
+        $notifikasiCount = \App\Models\NotifikasiLog::where(function ($query) use ($userId) {
+                $query->where('receiver_id', $userId)
+                    ->orWhere('target_role', 'mahasiswa');
+            })
+            ->where('is_read', false)
+            ->count();
+
         return view('mahasiswa.dashboard', [
             'active' => 'dashboard',
             'kp' => $kpStatus,
@@ -73,6 +90,8 @@ class DashboardController extends Controller
             'progress' => $progress,
             'timeline' => $timeline,
             'sidang' => $sidang,
+            'notifikasi' => $notifikasi,
+            'notifikasiCount' => $notifikasiCount,
         ]);
     }
 }

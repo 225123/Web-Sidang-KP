@@ -116,7 +116,6 @@ class ExternalSupervisorController extends Controller
                 $sidang->grade = 'D/E';
             }
 
-            $sidang->status_kelulusan = ($avg >= 60) ? 'Lulus' : 'Tidak Lulus';
             $sidang->save();
         }
     }

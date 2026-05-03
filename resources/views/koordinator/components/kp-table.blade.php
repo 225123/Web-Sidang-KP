@@ -20,8 +20,10 @@
             if (!this.$refs.tableRoot) return;
             let query = (this.{{ $searchModel ?? "searchQuery" }} || '').toLowerCase();
             let groups = Array.from(this.$refs.tableRoot.querySelectorAll('tbody.proposal-group'));
-            let visibleGroups = [];
             
+
+
+            let visibleGroups = [];
             groups.forEach(g => {
                 let matchSearch = (query === '' || g.dataset.search.includes(query));
                 let matchJenis = (this.jenisFilter === 'All' || g.dataset.jenis.toLowerCase() === this.jenisFilter.toLowerCase());
@@ -112,6 +114,8 @@
                     data-status="{{ $kp->status_kp ?? '' }}"
                     data-pengerjaan="{{ $kp->pengerjaan_kp ?? 'individu' }}"
                     data-barulanjut="{{ $kp->is_lanjutan ? 'lanjut' : 'baru' }}"
+                    data-nim="{{ $mhsList[0]['nim'] ?? '' }}"
+                    data-nama="{{ ($mhsList[0]['nama'] ?? '') }}"
                     style="display: none;">
                     @foreach($mhsList as $mIdx => $m)
                     <tr class="bg-white hover:bg-gray-50 font-medium border-b border-gray-200">
@@ -187,16 +191,16 @@
                     @endforeach
                 </tbody>
             @empty
-                <tbody class="divide-y divide-gray-200 proposal-group" data-search="" data-jenis="" data-status="" data-pengerjaan="" data-barulanjut="">
+                <tbody class="divide-y divide-gray-200 bg-gray-50/30">
                     <tr>
                         <td colspan="{{ $isRejected ? 9 : 8 }}" class="py-12 text-center text-gray-400 italic font-medium bg-gray-50 tracking-widest border-b border-gray-300">
-                            Tidak Ada Data
+                            Belum Ada Data Pendaftaran
                         </td>
                     </tr>
                 </tbody>
             @endforelse
-            
-            <tbody x-show="totalVisible === 0 && {{ count($pendaftarans) }} > 0" style="display: none;">
+
+            <tbody x-show="totalVisible === 0 && {{ count($pendaftarans->items()) }} > 0" style="display: none;">
                 <tr>
                     <td colspan="{{ $isRejected ? 9 : 8 }}" class="border border-gray-200 px-4 py-16 text-center bg-white">
                         <div class="flex flex-col items-center justify-center text-gray-400">

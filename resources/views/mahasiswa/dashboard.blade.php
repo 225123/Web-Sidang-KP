@@ -4,40 +4,7 @@
         </x-slot>
 
         <!-- Header Actions passed to Layout to render nicely next to DASHBOARD text -->
-                <x-slot:headerActions>
-        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px] mt-2 md:mt-0">
-            <button @click="open = !open" @click.outside="open = false" type="button"
-                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#F48200] focus:ring-[#F48200] focus:ring-1 cursor-pointer text-black h-[32px]">
-
-                <span x-text="selected"></span>
-
-                <svg :class="open ? 'rotate-0' : 'rotate-90'"
-                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-
-            <div x-show="open" x-transition style="display: none;"
-                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
-                <ul class="py-1 text-[13px] font-medium text-black">
-                    <li>
-                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Genap 2025/2026
-                        </button>
-                    </li>
-                    <li>
-                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Ganjil 2025/2026
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <input type="hidden" name="periode" :value="selected">
-        </div>
-    </x-slot:headerActions>
+                
 
         <style>
             /* Custom Native Scrollbar for Webkit */
@@ -133,31 +100,24 @@
                     </div>
                 </div>
 
-                <!-- Notifikasi (Static as requested) -->
+                <!-- Notifikasi (Dynamic) -->
                 <div
                     class="bg-[#ECECEC] rounded-[10px] pt-4 pb-4 pl-6 pr-2 shadow-sm border border-[#D9D9D9] h-[252px] flex flex-col">
-                    <h3 class="font-semibold text-black text-[18px] mb-4 pr-4 uppercase tracking-tight">Notifikasi (3)
+                    <h3 class="font-semibold text-black text-[18px] mb-4 pr-4 uppercase tracking-tight">Notifikasi ({{ $notifikasiCount }})
                     </h3>
 
                     <div class="space-y-4 w-full flex-1 overflow-y-auto pr-4 custom-scrollbar">
-                        <div
-                            class="border-b border-[#D9D9D9] pb-3 transform hover:translate-x-1 transition-transform cursor-pointer">
-                            <h4 class="font-bold text-[14px] text-[#1A1A1A]">Batas Pengajuan Sidang KP</h4>
-                            <p class="text-[11px] text-[#666666] mt-1">Berdasarkan batas wakt uyang telah ditentukan,
-                                sidang ...</p>
+                        @forelse($notifikasi as $notif)
+                        <a href="{{ route('mahasiswa.notifikasi.show', $notif->id) }}"
+                            class="border-b border-[#D9D9D9] pb-3 transform hover:translate-x-1 transition-transform cursor-pointer block">
+                            <h4 class="font-bold text-[14px] text-[#1A1A1A]">{{ $notif->judul }}</h4>
+                            <p class="text-[11px] text-[#666666] mt-1 line-clamp-2">{{ $notif->pesan }}</p>
+                        </a>
+                        @empty
+                        <div class="flex flex-col items-center justify-center h-full text-gray-400 italic text-[13px] pr-4">
+                            Tidak ada notifikasi baru.
                         </div>
-                        <div
-                            class="border-b border-[#D9D9D9] pb-3 transform hover:translate-x-1 transition-transform cursor-pointer">
-                            <h4 class="font-bold text-[14px] text-[#1A1A1A]">Pembaruan Status Pendaftaran</h4>
-                            <p class="text-[11px] text-[#666666] mt-1">Status pendaftaran KP Anda telah diperbarui oleh
-                                koordinator...</p>
-                        </div>
-                        <div
-                            class="border-b border-[#D9D9D9] pb-3 border-b-transparent transform hover:translate-x-1 transition-transform cursor-pointer">
-                            <h4 class="font-bold text-[14px] text-[#1A1A1A]">Agenda Kegiatan Baru</h4>
-                            <p class="text-[11px] text-[#666666] mt-1">Ada agenda baru ditambahkan pada timeline
-                                kegiatan...</p>
-                        </div>
+                        @endforelse
                     </div>
                 </div>
             </div>

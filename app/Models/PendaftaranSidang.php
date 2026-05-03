@@ -9,8 +9,22 @@ class PendaftaranSidang extends Model
     // Arahkan ke nama tabel yang benar di database
     protected $table = 'pendaftaran_sidang';
 
-    // Matikan timestamps karena di skema SQL Anda tabel ini tidak punya created_at & updated_at
-    public $timestamps = false;
+    // Timestamps diaktifkan — dibutuhkan oleh query latest() di beberapa controller
+    public $timestamps = true;
+
+    protected static function booted()
+    {
+        static::addGlobalScope('periode', function (\Illuminate\Database\Eloquent\Builder $builder) {
+            if (request() && session()->has('selected_periode_id')) {
+                // If the query is already selecting from pendaftaran_sidang without an explicit pendaftaranKp join,
+                // we use whereHas. (This is generally safe).
+                $builder->whereHas('pendaftaranKp', function ($query) {
+                    // the pendaftaranKp global scope might already handle this, but explicitly doing it doesn't hurt
+                    $query->withoutGlobalScope('periode')->where('pendaftaran_kp.tahun_ajaran_id', session('selected_periode_id'));
+                });
+            }
+        });
+    }
 
     // Daftarkan kolom-kolom yang boleh diisi (mass assignable)
     protected $fillable = [
@@ -63,6 +77,8 @@ class PendaftaranSidang extends Model
         'tanggal_revisi',
         'berita_acara_disubmit',
         'nilai_dipublikasi',
+        'token_penilaian_supervisor',
+        'is_penilaian_supervisor_submitted',
     ];
 
     public function pendaftaranKp()

@@ -3,40 +3,7 @@
         @include('mahasiswa.components.sidebar', ['active' => 'hasil-sidang'])
     </x-slot>
 
-        <x-slot:headerActions>
-        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px] mt-2 md:mt-0">
-            <button @click="open = !open" @click.outside="open = false" type="button"
-                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#F48200] focus:ring-[#F48200] focus:ring-1 cursor-pointer text-black h-[32px]">
-
-                <span x-text="selected"></span>
-
-                <svg :class="open ? 'rotate-0' : 'rotate-90'"
-                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-
-            <div x-show="open" x-transition style="display: none;"
-                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
-                <ul class="py-1 text-[13px] font-medium text-black">
-                    <li>
-                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Genap 2025/2026
-                        </button>
-                    </li>
-                    <li>
-                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Ganjil 2025/2026
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <input type="hidden" name="periode" :value="selected">
-        </div>
-    </x-slot:headerActions>
+        
 
     @php
         $mhsName = optional(optional(optional($sidang)->mahasiswa)->user)->name ? strtolower($sidang->mahasiswa->user->name) : '-';
@@ -128,15 +95,15 @@
             </div>
 
             <!-- Catatan Sidang -->
-            <div class="mt-12 p-6 bg-white/50 rounded-xl border border-gray-300 shadow-inner">
-                <h4 class="text-[14px] font-bold text-black mb-3 uppercase tracking-wider flex items-center gap-2">
-                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+            <div class="mt-8 p-6 bg-white rounded-[10px] border border-gray-200 shadow-sm">
+                <h4 class="text-[15px] font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                     Catatan & Masukan Penguji
                 </h4>
-                <div class="text-[14px] text-gray-800 leading-relaxed italic font-medium">
-                    "{{ $catatanSidang }}"
+                <div class="text-[13px] text-gray-700 leading-relaxed font-normal whitespace-pre-line bg-gray-50 p-4 rounded-[6px] border border-gray-200 min-h-[60px]">
+                    {!! !empty($catatanSidang) && $catatanSidang !== '-' ? nl2br(e($catatanSidang)) : '<span class="text-gray-400 italic">Tidak ada catatan dari dosen penguji.</span>' !!}
                 </div>
-                <p class="text-[11px] text-gray-500 mt-4 font-bold uppercase tracking-tight">* Gunakan catatan ini sebagai acuan utama dalam proses revisi laporan KP Anda.</p>
+                <p class="text-[11px] text-gray-500 mt-3 font-medium">* Gunakan catatan ini sebagai acuan utama dalam proses revisi laporan KP Anda.</p>
             </div>
 
             <!-- Hasil Akhir Area -->
@@ -164,7 +131,7 @@
 
                     <!-- Action Link to Revision if needed -->
                     @if(strtolower($statusLulus) === 'lulus dengan revisi')
-                    <a href="{{ route('mahasiswa.revisi') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[13px] px-8 py-3 rounded-full flex items-center gap-2 shadow-lg transition-all transform hover:-translate-y-1 uppercase tracking-wide">
+                    <a href="{{ route('mahasiswa.revisi.index') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[13px] px-8 py-3 rounded-full flex items-center gap-2 shadow-lg transition-all transform hover:-translate-y-1 uppercase tracking-wide">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                         Lanjut ke Halaman Revisi
                     </a>

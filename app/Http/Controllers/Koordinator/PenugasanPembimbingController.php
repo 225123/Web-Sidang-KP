@@ -46,7 +46,22 @@ class PenugasanPembimbingController extends Controller
 
     private function syncAllMahasiswa()
     {
-        $mahasiswas = User::where('role', 'mahasiswa')->get();
+        // Cleanup corrupt data created by previous bug
+        PendaftaranKp::withoutGlobalScopes()->whereNull('tahun_ajaran_id')->whereNull('status_kp')->delete();
+
+        $query = User::where('role', 'mahasiswa');
+        $periodeId = session('selected_periode_id');
+        
+        if ($periodeId) {
+            $query->where(function($q) use ($periodeId) {
+                $q->whereHas('mahasiswa', function($sq) use ($periodeId) {
+                    $sq->where('tahun_ajaran_id', $periodeId);
+                })->orWhereIn('id', function($sub) use ($periodeId) {
+                    $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
+                });
+            });
+        }
+        $mahasiswas = $query->get();
         foreach ($mahasiswas as $mhs) {
             $exists = PendaftaranKp::where('mahasiswa_id', $mhs->id)
                 ->orWhere(function ($q) use ($mhs) {
@@ -56,8 +71,12 @@ class PenugasanPembimbingController extends Controller
 
             if (! $exists) {
                 // Buat data draft untuk mahasiswa yang belum mendaftar sama sekali agar masuk tabel
+                $activeId = $periodeId ?? \App\Models\TahunAjaran::where('is_active', true)->value('id');
                 PendaftaranKp::firstOrCreate(
-                    ['mahasiswa_id' => $mhs->id],
+                    [
+                        'mahasiswa_id' => $mhs->id,
+                        'tahun_ajaran_id' => $activeId
+                    ],
                     [
                         'pengerjaan_kp' => 'individu',
                         'status_kp' => null,
@@ -81,6 +100,16 @@ class PenugasanPembimbingController extends Controller
 
         // 1. Fetch all User Mahasiswa to enforce precisely 1 row per student structure
         $query = User::with(['mahasiswa'])->where('role', 'mahasiswa');
+        if (session()->has('selected_periode_id')) {
+            $periodeId = session('selected_periode_id');
+            $query->where(function($q) use ($periodeId) {
+                $q->whereHas('mahasiswa', function($sq) use ($periodeId) {
+                    $sq->where('tahun_ajaran_id', $periodeId);
+                })->orWhereIn('id', function($sub) use ($periodeId) {
+                    $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
+                });
+            });
+        }
 
         // Apply advanced filters targeting user or their assigned projects
         if ($request->has('search') && $request->search != '') {
@@ -148,7 +177,7 @@ class PenugasanPembimbingController extends Controller
 
             $formattedPendaftarans[] = [
                 'id' => $cluster['id'],
-                'slug' => \Str::slug($kp->judul_kp ?? 'kp').'-'.($cluster['mahasiswas'][0]['nim'] ?? '12345'),
+                'slug' => \Str::slug($kp ? $kp->judul_kp : 'kp').'-'.($cluster['mahasiswas'][0]['nim'] ?? '12345'),
                 'mahasiswas' => $cluster['mahasiswas'],
                 'jenis_kp' => $maskedJenisInstansi,
                 'instansi' => $maskedInstansi,
@@ -246,7 +275,18 @@ class PenugasanPembimbingController extends Controller
             $allGroupSizes[$p['id']] = count($p['mahasiswas']);
         }
 
-        $totalAllMahasiswa = User::where('role', 'mahasiswa')->has('mahasiswa')->count();
+        $totalQuery = User::where('role', 'mahasiswa')->has('mahasiswa');
+        if (session()->has('selected_periode_id')) {
+            $periodeId = session('selected_periode_id');
+            $totalQuery->where(function($q) use ($periodeId) {
+                $q->whereHas('mahasiswa', function($sq) use ($periodeId) {
+                    $sq->where('tahun_ajaran_id', $periodeId);
+                })->orWhereIn('id', function($sub) use ($periodeId) {
+                    $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
+                });
+            });
+        }
+        $totalAllMahasiswa = $totalQuery->count();
 
         $ditugaskanCount = 0;
         foreach ($formattedPendaftarans as $group) {
@@ -367,7 +407,18 @@ class PenugasanPembimbingController extends Controller
                 ];
             }
 
-            $allMahasiswas = User::with('mahasiswa')->where('role', 'mahasiswa')->get();
+            $allMhsQuery = User::with('mahasiswa')->where('role', 'mahasiswa');
+            if (session()->has('selected_periode_id')) {
+                $periodeId = session('selected_periode_id');
+                $allMhsQuery->where(function($q) use ($periodeId) {
+                    $q->whereHas('mahasiswa', function($sq) use ($periodeId) {
+                        $sq->where('tahun_ajaran_id', $periodeId);
+                    })->orWhereIn('id', function($sub) use ($periodeId) {
+                        $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
+                    });
+                });
+            }
+            $allMahasiswas = $allMhsQuery->get();
             $clusters = [];
 
             foreach ($allMahasiswas as $m) {

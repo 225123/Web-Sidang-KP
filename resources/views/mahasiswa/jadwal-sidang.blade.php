@@ -3,40 +3,7 @@
         @include('mahasiswa.components.sidebar', ['active' => 'jadwal-sidang'])
     </x-slot>
 
-        <x-slot:headerActions>
-        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px] mt-2 md:mt-0">
-            <button @click="open = !open" @click.outside="open = false" type="button"
-                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#F48200] focus:ring-[#F48200] focus:ring-1 cursor-pointer text-black h-[32px]">
-
-                <span x-text="selected"></span>
-
-                <svg :class="open ? 'rotate-0' : 'rotate-90'"
-                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-
-            <div x-show="open" x-transition style="display: none;"
-                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
-                <ul class="py-1 text-[13px] font-medium text-black">
-                    <li>
-                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Genap 2025/2026
-                        </button>
-                    </li>
-                    <li>
-                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Ganjil 2025/2026
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <input type="hidden" name="periode" :value="selected">
-        </div>
-    </x-slot:headerActions>
+        
 
     <div class="bg-gray-50 flex items-center justify-center p-6 w-full">
 
@@ -111,29 +78,54 @@
                                 <span class="bg-[#eaf06e] text-black px-4 py-1.5 rounded-full text-[13px] font-bold inline-block border border-[#d6de47]">Menunggu Terlaksana</span>
                             </div>
                             
-                            <div class="font-medium text-gray-700 mt-2">Daftar Kelompok</div>
-                            <div class="mt-2">:</div>
-                            <div class="mt-2 text-gray-700">
-                                @if($sidang->pendaftaranKp->anggota_kelompok_ids && count($sidang->pendaftaranKp->anggota_kelompok_ids) > 0)
-                                    <ul class="list-disc list-inside">
-                                        @foreach($sidang->pendaftaranKp->anggota_kelompok_ids as $anggotaId)
-                                            @php
-                                                $anggotaObj = \App\Models\Mahasiswa::with('user')->find($anggotaId);
-                                            @endphp
-                                            <li>{{ $anggotaObj->user->name ?? 'Unknown' }} - {{ $anggotaObj->nim ?? '-' }}</li>
-                                        @endforeach
-                                    </ul>
-                                @else
-                                    <span class="text-gray-500 italic">Individu</span>
-                                @endif
-                            </div>
+
 
                         </div>
 
                         <!-- Tombol Kalender -->
-                        <button class="absolute bottom-6 right-6 bg-[#d8d8d8] hover:bg-[#cccccc] text-gray-800 border-none rounded-md px-4 py-2.5 text-[13px] font-medium cursor-pointer flex items-center gap-2 transition-colors shadow-sm">
-                            <i class="fas fa-calendar-alt text-gray-600"></i> Tambahkan ke Kalender
-                        </button>
+                        @php
+                            $startDateTime = \Carbon\Carbon::parse($sidang->tanggal_sidang . ' ' . $sidang->waktu_mulai_sidang, 'Asia/Jakarta')->setTimezone('UTC')->format('Ymd\THis\Z');
+                            $endDateTime = \Carbon\Carbon::parse($sidang->tanggal_sidang . ' ' . $sidang->waktu_selesai_sidang, 'Asia/Jakarta')->setTimezone('UTC')->format('Ymd\THis\Z');
+                        @endphp
+
+                        <div x-data="{ 
+                                clicked: localStorage.getItem('cal_email_sent_{{ $sidang->id }}') === 'true',
+                                loading: false,
+                                async sendEmail() {
+                                    if (this.clicked || this.loading) return;
+                                    
+                                    this.loading = true;
+                                    try {
+                                        let response = await fetch('{{ route('mahasiswa.jadwal-sidang.kirim-kalender') }}', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                            }
+                                        });
+                                        let result = await response.json();
+                                        if (result.success) {
+                                            this.clicked = true;
+                                            localStorage.setItem('cal_email_sent_{{ $sidang->id }}', 'true');
+                                        } else {
+                                            alert('Gagal mengirim email: ' + result.message);
+                                        }
+                                    } catch (e) {
+                                        alert('Terjadi kesalahan pada server saat mengirim email.');
+                                    } finally {
+                                        this.loading = false;
+                                    }
+                                }
+                             }" class="absolute bottom-6 right-6">
+                            <button type="button" @click="sendEmail()" 
+                               :class="clicked ? 'bg-[#34A853] text-white hover:bg-green-700' : 'bg-[#d8d8d8] text-gray-800 hover:bg-[#cccccc]'"
+                               class="border-none rounded-md px-4 py-2.5 text-[13px] font-medium cursor-pointer flex items-center gap-2 transition-colors shadow-sm disabled:opacity-50"
+                               :disabled="loading">
+                                <i x-show="loading" class="fas fa-spinner fa-spin text-gray-600"></i>
+                                <i x-show="!loading" :class="clicked ? 'fas fa-check text-white' : 'fas fa-envelope text-gray-600'"></i> 
+                                <span x-text="loading ? 'Mengirim...' : (clicked ? 'Email Terkirim' : 'Kirim Kalender via Email')"></span>
+                            </button>
+                        </div>
 
                     </div>
                 @endif

@@ -41,40 +41,7 @@
         $isPenalized = optional($sidang)->is_penalized ?? false;
     @endphp
 
-            <x-slot:headerActions>
-        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px] mt-2 md:mt-0">
-            <button @click="open = !open" @click.outside="open = false" type="button"
-                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#F48200] focus:ring-[#F48200] focus:ring-1 cursor-pointer text-black h-[32px]">
-
-                <span x-text="selected"></span>
-
-                <svg :class="open ? 'rotate-0' : 'rotate-90'"
-                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-
-            <div x-show="open" x-transition style="display: none;"
-                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
-                <ul class="py-1 text-[13px] font-medium text-black">
-                    <li>
-                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Genap 2025/2026
-                        </button>
-                    </li>
-                    <li>
-                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Ganjil 2025/2026
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <input type="hidden" name="periode" :value="selected">
-        </div>
-    </x-slot:headerActions>
+            
 
     @if(!$sidang || !$sidang->nilai_dipublikasi)
         <div class="mt-6 max-w-6xl mx-auto flex items-center justify-center min-h-[400px]">
@@ -233,14 +200,14 @@
                         Download Nilai
                     </a>
 
-                    @if($sidang->berita_acara_disubmit && $sidang->penguji_1_id && $sidang->penguji_2_id)
+                    @if($sidang->pelaksanaan === 'Selesai')
                         <a href="{{ route('mahasiswa.nilai-akhir.download-berita-acara') }}" class="bg-[#4285F4] hover:bg-blue-600 text-white font-bold text-[11px] px-6 py-2.5 rounded-[5px] flex items-center gap-2 shadow-sm transition-all uppercase tracking-wide">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             Download Berita Acara
                         </a>
                     @else
-                        <button disabled class="bg-gray-400 text-white font-bold text-[13px] px-8 py-3 rounded-[5px] flex items-center gap-2 shadow-sm uppercase tracking-wide cursor-not-allowed opacity-70" title="Berita Acara belum disubmit oleh Koordinator">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <button disabled class="bg-gray-400 text-white font-bold text-[11px] px-6 py-2.5 rounded-[5px] flex items-center gap-2 shadow-sm uppercase tracking-wide cursor-not-allowed opacity-70" title="Sidang belum selesai">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             Berita Acara Belum Tersedia
                         </button>
                     @endif

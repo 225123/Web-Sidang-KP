@@ -56,6 +56,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/profil/avatar', [UserProfileController::class, 'updateAvatar'])->name('profil.updateAvatar');
     Route::post('/profil/signature/upload', [UserProfileController::class, 'updateSignatureUpload'])->name('profil.updateSignatureUpload');
     Route::post('/profil/signature/draw', [UserProfileController::class, 'updateSignatureDraw'])->name('profil.updateSignatureDraw');
+
+    Route::post('/set-periode', [\App\Http\Controllers\PeriodeSessionController::class, 'setPeriode'])->name('set-periode');
 });
 
 // ==========================================
@@ -89,7 +91,6 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verifie
 
     // Data Mahasiswa KP
     Route::get('/data-mahasiswa', [App\Http\Controllers\Koordinator\MahasiswaController::class, 'index'])->name('data-mahasiswa.index');
-    Route::get('/data-mahasiswa/{id}', [App\Http\Controllers\Koordinator\MahasiswaController::class, 'show'])->name('data-mahasiswa.show');
 
     // Penugasan Pembimbing
     Route::get('/penugasan-pembimbing', [PenugasanPembimbingController::class, 'index'])->name('penugasan-pembimbing');
@@ -106,7 +107,7 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verifie
 
     // Progress Umum (Koordinator)
     Route::get('/progress-umum', [ProgressUmumController::class, 'index'])->name('progress-umum');
-    Route::get('/progress-umum/{id}/detail', [ProgressUmumController::class, 'detail'])->name('progress-umum.detail');
+
 
     // 4. Persetujuan Sidang (Koordinator)
     Route::get('/persetujuan-sidang', [App\Http\Controllers\Koordinator\PersetujuanSidangController::class, 'index'])->name('persetujuan-sidang.index');
@@ -142,10 +143,10 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verifie
     Route::post('/input-nilai/{id}/{role}', [InputNilaiController::class, 'store'])->name('input-nilai.store');
     Route::get('/input-nilai/{id}/{role}/download', [InputNilaiController::class, 'downloadPdf'])->name('input-nilai.download');
 
-    // 9. Berita Acara (Koordinator)
-    Route::get('/berita-acara', [BeritaAcaraController::class, 'index'])->name('berita-acara.index');
-    Route::post('/berita-acara/submit', [BeritaAcaraController::class, 'submit'])->name('berita-acara.submit');
-    Route::get('/berita-acara/preview-pdf', [BeritaAcaraController::class, 'previewPdf'])->name('berita-acara.preview-pdf');
+    // 9. Berita Acara (Koordinator) - REMOVED AS REQUESTED
+    // Route::get('/berita-acara', [BeritaAcaraController::class, 'index'])->name('berita-acara.index');
+    // Route::post('/berita-acara/submit', [BeritaAcaraController::class, 'submit'])->name('berita-acara.submit');
+    // Route::get('/berita-acara/preview-pdf', [BeritaAcaraController::class, 'previewPdf'])->name('berita-acara.preview-pdf');
 
     // Revisi (Jika Koordinator bertindak sebagai Penguji 1)
     Route::get('/revisi', [RevisiController::class, 'index'])->name('revisi.index');
@@ -165,7 +166,7 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verifie
     // 11. Timeline (Koordinator)
     Route::get('/timeline', [TimelineController::class, 'index'])->name('timeline.index');
     Route::post('/timeline', [TimelineController::class, 'store'])->name('timeline.store');
-    Route::post('/timeline/bulk-destroy', [TimelineController::class, 'bulkDestroy'])->name('timeline.bulk-destroy');
+    Route::post('/timeline/bulk-destroy', [TimelineController::class, 'bulk-destroy'])->name('timeline.bulk-destroy');
     Route::put('/timeline/{id}', [TimelineController::class, 'update'])->name('timeline.update');
     // 12. Audit Log (Koordinator)
     Route::get('/audit-log', [App\Http\Controllers\Koordinator\AuditLogController::class, 'index'])->name('audit-log.index');
@@ -200,7 +201,6 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verifie
             'kalender' => 'Kalender Sidang',
             'revisi' => 'Revisi',
             'nilai-akhir' => 'Nilai Akhir',
-            'berita-acara' => 'Berita Acara',
             'laporan' => 'Laporan KP',
             'sistem' => 'Sistem',
             'pengumuman' => 'Pengumuman',
@@ -254,6 +254,7 @@ Route::prefix('mahasiswa')->name('mahasiswa.')->middleware('auth')->group(functi
 
     // Jadwal Sidang Mahasiswa
     Route::get('/jadwal-sidang', [JadwalSidangController::class, 'index'])->name('jadwal-sidang');
+    Route::post('/jadwal-sidang/kirim-kalender', [JadwalSidangController::class, 'kirimEmailKalender'])->name('jadwal-sidang.kirim-kalender');
 
     // Revisi (Mahasiswa)
     Route::get('/revisi', [App\Http\Controllers\Mahasiswa\RevisiController::class, 'index'])->name('revisi.index');
@@ -303,9 +304,7 @@ Route::prefix('mahasiswa')->name('mahasiswa.')->middleware('auth')->group(functi
 // SIMULASI UI DASHBOARD DOSEN
 // ==========================================
 Route::prefix('dosen')->name('dosen.')->middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dosen.dashboard', ['active' => 'dashboard']);
-    })->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\Dosen\DashboardController::class, 'index'])->name('dashboard');
 
     // Daftar Mahasiswa (Dosen)
     Route::get('/daftar-mahasiswa', [DaftarBimbinganController::class, 'index'])->name('daftar-mahasiswa');
@@ -349,6 +348,8 @@ Route::prefix('dosen')->name('dosen.')->middleware('auth')->group(function () {
             'revisi' => 'Revisi',
             'panduan' => 'Panduan Website',
         ];
+
+        $allBeritaAcaraSubmitted = true; // No longer controlled by Koordinator
 
         return view('dummy', [
             'role' => 'dosen',

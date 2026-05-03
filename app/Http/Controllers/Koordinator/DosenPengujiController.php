@@ -8,13 +8,16 @@ use App\Models\User;
 use App\Models\NotifikasiLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use App\Mail\SupervisorPenilaianMail;
 
 class DosenPengujiController extends Controller
 {
     public function index()
     {
         // 1. Ambil pendaftaran yang sudah diverifikasi berkasnya
-        $allPendaftaran = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp.supervisorInternal', 'penguji1', 'penguji2'])
+        $allPendaftaran = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp.pembimbing', 'penguji1', 'penguji2'])
             ->where('status_koordinator', 'verified')
             ->get();
 
@@ -81,13 +84,13 @@ class DosenPengujiController extends Controller
         $lecturerSchedules = [];
 
         foreach ($allPendaftaran as $p) {
-            $supervisorId = $p->pendaftaranKp->supervisor_internal_id ?? null;
+            $pembimbingId = $p->pendaftaranKp->pembimbing_id ?? null;
 
-            // 1. Conflict: Examiner is Supervisor
-            if ($p->penguji_1_id && $p->penguji_1_id == $supervisorId) {
+            // 1. Conflict: Examiner is Pembimbing
+            if ($p->penguji_1_id && $p->penguji_1_id == $pembimbingId) {
                 $warnings[] = "Mahasiswa {$p->mahasiswa->user->name} memiliki Penguji 1 yang juga Pembimbingnya.";
             }
-            if ($p->penguji_2_id && $p->penguji_2_id == $supervisorId) {
+            if ($p->penguji_2_id && $p->penguji_2_id == $pembimbingId) {
                 $warnings[] = "Mahasiswa {$p->mahasiswa->user->name} memiliki Penguji 2 yang juga Pembimbingnya.";
             }
 
@@ -135,8 +138,8 @@ class DosenPengujiController extends Controller
                 'nim' => $p->mahasiswa->nim ?? '-',
                 'name' => strtolower($p->mahasiswa->user->name ?? '-'),
                 'judul' => strtolower($p->pendaftaranKp->judul_kp ?? '-'),
-                'pembimbing_id' => $p->pendaftaranKp->supervisor_internal_id ?? null,
-                'pembimbing_name' => strtolower($p->pendaftaranKp->supervisorInternal->name ?? '-'),
+                'pembimbing_id' => $p->pendaftaranKp->pembimbing_id ?? null,
+                'pembimbing_name' => strtolower($p->pendaftaranKp->pembimbing->name ?? '-'),
                 'tanggal' => $p->tanggal_sidang,
                 'mulai' => $p->waktu_mulai_sidang,
                 'selesai' => $p->waktu_selesai_sidang,
@@ -191,7 +194,7 @@ class DosenPengujiController extends Controller
                 $tanggal = $sidang->tanggal_sidang;
                 $mulai = $sidang->waktu_mulai_sidang;
                 $selesai = $sidang->waktu_selesai_sidang;
-                $supervisorId = $sidang->pendaftaranKp->supervisor_internal_id;
+                $pembimbingId = $sidang->pendaftaranKp->pembimbing_id;
 
                 // Sort dosen by load to ensure fair distribution
                 usort($dosenData, function ($a, $b) {
@@ -204,8 +207,8 @@ class DosenPengujiController extends Controller
                         break;
                     }
 
-                    // Constraint 1: Not Supervisor
-                    if ($d['id'] == $supervisorId) {
+                    // Constraint 1: Not Pembimbing
+                    if ($d['id'] == $pembimbingId) {
                         continue;
                     }
 
@@ -274,15 +277,16 @@ class DosenPengujiController extends Controller
         }
 
         $sidang = PendaftaranSidang::findOrFail($request->id);
-        $supervisor_id = $sidang->pendaftaranKp->supervisor_internal_id;
+        $pembimbingId = $sidang->pendaftaranKp->pembimbing_id;
 
-        if ($request->penguji_1_id == $supervisor_id || $request->penguji_2_id == $supervisor_id) {
-            return response()->json(['success' => false, 'message' => 'Supervisor Internal tidak boleh menjadi penguji.'], 422);
+        if ($request->penguji_1_id == $pembimbingId || $request->penguji_2_id == $pembimbingId) {
+            return response()->json(['success' => false, 'message' => 'Dosen Pembimbing tidak boleh menjadi penguji untuk mahasiswanya.'], 422);
         }
 
         $sidang->update([
             'penguji_1_id' => $request->penguji_1_id,
             'penguji_2_id' => $request->penguji_2_id,
+            'status_jadwal' => 'draft',
         ]);
 
         return response()->json(['success' => true, 'message' => 'Penugasan dosen penguji berhasil disimpan.']);
@@ -298,6 +302,7 @@ class DosenPengujiController extends Controller
         PendaftaranSidang::whereIn('id', $ids)->update([
             'penguji_1_id' => null,
             'penguji_2_id' => null,
+            'status_jadwal' => 'draft',
         ]);
 
         return response()->json(['success' => true, 'message' => count($ids).' penugasan penguji telah dibatalkan.']);
@@ -306,7 +311,11 @@ class DosenPengujiController extends Controller
     public function destroy($id)
     {
         $sidang = PendaftaranSidang::findOrFail($id);
-        $sidang->update(['penguji_1_id' => null, 'penguji_2_id' => null]);
+        $sidang->update([
+            'penguji_1_id' => null, 
+            'penguji_2_id' => null,
+            'status_jadwal' => 'draft'
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Penugasan penguji dibatalkan.']);
     }
@@ -321,7 +330,15 @@ class DosenPengujiController extends Controller
             ->get();
 
         foreach ($sidangs as $sidang) {
-            $sidang->update(['status_jadwal' => 'submitted']);
+            $updateData = ['status_jadwal' => 'submitted'];
+            
+            // Generate token if not exists
+            if (empty($sidang->token_penilaian_supervisor)) {
+                $sidang->token_penilaian_supervisor = Str::random(60);
+                $updateData['token_penilaian_supervisor'] = $sidang->token_penilaian_supervisor;
+            }
+            
+            $sidang->update($updateData);
 
             // --- Kirim Notifikasi ke Mahasiswa ---
             NotifikasiLog::create([
@@ -349,9 +366,18 @@ class DosenPengujiController extends Controller
                 'pesan' => "Anda telah ditugaskan sebagai Penguji 2 untuk sidang mahasiswa " . ($sidang->mahasiswa->user->name ?? '') . ". Silakan cek Jadwal Menguji.",
                 'target_url' => route('dosen.jadwal-menguji'),
             ]);
+
+            // --- Kirim Email ke Supervisor Instansi ---
+            $sidang->loadMissing('pendaftaranKp.supervisorInstansi');
+            $supervisorEmail = $sidang->pendaftaranKp->supervisorInstansi->email_supervisor ?? null;
+            if ($supervisorEmail) {
+                $urlPenilaian = route('supervisor.penilaian.form', ['token' => $sidang->token_penilaian_supervisor]);
+                Mail::to($supervisorEmail)->send(new SupervisorPenilaianMail($sidang, $urlPenilaian));
+            }
         }
 
         return redirect()->back()->with('success', 'Penugasan penguji telah berhasil disubmit.');
+    }
 
     public function cancelSubmit(Request $request)
     {

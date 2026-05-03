@@ -3,40 +3,7 @@
         @include('koordinator.components.sidebar', ['active' => 'dosen-penguji'])
     </x-slot>
 
-    <x-slot:headerActions>
-        <div x-data="{ open: false, selected: 'Genap 2025/2026' }" class="relative w-[212px]">
-            <button @click="open = !open" @click.outside="open = false" type="button"
-                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
-
-                <span x-text="selected"></span>
-
-                <svg :class="open ? 'rotate-0' : 'rotate-90'"
-                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-
-            <div x-show="open" x-transition style="display: none;"
-                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
-                <ul class="py-1 text-[13px] font-medium text-black">
-                    <li>
-                        <button @click="selected = 'Genap 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Genap 2025/2026
-                        </button>
-                    </li>
-                    <li>
-                        <button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
-                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">
-                            Ganjil 2025/2026
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <input type="hidden" name="periode" :value="selected">
-        </div>
-    </x-slot:headerActions>
+    
 
     <style>
         .filter-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
@@ -160,7 +127,7 @@
                     return d ? d.nama : '-';
                 },
 
-                isSupervisor(dosenId) {
+                isPembimbing(dosenId) {
                     return this.form.pembimbingId == dosenId;
                 },
 
@@ -392,7 +359,7 @@
                 <!-- Daftar Tunggu Box -->
                 <div class="bg-[#E6E6E6] rounded-[5px] p-5 flex flex-col h-auto border border-[#CAC0C0] shadow-sm">
                     <div class="flex justify-between items-center border-b border-gray-300 pb-2 mb-3">
-                        <h3 class="font-bold text-[16px] text-black uppercase tracking-tight">Daftar Tunggu Penguji</h3>
+                        <h3 class="font-bold text-[12px] text-black tracking-tight">Daftar Tunggu Penguji</h3>
                         <div class="font-bold text-[12px] text-black">
                             <span x-text="filteredDaftarTunggu.length"></span> / <span x-text="totalMahasiswa"></span>
                         </div>
@@ -426,7 +393,7 @@
                 <!-- Beban Dosen Box -->
                 <div class="bg-[#E6E6E6] rounded-[5px] p-5 flex flex-col h-auto border border-[#CAC0C0] shadow-sm">
                     <div class="flex justify-between items-center border-b border-gray-300 pb-2 mb-3">
-                        <h3 class="font-bold text-[16px] text-black uppercase tracking-tight">Beban Menguji Dosen</h3>
+                        <h3 class="font-bold text-[12px] text-black tracking-tight">Beban Menguji Dosen</h3>
                     </div>
                     <!-- Box Search -->
                     <div class="relative">
@@ -438,7 +405,7 @@
                             <div class="flex items-center justify-between border-b border-gray-300 py-3 px-2 rounded">
                                 <div class="flex items-center gap-3 truncate">
                                     <span class="font-bold text-gray-400 w-5 flex-shrink-0" x-text="(index+1) + '.'"></span>
-                                    <span class="font-bold text-black uppercase truncate" x-text="dosen.nama"></span>
+                                    <span class="font-bold text-black sentence-case truncate" x-text="dosen.nama"></span>
                                 </div>
                                 <div class="font-bold text-[#4285F4] whitespace-nowrap ml-4 bg-blue-100 px-2 py-1 rounded shadow-sm">
                                     <span x-text="dosen.beban"></span> MHS
@@ -454,12 +421,12 @@
 
             <!-- Right: Form Area -->
             <div id="form-container" class="w-full lg:w-[60%]">
-                <div class="bg-white rounded-[5px] p-6 flex flex-col h-full border border-[#CAC0C0] shadow-sm relative overflow-hidden">
+                <div class="bg-white rounded-[5px] p-6 flex flex-col h-full border border-[#CAC0C0] shadow-sm relative">
                     <div x-show="form.isLoading" class="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-20 flex items-center justify-center">
                         <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
                     </div>
 
-                    <h3 class="font-bold text-[18px] text-black mb-6 border-b border-gray-100 pb-3 flex items-center gap-2 uppercase tracking-tight">
+                    <h3 class="font-bold text-[12px] text-black mb-6 border-b border-gray-100 pb-3 flex items-center gap-2 tracking-tight">
                         <svg class="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                         <span x-text="form.mode === 'edit' ? 'Ubah Penugasan Penguji' : 'Penugasan Penguji'"></span>
                     </h3>
@@ -467,7 +434,7 @@
                     <form @submit.prevent="submitForm" class="flex flex-col gap-6 flex-1">
                         <!-- Mahasiswa Info -->
                         <div class="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-4 items-center text-[13px]">
-                            <label class="font-bold text-black uppercase tracking-wide">Mahasiswa</label>
+                            <label class="font-bold text-black tracking-wide text-[12px]">Mahasiswa</label>
                             <div class="bg-gray-100 border border-[#CAC0C0] rounded-[5px] px-4 py-2.5 font-bold text-black shadow-inner flex justify-between items-center">
                                 <span x-text="form.displayName"></span>
                                 <template x-if="form.pembimbingName">
@@ -478,12 +445,12 @@
 
                         <!-- Schedule Row (LOCKED - Read Only) -->
                         <div class="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-4 items-center text-[13px]">
-                            <label class="font-bold text-black uppercase tracking-wide">Tanggal Sidang</label>
+                            <label class="font-bold text-black tracking-wide text-[12px]">Tanggal Sidang</label>
                             <div class="bg-gray-100 border border-[#CAC0C0] rounded-[5px] px-4 py-2 font-bold text-black shadow-inner min-h-[38px] flex items-center" x-text="formatDate(form.tanggal) || '-'"></div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-4 items-center text-[13px]">
-                            <label class="font-bold text-black uppercase tracking-wide">Waktu Sidang</label>
+                            <label class="font-bold text-black tracking-wide text-[12px]">Waktu Sidang</label>
                             <div class="flex items-center gap-3">
                                 <div class="flex-1 bg-gray-100 border border-[#CAC0C0] rounded-[5px] px-4 py-2 font-bold text-black shadow-inner min-h-[38px] flex items-center" x-text="form.mulai ? form.mulai.substring(0,5) : '-'"></div>
                                 <span class="font-bold">-</span>
@@ -492,7 +459,7 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-4 items-center text-[13px]">
-                            <label class="font-bold text-black uppercase tracking-wide">Ruangan</label>
+                            <label class="font-bold text-black tracking-wide text-[12px]">Ruangan</label>
                             <div class="bg-gray-100 border border-[#CAC0C0] rounded-[5px] px-4 py-2 font-bold text-black shadow-inner min-h-[38px] flex items-center uppercase" x-text="form.ruang || '-'"></div>
                         </div>
 
@@ -500,7 +467,7 @@
 
                         <!-- Penguji 1 Dropdown -->
                         <div class="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-4 items-center text-[13px]">
-                            <label class="font-bold text-black uppercase tracking-wide">Penguji 1</label>
+                            <label class="font-bold text-black tracking-wide text-[12px]">Penguji 1</label>
                             <div class="relative" x-data="{ open: false, search: '' }" @click.outside="open = false">
                                 <button type="button" @click="open = !open && form.id" 
                                     class="w-full h-[40px] flex items-center justify-between px-4 border border-[#CAC0C0] rounded-[5px] bg-white transition-all hover:border-[#4CC098] shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -516,15 +483,15 @@
                                         <li @click="form.p1 = null; open = false" class="px-4 py-2 text-[12px] text-red-600 font-bold hover:bg-red-50 cursor-pointer border-b border-gray-100">--- Batalkan Pilihan ---</li>
                                         <template x-for="d in dosenList" :key="d.id">
                                             <li x-show="d.nama.toLowerCase().includes(search.toLowerCase())"
-                                                @click="!isSupervisor(d.id) && form.p2 != d.id && (form.p1 = d.id, open = false)"
+                                                @click="!isPembimbing(d.id) && form.p2 != d.id && (form.p1 = d.id, open = false)"
                                                 class="px-4 py-2.5 text-[12px] flex justify-between items-center transition-colors border-b border-gray-100/50"
                                                 :class="[
-                                                    isSupervisor(d.id) ? 'bg-red-50 text-red-500 cursor-not-allowed opacity-80' : (form.p2 == d.id ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-blue-50 cursor-pointer text-black font-bold'),
+                                                    isPembimbing(d.id) ? 'bg-red-50 text-red-500 cursor-not-allowed opacity-80' : (form.p2 == d.id ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-blue-50 cursor-pointer text-black font-bold'),
                                                     form.p1 == d.id ? 'bg-[#E6F0FA] font-bold' : ''
                                                 ]">
                                                 <div class="flex items-center gap-2">
                                                     <span x-text="d.nama" class="font-bold"></span>
-                                                    <template x-if="isSupervisor(d.id)">
+                                                    <template x-if="isPembimbing(d.id)">
                                                         <span class="text-[9px] bg-red-100 px-1 rounded uppercase font-bold">PEMBIMBING</span>
                                                     </template>
                                                 </div>
@@ -538,7 +505,7 @@
 
                         <!-- Penguji 2 Dropdown -->
                         <div class="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-4 items-center text-[13px]">
-                            <label class="font-bold text-black uppercase tracking-wide">Penguji 2</label>
+                            <label class="font-bold text-black tracking-wide text-[12px]">Penguji 2</label>
                             <div class="relative" x-data="{ open: false, search: '' }" @click.outside="open = false">
                                 <button type="button" @click="open = !open && form.id" 
                                     class="w-full h-[40px] flex items-center justify-between px-4 border border-[#CAC0C0] rounded-[5px] bg-white transition-all hover:border-[#4CC098] shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -554,15 +521,15 @@
                                         <li @click="form.p2 = null; open = false" class="px-4 py-2 text-[12px] text-red-600 font-bold hover:bg-red-50 cursor-pointer border-b border-gray-100">--- Batalkan Pilihan ---</li>
                                         <template x-for="d in dosenList" :key="d.id">
                                             <li x-show="d.nama.toLowerCase().includes(search.toLowerCase())"
-                                                @click="!isSupervisor(d.id) && form.p1 != d.id && (form.p2 = d.id, open = false)"
+                                                @click="!isPembimbing(d.id) && form.p1 != d.id && (form.p2 = d.id, open = false)"
                                                 class="px-4 py-2.5 text-[12px] flex justify-between items-center transition-colors border-b border-gray-100/50"
                                                 :class="[
-                                                    isSupervisor(d.id) ? 'bg-red-50 text-red-500 cursor-not-allowed opacity-80' : (form.p1 == d.id ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-blue-50 cursor-pointer text-black font-bold'),
+                                                    isPembimbing(d.id) ? 'bg-red-50 text-red-500 cursor-not-allowed opacity-80' : (form.p1 == d.id ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-blue-50 cursor-pointer text-black font-bold'),
                                                     form.p2 == d.id ? 'bg-[#E6F0FA] font-bold' : ''
                                                 ]">
                                                 <div class="flex items-center gap-2">
                                                     <span x-text="d.nama" class="font-bold"></span>
-                                                    <template x-if="isSupervisor(d.id)">
+                                                    <template x-if="isPembimbing(d.id)">
                                                         <span class="text-[9px] bg-red-100 px-1 rounded uppercase font-bold">PEMBIMBING</span>
                                                     </template>
                                                 </div>

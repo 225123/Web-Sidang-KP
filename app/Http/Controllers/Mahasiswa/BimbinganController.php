@@ -102,14 +102,7 @@ class BimbinganController extends Controller
             ]);
         }
 
-        // Notifikasi ke Koordinator (Monitoring)
-        NotifikasiLog::create([
-            'sender_id' => null,
-            'receiver_id' => \App\Models\User::where('role', 1)->first()->id ?? null,
-            'judul' => 'Monitoring Bimbingan Mahasiswa',
-            'pesan' => auth()->user()->name . ' (' . (auth()->user()->mahasiswa->nim ?? '-') . ') telah menginput log bimbingan baru.',
-            'target_url' => route('koordinator.progress-umum.detail', $pendaftaran->id),
-        ]);
+
 
         return redirect()->route('mahasiswa.bimbingan-dosen')->with('success', 'Bimbingan berhasil ditambahkan.');
     }
