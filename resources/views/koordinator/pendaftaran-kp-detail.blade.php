@@ -87,10 +87,12 @@
                 <div class="hidden md:block">:</div>
                 <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->supervisorInstansi->nama_supervisor ?? '-' }}</div>
 
+                @if($kp->jenis_instansi !== 'Internal')
                 <!-- Email Supervisor -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Email Supervisor</div>
                 <div class="hidden md:block">:</div>
                 <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->supervisorInstansi->email_supervisor ?? '-' }}</div>
+                @endif
                 
                 <!-- Judul KP -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Judul KP</div>
@@ -127,7 +129,6 @@
                         <input type="hidden" name="status" value="rejected">
                         <button type="button" class="bg-[#EA4335] hover:bg-red-600 transition-colors text-white px-6 py-2 rounded-[5px] text-[13px] font-bold shadow-sm flex items-center justify-center gap-2 w-[110px]" 
                             @click="openModalCatatan($el.closest('form'), 'Tolak Pendaftaran KP?')">
-                            <svg class="w-4 h-4 rounded-full border border-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             Tolak
                         </button>
                     </form>
@@ -138,7 +139,6 @@
                         <input type="hidden" name="status" value="approved">
                         <button type="button" class="bg-[#34A853] hover:bg-green-600 transition-colors text-white px-6 py-2 rounded-[5px] text-[13px] font-bold shadow-sm flex items-center justify-center gap-2 w-[110px]" 
                             @click="openModalCatatan($el.closest('form'), 'Sahkan Pendaftaran KP?')">
-                            <svg class="w-4 h-4 rounded-full border border-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                             Sahkan
                         </button>
                     </form>

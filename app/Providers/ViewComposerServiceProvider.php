@@ -33,9 +33,11 @@ class ViewComposerServiceProvider extends ServiceProvider
                 if ($roleStr === 'koordinator_kp' || str_contains($roleStr, 'koordinator') || $roleStr === 'dosen') {
                     $available_periods = TahunAjaran::terbaru()->get();
                 } elseif ($roleStr === 'mahasiswa') {
-                    // Hanya periode yang ada pendaftaran mahasiswanya
-                    $available_periods = TahunAjaran::whereHas('pendaftaranKps', function($q) use ($user) {
-                        $q->withoutGlobalScope('periode')->where('mahasiswa_id', $user->id);
+                    // Periode yang ada pendaftaran KP-nya ATAU periode yang sedang aktif
+                    $available_periods = TahunAjaran::where(function($q) use ($user) {
+                        $q->whereHas('pendaftaranKps', function($q2) use ($user) {
+                            $q2->withoutGlobalScope('periode')->where('mahasiswa_id', $user->id);
+                        })->orWhere('is_active', true);
                     })->terbaru()->get();
                 } else {
                     $userCreatedAt = $user->created_at;

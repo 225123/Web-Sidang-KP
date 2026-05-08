@@ -78,7 +78,7 @@
     @clear-filters-{{ $isRejected ? 'rejected' : 'main' }}.window="jenisFilter = 'All'; statusFilter = 'All'; pengerjaanFilter = 'All'; baruLanjutFilter = 'All'; currentPage = 1; updateTable()"
 >
     <div class="overflow-x-auto w-full mb-0">
-        <table class="w-full min-w-[1000px] border-collapse text-[13px] text-center" x-ref="tableRoot">
+        <table class="w-full min-w-[1000px] border-collapse text-[12px] text-center" x-ref="tableRoot">
             <thead>
                 <tr class="bg-[#EBEBEB] text-black">
                     <th class="py-3 px-4 font-bold text-center w-[60px] border-b border-r border-gray-300">No</th>
@@ -125,13 +125,13 @@
 
                         <td class="border-r border-gray-200 px-4 py-2 text-left">
                             <div class="font-bold text-[12px] text-gray-800">{{ $m['nama'] }}</div>
-                            <div class="text-[11px] text-gray-500 font-medium">{{ $m['nim'] }}</div>
+                            <div class="text-[12px] text-gray-500 font-medium">{{ $m['nim'] }}</div>
                         </td>
                         
                         @if($mIdx === 0)
                         <td rowspan="{{ $rowspan }}" class="border-r border-gray-200 px-4 py-2 text-center align-middle">
-                            <div class="inline-flex py-1 px-3 rounded-[5px] text-[11px] font-bold {{ ($kp->pengerjaan_kp ?? '') == 'berkelompok' ? 'bg-[#FFF3E0] text-[#E65100]' : 'bg-[#E3F2FD] text-[#0D47A1]' }}">
-                                {{ ucfirst($kp->pengerjaan_kp ?? 'Individu') }}
+                            <div class="inline-flex py-1 px-3 rounded-[5px] text-[12px] font-bold {{ ($kp->pengerjaan_kp ?? '') == 'berkelompok' ? 'bg-[#FFF3E0] text-[#E65100]' : 'bg-[#E3F2FD] text-[#0D47A1]' }}">
+                                {{ $kp->pengerjaan_kp ?? 'individu' }}
                             </div>
                         </td>
                         
@@ -157,21 +157,21 @@
                         @if($mIdx === 0)
                         <td rowspan="{{ $rowspan }}" class="px-4 py-2 border-r border-gray-200 text-center align-middle">
                             @if($isRejected)
-                                <span class="text-red-500 font-bold text-[11px] bg-red-50 px-2 py-0.5 rounded-[5px]">Ditolak</span>
-                                <div class="text-[10px] text-gray-500 italic mt-1">{{ $kp->updated_at ? $kp->updated_at->format('d M Y') : '-' }}</div>
+                                <span class="text-red-500 font-bold text-[12px] bg-red-50 px-2 py-0.5 rounded-[5px]">Ditolak</span>
+                                <div class="text-[12px] text-gray-500 mt-1">{{ $kp->updated_at ? $kp->updated_at->format('d M Y') : '-' }}</div>
                             @elseif(($kp->status_kp ?? '') === 'approved')
-                                <span class="text-green-600 font-bold text-[11px] bg-green-50 px-2 py-0.5 rounded-[5px]">Disetujui</span>
-                                <div class="text-[10px] text-gray-500 italic mt-1">{{ $kp->updated_at ? $kp->updated_at->format('d M Y') : '-' }}</div>
+                                <span class="text-green-600 font-bold text-[12px] bg-green-50 px-2 py-0.5 rounded-[5px]">Disetujui</span>
+                                <div class="text-[12px] text-gray-500 mt-1">{{ $kp->updated_at ? $kp->updated_at->format('d M Y') : '-' }}</div>
                             @else
                                 <div class="flex items-center justify-center gap-2">
-                                    <form action="{{ route('koordinator.pendaftaran-kp.status', $kp->id) }}" method="POST">
+                                    <form action="{{ route('koordinator.pendaftaran-kp.status', $kp->id) }}" method="POST" @submit="sessionStorage.setItem('scrollPosition', window.scrollY)">
                                         @csrf @method('PUT')
                                         <input type="hidden" name="status" value="approved">
-                                        <button type="submit" class="bg-[#38913B] hover:bg-green-700 text-white px-3 py-1.5 rounded shadow-sm text-[10px] font-bold transition-colors whitespace-nowrap">Setujui</button>
+                                        <button type="submit" class="bg-[#38913B] hover:bg-green-700 text-white px-3 py-1.5 rounded shadow-sm text-[12px] font-bold transition-colors whitespace-nowrap">Setujui</button>
                                     </form>
                                     
-                                    <button type="button" @click="openModalCatatan($el.nextElementSibling, 'Tolak Pendaftaran KP?')" class="bg-[#EA3323] hover:bg-red-700 text-white px-3 py-1.5 rounded shadow-sm text-[10px] font-bold transition-colors whitespace-nowrap">Tolak</button>
-                                    <form class="hidden reject-form" action="{{ route('koordinator.pendaftaran-kp.status', $kp->id) }}" method="POST">
+                                    <button type="button" @click="openModalCatatan($el.nextElementSibling, 'Tolak Pendaftaran KP?')" class="bg-[#EA3323] hover:bg-red-700 text-white px-3 py-1.5 rounded shadow-sm text-[12px] font-bold transition-colors whitespace-nowrap">Tolak</button>
+                                    <form class="hidden reject-form" action="{{ route('koordinator.pendaftaran-kp.status', $kp->id) }}" method="POST" @submit="sessionStorage.setItem('scrollPosition', window.scrollY)">
                                         @csrf @method('PUT')
                                         <input type="hidden" name="status" value="rejected">
                                     </form>
@@ -184,7 +184,7 @@
                             @if(isset($m['has_registered']) && !$m['has_registered'])
                                 <span class="text-gray-400 font-bold">-</span>
                             @else
-                                <a href="{{ route('koordinator.pendaftaran-kp.show', Str::slug(($m['nama'] ?? '') . '-' . ($m['nim'] ?? ''))) }}" class="bg-[#4285F4] hover:bg-blue-700 text-white px-4 py-1.5 rounded shadow-sm text-[10px] font-bold transition-colors whitespace-nowrap inline-block">Detail</a>
+                                <a href="{{ route('koordinator.pendaftaran-kp.show', Str::slug(($m['nama'] ?? '') . '-' . ($m['nim'] ?? ''))) }}" class="bg-[#4285F4] hover:bg-blue-700 text-white px-4 py-1.5 rounded shadow-sm text-[12px] font-bold transition-colors whitespace-nowrap inline-block">Detail</a>
                             @endif
                         </td>
                     </tr>

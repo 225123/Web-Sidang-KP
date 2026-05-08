@@ -63,6 +63,20 @@
                         </div>
                     </template>
 
+                    <template x-if="tab === 'mahasiswa'">
+                        <div x-data="{ openStatusMhs: false }" class="relative w-full sm:w-[150px] z-[60]" @click.outside="openStatusMhs = false">
+                            <button type="button" @click="openStatusMhs = !openStatusMhs" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                                <span class="truncate" x-text="selectedStatusMahasiswaLabel"></span>
+                                <svg :class="openStatusMhs ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <div x-show="openStatusMhs" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="" x-model="statusMahasiswaFilter" class="hidden" @change="openStatusMhs = false; fetchData()">Semua Status</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="baru" x-model="statusMahasiswaFilter" class="hidden" @change="openStatusMhs = false; fetchData()">Baru</label>
+                                <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="lanjut" x-model="statusMahasiswaFilter" class="hidden" @change="openStatusMhs = false; fetchData()">Lanjut</label>
+                            </div>
+                        </div>
+                    </template>
+
                     <!-- Export PDF Dropdown -->
                     <div x-data="{ openExport: false }" class="relative w-full sm:w-[150px] z-[50]" @click.outside="openExport = false">
                         <button type="button" @click="openExport = !openExport" class="w-full text-[12px] border border-red-600 bg-[#E32727] text-white rounded-[5px] py-2 px-3 font-medium flex justify-between items-center text-left shadow-sm hover:bg-red-700 transition-colors">
@@ -107,6 +121,9 @@
                                     <template x-if="tab === 'dosen'">
                                         <th class="border-b border-r border-gray-300 font-bold px-4 text-center w-[120px]">Status</th>
                                     </template>
+                                    <template x-if="tab === 'mahasiswa'">
+                                        <th class="border-b border-r border-gray-300 font-bold px-4 text-center w-[100px]">Status</th>
+                                    </template>
                                     <th class="border-b border-gray-300 font-bold px-4 text-center w-[100px]">Aksi</th>
                                 </tr>
                             </thead>
@@ -130,6 +147,15 @@
                                             </td>
                                         </template>
 
+                                        <template x-if="tab === 'mahasiswa'">
+                                            <td class="border-r border-gray-200 px-4 text-left">
+                                                <span
+                                                    class="text-[12px] font-medium text-black"
+                                                    x-text="user.status_mahasiswa === 'lanjut' ? 'Lanjut' : 'Baru'"
+                                                ></span>
+                                            </td>
+                                        </template>
+
                                         <td class="px-4 text-center">
                                             <div class="flex items-center justify-center gap-3">
                                                 <a :href="'/koordinator/manajemen-akses/' + user.id + '/edit'" class="text-gray-500 hover:text-[#4285F4] hover:bg-blue-50 p-1.5 rounded transition-colors" title="Edit Data">
@@ -144,7 +170,7 @@
                                 </template>
                                 <template x-if="users.length === 0">
                                     <tr>
-                                        <td :colspan="tab === 'dosen' ? 7 : 6" class="py-12 text-gray-400 text-center font-medium italic tracking-widest uppercase bg-gray-50">Tidak ada data ditemukan</td>
+                                        <td :colspan="tab === 'dosen' ? 7 : 7" class="py-12 text-gray-400 text-center font-medium italic tracking-widest uppercase bg-gray-50">Tidak ada data ditemukan</td>
                                     </tr>
                                 </template>
                             </tbody>
@@ -331,6 +357,7 @@
                 tab: '{{ $tab }}',
                 search: '{{ request('search') }}',
                 statusFilter: '{{ request('status') }}',
+                statusMahasiswaFilter: '{{ request('status_mahasiswa') }}',
                 pagination: {
                     current_page: {{ $users->currentPage() }},
                     last_page: {{ $users->lastPage() }},
@@ -394,6 +421,7 @@
                     this.tab = urlParams.get('tab') || 'dosen';
                     this.search = urlParams.get('search') || '';
                     this.statusFilter = urlParams.get('status') || '';
+                    this.statusMahasiswaFilter = urlParams.get('status_mahasiswa') || '';
                     this.pagination.current_page = parseInt(urlParams.get('page')) || 1;
 
                     // Handle session messages
@@ -415,6 +443,12 @@
 
                 get selectedStatusLabel() {
                     return this.statusFilter || 'Status';
+                },
+
+                get selectedStatusMahasiswaLabel() {
+                    if (this.statusMahasiswaFilter === 'baru') return 'Baru';
+                    if (this.statusMahasiswaFilter === 'lanjut') return 'Lanjut';
+                    return 'Status';
                 },
 
                 startLoading() {
@@ -445,6 +479,7 @@
                             tab: this.tab,
                             search: this.search,
                             status: this.statusFilter,
+                            status_mahasiswa: this.statusMahasiswaFilter,
                             page: this.pagination.current_page
                         });
                         
@@ -470,6 +505,7 @@
                     this.tab = newTab;
                     this.pagination.current_page = 1;
                     this.statusFilter = '';
+                    this.statusMahasiswaFilter = '';
                     this.fetchData();
                 },
 

@@ -1,42 +1,14 @@
-<x-dashboard-layout userName="{{ auth()->user()->name ?? 'Mahasiswa Name' }}" roleName="MAHASISWA">
+<x-dashboard-layout header="Pendaftaran KP" userName="{{ auth()->user()->name ?? 'Mahasiswa Name' }}"
+    roleName="MAHASISWA">
     <x-slot:sidebar>
         @include('mahasiswa.components.sidebar', ['active' => 'pendaftaran-kp'])
         </x-slot>
 
-        
 
-        <div class="mt-6 w-full px-4 lg:px-8 pb-12">
 
-            <h2 class="text-2xl font-bold font-inter text-black mb-6">Pendaftaran KP</h2>
+        <div class="mt-6 w-full lg:px-8 pb-12">
 
             @if(session('success') || isset($existingKp))
-                <div class="flex flex-col lg:flex-row justify-end items-start lg:items-center gap-6 mb-10 w-full">
-                    <div x-data="{ open: false, selected: 'Genap 2025/2026' }"
-                        class="relative w-full md:w-[212px] flex-shrink-0 lg:mt-0 mt-2">
-                        <button @click="open = !open" @click.outside="open = false" type="button"
-                            class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-2 px-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer text-black">
-                            <span x-text="selected"></span>
-                            <svg :class="open ? 'rotate-90' : 'rotate-180'"
-                                class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
-                                </path>
-                            </svg>
-                        </button>
-                        <div x-show="open" x-transition style="display: none;"
-                            class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
-                            <ul class="py-1 text-[13px] font-medium text-black">
-                                <li><button @click="selected = 'Genap 2025/2026'; open = false" type="button"
-                                        class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">Genap
-                                        2025/2026</button></li>
-                                <li><button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
-                                        class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">Ganjil
-                                        2025/2026</button></li>
-                            </ul>
-                        </div>
-                        <input type="hidden" name="periode" :value="selected">
-                    </div>
-                </div>
 
                 <div class="flex flex-col items-center justify-center mt-12 w-full text-center">
                     <svg class="w-28 h-28 mb-4 text-[#008000]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -54,8 +26,8 @@
                         KP melalui Email atau Notifikasi</p>
                 </div>
             @else
-                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10 w-full">
-                        <div class="bg-[#F8D7DA] rounded-[30px] py-4 px-6 flex items-center gap-4 w-full lg:max-w-3xl">
+                    <div class="flex flex-col lg:flex-row items-start lg:items-center gap-6 mb-10 w-full">
+                        <div class="bg-[#F8D7DA] rounded-[30px] py-4 px-6 flex items-center gap-4 w-full">
                             <div
                                 class="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-yellow-400 font-bold text-xl rounded">
                                 !
@@ -63,32 +35,6 @@
                             <p class="text-[14px] text-[#1A1A1A] font-medium m-0">
                                 Lengkapi formulir pendaftaran Kerja Praktik (KP) di bawah ini untuk mengajukan Kerja Praktik !
                             </p>
-                        </div>
-
-                        <div x-data="{ open: false, selected: 'Genap 2025/2026' }"
-                            class="relative w-full md:w-[212px] flex-shrink-0 lg:mt-0 mt-2">
-                            <button @click="open = !open" @click.outside="open = false" type="button"
-                                class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-2 px-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer text-black">
-                                <span x-text="selected"></span>
-                                <svg :class="open ? 'rotate-90' : 'rotate-180'"
-                                    class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
-                                    </path>
-                                </svg>
-                            </button>
-                            <div x-show="open" x-transition style="display: none;"
-                                class="absolute z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden">
-                                <ul class="py-1 text-[13px] font-medium text-black">
-                                    <li><button @click="selected = 'Genap 2025/2026'; open = false" type="button"
-                                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">Genap
-                                            2025/2026</button></li>
-                                    <li><button @click="selected = 'Ganjil 2025/2026'; open = false" type="button"
-                                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer">Ganjil
-                                            2025/2026</button></li>
-                                </ul>
-                            </div>
-                            <input type="hidden" name="periode" :value="selected">
                         </div>
                     </div>
 
@@ -126,74 +72,85 @@
                             $initInstansi = old('instansi_nama', $invitation->instansi_nama ?? '');
                             $initPengerjaan = old('pengerjaan_kp', $invitation ? 'kelompok' : 'individu');
                             $oldAnggota = old('anggota_kelompok_ids', '[]');
+                            
+                            $initSupervisorId = old('supervisor_internal_id', $invitation->supervisor_internal_id ?? '');
+                            $initSupervisorName = old('nama_supervisor', $invitation->supervisorInstansi->nama_supervisor ?? '');
+                            $initSupervisorEmail = old('email_supervisor', $invitation->supervisorInstansi->email_supervisor ?? '');
+                            
+                            // Dosen Pemberi Projek is not saved in DB, so we use the internal supervisor as fallback if it's internal
+                            $initGiverId = old('dosen_pemberi_projek_id', $initSupervisorId);
+                            $initGiverName = old('dosen_pemberi_projek', $initSupervisorName);
                         @endphp
                         <form action="{{ route('mahasiswa.pendaftaran-kp.store') }}" method="POST" x-data="{ 
-                            jenisKp: '{{ $initJenis }}', 
-                            instansiNama: '{{ $initInstansi }}',
-                            openJenis: false,
-                            openPengerjaan: false,
-                            pengerjaanKp: '{{ $initPengerjaan }}',
-                            isInvited: {{ $isInvited }},
-                            searchAnggota: '',
-                            openAnggota: false,
-                            selectedAnggota: {{ $oldAnggota }},
-                            allMahasiswa: {{ \Illuminate\Support\Js::from($allMahasiswa->map(function($m) { return ['id' => (string)$m->id, 'label' => ($m->mahasiswa->nim ?? 'NIM') . ' - ' . $m->name, 'is_unavailable' => $m->is_unavailable]; })->values()) }},
-                            
-                            allDosen: {{ \Illuminate\Support\Js::from($allDosen->map(function($d) { return ['id' => (string)$d->id, 'name' => $d->name]; })->values()) }},
-                            searchDosen: '',
-                            openDosen: false,
-                            selectedDosenId: '{{ old('supervisor_internal_id', '') }}',
-                            selectedDosenName: '{{ old('nama_supervisor', '') }}',
-                            
-                            selectedGiverId: '{{ old('dosen_pemberi_projek_id', '') }}',
-                            selectedGiverName: '{{ old('dosen_pemberi_projek', '') }}',
-                            searchGiver: '',
-                            openGiver: false,
+                                    jenisKp: '{{ $initJenis }}', 
+                                    instansiNama: '{{ $initInstansi }}',
+                                    openJenis: false,
+                                    openPengerjaan: false,
+                                    pengerjaanKp: '{{ $initPengerjaan }}',
+                                    isInvited: {{ $isInvited }},
+                                    searchAnggota: '',
+                                    openAnggota: false,
+                                    selectedAnggota: {{ $oldAnggota }},
+                                    allMahasiswa: {{ \Illuminate\Support\Js::from($allMahasiswa->map(function ($m) {
+                return ['id' => (string) $m->id, 'label' => ($m->mahasiswa->nim ?? 'NIM') . ' - ' . $m->name, 'is_unavailable' => $m->is_unavailable]; })->values()) }},
 
-                             get filteredDosenFromInput() {
-                                if (this.searchDosen === '') return this.allDosen;
-                                return this.allDosen.filter(d => d.name.toLowerCase().includes(this.searchDosen.toLowerCase()));
-                            },
+                                    allDosen: {{ \Illuminate\Support\Js::from($allDosen->map(function ($d) {
+                return ['id' => (string) $d->id, 'name' => $d->name]; })->values()) }},
+                                    searchDosen: '',
+                                    openDosen: false,
+                                    selectedDosenId: '{{ $initSupervisorId }}',
+                                    selectedDosenName: '{{ $initSupervisorName }}',
 
-                            selectDosen(dosen) {
-                                this.selectedDosenId = String(dosen.id);
-                                this.selectedDosenName = dosen.name;
-                                this.searchDosen = '';
-                                this.openDosen = false;
-                            },
+                                    selectedGiverId: '{{ $initGiverId }}',
+                                    selectedGiverName: '{{ $initGiverName }}',
+                                    searchGiver: '',
+                                    openGiver: false,
 
-                            get filteredGiver() {
-                                if (this.searchGiver === '') return this.allDosen;
-                                return this.allDosen.filter(d => d.name.toLowerCase().includes(this.searchGiver.toLowerCase()));
-                            },
+                                     get filteredDosenFromInput() {
+                                        if (this.searchDosen === '') return this.allDosen;
+                                        return this.allDosen.filter(d => d.name.toLowerCase().includes(this.searchDosen.toLowerCase()));
+                                    },
 
-                            selectGiver(dosen) {
-                                this.selectedGiverId = String(dosen.id);
-                                this.selectedGiverName = dosen.name;
-                                this.searchGiver = '';
-                                this.openGiver = false;
-                            },
+                                    selectDosen(dosen) {
+                                        this.selectedDosenId = String(dosen.id);
+                                        this.selectedDosenName = dosen.name;
+                                        this.searchDosen = '';
+                                        this.openDosen = false;
+                                    },
 
-                            get filteredMahasiswa() {
-                                if(this.searchAnggota === '') return this.allMahasiswa.filter(m => !this.selectedAnggota.includes(m.id));
-                                return this.allMahasiswa.filter(m => !this.selectedAnggota.includes(m.id) && m.label.toLowerCase().includes(this.searchAnggota.toLowerCase()));
-                            },
-                            toggleAnggota(id) {
-                                if(this.selectedAnggota.includes(id)) {
-                                    this.selectedAnggota = this.selectedAnggota.filter(i => i !== id);
-                                } else {
-                                    this.selectedAnggota.push(id);
-                                }
-                                this.searchAnggota = '';
-                            },
-                            removeAnggota(id) {
-                                this.selectedAnggota = this.selectedAnggota.filter(i => i !== id);
-                            },
-                            getLabel(id) {
-                                let m = this.allMahasiswa.find(item => item.id == id);
-                                return m ? m.label : '';
-                            }
-                        }" x-effect="if(jenisKp === 'Internal') { instansiNama = 'Universitas Kristen Krida Wacana'; } else if(jenisKp === 'External' && instansiNama === 'Universitas Kristen Krida Wacana' && !isInvited) { instansiNama = ''; }">
+                                    get filteredGiver() {
+                                        if (this.searchGiver === '') return this.allDosen;
+                                        return this.allDosen.filter(d => d.name.toLowerCase().includes(this.searchGiver.toLowerCase()));
+                                    },
+
+                                    selectGiver(dosen) {
+                                        this.selectedGiverId = String(dosen.id);
+                                        this.selectedGiverName = dosen.name;
+                                        this.searchGiver = '';
+                                        this.openGiver = false;
+                                    },
+
+                                    get filteredMahasiswa() {
+                                        if(this.searchAnggota === '') return this.allMahasiswa.filter(m => !this.selectedAnggota.includes(m.id));
+                                        return this.allMahasiswa.filter(m => !this.selectedAnggota.includes(m.id) && m.label.toLowerCase().includes(this.searchAnggota.toLowerCase()));
+                                    },
+                                    toggleAnggota(id) {
+                                        if(this.selectedAnggota.includes(id)) {
+                                            this.selectedAnggota = this.selectedAnggota.filter(i => i !== id);
+                                        } else {
+                                            this.selectedAnggota.push(id);
+                                        }
+                                        this.searchAnggota = '';
+                                    },
+                                    removeAnggota(id) {
+                                        this.selectedAnggota = this.selectedAnggota.filter(i => i !== id);
+                                    },
+                                    getLabel(id) {
+                                        let m = this.allMahasiswa.find(item => item.id == id);
+                                        return m ? m.label : '';
+                                    }
+                                }"
+                            x-effect="if(jenisKp === 'Internal') { instansiNama = 'Universitas Kristen Krida Wacana'; } else if(jenisKp === 'External' && instansiNama === 'Universitas Kristen Krida Wacana' && !isInvited) { instansiNama = ''; }">
                             @csrf
 
 
@@ -266,22 +223,25 @@
                                 <!-- Internal Mode: Searchable Dosen Dropdown -->
                                 <template x-if="jenisKp === 'Internal'">
                                     <div class="relative" @click.outside="openGiver = false">
-                                        <button type="button" @click="openGiver = !openGiver; if(openGiver) searchGiver = ''"
-                                            class="w-full flex items-center justify-between border border-[#CAC0C0] rounded bg-white px-4 py-3 text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                                            <span x-text="selectedGiverName !== '' ? selectedGiverName : '--- Pilih Dosen Pemberi Projek ---'" 
+                                        <button type="button" @click="!isInvited && (openGiver = !openGiver; if(openGiver) searchGiver = '')"
+                                            :class="isInvited ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'"
+                                            class="w-full flex items-center justify-between border border-[#CAC0C0] rounded px-4 py-3 text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                                            <span
+                                                x-text="selectedGiverName !== '' ? selectedGiverName : '--- Pilih Dosen Pemberi Projek ---'"
                                                 class="flex-1 text-left truncate"
-                                                :class="selectedGiverName !== '' ? 'text-black' : 'text-gray-400'"></span>
+                                                :class="selectedGiverName !== '' ? (isInvited ? 'text-gray-500' : 'text-black') : 'text-gray-400'"></span>
                                             <svg :class="openGiver ? 'rotate-90' : 'rotate-180'"
                                                 class="w-5 h-5 text-gray-500 transition-transform duration-200 flex-shrink-0 ml-2 min-w-[20px]"
                                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 5l7 7-7 7"></path>
                                             </svg>
                                         </button>
 
                                         <div x-show="openGiver" x-transition style="display: none;"
                                             class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded shadow-lg overflow-hidden">
                                             <div class="p-2 border-b border-gray-100 bg-gray-50">
-                                                <input type="text" x-model="searchGiver" placeholder="Cari dosen..." 
+                                                <input type="text" x-model="searchGiver" placeholder="Cari dosen..."
                                                     class="w-full px-3 py-1.5 text-[13px] border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
                                             </div>
                                             <ul class="py-1 text-[14px] max-h-48 overflow-y-auto">
@@ -295,11 +255,13 @@
                                                     </li>
                                                 </template>
                                                 <template x-if="filteredGiver.length === 0">
-                                                    <li class="px-4 py-2 text-gray-500 text-center">Dosen tidak ditemukan...</li>
+                                                    <li class="px-4 py-2 text-gray-500 text-center">Dosen tidak ditemukan...
+                                                    </li>
                                                 </template>
                                             </ul>
                                         </div>
-                                        <input type="hidden" name="dosen_pemberi_projek" :value="selectedGiverName" :required="jenisKp === 'Internal'">
+                                        <input type="hidden" name="dosen_pemberi_projek" :value="selectedGiverName"
+                                            :required="jenisKp === 'Internal'">
                                     </div>
                                 </template>
 
@@ -314,7 +276,9 @@
                                     :class="isInvited ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-white'"
                                     class="w-full flex items-center justify-between border border-[#CAC0C0] rounded px-4 py-3 text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
 
-                                    <span x-text="pengerjaanKp !== '' ? (pengerjaanKp === 'individu' ? 'Individu' : 'Kelompok') : 'Pilih Pengerjaan KP'" class="flex-1 text-left truncate"
+                                    <span
+                                        x-text="pengerjaanKp !== '' ? (pengerjaanKp === 'individu' ? 'Individu' : 'Kelompok') : 'Pilih Pengerjaan KP'"
+                                        class="flex-1 text-left truncate"
                                         :class="pengerjaanKp !== '' ? (isInvited ? 'text-gray-500' : 'text-black') : 'text-gray-400'"></span>
 
                                     <svg :class="openPengerjaan ? 'rotate-90' : 'rotate-180'"
@@ -351,13 +315,15 @@
                             <div class="mb-6 relative" x-show="pengerjaanKp === 'kelompok'" x-transition style="display: none;">
                                 <label class="block text-[14px] font-bold text-black mb-2">Anggota Kelompok <span
                                         class="text-red-600">*</span></label>
-                                
+
                                 <!-- Read-only state for invited users -->
                                 <template x-if="isInvited">
-                                    <div class="w-full border border-[#CAC0C0] bg-gray-100 rounded px-4 py-3 text-[14px] text-gray-700 min-h-[46px] flex flex-wrap gap-2">
+                                    <div
+                                        class="w-full border border-[#CAC0C0] bg-gray-100 rounded px-4 py-3 text-[14px] text-gray-700 min-h-[46px] flex flex-wrap gap-2">
                                         @foreach($anggotaTerpilih ?? [] as $anggota)
                                             <span class="bg-[#E8E5E5] px-3 py-1 rounded-full text-[13px] border border-[#d1cdcd]">
-                                                {{ data_get($anggota, 'mahasiswa.nim', 'NIM') }} - {{ data_get($anggota, 'name', '') }}
+                                                {{ data_get($anggota, 'mahasiswa.nim', 'NIM') }} -
+                                                {{ data_get($anggota, 'name', '') }}
                                             </span>
                                         @endforeach
                                     </div>
@@ -366,26 +332,42 @@
                                 <!-- Interactive multi-select state for creator -->
                                 <template x-if="!isInvited">
                                     <div class="relative" @click.outside="openAnggota = false">
-                                        <div class="w-full min-h-[46px] border border-[#CAC0C0] bg-white rounded px-4 py-2 flex flex-wrap gap-2 items-center cursor-text" @click="openAnggota = true; $refs.searchAnggota.focus()">
+                                        <div class="w-full min-h-[46px] border border-[#CAC0C0] bg-white rounded px-4 py-2 flex flex-wrap gap-2 items-center cursor-text"
+                                            @click="openAnggota = true; $refs.searchAnggota.focus()">
                                             <template x-for="id in selectedAnggota" :key="id">
-                                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-[5px] text-[13px] flex items-center gap-1 border border-blue-200">
+                                                <span
+                                                    class="bg-blue-100 text-blue-800 px-2 py-1 rounded-[5px] text-[13px] flex items-center gap-1 border border-blue-200">
                                                     <span x-text="getLabel(id)"></span>
-                                                    <button type="button" @click.stop="removeAnggota(id)" class="text-blue-500 hover:text-blue-700 focus:outline-none">
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                    <button type="button" @click.stop="removeAnggota(id)"
+                                                        class="text-blue-500 hover:text-blue-700 focus:outline-none">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                        </svg>
                                                     </button>
                                                 </span>
                                             </template>
-                                            <input x-ref="searchAnggota" type="text" x-model="searchAnggota" placeholder="Cari by NIM / Nama..." class="flex-1 min-w-[120px] border-0 focus:ring-0 p-0 m-0 text-[14px] bg-transparent shadow-none outline-none">
+                                            <input x-ref="searchAnggota" type="text" x-model="searchAnggota"
+                                                placeholder="Cari by NIM / Nama..."
+                                                class="flex-1 min-w-[120px] border-0 focus:ring-0 p-0 m-0 text-[14px] bg-transparent shadow-none outline-none">
                                         </div>
-                                        
-                                        <div x-show="openAnggota" x-transition style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded shadow-lg max-h-48 overflow-y-auto">
+
+                                        <div x-show="openAnggota" x-transition style="display: none;"
+                                            class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded shadow-lg max-h-48 overflow-y-auto">
                                             <ul class="py-1 text-[13px]">
                                                 <template x-for="m in filteredMahasiswa" :key="m.id">
                                                     <li>
-                                                        <button type="button" @click.stop="m.is_unavailable ? null : toggleAnggota(m.id)" class="block w-full text-left px-4 py-2 transition-colors relative" :class="m.is_unavailable ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'hover:bg-[#E8E5E5]'">
+                                                        <button type="button"
+                                                            @click.stop="m.is_unavailable ? null : toggleAnggota(m.id)"
+                                                            class="block w-full text-left px-4 py-2 transition-colors relative"
+                                                            :class="m.is_unavailable ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'hover:bg-[#E8E5E5]'">
                                                             <div class="flex items-center justify-between pointer-events-none">
-                                                                <span x-text="m.label" :class="m.is_unavailable ? 'text-gray-400' : ''"></span>
-                                                                <span x-show="m.is_unavailable" class="text-[10px] font-bold text-red-500 bg-red-100 px-2 py-0.5 rounded border border-red-200">Sedang KP</span>
+                                                                <span x-text="m.label"
+                                                                    :class="m.is_unavailable ? 'text-gray-400' : ''"></span>
+                                                                <span x-show="m.is_unavailable"
+                                                                    class="text-[10px] font-bold text-red-500 bg-red-100 px-2 py-0.5 rounded border border-red-200">Sedang
+                                                                    KP</span>
                                                             </div>
                                                         </button>
                                                     </li>
@@ -397,35 +379,38 @@
                                         </div>
                                     </div>
                                 </template>
-                                
+
                                 <input type="hidden" name="anggota_kelompok_ids" :value="JSON.stringify(selectedAnggota)">
                             </div>
 
                             <div class="mb-6 relative">
                                 <label for="nama_supervisor" class="block text-[14px] font-bold text-black mb-2">Supervisior
                                     <span class="text-red-600">*</span></label>
-                                
+
                                 <!-- Searchable Dosen Dropdown (Now for both Internal and External) -->
                                 <div class="relative" @click.outside="openDosen = false">
                                     <div class="relative">
                                         <input type="text" name="nama_supervisor" id="nama_supervisor" required
-                                            placeholder="Cari Dosen atau ketik nama supervisior..."
-                                            x-model="selectedDosenName"
-                                            @focus="openDosen = true; searchDosen = ''"
-                                            @input="openDosen = true; selectedDosenId = ''; searchDosen = $event.target.value"
-                                            class="w-full border border-[#CAC0C0] rounded bg-white px-4 py-3 text-[14px] focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                        
-                                        <button type="button" @click="openDosen = !openDosen"
+                                            placeholder="Cari Dosen atau ketik nama supervisior..." x-model="selectedDosenName"
+                                            @focus="!isInvited && (openDosen = true, searchDosen = '')"
+                                            @input="!isInvited && (openDosen = true, selectedDosenId = '', searchDosen = $event.target.value)"
+                                            :readonly="isInvited"
+                                            :class="isInvited ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-white'"
+                                            class="w-full border border-[#CAC0C0] rounded px-4 py-3 text-[14px] focus:outline-none focus:ring-1 focus:ring-blue-500">
+
+                                        <button type="button" @click="!isInvited && (openDosen = !openDosen)"
                                             class="absolute right-3 top-1/2 -translate-y-1/2">
                                             <svg :class="openDosen ? 'rotate-90' : 'rotate-180'"
-                                                class="w-5 h-5 text-gray-400 transition-transform duration-200"
-                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                                class="w-5 h-5 text-gray-400 transition-transform duration-200" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 5l7 7-7 7"></path>
                                             </svg>
                                         </button>
                                     </div>
 
-                                    <div x-show="openDosen && filteredDosenFromInput.length > 0" x-transition style="display: none;"
+                                    <div x-show="openDosen && filteredDosenFromInput.length > 0" x-transition
+                                        style="display: none;"
                                         class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded shadow-lg overflow-hidden">
                                         <ul class="py-1 text-[14px] max-h-48 overflow-y-auto">
                                             <template x-for="dosen in filteredDosenFromInput" :key="dosen.id + '-supervisor'">
@@ -441,20 +426,28 @@
                                     </div>
                                     <input type="hidden" name="supervisor_internal_id" :value="selectedDosenId">
                                 </div>
-                                <p class="mt-1 text-[11px] text-gray-500 italic">Ketik nama lengkap jika supervisior bukan dosen (External).</p>
-                                
+                                <p class="mt-1 text-[11px] text-gray-500 italic">Ketik nama lengkap jika supervisior bukan dosen
+                                    (External).</p>
+
                                 @error('nama_supervisor') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                                @error('supervisor_internal_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                @error('supervisor_internal_id') <span class="text-red-500 text-xs">{{ $message }}</span>
+                                @enderror
                             </div>
 
                             <!-- Email Supervisor: Muncul HANYA jika yang diketik BUKAN dosen dari sistem -->
-                            <div class="mb-6" x-show="selectedDosenId === '' && selectedDosenName !== ''" x-transition style="display: none;">
-                                <label for="email_supervisor" class="block text-[14px] font-bold text-black mb-2">Email Supervisior Eksternal <span class="text-red-600">*</span></label>
-                                <input type="email" name="email_supervisor" id="email_supervisor" 
+                            <div class="mb-6" x-show="selectedDosenId === '' && selectedDosenName !== ''" x-transition
+                                style="display: none;">
+                                <label for="email_supervisor" class="block text-[14px] font-bold text-black mb-2">Email
+                                    Supervisior Eksternal <span class="text-red-600">*</span></label>
+                                <input type="email" name="email_supervisor" id="email_supervisor"
                                     :required="selectedDosenId === '' && selectedDosenName !== ''"
-                                    placeholder="Masukan email aktif supervisior perusahaan" value="{{ old('email_supervisor') }}"
-                                    class="w-full border border-[#CAC0C0] rounded bg-white px-4 py-3 text-[14px] focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                <p class="mt-1 text-[11px] text-orange-600 italic font-medium">Penting: Link pengisian Nilai Akhir KP bagi supervisor eksternal akan dikirimkan ke email ini. Pastikan email valid.</p>
+                                    placeholder="Masukan email aktif supervisior perusahaan"
+                                    value="{{ $initSupervisorEmail }}"
+                                    :readonly="isInvited"
+                                    :class="isInvited ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-white'"
+                                    class="w-full border border-[#CAC0C0] rounded px-4 py-3 text-[14px] focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                <p class="mt-1 text-[11px] text-orange-600 italic font-medium">Penting: Link pengisian Nilai
+                                    Akhir KP bagi supervisor eksternal akan dikirimkan ke email ini. Pastikan email valid.</p>
                                 @error('email_supervisor') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
 
@@ -479,10 +472,7 @@
                                     SUBMIT
                                 </button>
 
-                                <div class="absolute bottom-0 flex justify-center gap-2">
-                                    <div class="w-1.5 h-1.5 bg-black rounded-full"></div>
-                                    <div class="w-1.5 h-1.5 bg-gray-300 rounded-full"></div>
-                                </div>
+
                             </div>
                         </form>
                     </div>

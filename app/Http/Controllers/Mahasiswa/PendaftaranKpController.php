@@ -50,8 +50,8 @@ class PendaftaranKpController extends Controller
             })
             ->values();
 
-        // Fetch all active Dosen
-        $allDosen = User::where('role', 'dosen')
+        // Fetch all active Dosen (termasuk Koordinator KP)
+        $allDosen = User::whereIn('role', ['dosen', 'koordinator_kp'])
             ->whereHas('dosen', function ($query) {
                 $query->where('is_aktif', 1);
             })
@@ -185,6 +185,21 @@ class PendaftaranKpController extends Controller
             $status_kp = 'pending';
             if ($invitation && $request->pengerjaan_kp === 'kelompok') {
                 $status_kp = $invitation->status_kp; // Sync status if invited
+                
+                // Reconstruct anggotaArray to mirror the group for this invited user
+                $originalAnggota = is_string($invitation->anggota_kelompok_ids) ? json_decode($invitation->anggota_kelompok_ids, true) : $invitation->anggota_kelompok_ids;
+                if (!is_array($originalAnggota)) {
+                    $originalAnggota = [];
+                }
+                
+                // Remove self from the array
+                $originalAnggota = array_diff($originalAnggota, [auth()->id(), (string)auth()->id()]);
+                
+                // Add the original creator
+                $originalAnggota[] = (string)$invitation->mahasiswa_id;
+                
+                // Set the new array and reset indices
+                $anggotaArray = array_values($originalAnggota);
             }
 
             $draftKp = PendaftaranKp::where('mahasiswa_id', auth()->id())

@@ -302,6 +302,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let pos = sessionStorage.getItem('scrollPosition');
+            if (pos) {
+                window.scrollTo(0, parseInt(pos));
+                sessionStorage.removeItem('scrollPosition');
+            }
+        });
+
         window.pendaftaranScope = function() {
             return {
                 tabJenis: 'Semua',

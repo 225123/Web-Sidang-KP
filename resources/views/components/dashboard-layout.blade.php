@@ -140,13 +140,20 @@
                             {{ $header }}
                         </h2>
                         @if(!isset($hidePeriodSelector) && isset($available_periods) && $available_periods->isNotEmpty())
+                            @php
+                                $__pRole = auth()->check() ? strtolower(auth()->user()->role) : '';
+                                $__pColor = '#4CC098'; // koordinator default
+                                if ($__pRole === 'mahasiswa') $__pColor = '#F48200';
+                                elseif ($__pRole === 'dosen') $__pColor = '#CDA057';
+                            @endphp
                             <div class="relative w-full md:w-[212px] mt-2 md:mt-0 z-50">
                                 <form method="POST" action="{{ route('set-periode') }}" id="periode-form">
                                     @csrf
                                     <input type="hidden" name="periode_id" id="periode-id-input" value="{{ $selected_period_id }}">
                                     <div x-data="{ open: false }" class="relative">
                                         <button @click="open = !open" @click.outside="open = false" type="button"
-                                            class="w-full flex items-center justify-between border border-[#CAC0C0] bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none focus:border-[#4CC098] focus:ring-1 focus:ring-[#4CC098] cursor-pointer text-black h-[32px]">
+                                            :style="open ? 'border-color: {{ $__pColor }}; box-shadow: 0 0 0 1px {{ $__pColor }};' : 'border-color: #CAC0C0;'"
+                                            class="w-full flex items-center justify-between border bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none cursor-pointer text-black h-[32px] transition-colors">
                                             <span class="truncate">{{ $selected_period_label }}</span>
                                             <svg :class="open ? 'rotate-0' : 'rotate-90'"
                                                 class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
@@ -160,7 +167,7 @@
                                                 @foreach($available_periods as $period)
                                                     <li>
                                                         <button type="button" onclick="document.getElementById('periode-id-input').value = '{{ $period->id }}'; document.getElementById('periode-form').submit();"
-                                                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer {{ $selected_period_id == $period->id ? 'bg-[#E8E5E5]' : '' }}">
+                                                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer text-black {{ $selected_period_id == $period->id ? 'bg-[#E8E5E5] font-semibold' : '' }}">
                                                             {{ $period->label_tahun_ajaran }}
                                                         </button>
                                                     </li>
@@ -173,7 +180,56 @@
                         @endif
                     </div>
                 @endif
-                
+
+                @php
+                    $__route = \Illuminate\Support\Facades\Route::currentRouteName() ?? '';
+                    $__excludedPeriodeRoutes = ['mahasiswa.notifikasi', 'mahasiswa.notifikasi.show', 'mahasiswa.panduan', 'profil.index'];
+                    $__showStandalonePeriode = !isset($header)
+                        && !isset($hidePeriodSelector)
+                        && !in_array($__route, $__excludedPeriodeRoutes)
+                        && auth()->check()
+                        && strtolower(auth()->user()->role) === 'mahasiswa'
+                        && isset($available_periods)
+                        && $available_periods->isNotEmpty();
+                @endphp
+
+                @if($__showStandalonePeriode)
+                    <div class="flex justify-end mb-4">
+                        <div class="relative w-full sm:w-[212px] z-50">
+                            <form method="POST" action="{{ route('set-periode') }}" id="periode-form-standalone">
+                                @csrf
+                                <input type="hidden" name="periode_id" id="periode-id-standalone" value="{{ $selected_period_id }}">
+                                <div x-data="{ open: false }" class="relative">
+                                    <button @click="open = !open" @click.outside="open = false" type="button"
+                                        :style="open ? 'border-color: #F48200; box-shadow: 0 0 0 1px #F48200;' : 'border-color: #CAC0C0;'"
+                                        class="w-full flex items-center justify-between border bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none cursor-pointer text-black h-[32px] transition-colors">
+                                        <span class="truncate">{{ $selected_period_label }}</span>
+                                        <svg :class="open ? 'rotate-0' : 'rotate-90'"
+                                            class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </button>
+                                    <div x-show="open" x-transition x-cloak style="display: none;"
+                                        class="absolute right-0 z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden max-h-60 overflow-y-auto">
+                                        <ul class="py-1 text-[13px] font-medium text-black">
+                                            @foreach($available_periods as $period)
+                                                <li>
+                                                    <button type="button"
+                                                        onclick="document.getElementById('periode-id-standalone').value = '{{ $period->id }}'; document.getElementById('periode-form-standalone').submit();"
+                                                        class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer text-black {{ $selected_period_id == $period->id ? 'bg-[#E8E5E5] font-semibold' : '' }}">
+                                                        {{ $period->label_tahun_ajaran }}
+                                                    </button>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="mt-4 w-full relative z-0">
                     @if(isset($is_locked) && $is_locked)
                         <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded shadow-sm">
@@ -198,7 +254,7 @@
                                 function lockElements() {
                                     // 1. Disable all forms except GET forms and specific exclusions like periode-form
                                     document.querySelectorAll('form').forEach(form => {
-                                        if (form.id === 'periode-form' || form.method.toUpperCase() === 'GET' || form.dataset.locked) return;
+                                        if (form.id === 'periode-form' || form.id === 'periode-form-standalone' || form.method.toUpperCase() === 'GET' || form.dataset.locked) return;
                                         form.dataset.locked = 'true';
                                         form.addEventListener('submit', e => {
                                             e.preventDefault();

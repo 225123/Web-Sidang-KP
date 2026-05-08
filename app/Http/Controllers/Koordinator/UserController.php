@@ -76,11 +76,17 @@ class UserController extends Controller
             }
         }
 
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('mahasiswa', 'status_mahasiswa')) {
+            \Illuminate\Support\Facades\Schema::table('mahasiswa', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->string('status_mahasiswa', 10)->default('baru');
+            });
+        }
+
         $tab = $request->input('tab', 'dosen');
 
         $query = User::leftJoin('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
             ->leftJoin('dosen', 'users.id', '=', 'dosen.user_id')
-            ->select('users.*', DB::raw('COALESCE(mahasiswa.nim, dosen.nidn) as identifier_id'), 'dosen.is_aktif');
+            ->select('users.*', DB::raw('COALESCE(mahasiswa.nim, dosen.nidn) as identifier_id'), 'dosen.is_aktif', 'mahasiswa.status_mahasiswa');
 
         if ($tab === 'dosen') {
             $query->whereIn('users.role', ['dosen', 'koordinator_kp']);
@@ -118,6 +124,10 @@ class UserController extends Controller
             } elseif ($request->status === 'Tidak Aktif') {
                 $query->where('dosen.is_aktif', false);
             }
+        }
+
+        if ($tab === 'mahasiswa' && $request->filled('status_mahasiswa')) {
+            $query->where('mahasiswa.status_mahasiswa', $request->status_mahasiswa);
         }
 
         $users = $query->orderBy('users.created_at', 'desc')->paginate(10);
@@ -202,7 +212,7 @@ class UserController extends Controller
                     return back()->withErrors(['email' => 'Email ini sudah digunakan oleh pengguna lain.'])->withInput();
                 }
 
-                // Lolos pengecekan, perbarui data mahasiswa ini ke periode saat ini
+                // Lolos pengecekan, perbarui data mahasiswa ini ke periode saat ini (status = lanjut)
                 DB::transaction(function () use ($request, $existingMahasiswa, $activePeriodId) {
                     User::where('id', $existingMahasiswa->user_id)->update([
                         'name' => $request->name,
@@ -211,6 +221,7 @@ class UserController extends Controller
                     DB::table('mahasiswa')->where('nim', $request->id_user)->update([
                         'email' => $request->email,
                         'tahun_ajaran_id' => $activePeriodId,
+                        'status_mahasiswa' => 'lanjut',
                     ]);
                 });
 
@@ -245,6 +256,7 @@ class UserController extends Controller
                     'email' => $request->email,
                     'prodi' => 'Informatika',
                     'tahun_ajaran_id' => $activePeriodId,
+                    'status_mahasiswa' => 'baru',
                 ]);
             } elseif (in_array($request->role, ['dosen', 'koordinator_kp'])) {
                 DB::table('dosen')->insert([
@@ -463,6 +475,7 @@ class UserController extends Controller
                         'email' => $row['email'],
                         'prodi' => 'Informatika',
                         'tahun_ajaran_id' => session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id,
+                        'status_mahasiswa' => 'baru',
                     ]);
                 } elseif (in_array($user->role, ['dosen', 'koordinator_kp'])) {
                     DB::table('dosen')->insert([
