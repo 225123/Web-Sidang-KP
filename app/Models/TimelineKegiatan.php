@@ -12,12 +12,18 @@ class TimelineKegiatan extends Model
     protected $table = 'timeline_kegiatan';
 
     protected $fillable = [
+        'periode_id',
         'nama_kegiatan',
         'tanggal',
         'waktu',
         'kategori',
         'keterangan',
     ];
+
+    public function periode()
+    {
+        return $this->belongsTo(TahunAjaran::class, 'periode_id');
+    }
 
     protected $casts = [
         'tanggal' => 'date',

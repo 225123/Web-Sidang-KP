@@ -43,4 +43,26 @@ class NotifikasiController extends Controller
 
         return view('koordinator.notifikasi-detail', compact('notifikasi'));
     }
+
+    public function redirect($id)
+    {
+        $userId = Auth::id();
+
+        $notifikasi = NotifikasiLog::where('id', $id)
+            ->where(function ($query) use ($userId) {
+                $query->where('receiver_id', $userId)
+                    ->orWhere('target_role', 'koordinator');
+            })
+            ->firstOrFail();
+
+        if ($notifikasi->periode_id) {
+            session(['selected_periode_id' => $notifikasi->periode_id]);
+        }
+
+        if ($notifikasi->target_url) {
+            return redirect($notifikasi->target_url);
+        }
+
+        return redirect()->route('koordinator.notifikasi.show', $notifikasi->id);
+    }
 }

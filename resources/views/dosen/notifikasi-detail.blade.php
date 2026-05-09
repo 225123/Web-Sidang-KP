@@ -51,7 +51,7 @@
                     <!-- 4. Action Button for System Notifications -->
                     @if($notifikasi->target_url)
                         <div class="mt-10 mb-2">
-                            <a href="{{ $notifikasi->target_url }}" 
+                            <a href="{{ route('dosen.notifikasi.redirect', $notifikasi->id) }}" 
                                class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[14px] rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
                                 <span>Lihat Detail Terkait</span>
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

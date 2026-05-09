@@ -87,7 +87,7 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verifie
 
     // 3. Pendaftaran KP Koordinator
     Route::get('/pendaftaran-kp', [KoordinatorPendaftaranKpController::class, 'index'])->name('pendaftaran-kp');
-    Route::get('/pendaftaran-kp/detail/{slug}', [KoordinatorPendaftaranKpController::class, 'show'])->name('pendaftaran-kp.show');
+    Route::get('/pendaftaran-kp/detail/{id}', [KoordinatorPendaftaranKpController::class, 'show'])->name('pendaftaran-kp.show');
     Route::put('/pendaftaran-kp/{id}/status', [KoordinatorPendaftaranKpController::class, 'updateStatus'])->name('pendaftaran-kp.status');
 
     // Data Mahasiswa KP
@@ -187,6 +187,7 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verifie
     // 13. Notifikasi Koordinator (Inbox)
     Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi');
     Route::get('/notifikasi/{id}', [NotifikasiController::class, 'show'])->name('notifikasi.show');
+    Route::get('/notifikasi/{id}/redirect', [NotifikasiController::class, 'redirect'])->name('notifikasi.redirect');
 
     // Laporan Dan Arsip
     Route::get('/laporan-arsip', [App\Http\Controllers\Koordinator\LaporanArsipController::class, 'index'])->name('laporan-arsip');
@@ -262,8 +263,9 @@ Route::prefix('mahasiswa')->name('mahasiswa.')->middleware(['auth', 'verified', 
     Route::post('/revisi', [App\Http\Controllers\Mahasiswa\RevisiController::class, 'store'])->name('revisi.store');
 
     // Notifikasi Mahasiswa
-    Route::get('/notifikasi', [App\Http\Controllers\Mahasiswa\NotifikasiController::class, 'index'])->name('notifikasi');
-    Route::get('/notifikasi/{id}', [App\Http\Controllers\Mahasiswa\NotifikasiController::class, 'show'])->name('notifikasi.show');
+    Route::get('/notifikasi', [\App\Http\Controllers\Mahasiswa\NotifikasiController::class, 'index'])->name('notifikasi');
+    Route::get('/notifikasi/{id}', [\App\Http\Controllers\Mahasiswa\NotifikasiController::class, 'show'])->name('notifikasi.show');
+    Route::get('/notifikasi/{id}/redirect', [\App\Http\Controllers\Mahasiswa\NotifikasiController::class, 'redirect'])->name('notifikasi.redirect');
 
     // Nilai Akhir Mahasiswa
     Route::get('/nilai-akhir', [App\Http\Controllers\Mahasiswa\NilaiAkhirController::class, 'index'])->name('nilai-akhir');
@@ -330,8 +332,9 @@ Route::prefix('dosen')->name('dosen.')->middleware(['auth', 'verified', 'role:do
     Route::put('/persetujuan-sidang/{id}/update', [DosenPersetujuanSidangController::class, 'update'])->name('persetujuan-sidang.update');
     Route::delete('/persetujuan-sidang/{id}/tolak', [DosenPersetujuanSidangController::class, 'tolak'])->name('persetujuan-sidang.tolak');
     // Notifikasi Dosen
-    Route::get('/notifikasi', [App\Http\Controllers\Dosen\NotifikasiController::class, 'index'])->name('notifikasi');
-    Route::get('/notifikasi/{id}', [App\Http\Controllers\Dosen\NotifikasiController::class, 'show'])->name('notifikasi.show');
+    Route::get('/notifikasi', [\App\Http\Controllers\Dosen\NotifikasiController::class, 'index'])->name('notifikasi');
+    Route::get('/notifikasi/{id}', [\App\Http\Controllers\Dosen\NotifikasiController::class, 'show'])->name('notifikasi.show');
+    Route::get('/notifikasi/{id}/redirect', [\App\Http\Controllers\Dosen\NotifikasiController::class, 'redirect'])->name('notifikasi.redirect');
 
     // Panduan Website Dosen
     Route::get('/panduan', function() {

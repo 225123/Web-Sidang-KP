@@ -17,11 +17,22 @@ class PendaftaranSidangController extends Controller
     {
         $mahasiswaId = Auth::user()->id;
 
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+
         // Cari data pendaftaran KP aktif
-        $pendaftaran = PendaftaranKp::where('mahasiswa_id', $mahasiswaId)
-            ->where('status_kp', 'approved')
-            ->latest()
-            ->first();
+        $query = PendaftaranKp::withoutGlobalScope('periode')
+            ->where(function ($query) use ($mahasiswaId) {
+                $query->where('mahasiswa_id', $mahasiswaId)
+                      ->orWhereJsonContains('anggota_kelompok_ids', $mahasiswaId)
+                      ->orWhereJsonContains('anggota_kelompok_ids', (string) $mahasiswaId);
+            })
+            ->where('status_kp', 'approved');
+            
+        if ($periodeId) {
+            $query->where('tahun_ajaran_id', $periodeId);
+        }
+        
+        $pendaftaran = $query->latest()->first();
 
         // Cari pengajuan sidang / persetujuan
         $pengajuan = null;
@@ -54,7 +65,20 @@ class PendaftaranSidangController extends Controller
         ]);
 
         $mahasiswaId = Auth::user()->id;
-        $pendaftaran = PendaftaranKp::where('mahasiswa_id', $mahasiswaId)->where('status_kp', 'approved')->latest()->first();
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+
+        $query = PendaftaranKp::withoutGlobalScope('periode')
+            ->where(function ($query) use ($mahasiswaId) {
+                $query->where('mahasiswa_id', $mahasiswaId)
+                      ->orWhereJsonContains('anggota_kelompok_ids', $mahasiswaId)
+                      ->orWhereJsonContains('anggota_kelompok_ids', (string) $mahasiswaId);
+            })->where('status_kp', 'approved');
+            
+        if ($periodeId) {
+            $query->where('tahun_ajaran_id', $periodeId);
+        }
+        
+        $pendaftaran = $query->latest()->first();
 
         if (! $pendaftaran) {
             abort(403, 'Akses ditolak.');
@@ -109,7 +133,20 @@ class PendaftaranSidangController extends Controller
     {
         $mahasiswaId = Auth::user()->id;
         $mhs = Mahasiswa::with('user')->where('user_id', $mahasiswaId)->first();
-        $kp = PendaftaranKp::where('mahasiswa_id', $mahasiswaId)->where('status_kp', 'approved')->latest()->first();
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+
+        $query = PendaftaranKp::withoutGlobalScope('periode')
+            ->where(function ($query) use ($mahasiswaId) {
+                $query->where('mahasiswa_id', $mahasiswaId)
+                      ->orWhereJsonContains('anggota_kelompok_ids', $mahasiswaId)
+                      ->orWhereJsonContains('anggota_kelompok_ids', (string) $mahasiswaId);
+            })->where('status_kp', 'approved');
+            
+        if ($periodeId) {
+            $query->where('tahun_ajaran_id', $periodeId);
+        }
+        
+        $kp = $query->latest()->first();
 
         $data = [
             'nama_mahasiswa' => $mhs->user->name ?? 'Mahasiswa',

@@ -40,6 +40,7 @@ class DashboardController extends Controller
         $telahSidang = 0;
         $totalBimbinganSelesai = 0;
         $listBimbinganMahasiswa = collect();
+        $processedUserIds = [];
 
         foreach ($kps as $kp) {
             // Dapatkan semua user_id yang terlibat (Ketua + Anggota)
@@ -57,6 +58,9 @@ class DashboardController extends Controller
             $userIds = array_unique($userIds);
 
             foreach ($userIds as $uid) {
+                if (in_array($uid, $processedUserIds)) continue;
+                $processedUserIds[] = $uid;
+
                 $mhs = \App\Models\Mahasiswa::with('user')->where('user_id', $uid)->first();
                 if ($mhs) {
                     $mahasiswaBimbingan++;
@@ -169,7 +173,13 @@ class DashboardController extends Controller
         $progressBimbingan = $totalBimbinganTarget > 0 ? round(($totalBimbinganSelesai / $totalBimbinganTarget) * 100) : 0;
 
         // 6. Timeline
-        $timeline = TimelineKegiatan::where('is_active', true)->orderBy('tanggal', 'asc')->first();
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $timeline = TimelineKegiatan::where('kategori', 'dosen')
+            ->where('periode_id', $periodeId)
+            ->where('tanggal', '>=', now()->toDateString())
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('waktu', 'asc')
+            ->first();
 
         // 7. Notifikasi (Unread)
         $notifikasi = NotifikasiLog::where(function ($query) use ($dosenId) {

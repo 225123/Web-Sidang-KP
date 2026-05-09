@@ -24,6 +24,7 @@ class BimbinganSayaController extends Controller
         $pendaftarans = collect();
         $jumlahSelesai = 0;
         $jumlahBelumDiperiksa = 0;
+        $processedUserIds = [];
 
         foreach ($kps as $kp) {
             $userIds = [$kp->mahasiswa_id];
@@ -40,20 +41,35 @@ class BimbinganSayaController extends Controller
             $userIds = array_unique($userIds);
 
             foreach ($userIds as $uid) {
+                if (in_array($uid, $processedUserIds)) continue;
+                $processedUserIds[] = $uid;
+
                 $mhs = Mahasiswa::with('user')->where('user_id', $uid)->first();
                 if ($mhs) {
                     $myLogs = $kp->logBimbingans->where('mahasiswa_id', $mhs->user_id);
                     $myApprovedLogs = $myLogs->where('status_approval', 'approved');
                     $adaPending = $myLogs->where('status_approval', 'pending')->count() > 0;
 
-                    $ownKp = PendaftaranKp::where('mahasiswa_id', $mhs->user_id)->latest()->first();
+                    $ownKp = PendaftaranKp::where('mahasiswa_id', $mhs->user_id)
+                        ->orderByRaw("
+                            CASE 
+                                WHEN status_kp = 'approved' THEN 1
+                                WHEN status_kp = 'verified' THEN 2
+                                WHEN status_kp = 'pending' THEN 3
+                                WHEN status_kp IS NULL THEN 4
+                                WHEN status_kp = 'rejected' THEN 5
+                                ELSE 6
+                            END
+                        ")->latest()->first();
+
+                    $kpToUse = $ownKp ?: $kp;
 
                     $pendaftarans->push([
-                        'id' => $kp->id,
+                        'id' => $kpToUse->id,
                         'display_mahasiswa' => $mhs,
-                        'display_judul_kp' => $ownKp ? ($ownKp->judul_kp ?? '-') : '-',
-                        'display_instansi' => $ownKp ? ($ownKp->instansi_nama ?? '-') : '-',
-                        'display_supervisor' => ($kp->supervisorInstansi) ? $kp->supervisorInstansi->nama_supervisor : '-',
+                        'display_judul_kp' => $kpToUse->judul_kp ?? '-',
+                        'display_instansi' => $kpToUse->instansi_nama ?? '-',
+                        'display_supervisor' => ($kpToUse->supervisorInstansi) ? $kpToUse->supervisorInstansi->nama_supervisor : '-',
                         'total_log' => $myApprovedLogs->count(),
                         'status_approval_semua' => $myLogs->count() > 0 ? ($adaPending ? 'Menunggu pengecekan' : 'Diperiksa') : '-',
                     ]);

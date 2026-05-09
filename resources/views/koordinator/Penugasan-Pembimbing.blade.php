@@ -5,6 +5,22 @@
 
         
 
+    @php
+        $assignmentsInit = [];
+        foreach($pendaftarans as $p) {
+            $assignmentsInit[$p['id']] = $p['dosen_id'] ?? '';
+        }
+        
+        $dosenDataArray = collect($dosenList)->map(function($d) {
+            return [
+                'id' => $d['id'],
+                'nama' => $d['nama'],
+                'beban_awal' => $d['beban'],
+                'kuota' => $d['kuota']
+            ];
+        })->keyBy('id')->toArray();
+    @endphp
+
     <!-- Flash message on action success/error -->
     <div class="px-2 xl:px-0">
         @if(session('success'))
@@ -19,7 +35,11 @@
         @endif
     </div>
 
-    <div class="w-full flex-1 pb-10" x-data="penugasanController()">
+    <div id="penugasan-container" class="w-full flex-1 pb-10" 
+        data-dosen="{{ json_encode($dosenDataArray ?? []) }}" 
+        data-assignments="{{ json_encode($assignmentsInit ?? []) }}" 
+        data-group-sizes="{{ json_encode($allGroupSizes ?? []) }}" 
+        x-data="penugasanController()">
         <form id="form-assignment" action="{{ route('koordinator.penugasan-pembimbing.store') }}" method="POST">
             @csrf
         </form>
@@ -65,21 +85,24 @@
                         </table>
                     </div>
 
-                    <div class="flex justify-between items-end mt-4 pt-2">
-                        <button type="button" class="border border-black border-solid bg-transparent hover:bg-gray-200 text-black text-[11px] font-bold px-3 py-1 rounded-[5px] flex items-center gap-1 shadow-sm transition-colors">
-                            <span class="text-[14px] leading-none">+</span> Tambah
-                        </button>
+                    <div class="flex justify-end items-end mt-4 pt-2">
                         <div class="font-bold text-[12px] text-black">Total Mahasiswa : <span class="ml-1">{{ $totalMahasiswa }}</span></div>
                     </div>
                 </div>
 
                 <!-- Submit Button -->
                 <div class="flex gap-3">
+                    <button type="button" x-cloak x-show="isDirty" @click="cancelEdit()"
+                        class="font-bold py-2 px-6 rounded-[5px] shadow-md flex items-center gap-2 transition-all h-[42px] text-[14px] whitespace-nowrap border bg-[#EA4335] hover:bg-[#D32F2F] border-[#EA4335] text-white">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        <span>BATAL</span>
+                    </button>
                     <button type="button" @click="submitForm()" 
-                        class="text-white font-bold py-2 px-8 rounded-[5px] shadow-md flex items-center gap-2 transition-all h-[42px] text-[14px] whitespace-nowrap border"
-                        :class="isDirty ? 'bg-[#1A73E8] hover:bg-[#1557B0] border-[#1A73E8] animate-pulse' : 'bg-[#34A853] hover:bg-[#2B8A44] border-[#34A853]'">
+                        class="font-bold py-2 px-8 rounded-[5px] shadow-md flex items-center gap-2 transition-all h-[42px] text-[14px] whitespace-nowrap border"
+                        :class="isDirty ? 'bg-[#1A73E8] hover:bg-[#1557B0] border-[#1A73E8] animate-pulse text-white' : (hasOnlySubmitted ? 'bg-[#34A853] border-[#34A853] text-white cursor-default' : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed')"
+                        :disabled="!isDirty">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                        <span x-text="isDirty ? 'SUBMIT' : 'TELAH DISUBMIT'"></span>
+                        <span x-text="isDirty ? (hasOnlySubmitted ? 'SUBMIT PEMBARUAN' : 'SUBMIT') : (hasOnlySubmitted ? 'TELAH DISUBMIT' : 'KOSONG')"></span>
                     </button>
                 </div>
             </div>
@@ -171,7 +194,7 @@
                                     <button type="button" @click="openDosen = !openDosen" @click.outside="openDosen = false" 
                                         class="w-full flex justify-between items-center bg-white border border-gray-300 rounded-[5px] px-3 py-2.5 text-[12px] font-medium shadow-sm text-black focus:outline-none focus:ring-1 focus:ring-blue-500">
                                         <span class="truncate w-full text-left pr-2" x-text="selectedDosenName === 'All' ? 'Semua Pembimbing' : selectedDosenName"></span>
-                                        <svg :class="openDosen ? 'rotate-180' : 'rotate-0'" class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        <svg :class="openDosen ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </button>
                                     <div x-show="openDosen" x-transition style="display: none;" class="absolute z-50 w-[240px] left-0 mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg flex flex-col overflow-hidden">
                                         <div class="px-2 py-2 sticky top-0 bg-[#F5F6F8] border-b border-gray-200 z-10 w-full shrink-0">
@@ -268,11 +291,10 @@
                                                     
                                                     <!-- Dropdown Trigger button mimicking table cell look -->
                                                     <button type="button" @click="$event.stopPropagation(); triggerDropdown('{{ $p['id'] }}')" 
-                                                            class="w-full py-1.5 px-3 border border-gray-400 bg-white rounded text-[12px] font-medium flex items-center justify-between transition-colors shadow-sm focus:outline-none"
-                                                            :class="assignments['{{ $p['id'] }}'] !== '' ? 'text-gray-900 border-gray-400' : 'text-gray-500 border-dashed'">
-                                                        
-                                                        <span class="truncate pr-2 text-center flex-1" x-text="getDosenName(assignments['{{ $p['id'] }}'])"></span>
-                                                        <span x-show="assignments['{{ $p['id'] }}'] === ''" class="shrink-0 text-[10px]">&#9660;</span>
+                                                            class="w-full py-2 px-3 border rounded-[5px] text-[12px] flex items-center justify-between transition-all shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white hover:border-gray-400"
+                                                            :class="assignments['{{ $p['id'] }}'] !== '' ? 'text-black font-bold border-gray-300' : 'text-gray-500 font-medium border-gray-300 hover:border-solid border-dashed'">
+                                                        <span class="truncate pr-2 text-left flex-1" x-text="getDosenName(assignments['{{ $p['id'] }}'])"></span>
+                                                        <svg :class="openDropdown === '{{ $p['id'] }}' ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                                     </button>
 
                                                     <!-- Dropdown Menu -->
@@ -304,14 +326,20 @@
                                                             <template x-for="dosen in filteredDosenList" :key="dosen.id">
                                                                 <li>
                                                                     <button type="button" @click.prevent="setAssignment('{{ $p['id'] }}', dosen.id)" 
-                                                                            class="w-full text-left px-3 py-1.5 flex justify-between items-center transition-colors"
+                                                                            class="w-full text-left px-3 py-2.5 flex justify-between items-center transition-colors border-b border-gray-100/50"
                                                                             :class="[
-                                                                                assignments['{{ $p['id'] }}'] == dosen.id ? 'bg-blue-50 font-bold text-gray-900 pointer-events-none' : 'hover:bg-gray-100',
-                                                                                Number(dosen.beban) >= Number(dosen.kuota) && assignments['{{ $p['id'] }}'] != dosen.id ? 'opacity-50 cursor-not-allowed text-gray-400' : 'text-gray-700'
+                                                                                supervisorMap['{{ $p['id'] }}'] == dosen.id ? 'bg-red-50 text-red-500 cursor-not-allowed opacity-80' : 
+                                                                                (assignments['{{ $p['id'] }}'] == dosen.id ? 'bg-[#E6F0FA] font-bold text-gray-900 pointer-events-none' : 'hover:bg-blue-50 cursor-pointer text-gray-700 font-bold'),
+                                                                                Number(dosen.beban) >= Number(dosen.kuota) && assignments['{{ $p['id'] }}'] != dosen.id && supervisorMap['{{ $p['id'] }}'] != dosen.id ? 'opacity-50 cursor-not-allowed text-gray-400' : ''
                                                                             ]"
-                                                                            :disabled="Number(dosen.beban) >= Number(dosen.kuota) && assignments['{{ $p['id'] }}'] != dosen.id">
-                                                                        <span class="whitespace-nowrap pr-4" x-text="dosen.nama"></span>
-                                                                        <span class="shrink-0 font-bold ml-auto text-right whitespace-nowrap" :class="Number(dosen.beban) >= Number(dosen.kuota) ? 'text-red-500' : 'text-gray-500'" x-text="'(' + dosen.beban + ')'"></span>
+                                                                            :disabled="(Number(dosen.beban) >= Number(dosen.kuota) && assignments['{{ $p['id'] }}'] != dosen.id) || supervisorMap['{{ $p['id'] }}'] == dosen.id">
+                                                                        <div class="flex items-center gap-2 truncate pr-2">
+                                                                            <span class="truncate" x-text="dosen.nama"></span>
+                                                                            <template x-if="supervisorMap['{{ $p['id'] }}'] == dosen.id">
+                                                                                <span class="text-[9px] bg-red-100 text-red-600 px-1 rounded uppercase font-bold flex-shrink-0 border border-red-200">SUPERVISOR</span>
+                                                                            </template>
+                                                                        </div>
+                                                                        <span class="shrink-0 font-bold ml-auto text-right whitespace-nowrap text-[#4285F4]" x-text="dosen.beban"></span>
                                                                     </button>
                                                                 </li>
                                                             </template>
@@ -400,67 +428,70 @@
             </div>
 
         <!-- Custom Global Confirm Modal -->
-        <div x-cloak x-show="confirmDialog.show" style="display: none;" class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
-            <div @click.away="confirmDialog.show = false" class="bg-white rounded-[15px] w-full max-w-[420px] p-8 shadow-2xl flex flex-col items-center text-center relative overflow-hidden border border-gray-100">
-                
-                <!-- Icon Header Based on Type -->
-                <div class="mb-6">
-                    <template x-if="confirmDialog.type === 'danger'">
-                        <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center">
-                            <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        </div>
-                    </template>
-                    <template x-if="confirmDialog.type === 'info'">
-                        <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center">
-                            <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        </div>
-                    </template>
-                </div>
+        <template x-teleport="body">
+            <div x-cloak x-show="confirmDialog.show" style="display: none;" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+                <div @click.away="confirmDialog.show = false" class="bg-white rounded-[15px] w-full max-w-[420px] p-8 shadow-2xl flex flex-col items-center text-center relative overflow-hidden border border-gray-100">
+                    
+                    <!-- Icon Header Based on Type -->
+                    <div class="mb-6">
+                        <template x-if="confirmDialog.type === 'danger'">
+                            <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center">
+                                <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            </div>
+                        </template>
+                        <template x-if="confirmDialog.type === 'info'">
+                            <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center">
+                                <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                        </template>
+                    </div>
 
-                <h3 class="text-[18px] font-bold text-gray-900 mb-3" x-text="confirmDialog.title"></h3>
-                <p class="text-[14px] text-gray-500 mb-8 leading-relaxed px-2" x-text="confirmDialog.message"></p>
+                    <h3 class="text-[18px] font-bold text-gray-900 mb-3" x-text="confirmDialog.title"></h3>
+                    <p class="text-[14px] text-gray-500 mb-8 leading-relaxed px-2" x-text="confirmDialog.message"></p>
 
-                <div class="flex gap-4 w-full">
-                    <button @click="confirmDialog.show = false" type="button" class="flex-1 h-[45px] bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-[10px] text-[14px] font-bold transition-all border border-gray-200">
-                        Batal
-                    </button>
-                    <button @click="executeConfirm()" type="button" 
-                        class="flex-1 h-[45px] text-white rounded-[10px] text-[14px] font-bold transition-all shadow-md active:transform active:scale-95"
-                        :class="[
-                            confirmDialog.type === 'danger' ? 'bg-[#E53935] hover:bg-red-700' : '',
-                            confirmDialog.type === 'info' ? 'bg-[#4285F4] hover:bg-blue-700' : ''
-                        ]"
-                        x-text="confirmDialog.confirmText">
-                    </button>
+                    <div class="flex gap-4 w-full">
+                        <button @click="confirmDialog.show = false" type="button" class="flex-1 h-[45px] bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-[10px] text-[14px] font-bold transition-all border border-gray-200">
+                            Batal
+                        </button>
+                        <button @click="executeConfirm()" type="button" 
+                            class="flex-1 h-[45px] text-white rounded-[10px] text-[14px] font-bold transition-all shadow-md active:transform active:scale-95"
+                            :class="[
+                                confirmDialog.type === 'danger' ? 'bg-[#E53935] hover:bg-red-700' : '',
+                                confirmDialog.type === 'info' ? 'bg-[#4285F4] hover:bg-blue-700' : ''
+                            ]"
+                            x-text="confirmDialog.confirmText">
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </template>
+
+        <!-- Global Loading Overlay for Auto Plot -->
+        <template x-teleport="body">
+            <div x-cloak x-show="isLoadingAuto" style="display: none;" class="fixed inset-0 z-[100000] flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
+                <div class="bg-white p-6 rounded-[15px] shadow-2xl flex flex-col items-center">
+                    <svg class="animate-spin h-10 w-10 text-[#4285F4] mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span class="text-gray-800 font-bold text-[14px]">Sedang Memproses...</span>
+                </div>
+            </div>
+        </template>
 
     </div>
 
     <!-- AlpineJS Controller Injection -->
-    @php
-        $assignmentsInit = [];
-        foreach($pendaftarans as $p) {
-            $assignmentsInit[$p['id']] = $p['dosen_id'] ?? '';
-        }
-        
-        $dosenDataArray = collect($dosenList)->map(function($d) {
-            return [
-                'id' => $d['id'],
-                'nama' => $d['nama'],
-                'beban_awal' => $d['beban'],
-                'kuota' => $d['kuota']
-            ];
-        })->keyBy('id')->toArray();
-    @endphp
+
     <script>
         function penugasanController() {
+            const container = document.getElementById('penugasan-container');
+            const initDosen = container ? JSON.parse(container.getAttribute('data-dosen') || '{}') : {};
+            const initAssignments = container ? JSON.parse(container.getAttribute('data-assignments') || '{}') : {};
+            const initGroupSizes = container ? JSON.parse(container.getAttribute('data-group-sizes') || '{}') : {};
+            
             return {
-                baseDosenData: @json($dosenDataArray),
-                assignments: @json($assignmentsInit),
-                initialAssignments: @json($assignmentsInit),
-                groupSizes: @json($allGroupSizes),
+                baseDosenData: initDosen,
+                assignments: { ...initAssignments },
+                initialAssignments: { ...initAssignments },
+                groupSizes: initGroupSizes,
                 supervisorMap: {},
                 isDirty: false,
                 isLoadingAuto: false,
@@ -534,6 +565,7 @@
                                     method: "POST", headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}", "Accept": "application/json" }
                                 });
                                 const result = await res.json();
+                                await new Promise(r => setTimeout(r, 600));
                                 if (result.success) {
                                     for (let key in result.assignments) {
                                         this.assignments[key] = result.assignments[key];
@@ -544,6 +576,19 @@
                                 }
                             } catch (e) { alert('Terjadi kesalahan sistem.'); }
                             finally { this.isLoadingAuto = false; }
+                        }
+                    });
+                },
+
+                cancelEdit() {
+                    this.triggerConfirm({
+                        title: 'Batalkan Perubahan',
+                        message: 'Apakah Anda yakin ingin menghapus semua pembaruan edit yang belum disubmit?',
+                        type: 'danger',
+                        confirmText: 'Ya, Batalkan',
+                        callback: () => {
+                            this.assignments = { ...this.initialAssignments };
+                            this.isDirty = false;
                         }
                     });
                 },
@@ -598,6 +643,16 @@
                 },
 
                 // Compute real-time Dosen Loads
+                get hasOnlySubmitted() {
+                    let sum = 0;
+                    for(let id in this.initialAssignments) {
+                        if(this.initialAssignments[id] !== '') {
+                            sum++;
+                        }
+                    }
+                    return sum > 0;
+                },
+
                 get currentLoads() {
                     let loads = {};
                     for(let id in this.baseDosenData) {
@@ -651,7 +706,7 @@
                 },
 
                 getDosenName(dosenId) {
-                    if(!dosenId || dosenId === '') return 'Tugaskan';
+                    if(!dosenId || dosenId === '') return 'Pilih Pembimbing';
                     return this.baseDosenData[dosenId] ? this.baseDosenData[dosenId].nama : 'Unknown';
                 },
 

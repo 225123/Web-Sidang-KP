@@ -31,24 +31,26 @@ class ViewComposerServiceProvider extends ServiceProvider
                 $roleStr = strtolower($user->role);
                 
                 if ($roleStr === 'koordinator_kp' || str_contains($roleStr, 'koordinator') || $roleStr === 'dosen') {
-                    $available_periods = TahunAjaran::terbaru()->get();
+                    $available_periods = TahunAjaran::with('koordinator')->terbaru()->get();
                 } elseif ($roleStr === 'mahasiswa') {
                     // Periode yang ada pendaftaran KP-nya ATAU periode yang sedang aktif
-                    $available_periods = TahunAjaran::where(function($q) use ($user) {
+                    $available_periods = TahunAjaran::with('koordinator')->where(function($q) use ($user) {
                         $q->whereHas('pendaftaranKps', function($q2) use ($user) {
                             $q2->withoutGlobalScope('periode')->where('mahasiswa_id', $user->id);
                         })->orWhere('is_active', true);
                     })->terbaru()->get();
                 } else {
                     $userCreatedAt = $user->created_at;
-                    $available_periods = TahunAjaran::whereDate('tanggal_selesai', '>=', $userCreatedAt)
+                    $available_periods = TahunAjaran::with('koordinator')->whereDate('tanggal_selesai', '>=', $userCreatedAt)
                         ->orWhere('is_active', true)
                         ->terbaru()
                         ->get();
                 }
             }
             
-            $selected_period_label = $available_periods->where('id', $selected_period_id)->first()->label_tahun_ajaran ?? 'Pilih Periode';
+            $selected_period = $available_periods->where('id', $selected_period_id)->first();
+            $koordinatorName = $selected_period && $selected_period->koordinator ? ' - ' . $selected_period->koordinator->name : '';
+            $selected_period_label = $selected_period ? ($selected_period->label_tahun_ajaran . $koordinatorName) : 'Pilih Periode';
 
             // Cek apakah periode yang dipilih adalah periode absolut terbaru di database
             $latest_all = TahunAjaran::terbaru()->first();

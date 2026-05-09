@@ -14,15 +14,30 @@ class BimbinganController extends Controller
 {
     public function index(Request $request)
     {
-        $userId = Auth::id();
-        $pendaftaran = PendaftaranKp::where('mahasiswa_id', $userId)
-            ->whereNotIn('status_kp', ['rejected', 'pending'])
-            ->latest()
-            ->first();
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
 
-        if (! $pendaftaran) {
-            $pendaftaran = PendaftaranKp::where('mahasiswa_id', $userId)->latest()->first();
+        $userId = Auth::id();
+        $query = PendaftaranKp::withoutGlobalScope('periode')
+            ->where(function ($query) use ($userId) {
+                $query->where('mahasiswa_id', $userId)
+                      ->orWhereJsonContains('anggota_kelompok_ids', $userId)
+                      ->orWhereJsonContains('anggota_kelompok_ids', (string) $userId);
+            });
+            
+        if ($periodeId) {
+            $query->where('tahun_ajaran_id', $periodeId);
         }
+
+        $pendaftaran = (clone $query)->orderByRaw("
+            CASE 
+                WHEN status_kp = 'approved' THEN 1
+                WHEN status_kp = 'verified' THEN 2
+                WHEN status_kp = 'pending' THEN 3
+                WHEN status_kp IS NULL THEN 4
+                WHEN status_kp = 'rejected' THEN 5
+                ELSE 6
+            END
+        ")->latest()->first();
 
         $logs = [];
         if ($pendaftaran) {
@@ -48,14 +63,24 @@ class BimbinganController extends Controller
             'bukti' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+
         $userId = Auth::id();
-        $pendaftaran = PendaftaranKp::where('mahasiswa_id', $userId)
-            ->whereNotIn('status_kp', ['rejected', 'pending'])
-            ->latest()
-            ->first();
+        $query = PendaftaranKp::withoutGlobalScope('periode')
+            ->where(function ($query) use ($userId) {
+                $query->where('mahasiswa_id', $userId)
+                      ->orWhereJsonContains('anggota_kelompok_ids', $userId)
+                      ->orWhereJsonContains('anggota_kelompok_ids', (string) $userId);
+            });
+            
+        if ($periodeId) {
+            $query->where('tahun_ajaran_id', $periodeId);
+        }
+
+        $pendaftaran = (clone $query)->whereNotIn('status_kp', ['rejected', 'pending'])->latest()->first();
 
         if (! $pendaftaran) {
-            $pendaftaran = PendaftaranKp::where('mahasiswa_id', $userId)->latest()->first();
+            $pendaftaran = $query->latest()->first();
         }
 
         if (! $pendaftaran) {
@@ -109,16 +134,25 @@ class BimbinganController extends Controller
 
     public function exportPdf()
     {
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+
         $userId = Auth::id();
-        $pendaftaran = PendaftaranKp::with(['pembimbing.dosen', 'user.mahasiswa'])
-            ->where('mahasiswa_id', $userId)
-            ->whereNotIn('status_kp', ['rejected', 'pending'])
-            ->latest()
-            ->first();
+        $query = PendaftaranKp::withoutGlobalScope('periode')
+            ->with(['pembimbing.dosen', 'user.mahasiswa'])
+            ->where(function ($query) use ($userId) {
+                $query->where('mahasiswa_id', $userId)
+                      ->orWhereJsonContains('anggota_kelompok_ids', $userId)
+                      ->orWhereJsonContains('anggota_kelompok_ids', (string) $userId);
+            });
+            
+        if ($periodeId) {
+            $query->where('tahun_ajaran_id', $periodeId);
+        }
+
+        $pendaftaran = (clone $query)->whereNotIn('status_kp', ['rejected', 'pending'])->latest()->first();
 
         if (! $pendaftaran) {
-            $pendaftaran = PendaftaranKp::with(['pembimbing.dosen', 'user.mahasiswa'])
-                ->where('mahasiswa_id', $userId)->latest()->first();
+            $pendaftaran = $query->latest()->first();
         }
 
         if (! $pendaftaran) {

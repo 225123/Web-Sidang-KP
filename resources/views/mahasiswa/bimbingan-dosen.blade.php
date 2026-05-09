@@ -26,6 +26,10 @@
                 };
                 reader.readAsDataURL(file);
             }
+        },
+        removeFile() {
+            this.newImagePreview = null;
+            document.getElementById('fileUpload').value = '';
         }
     }" class="mt-6">
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
@@ -185,13 +189,21 @@
 
                         <div class="mt-8 flex flex-col md:flex-row items-stretch md:items-end justify-between gap-6 pt-6 border-t border-gray-100">
                             <div class="flex items-center gap-4">
-                                <div class="w-16 h-16 bg-[#F5F5F5] border border-dashed border-gray-300 rounded-[12px] overflow-hidden flex items-center justify-center shrink-0 cursor-pointer hover:bg-gray-100 transition-colors" @click="document.getElementById('fileUpload').click()">
-                                    <template x-if="newImagePreview">
-                                        <img :src="newImagePreview" class="w-full h-full object-cover">
-                                    </template>
-                                    <template x-if="!newImagePreview">
-                                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                    </template>
+                                <div class="relative shrink-0">
+                                    <div class="w-16 h-16 bg-[#F5F5F5] border border-dashed border-gray-300 rounded-[12px] flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors group" @click="if(!newImagePreview) document.getElementById('fileUpload').click()">
+                                        <template x-if="newImagePreview">
+                                            <div class="w-full h-full relative rounded-[12px] overflow-hidden">
+                                                <img :src="newImagePreview" class="w-full h-full object-cover">
+                                                <!-- Modern Remove Button -->
+                                                <button type="button" @click.stop="removeFile()" class="absolute inset-0 m-auto w-7 h-7 bg-black/60 hover:bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 transform scale-75 group-hover:scale-100 shadow-md">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                </button>
+                                            </div>
+                                        </template>
+                                        <template x-if="!newImagePreview">
+                                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        </template>
+                                    </div>
                                 </div>
                                 <div class="flex flex-col gap-1">
                                     <button type="button" @click="document.getElementById('fileUpload').click()" class="bg-white border border-gray-300 hover:bg-gray-50 text-black text-[11px] font-bold px-4 py-2 rounded-full shadow-sm flex items-center gap-2 transition-all uppercase tracking-wide">

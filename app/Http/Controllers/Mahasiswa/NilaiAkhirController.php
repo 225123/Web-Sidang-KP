@@ -12,12 +12,20 @@ class NilaiAkhirController extends Controller
     {
         $userId = Auth::id();
 
-        $sidang = PendaftaranSidang::with(['mahasiswa.user', 'penguji1', 'penguji2', 'pendaftaranKp.pembimbing', 'pendaftaranKp.supervisorInstansi'])
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+
+        $query = PendaftaranSidang::with(['mahasiswa.user', 'penguji1', 'penguji2', 'pendaftaranKp.pembimbing', 'pendaftaranKp.supervisorInstansi'])
             ->whereHas('mahasiswa', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
-            })
-            ->latest()
-            ->first();
+            });
+            
+        if ($periodeId) {
+            $query->whereHas('pendaftaranKp', function($q) use ($periodeId) {
+                $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+            });
+        }
+
+        $sidang = $query->latest()->first();
 
         if ($sidang) {
             // Standarisasi status
@@ -39,12 +47,20 @@ class NilaiAkhirController extends Controller
     {
         $userId = Auth::id();
 
-        $sidang = PendaftaranSidang::with(['mahasiswa.user', 'penguji1', 'penguji2'])
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+
+        $query = PendaftaranSidang::with(['mahasiswa.user', 'penguji1', 'penguji2'])
             ->whereHas('mahasiswa', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
-            })
-            ->latest()
-            ->first();
+            });
+            
+        if ($periodeId) {
+            $query->whereHas('pendaftaranKp', function($q) use ($periodeId) {
+                $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+            });
+        }
+
+        $sidang = $query->latest()->first();
 
         if ($sidang) {
             // Standarisasi status
@@ -63,12 +79,20 @@ class NilaiAkhirController extends Controller
     public function downloadNilai()
     {
         $userId = Auth::id();
-        $sidang = PendaftaranSidang::with(['mahasiswa.user', 'penguji1', 'penguji2', 'pendaftaranKp.pembimbing', 'pendaftaranKp.supervisorInstansi'])
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+
+        $query = PendaftaranSidang::with(['mahasiswa.user', 'penguji1', 'penguji2', 'pendaftaranKp.pembimbing', 'pendaftaranKp.supervisorInstansi'])
             ->whereHas('mahasiswa', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
-            })
-            ->latest()
-            ->firstOrFail();
+            });
+            
+        if ($periodeId) {
+            $query->whereHas('pendaftaranKp', function($q) use ($periodeId) {
+                $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+            });
+        }
+
+        $sidang = $query->latest()->firstOrFail();
 
         if (!$sidang->nilai_dipublikasi) {
             abort(403, 'Nilai belum dipublikasi oleh koordinator.');
@@ -87,12 +111,20 @@ class NilaiAkhirController extends Controller
     public function downloadBeritaAcara()
     {
         $userId = Auth::id();
-        $sidang = PendaftaranSidang::with(['mahasiswa.user', 'penguji1.dosen', 'penguji2.dosen', 'pendaftaranKp.pembimbing.dosen', 'pendaftaranKp.supervisorInstansi'])
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+
+        $query = PendaftaranSidang::with(['mahasiswa.user', 'penguji1.dosen', 'penguji2.dosen', 'pendaftaranKp.pembimbing.dosen', 'pendaftaranKp.supervisorInstansi'])
             ->whereHas('mahasiswa', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
-            })
-            ->latest()
-            ->firstOrFail();
+            });
+            
+        if ($periodeId) {
+            $query->whereHas('pendaftaranKp', function($q) use ($periodeId) {
+                $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+            });
+        }
+
+        $sidang = $query->latest()->firstOrFail();
 
         if (!$sidang->nilai_dipublikasi || $sidang->pelaksanaan !== 'Selesai') {
             abort(403, 'Berita acara belum tersedia. Pastikan sidang telah selesai dan nilai telah dipublikasi oleh koordinator.');

@@ -22,6 +22,7 @@
                 Alpine.data('detailController', () => ({
                     initialDosen: "{{ $initialDosen }}",
                     selectedDosen: "{{ $initialDosen }}",
+                    supervisorId: "{{ $kp->supervisor_internal_id ?? '' }}",
                     openDropdown: false,
                     searchDosen: "",
                     confirmDialog: { show: false, title: '', message: '', dosenId: null, type: 'info' },
@@ -40,6 +41,7 @@
                         return this.baseDosenData[id] ? this.baseDosenData[id].nama : "Unknown";
                     },
                     triggerConfirm(id) {
+                        if (id !== '' && this.supervisorId == id) return;
                         this.confirmDialog.dosenId = id;
                         this.confirmDialog.title = 'Konfirmasi Perubahan';
                         this.confirmDialog.message = 'Anda yakin ingin merubah penugasan? (Perubahan tidak akan disimpan sampai Anda menekan tombol Selesai)';
@@ -60,6 +62,7 @@
             window.Alpine.data('detailController', () => ({
                 initialDosen: "{{ $initialDosen }}",
                 selectedDosen: "{{ $initialDosen }}",
+                supervisorId: "{{ $kp->supervisor_internal_id ?? '' }}",
                 openDropdown: false,
                 searchDosen: "",
                 confirmDialog: { show: false, title: '', message: '', dosenId: null, type: 'info' },
@@ -78,6 +81,7 @@
                     return this.baseDosenData[id] ? this.baseDosenData[id].nama : "Unknown";
                 },
                 triggerConfirm(id) {
+                    if (id !== '' && this.supervisorId == id) return;
                     this.confirmDialog.dosenId = id;
                     this.confirmDialog.title = 'Konfirmasi Perubahan';
                     this.confirmDialog.message = 'Anda yakin ingin merubah penugasan? (Perubahan tidak akan disimpan sampai Anda menekan tombol Selesai)';
@@ -182,7 +186,9 @@
                 <!-- Status KP -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Status KP</div>
                 <div class="hidden md:block">:</div>
-                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">Baru /Lanjut</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px] {{ $kp->is_lanjutan ? 'text-[#EA4335] font-bold' : 'text-[#34A853]' }}">
+                    {{ $kp->is_lanjutan ? 'Lanjutan' : 'Baru' }}
+                </div>
                 
                 <!-- Detail KP -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A] align-top md:pt-2">Detail KP</div>
@@ -227,14 +233,20 @@
                                 <template x-for="dosen in filteredDosenList" :key="dosen.id">
                                     <li>
                                         <button type="button" @click.prevent="triggerConfirm(dosen.id)" 
-                                                class="w-full text-left px-3 py-1.5 flex justify-between items-center transition-colors"
+                                                class="w-full text-left px-3 py-2.5 flex justify-between items-center transition-colors border-b border-gray-100/50"
                                                 :class="[
-                                                    selectedDosen == dosen.id ? 'bg-blue-50 font-bold' : 'hover:bg-gray-100',
-                                                    dosen.beban >= dosen.kuota && selectedDosen != dosen.id ? 'opacity-50 cursor-not-allowed text-gray-400' : 'text-gray-700'
+                                                    supervisorId == dosen.id ? 'bg-red-50 text-red-500 cursor-not-allowed opacity-80' : 
+                                                    (selectedDosen == dosen.id ? 'bg-[#E6F0FA] font-bold text-gray-900 pointer-events-none' : 'hover:bg-blue-50 cursor-pointer text-gray-700 font-bold'),
+                                                    dosen.beban >= dosen.kuota && selectedDosen != dosen.id && supervisorId != dosen.id ? 'opacity-50 cursor-not-allowed text-gray-400' : ''
                                                 ]"
-                                                :disabled="dosen.beban >= dosen.kuota && selectedDosen != dosen.id">
-                                            <span class="whitespace-nowrap pr-4" x-text="dosen.nama"></span>
-                                            <span class="shrink-0 font-bold ml-auto text-right whitespace-nowrap" :class="dosen.beban >= dosen.kuota ? 'text-red-500' : 'text-gray-500'" x-text="'(' + dosen.beban + ')'"></span>
+                                                :disabled="(dosen.beban >= dosen.kuota && selectedDosen != dosen.id) || supervisorId == dosen.id">
+                                            <div class="flex items-center gap-2 truncate pr-2">
+                                                <span class="truncate" x-text="dosen.nama"></span>
+                                                <template x-if="supervisorId == dosen.id">
+                                                    <span class="text-[9px] bg-red-100 text-red-600 px-1 rounded uppercase font-bold flex-shrink-0 border border-red-200">SUPERVISOR</span>
+                                                </template>
+                                            </div>
+                                            <span class="shrink-0 font-bold ml-auto text-right whitespace-nowrap text-[#4285F4]" x-text="dosen.beban"></span>
                                         </button>
                                     </li>
                                 </template>

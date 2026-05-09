@@ -26,9 +26,12 @@
 
         <script>
             window.penjadwalanManager = function() {
+                const container = document.getElementById('penjadwalan-container');
+                const initTunggu = container ? JSON.parse(container.getAttribute('data-tunggu') || '[]') : [];
+                const initTerjadwal = container ? JSON.parse(container.getAttribute('data-terjadwal') || '[]') : [];
                 return {
-                    daftarTunggu: @json($parsedTunggu),
-                    terjadwal: @json($parsedTerjadwal),
+                    daftarTunggu: initTunggu,
+                    terjadwal: initTerjadwal,
                     searchQuery: '',
                     filterTanggal: 'all',
                     filterWaktu: 'all',
@@ -280,6 +283,7 @@
                                 body: JSON.stringify({ dates: this.autoPlotModal.dates })
                             });
                             const result = await response.json();
+                            await new Promise(r => setTimeout(r, 600));
                             if (result.success) {
                                 this.showAlert('success', 'Berhasil', result.message);
                                 this.autoPlotModal.show = false;
@@ -423,7 +427,10 @@
             };
         </script>
 
-        <div class="w-full flex-1 pb-10 relative" x-data="penjadwalanManager()" x-init="init()">
+        <div id="penjadwalan-container" class="w-full flex-1 pb-10 relative" 
+            data-tunggu="{{ json_encode($parsedTunggu) }}" 
+            data-terjadwal="{{ json_encode($parsedTerjadwal) }}" 
+            x-data="penjadwalanManager()" x-init="init()">
             <!-- Top Progress Bar (SPA Style) -->
             <div x-cloak x-show="topLoading" x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 w-0" x-transition:enter-end="opacity-100 w-full"
@@ -547,13 +554,14 @@
             </div>
 
             <!-- Enhanced Auto Plotting (Top-Aligned Integration) -->
-            <div x-cloak x-show="autoPlotModal.show" style="display: none;"
-                class="absolute inset-x-0 top-0 z-[150] flex justify-center items-start bg-transparent p-4 min-h-full"
-                x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
-                x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
-                <div @click.outside="if(!autoPlotModal.isLoading) autoPlotModal.show = false"
-                    class="bg-white rounded-[15px] w-full max-w-[500px] shadow-2xl overflow-hidden border border-gray-100">
+            <template x-teleport="body">
+                <div x-cloak x-show="autoPlotModal.show" style="display: none;"
+                    class="fixed inset-0 z-[100000] flex justify-center items-center bg-black/40 backdrop-blur-sm p-4"
+                    x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+                    <div @click.outside="if(!autoPlotModal.isLoading) autoPlotModal.show = false"
+                        class="bg-white rounded-[15px] w-full max-w-[500px] shadow-2xl border border-gray-100 max-h-[90vh] overflow-y-auto custom-scrollbar flex flex-col relative">
                     
                     <!-- Header -->
                     <div class="bg-gray-50 px-8 py-6 border-b border-gray-100 flex justify-between items-center">
@@ -659,30 +667,32 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </template>
 
             <!-- Custom Confirmation Modal -->
-            <div x-cloak x-show="confirmDialog.show"
-                class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity">
-                <div @click.outside="confirmDialog.show = false"
-                    class="bg-white rounded-[10px] p-6 max-w-sm w-full mx-4 shadow-xl transform transition-all scale-100">
-                    <div class="flex items-center justify-center w-12 h-12 mx-auto bg-blue-100 rounded-full mb-4">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-center font-bold text-gray-900 text-[16px] mb-2">Konfirmasi Aksi</h3>
-                    <p class="text-center text-gray-500 text-[13px] mb-6 leading-relaxed"
-                        x-text="confirmDialog.message"></p>
-                    <div class="flex justify-center gap-3">
-                        <button @click="confirmDialog.show = false" type="button"
-                            class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-[5px] text-[13px] transition w-full">Batal</button>
-                        <button @click="executeConfirm()" type="button"
-                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-[5px] text-[13px] transition shadow-sm w-full">Lanjutkan</button>
+            <template x-teleport="body">
+                <div x-cloak x-show="confirmDialog.show"
+                    class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity p-4">
+                    <div @click.outside="confirmDialog.show = false"
+                        class="bg-white rounded-[10px] p-6 max-w-sm w-full mx-4 shadow-xl transform transition-all scale-100">
+                        <div class="flex items-center justify-center w-12 h-12 mx-auto bg-blue-100 rounded-full mb-4">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-center font-bold text-gray-900 text-[16px] mb-2">Konfirmasi Aksi</h3>
+                        <p class="text-center text-gray-500 text-[13px] mb-6 leading-relaxed"
+                            x-text="confirmDialog.message"></p>
+                        <div class="flex justify-center gap-3">
+                            <button @click="confirmDialog.show = false" type="button"
+                                class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-[5px] text-[13px] transition w-full">Batal</button>
+                            <button @click="executeConfirm()" type="button"
+                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-[5px] text-[13px] transition shadow-sm w-full">Lanjutkan</button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </template>
 
             <!-- Dashboard Content -->
             <div class="flex flex-col lg:flex-row gap-6 mb-8 mt-4">

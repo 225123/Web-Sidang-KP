@@ -96,7 +96,6 @@ class PenugasanPembimbingController extends Controller
         $this->syncAllMahasiswa();
 
         $dosens = Dosen::with('user')->where('is_aktif', true)->get();
-        // Beban akan dihitung setelah klaster mahasiswa terbentuk agar terhindar dari duplikasi PendaftaranKP (rejected vs approved)
 
         // 1. Fetch all User Mahasiswa to enforce precisely 1 row per student structure
         $query = User::with(['mahasiswa'])->where('role', 'mahasiswa');
@@ -111,7 +110,6 @@ class PenugasanPembimbingController extends Controller
             });
         }
 
-        // Apply advanced filters targeting user or their assigned projects
         if ($request->has('search') && $request->search != '') {
             $search = strtolower($request->search);
             $query->where(function ($q) use ($search) {
@@ -124,71 +122,9 @@ class PenugasanPembimbingController extends Controller
 
         $allMahasiswas = $query->get();
 
-        // 3. Cluster them: If they share an APPROVED Group PendaftaranKp, group them. Otherwise STANDALONE.
-        $clusters = [];
-        foreach ($allMahasiswas as $m) {
-            if (! $m->mahasiswa) {
-                continue;
-            }
+        $formattedPendaftarans = $this->formatClusters($allMahasiswas);
 
-            // Find the absolute latest KP for this mahasiswa/group
-            $latestKp = PendaftaranKp::with('supervisorInstansi')
-                ->where(function ($q) use ($m) {
-                    $q->where('mahasiswa_id', $m->id)
-                        ->orWhereJsonContains('anggota_kelompok_ids', $m->id)
-                        ->orWhereJsonContains('anggota_kelompok_ids', (string) $m->id);
-                })->latest()->first();
-
-            // Only recognize their membership for UI clustering if it is officially approved.
-            // If they are pending or rejected, they must be stripped back to isolated states.
-            $approvedKp = ($latestKp && $latestKp->status_kp === 'approved') ? $latestKp : null;
-
-            $clusterId = $approvedKp ? 'kp_'.$approvedKp->id : 'mhs_'.$m->id;
-
-            if (! isset($clusters[$clusterId])) {
-                $clusters[$clusterId] = [
-                    'id' => $clusterId, // Unique cluster identifier
-                    'kp' => $approvedKp,
-                    'mahasiswas' => [],
-                ];
-            }
-
-            $individualKp = PendaftaranKp::where('mahasiswa_id', $m->id)->latest()->first();
-            $clusters[$clusterId]['mahasiswas'][] = [
-                'user_id' => $m->id,
-                'nama' => $m->name,
-                'nim' => $m->mahasiswa->nim,
-                'judul_kp' => $individualKp ? ($individualKp->judul_kp ?? '-') : '-',
-                'dosen_id' => $latestKp ? $latestKp->pembimbing_id : null,
-            ];
-        }
-
-        // Apply remaining structural filters on the formed clusters (e.g. status)
-        $formattedPendaftarans = [];
-        foreach ($clusters as $cluster) {
-            $kp = $cluster['kp'];
-
-            // Reconcile shared metrics for the UI row
-            $isApproved = ! is_null($kp);
-            $maskedInstansi = $isApproved ? ($kp->instansi_nama ?? '-') : '-';
-            $maskedSupervisor = $isApproved && $kp->supervisorInstansi ? $kp->supervisorInstansi->nama_supervisor : '-';
-            $maskedJenisInstansi = $isApproved ? ucfirst($kp->jenis_instansi ?? 'Eksternal') : '-';
-            $pengerjaanFormat = $isApproved && in_array(strtolower($kp->pengerjaan_kp ?? ''), ['kelompok', 'berkelompok']) ? 'Kelompok' : '-';
-
-            $formattedPendaftarans[] = [
-                'id' => $cluster['id'],
-                'slug' => \Str::slug($kp ? $kp->judul_kp : 'kp').'-'.($cluster['mahasiswas'][0]['nim'] ?? '12345'),
-                'mahasiswas' => $cluster['mahasiswas'],
-                'jenis_kp' => $maskedJenisInstansi,
-                'instansi' => $maskedInstansi,
-                'supervisor' => $maskedSupervisor,
-                'pengerjaan' => $pengerjaanFormat,
-                'dosen_id' => $cluster['mahasiswas'][0]['dosen_id'] ?? null,
-                'supervisor_id' => $kp ? $kp->supervisor_internal_id : null,
-            ];
-        }
-
-        // --- NEW: Calculate Dosen Beban strictly from these Active Clusters ---
+        // --- Calculate Dosen Beban strictly from these Active Clusters ---
         $dosenBebanMap = [];
         foreach ($formattedPendaftarans as $group) {
             $dId = $group['dosen_id'];
@@ -218,47 +154,7 @@ class PenugasanPembimbingController extends Controller
         });
         // ----------------------------------------------------------------------
 
-        // Apply Status & Pengerjaan filters onto clusters!
-        if ($request->has('status_filter') && $request->status_filter != 'All') {
-            $formattedPendaftarans = array_filter($formattedPendaftarans, function ($group) use ($request) {
-                // If it's grouped, we check if all are assigned.
-                $allAssigned = collect($group['mahasiswas'])->every(fn ($m) => ! is_null($m['dosen_id']));
-                $noneAssigned = collect($group['mahasiswas'])->every(fn ($m) => is_null($m['dosen_id']));
-
-                if ($request->status_filter == 'Menunggu') {
-                    return $noneAssigned;
-                }
-                if ($request->status_filter == 'Ditugaskan') {
-                    return $allAssigned;
-                }
-
-                return true;
-            });
-        }
-
-        if ($request->has('pengerjaan') && $request->pengerjaan != 'All') {
-            $formattedPendaftarans = array_filter($formattedPendaftarans, function ($group) use ($request) {
-                if ($request->pengerjaan == 'Individu') {
-                    return $group['pengerjaan'] === 'Individu' || $group['pengerjaan'] === '-';
-                }
-                if ($request->pengerjaan == 'Berkelompok') {
-                    return $group['pengerjaan'] === 'Kelompok';
-                }
-
-                return true;
-            });
-        }
-
-        if ($request->has('dosen_pembimbing') && $request->dosen_pembimbing != 'All') {
-            $formattedPendaftarans = array_filter($formattedPendaftarans, function ($group) use ($request) {
-                $dosenId = $group['dosen_id'];
-                if ($request->dosen_pembimbing === 'Belum Ditugaskan') {
-                    return empty($dosenId);
-                }
-
-                return $dosenId == $request->dosen_pembimbing;
-            });
-        }
+        $formattedPendaftarans = $this->applyFilters($formattedPendaftarans, $request);
 
         // Pagination Collection conversion so 'paginator' exists for View
         $perPage = 20;
@@ -312,10 +208,6 @@ class PenugasanPembimbingController extends Controller
         }
         $endNumber = $countOnPage > 0 ? ($startNumber + $countOnPage - 1) : 0;
 
-        $filteredMahasiswaCount = collect($formattedPendaftarans)->sum(function ($group) {
-            return count($group['mahasiswas']);
-        });
-
         return view('koordinator.Penugasan-Pembimbing', [
             'dosenList' => $dosenList,
             'pendaftarans' => $paginatedItems,
@@ -328,6 +220,133 @@ class PenugasanPembimbingController extends Controller
             'menungguCount' => $menungguCount,
             'allGroupSizes' => $allGroupSizes,
         ]);
+    }
+
+    private function formatClusters($allMahasiswas)
+    {
+        $clusters = [];
+        foreach ($allMahasiswas as $m) {
+            if (! $m->mahasiswa) {
+                continue;
+            }
+
+            $latestKp = PendaftaranKp::with('supervisorInstansi')
+                ->where(function ($q) use ($m) {
+                    $q->where('mahasiswa_id', $m->id)
+                        ->orWhereJsonContains('anggota_kelompok_ids', $m->id)
+                        ->orWhereJsonContains('anggota_kelompok_ids', (string) $m->id);
+                })
+                ->orderByRaw("
+                    CASE 
+                        WHEN status_kp = 'approved' THEN 1
+                        WHEN status_kp = 'verified' THEN 2
+                        WHEN status_kp = 'pending' THEN 3
+                        WHEN status_kp IS NULL THEN 4
+                        WHEN status_kp = 'rejected' THEN 5
+                        ELSE 6
+                    END
+                ")->latest()->first();
+
+            $approvedKp = ($latestKp && $latestKp->status_kp === 'approved') ? $latestKp : null;
+            $clusterId = $approvedKp ? 'kp_'.$approvedKp->id : 'mhs_'.$m->id;
+
+            if (! isset($clusters[$clusterId])) {
+                $clusters[$clusterId] = [
+                    'id' => $clusterId,
+                    'kp' => $approvedKp,
+                    'mahasiswas' => [],
+                ];
+            }
+
+            $individualKp = PendaftaranKp::where('mahasiswa_id', $m->id)
+                ->orderByRaw("
+                    CASE 
+                        WHEN status_kp = 'approved' THEN 1
+                        WHEN status_kp = 'verified' THEN 2
+                        WHEN status_kp = 'pending' THEN 3
+                        WHEN status_kp IS NULL THEN 4
+                        WHEN status_kp = 'rejected' THEN 5
+                        ELSE 6
+                    END
+                ")->latest()->first();
+            $clusters[$clusterId]['mahasiswas'][] = [
+                'user_id' => $m->id,
+                'nama' => $m->name,
+                'nim' => $m->mahasiswa->nim,
+                'judul_kp' => $individualKp ? ($individualKp->judul_kp ?? '-') : '-',
+                'dosen_id' => $latestKp ? $latestKp->pembimbing_id : null,
+            ];
+        }
+
+        $formattedPendaftarans = [];
+        foreach ($clusters as $cluster) {
+            $kp = $cluster['kp'];
+
+            $isApproved = ! is_null($kp);
+            $maskedInstansi = $isApproved ? ($kp->instansi_nama ?? '-') : '-';
+            $maskedSupervisor = $isApproved && $kp->supervisorInstansi ? $kp->supervisorInstansi->nama_supervisor : '-';
+            $maskedJenisInstansi = $isApproved ? ucfirst($kp->jenis_instansi ?? 'Eksternal') : '-';
+            $pengerjaanFormat = $isApproved && in_array(strtolower($kp->pengerjaan_kp ?? ''), ['kelompok', 'berkelompok']) ? 'Kelompok' : '-';
+
+            $formattedPendaftarans[] = [
+                'id' => $cluster['id'],
+                'slug' => \Str::slug($kp ? $kp->judul_kp : 'kp').'-'.($cluster['mahasiswas'][0]['nim'] ?? '12345'),
+                'mahasiswas' => $cluster['mahasiswas'],
+                'jenis_kp' => $maskedJenisInstansi,
+                'instansi' => $maskedInstansi,
+                'supervisor' => $maskedSupervisor,
+                'pengerjaan' => $pengerjaanFormat,
+                'dosen_id' => $cluster['mahasiswas'][0]['dosen_id'] ?? null,
+                'supervisor_id' => $kp ? $kp->supervisor_internal_id : null,
+            ];
+        }
+        
+        return $formattedPendaftarans;
+    }
+
+    private function applyFilters($formattedPendaftarans, Request $request)
+    {
+        if ($request->has('status_filter') && $request->status_filter != 'All') {
+            $formattedPendaftarans = array_filter($formattedPendaftarans, function ($group) use ($request) {
+                $allAssigned = collect($group['mahasiswas'])->every(fn ($m) => ! is_null($m['dosen_id']));
+                $noneAssigned = collect($group['mahasiswas'])->every(fn ($m) => is_null($m['dosen_id']));
+
+                if ($request->status_filter == 'Menunggu') {
+                    return $noneAssigned;
+                }
+                if ($request->status_filter == 'Ditugaskan') {
+                    return $allAssigned;
+                }
+
+                return true;
+            });
+        }
+
+        if ($request->has('pengerjaan') && $request->pengerjaan != 'All') {
+            $formattedPendaftarans = array_filter($formattedPendaftarans, function ($group) use ($request) {
+                if ($request->pengerjaan == 'Individu') {
+                    return $group['pengerjaan'] === 'Individu' || $group['pengerjaan'] === '-';
+                }
+                if ($request->pengerjaan == 'Berkelompok') {
+                    return $group['pengerjaan'] === 'Kelompok';
+                }
+
+                return true;
+            });
+        }
+
+        if ($request->has('dosen_pembimbing') && $request->dosen_pembimbing != 'All') {
+            $formattedPendaftarans = array_filter($formattedPendaftarans, function ($group) use ($request) {
+                $dosenId = $group['dosen_id'];
+                if ($request->dosen_pembimbing === 'Belum Ditugaskan') {
+                    return empty($dosenId);
+                }
+
+                return $dosenId == $request->dosen_pembimbing;
+            });
+        }
+
+        return $formattedPendaftarans;
     }
 
     public function storePlotting(Request $request)
@@ -362,7 +381,16 @@ class PenugasanPembimbingController extends Controller
                     $kp = PendaftaranKp::where('mahasiswa_id', $mhsId)
                         ->orWhereJsonContains('anggota_kelompok_ids', $mhsId)
                         ->orWhereJsonContains('anggota_kelompok_ids', (string) $mhsId)
-                        ->latest()->first();
+                        ->orderByRaw("
+                            CASE 
+                                WHEN status_kp = 'approved' THEN 1
+                                WHEN status_kp = 'verified' THEN 2
+                                WHEN status_kp = 'pending' THEN 3
+                                WHEN status_kp IS NULL THEN 4
+                                WHEN status_kp = 'rejected' THEN 5
+                                ELSE 6
+                            END
+                        ")->latest()->first();
 
                     if ($kp) {
                         if ($dosenUserId && $kp->supervisor_internal_id == $dosenUserId) {
@@ -430,7 +458,17 @@ class PenugasanPembimbingController extends Controller
                     $q->where('mahasiswa_id', $m->id)
                         ->orWhereJsonContains('anggota_kelompok_ids', $m->id)
                         ->orWhereJsonContains('anggota_kelompok_ids', (string) $m->id);
-                })->latest()->first();
+                })
+                ->orderByRaw("
+                    CASE 
+                        WHEN status_kp = 'approved' THEN 1
+                        WHEN status_kp = 'verified' THEN 2
+                        WHEN status_kp = 'pending' THEN 3
+                        WHEN status_kp IS NULL THEN 4
+                        WHEN status_kp = 'rejected' THEN 5
+                        ELSE 6
+                    END
+                ")->latest()->first();
 
                 // Skip mahasiswa yang sudah punya dosen pembimbing (cek dari latest KP)
                 if ($latestKp && ! empty($latestKp->pembimbing_id)) {
@@ -533,14 +571,22 @@ class PenugasanPembimbingController extends Controller
             $q->where('nim', $nim);
         })->firstOrFail();
 
-        // Cari active KP fallback into empty
         $kp = PendaftaranKp::with('supervisorInstansi')
-            ->where('status_kp', 'approved')
             ->where(function ($q) use ($mhsUser) {
                 $q->where('mahasiswa_id', $mhsUser->id)
                     ->orWhereJsonContains('anggota_kelompok_ids', $mhsUser->id)
                     ->orWhereJsonContains('anggota_kelompok_ids', (string) $mhsUser->id);
-            })->latest()->first();
+            })
+            ->orderByRaw("
+                CASE 
+                    WHEN status_kp = 'approved' THEN 1
+                    WHEN status_kp = 'verified' THEN 2
+                    WHEN status_kp = 'pending' THEN 3
+                    WHEN status_kp IS NULL THEN 4
+                    WHEN status_kp = 'rejected' THEN 5
+                    ELSE 6
+                END
+            ")->latest()->first();
 
         // Mock KP object for individual display if none
         if (! $kp) {

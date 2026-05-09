@@ -184,7 +184,7 @@
                             @if(isset($m['has_registered']) && !$m['has_registered'])
                                 <span class="text-gray-400 font-bold">-</span>
                             @else
-                                <a href="{{ route('koordinator.pendaftaran-kp.show', Str::slug(($m['nama'] ?? '') . '-' . ($m['nim'] ?? ''))) }}" class="bg-[#4285F4] hover:bg-blue-700 text-white px-4 py-1.5 rounded shadow-sm text-[12px] font-bold transition-colors whitespace-nowrap inline-block">Detail</a>
+                                <a href="{{ route('koordinator.pendaftaran-kp.show', $m['kp_id'] ?? $kp->id) }}" class="bg-[#4285F4] hover:bg-blue-700 text-white px-4 py-1.5 rounded shadow-sm text-[12px] font-bold transition-colors whitespace-nowrap inline-block">Detail</a>
                             @endif
                         </td>
                     </tr>

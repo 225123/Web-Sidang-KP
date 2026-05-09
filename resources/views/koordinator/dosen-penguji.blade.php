@@ -17,10 +17,16 @@
 
     <script>
         window.pengujiManager = function() {
+            const container = document.getElementById('penguji-container');
+            const initDosen = container ? JSON.parse(container.getAttribute('data-dosen') || '[]') : [];
+            const initSidang = container ? JSON.parse(container.getAttribute('data-sidang') || '[]') : [];
+            const initTunggu = container ? JSON.parse(container.getAttribute('data-tunggu') || '[]') : [];
+            const initWarnings = container ? JSON.parse(container.getAttribute('data-warnings') || '[]') : [];
+            
             return {
-                dosenList: @json($dosenList),
-                sidangList: @json($terjadwal),
-                tungguList: @json($daftarTunggu),
+                dosenList: initDosen,
+                sidangList: initSidang,
+                tungguList: initTunggu,
                 terjadwal: [],
                 
                 searchQuery: '',
@@ -32,7 +38,7 @@
                 selectedIds: [],
                 isSelectingMode: false,
                 isLoadingAuto: false,
-                warnings: @json($warnings),
+                warnings: initWarnings,
                 totalMahasiswa: {{ $totalMahasiswa }},
                 alert: { show: false, type: 'success', title: '', message: '' },
                 confirmDialog: { show: false, title: '', message: '', type: 'danger', confirmText: 'Iya, Lanjutkan', callback: null },
@@ -224,6 +230,7 @@
                                     method: "POST", headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}", "Accept": "application/json" }
                                 });
                                 const result = await res.json();
+                                await new Promise(r => setTimeout(r, 600));
                                 if (result.success) {
                                     this.showAlert('success', 'Berhasil', result.message);
                                     setTimeout(() => location.reload(), 1500);
@@ -303,7 +310,12 @@
         };
     </script>
 
-    <div class="w-full flex-1 pb-10" x-data="pengujiManager()">
+    <div id="penguji-container" class="w-full flex-1 pb-10" 
+        data-dosen="{{ json_encode($dosenList) }}" 
+        data-sidang="{{ json_encode($terjadwal) }}" 
+        data-tunggu="{{ json_encode($daftarTunggu) }}" 
+        data-warnings="{{ json_encode($warnings) }}" 
+        x-data="pengujiManager()">
         <style>
             .filter-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
             .search-box { position: relative; width: 300px; max-width: 100%; }
@@ -726,47 +738,59 @@
         </div>
 
         <!-- Custom Global Confirm Modal -->
-        <div x-cloak x-show="confirmDialog.show" style="display: none;" class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
-            <div @click.away="confirmDialog.show = false" class="bg-white rounded-[15px] w-full max-w-[420px] p-8 shadow-2xl flex flex-col items-center text-center relative overflow-hidden border border-gray-100">
-                
-                <!-- Icon Header Based on Type -->
-                <div class="mb-6">
-                    <template x-if="confirmDialog.type === 'danger'">
-                        <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center">
-                            <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        </div>
-                    </template>
-                    <template x-if="confirmDialog.type === 'info'">
-                        <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center">
-                            <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        </div>
-                    </template>
-                    <template x-if="confirmDialog.type === 'warning'">
-                        <div class="w-20 h-20 bg-yellow-50 rounded-full flex items-center justify-center">
-                            <svg class="w-12 h-12 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        </div>
-                    </template>
-                </div>
+        <template x-teleport="body">
+            <div x-cloak x-show="confirmDialog.show" style="display: none;" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+                <div @click.away="confirmDialog.show = false" class="bg-white rounded-[15px] w-full max-w-[420px] p-8 shadow-2xl flex flex-col items-center text-center relative overflow-hidden border border-gray-100">
+                    
+                    <!-- Icon Header Based on Type -->
+                    <div class="mb-6">
+                        <template x-if="confirmDialog.type === 'danger'">
+                            <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center">
+                                <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            </div>
+                        </template>
+                        <template x-if="confirmDialog.type === 'info'">
+                            <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center">
+                                <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                        </template>
+                        <template x-if="confirmDialog.type === 'warning'">
+                            <div class="w-20 h-20 bg-yellow-50 rounded-full flex items-center justify-center">
+                                <svg class="w-12 h-12 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            </div>
+                        </template>
+                    </div>
 
-                <h3 class="text-[18px] font-bold text-gray-900 mb-3" x-text="confirmDialog.title"></h3>
-                <p class="text-[14px] text-gray-500 mb-8 leading-relaxed px-2" x-text="confirmDialog.message"></p>
+                    <h3 class="text-[18px] font-bold text-gray-900 mb-3" x-text="confirmDialog.title"></h3>
+                    <p class="text-[14px] text-gray-500 mb-8 leading-relaxed px-2" x-text="confirmDialog.message"></p>
 
-                <div class="flex gap-4 w-full">
-                    <button @click="confirmDialog.show = false" type="button" class="flex-1 h-[45px] bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-[10px] text-[14px] font-bold transition-all border border-gray-200">
-                        Batal
-                    </button>
-                    <button @click="executeConfirm()" type="button" 
-                        class="flex-1 h-[45px] text-white rounded-[10px] text-[14px] font-bold transition-all shadow-md active:transform active:scale-95"
-                        :class="[
-                            confirmDialog.type === 'danger' ? 'bg-[#E53935] hover:bg-red-700' : '',
-                            confirmDialog.type === 'info' ? 'bg-[#4285F4] hover:bg-blue-700' : '',
-                            confirmDialog.type === 'warning' ? 'bg-[#FBC02D] hover:bg-yellow-700' : ''
-                        ]"
-                        x-text="confirmDialog.confirmText">
-                    </button>
+                    <div class="flex gap-4 w-full">
+                        <button @click="confirmDialog.show = false" type="button" class="flex-1 h-[45px] bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-[10px] text-[14px] font-bold transition-all border border-gray-200">
+                            Batal
+                        </button>
+                        <button @click="executeConfirm()" type="button" 
+                            class="flex-1 h-[45px] text-white rounded-[10px] text-[14px] font-bold transition-all shadow-md active:transform active:scale-95"
+                            :class="[
+                                confirmDialog.type === 'danger' ? 'bg-[#E53935] hover:bg-red-700' : '',
+                                confirmDialog.type === 'info' ? 'bg-[#4285F4] hover:bg-blue-700' : '',
+                                confirmDialog.type === 'warning' ? 'bg-[#FBC02D] hover:bg-yellow-700' : ''
+                            ]"
+                            x-text="confirmDialog.confirmText">
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </template>
+
+        <!-- Global Loading Overlay for Auto Plot -->
+        <template x-teleport="body">
+            <div x-cloak x-show="isLoadingAuto" style="display: none;" class="fixed inset-0 z-[100000] flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
+                <div class="bg-white p-6 rounded-[15px] shadow-2xl flex flex-col items-center">
+                    <svg class="animate-spin h-10 w-10 text-[#4285F4] mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span class="text-gray-800 font-bold text-[14px]">Sedang Memproses...</span>
+                </div>
+            </div>
+        </template>
     </div>
 
 </x-dashboard-layout>

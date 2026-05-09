@@ -50,7 +50,7 @@
                 <!-- Guidance Button for System Notifications -->
                 @if($notifikasi->target_url)
                 <div class="ml-[52px] mt-10">
-                    <a href="{{ $notifikasi->target_url }}" class="inline-flex items-center gap-2 bg-[#4285F4] hover:bg-blue-700 text-white font-bold text-[13px] px-6 py-3 rounded-[5px] shadow-sm transition-all">
+                    <a href="{{ route('koordinator.notifikasi.redirect', $notifikasi->id) }}" class="inline-flex items-center gap-2 bg-[#4285F4] hover:bg-blue-700 text-white font-bold text-[13px] px-6 py-3 rounded-[5px] shadow-sm transition-all">
                         <span>Lihat Detail Kegiatan</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />

@@ -31,7 +31,12 @@ class SetActivePeriode
                     // Periode yang ada pendaftaran KP-nya ATAU periode yang sedang aktif
                     $available_periods = TahunAjaran::where(function($q) use ($user) {
                         $q->whereHas('pendaftaranKps', function($q2) use ($user) {
-                            $q2->withoutGlobalScope('periode')->where('mahasiswa_id', $user->id);
+                            $q2->withoutGlobalScope('periode')
+                               ->where(function ($q3) use ($user) {
+                                   $q3->where('mahasiswa_id', $user->id)
+                                      ->orWhereJsonContains('anggota_kelompok_ids', $user->id)
+                                      ->orWhereJsonContains('anggota_kelompok_ids', (string) $user->id);
+                               });
                         })->orWhere('is_active', true);
                     })->terbaru()->get();
                 } else {

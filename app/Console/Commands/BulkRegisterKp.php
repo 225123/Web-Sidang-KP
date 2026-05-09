@@ -67,109 +67,119 @@ class BulkRegisterKp extends Command
                 ->first();
 
                 if ($invitation) {
-                    $this->line("Mahasiswa {$mhs->name} diundang dalam kelompok: {$invitation->judul_kp}. Mendaftarkan secara otomatis...");
-                    
-                    $newKp = PendaftaranKp::create([
-                        'mahasiswa_id' => $mhs->id,
-                        'judul_kp' => $invitation->judul_kp,
-                        'jenis_instansi' => $invitation->jenis_instansi,
-                        'tipe_kp' => $invitation->tipe_kp,
-                        'instansi_nama' => $invitation->instansi_nama,
-                        'supervisor_internal_id' => $invitation->supervisor_internal_id,
-                        'pembimbing_id' => $invitation->pembimbing_id,
-                        'jenis_proyek' => $invitation->jenis_proyek,
-                        'status_kp' => $invitation->status_kp,
-                        'pengerjaan_kp' => 'kelompok',
-                        'anggota_kelompok_ids' => $invitation->anggota_kelompok_ids,
-                    ]);
-
-                    if ($invitation->supervisorInstansi) {
-                        SupervisorInstansi::create([
-                            'pendaftaran_kp_id' => $newKp->id,
-                            'nama_supervisor' => $invitation->supervisorInstansi->nama_supervisor,
-                            'email_supervisor' => $invitation->supervisorInstansi->email_supervisor,
-                        ]);
-                    }
-                    $processedIds[] = $mhs->id;
+                    $this->processInvitation($mhs, $invitation, $processedIds);
                     continue;
                 }
 
-                // 3. Jika benar-benar bebas, buat baru (Individu atau Kelompok)
-                $mode = (rand(0, 1) === 1) ? 'kelompok' : 'individu';
-                
-                // Cari rekan jika kelompok
-                $rekanIds = [];
-                if ($mode === 'kelompok') {
-                    $potentialRekans = $unregisteredMhs->filter(fn($u) => 
-                        $u->id !== $mhs->id && 
-                        !in_array($u->id, $processedIds)
-                    );
-                    
-                    // Cek lagi apakah rekan tersebut tidak diundang di tempat lain
-                    $validRekans = [];
-                    foreach ($potentialRekans as $pr) {
-                        $isInvitedElsewhere = PendaftaranKp::where(function ($q) use ($pr) {
-                            $q->whereJsonContains('anggota_kelompok_ids', (string) $pr->id)
-                                ->orWhereJsonContains('anggota_kelompok_ids', $pr->id);
-                        })->whereIn('status_kp', ['pending', 'approved'])->exists();
-                        
-                        if (!$isInvitedElsewhere) {
-                            $validRekans[] = $pr;
-                        }
-                    }
-
-                    if (count($validRekans) > 0) {
-                        $num = rand(1, min(2, count($validRekans)));
-                        $rekanObjs = array_slice($validRekans, 0, $num);
-                        $rekanIds = collect($rekanObjs)->pluck('id')->map(fn($id) => (string)$id)->toArray();
-                    } else {
-                        $mode = 'individu';
-                    }
-                }
-
-                // Data dasar
-                $dosen = $dosens->random();
-                $jenis = (rand(0, 1) === 1) ? 'Internal' : 'External';
-                $instansi = $jenis === 'Internal' ? 'Universitas Kristen Krida Wacana' : $instansis[array_rand($instansis)];
-                $judul = $judulTemplates[array_rand($judulTemplates)] . " " . rand(100, 999);
-                
-                $membersToRegister = array_merge([$mhs->id], array_map('intval', $rekanIds));
-                $allMemberIdsStrings = array_map('strval', $membersToRegister);
-
-                foreach ($membersToRegister as $memberId) {
-                    // Filter members list to exclude self
-                    $myRekanIds = array_values(array_filter($allMemberIdsStrings, fn($id) => $id != $memberId));
-                    
-                    $newKp = PendaftaranKp::create([
-                        'mahasiswa_id' => $memberId,
-                        'judul_kp' => $judul,
-                        'jenis_instansi' => $jenis,
-                        'tipe_kp' => strtolower($jenis),
-                        'instansi_nama' => $instansi,
-                        'supervisor_internal_id' => $dosen->id,
-                        'jenis_proyek' => 'Deskripsi proyek otomatis untuk ' . $judul,
-                        'status_kp' => 'pending',
-                        'pengerjaan_kp' => $mode,
-                        'anggota_kelompok_ids' => ($mode === 'kelompok' && !empty($myRekanIds)) ? $myRekanIds : null,
-                    ]);
-
-                    SupervisorInstansi::create([
-                        'pendaftaran_kp_id' => $newKp->id,
-                        'nama_supervisor' => 'Supervisor Auto',
-                        'email_supervisor' => 'supervisor@' . Str::slug($instansi) . '.com',
-                    ]);
-
-                    $processedIds[] = $memberId;
-                }
-
-                $this->line("Terdaftar " . ($mode === 'kelompok' ? "Kelompok (" . count($membersToRegister) . " orang)" : "Individu") . ": $judul");
+                $this->processRandomRegistration($mhs, $unregisteredMhs, $processedIds, $dosens, $instansis, $judulTemplates);
             }
 
             DB::commit();
-            $this->info("Selesai. Berhasil mendaftarkan " . count($processedIds) . " mahasiswa.");
+            $this->info("Selesai. Berhasil memproses mahasiswa.");
         } catch (\Exception $e) {
             DB::rollBack();
             $this->error("Terjadi kesalahan: " . $e->getMessage());
         }
+    }
+
+    private function processInvitation($mhs, $invitation, &$processedIds)
+    {
+        $this->line("Mahasiswa {$mhs->name} diundang dalam kelompok: {$invitation->judul_kp}. Mendaftarkan secara otomatis...");
+        
+        $newKp = PendaftaranKp::create([
+            'mahasiswa_id' => $mhs->id,
+            'judul_kp' => $invitation->judul_kp,
+            'jenis_instansi' => $invitation->jenis_instansi,
+            'tipe_kp' => $invitation->tipe_kp,
+            'instansi_nama' => $invitation->instansi_nama,
+            'supervisor_internal_id' => $invitation->supervisor_internal_id,
+            'pembimbing_id' => $invitation->pembimbing_id,
+            'jenis_proyek' => $invitation->jenis_proyek,
+            'status_kp' => $invitation->status_kp,
+            'pengerjaan_kp' => 'kelompok',
+            'anggota_kelompok_ids' => $invitation->anggota_kelompok_ids,
+        ]);
+
+        if ($invitation->supervisorInstansi) {
+            SupervisorInstansi::create([
+                'pendaftaran_kp_id' => $newKp->id,
+                'nama_supervisor' => $invitation->supervisorInstansi->nama_supervisor,
+                'email_supervisor' => $invitation->supervisorInstansi->email_supervisor,
+            ]);
+        }
+        $processedIds[] = $mhs->id;
+    }
+
+    private function processRandomRegistration($mhs, $unregisteredMhs, &$processedIds, $dosens, $instansis, $judulTemplates)
+    {
+        // 3. Jika benar-benar bebas, buat baru (Individu atau Kelompok)
+        $mode = (rand(0, 1) === 1) ? 'kelompok' : 'individu';
+        
+        // Cari rekan jika kelompok
+        $rekanIds = [];
+        if ($mode === 'kelompok') {
+            $potentialRekans = $unregisteredMhs->filter(fn($u) => 
+                $u->id !== $mhs->id && 
+                !in_array($u->id, $processedIds)
+            );
+            
+            // Cek lagi apakah rekan tersebut tidak diundang di tempat lain
+            $validRekans = [];
+            foreach ($potentialRekans as $pr) {
+                $isInvitedElsewhere = PendaftaranKp::where(function ($q) use ($pr) {
+                    $q->whereJsonContains('anggota_kelompok_ids', (string) $pr->id)
+                        ->orWhereJsonContains('anggota_kelompok_ids', $pr->id);
+                })->whereIn('status_kp', ['pending', 'approved'])->exists();
+                
+                if (!$isInvitedElsewhere) {
+                    $validRekans[] = $pr;
+                }
+            }
+
+            if (count($validRekans) > 0) {
+                $num = rand(1, min(2, count($validRekans)));
+                $rekanObjs = array_slice($validRekans, 0, $num);
+                $rekanIds = collect($rekanObjs)->pluck('id')->map(fn($id) => (string)$id)->toArray();
+            } else {
+                $mode = 'individu';
+            }
+        }
+
+        // Data dasar
+        $dosen = $dosens->random();
+        $jenis = (rand(0, 1) === 1) ? 'Internal' : 'External';
+        $instansi = $jenis === 'Internal' ? 'Universitas Kristen Krida Wacana' : $instansis[array_rand($instansis)];
+        $judul = $judulTemplates[array_rand($judulTemplates)] . " " . rand(100, 999);
+        
+        $membersToRegister = array_merge([$mhs->id], array_map('intval', $rekanIds));
+        $allMemberIdsStrings = array_map('strval', $membersToRegister);
+
+        foreach ($membersToRegister as $memberId) {
+            // Filter members list to exclude self
+            $myRekanIds = array_values(array_filter($allMemberIdsStrings, fn($id) => $id != $memberId));
+            
+            $newKp = PendaftaranKp::create([
+                'mahasiswa_id' => $memberId,
+                'judul_kp' => $judul,
+                'jenis_instansi' => $jenis,
+                'tipe_kp' => strtolower($jenis),
+                'instansi_nama' => $instansi,
+                'supervisor_internal_id' => $dosen->id,
+                'jenis_proyek' => 'Deskripsi proyek otomatis untuk ' . $judul,
+                'status_kp' => 'pending',
+                'pengerjaan_kp' => $mode,
+                'anggota_kelompok_ids' => ($mode === 'kelompok' && !empty($myRekanIds)) ? $myRekanIds : null,
+            ]);
+
+            SupervisorInstansi::create([
+                'pendaftaran_kp_id' => $newKp->id,
+                'nama_supervisor' => 'Supervisor Auto',
+                'email_supervisor' => 'supervisor@' . Str::slug($instansi) . '.com',
+            ]);
+
+            $processedIds[] = $memberId;
+        }
+
+        $this->line("Terdaftar " . ($mode === 'kelompok' ? "Kelompok (" . count($membersToRegister) . " orang)" : "Individu") . ": $judul");
     }
 }

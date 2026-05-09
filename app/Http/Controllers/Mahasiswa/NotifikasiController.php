@@ -56,4 +56,20 @@ class NotifikasiController extends Controller
 
         return view('mahasiswa.notifikasi-detail', compact('notifikasi'));
     }
+
+    public function redirect($id)
+    {
+        $user = Auth::user();
+        $notifikasi = NotifikasiLog::findOrFail($id);
+
+        if ($notifikasi->periode_id) {
+            session(['selected_periode_id' => $notifikasi->periode_id]);
+        }
+
+        if ($notifikasi->target_url) {
+            return redirect($notifikasi->target_url);
+        }
+
+        return redirect()->route('mahasiswa.notifikasi.show', $notifikasi->id);
+    }
 }

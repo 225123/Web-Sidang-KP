@@ -16,6 +16,7 @@ class TahunAjaran extends Model
         'tanggal_mulai',
         'tanggal_selesai',
         'keterangan',
+        'koordinator_id',
     ];
 
     protected $casts = [
@@ -67,5 +68,10 @@ class TahunAjaran extends Model
     public function pendaftaranKps()
     {
         return $this->hasMany(PendaftaranKp::class, 'tahun_ajaran_id');
+    }
+
+    public function koordinator()
+    {
+        return $this->belongsTo(User::class, 'koordinator_id');
     }
 }

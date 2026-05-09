@@ -81,7 +81,8 @@
             $statsRejectedCount = $rejectedPendaftarans->total();
             
             $statsBelumDaftar = collect($allStatusRows)->whereIn('status', ['Belum Mendaftar', 'Belum Mendaftar (Proyek Ada)'])->count();
-            $statsSudahDaftar = collect($allStatusRows)->where('status', 'Sudah Mendaftar')->count();
+            $statsMenunggu = collect($allStatusRows)->whereIn('status', ['Menunggu Persetujuan', 'Menunggu Persetujuan (Proyek Ada)'])->count();
+            $statsSudahDaftar = collect($allStatusRows)->whereIn('status', ['Sudah Mendaftar', 'Disetujui', 'Disetujui (Proyek Ada)'])->count();
         @endphp
 
 
@@ -163,6 +164,10 @@
                         <span class="text-[16px] font-bold leading-none">{{ $statsBelumDaftar }}</span>
                         <span class="text-[11px] font-medium uppercase tracking-wider">Belum Mendaftar</span>
                     </div>
+                    <div class="bg-[#FBBC05] text-black rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-yellow-500/20">
+                        <span class="text-[16px] font-bold leading-none">{{ $statsMenunggu }}</span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider">Menunggu</span>
+                    </div>
                     <div class="bg-[#34A853] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-green-600/20">
                         <span class="text-[16px] font-bold leading-none">{{ $statsSudahDaftar }}</span>
                         <span class="text-[11px] font-medium uppercase tracking-wider">Sudah Mendaftar</span>
@@ -177,17 +182,18 @@
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
-                        <input type="text" x-model="searchStatus" class="block w-full pl-9 pr-4 py-2 border border-gray-300 rounded-[5px] text-[12px] text-black focus:ring-[#4285F4]" placeholder="Cari Nama/NIM Mahasiswa...">
+                        <input type="text" x-model="searchStatus" class="block w-full pl-9 pr-4 py-2 border border-gray-300 rounded-[5px] text-[12px] text-black focus:ring-[#4285F4]" placeholder="Cari Nama/NIM/Status...">
                     </div>
 
                     <div x-data="{ openFilter: false }" class="relative w-full sm:w-[180px] z-[60]">
                         <button type="button" @click="openFilter = !openFilter" @click.outside="openFilter = false" class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
-                            <span x-text="filterStatusUpload === 'all' ? 'Status Pendaftaran' : (filterStatusUpload === 'sudah' ? 'Sudah Mendaftar' : 'Belum Mendaftar')"></span>
+                            <span x-text="filterStatusUpload === 'all' ? 'Status Pendaftaran' : (filterStatusUpload === 'sudah' ? 'Sudah Mendaftar' : (filterStatusUpload === 'menunggu' ? 'Menunggu' : 'Belum Mendaftar'))"></span>
                             <svg :class="openFilter ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </button>
                         <div x-show="openFilter" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
                             <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="all" x-model="filterStatusUpload" class="hidden" @change="openFilter = false">All</label>
                             <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="sudah" x-model="filterStatusUpload" class="hidden" @change="openFilter = false">Sudah Mendaftar</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="menunggu" x-model="filterStatusUpload" class="hidden" @change="openFilter = false">Menunggu</label>
                             <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="belum" x-model="filterStatusUpload" class="hidden" @change="openFilter = false">Belum Mendaftar</label>
                         </div>
                     </div>
@@ -209,6 +215,7 @@
                         <div class="bg-gray-50 px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-200">Format Laporan</div>
                         <button @click="exportPDF('all'); exportOpen = false" class="w-full text-left px-4 py-2.5 hover:bg-gray-50 text-[12px] text-black font-medium transition-colors">Semua Data</button>
                         <button @click="exportPDF('sudah'); exportOpen = false" class="w-full text-left px-4 py-2.5 hover:bg-gray-50 text-[12px] text-black font-medium transition-colors">Sudah Mendaftar</button>
+                        <button @click="exportPDF('menunggu'); exportOpen = false" class="w-full text-left px-4 py-2.5 hover:bg-gray-50 text-[12px] text-black font-medium transition-colors">Menunggu</button>
                         <button @click="exportPDF('belum'); exportOpen = false" class="w-full text-left px-4 py-2.5 hover:bg-gray-50 text-[12px] text-black font-medium transition-colors border-t border-gray-100">Belum Mendaftar</button>
                     </div>
                 </div>
@@ -232,14 +239,24 @@
                                 <td class="py-3 px-4 text-left font-medium text-black border-r border-gray-200" x-text="stat.nim"></td>
                                 <td class="py-3 px-4 text-left font-normal text-black sentence-case border-r border-gray-200" x-text="stat.name"></td>
                                 <td class="py-3 px-4 text-center">
-                                    <template x-if="stat.status === 'Sudah Mendaftar'">
+                                    <template x-if="stat.status === 'Disetujui' || stat.status === 'Sudah Mendaftar'">
                                         <span class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-4 py-1 rounded-full font-bold text-[10px]">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> Sudah Mendaftar
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> Disetujui
                                         </span>
                                     </template>
-                                    <template x-if="stat.status === 'Belum Mendaftar (Proyek Ada)'">
+                                    <template x-if="stat.status === 'Menunggu Persetujuan'">
+                                        <span class="inline-flex items-center gap-1.5 bg-yellow-100 text-yellow-700 px-4 py-1 rounded-full font-bold text-[10px]">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Menunggu Persetujuan
+                                        </span>
+                                    </template>
+                                    <template x-if="stat.status === 'Disetujui (Proyek Ada)'">
+                                        <span class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-4 py-1 rounded-full font-bold text-[10px]">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> Disetujui (Proyek Ada)
+                                        </span>
+                                    </template>
+                                    <template x-if="stat.status === 'Menunggu Persetujuan (Proyek Ada)' || stat.status === 'Belum Mendaftar (Proyek Ada)'">
                                         <span class="inline-flex items-center gap-1.5 bg-orange-100 text-orange-700 px-4 py-1 rounded-full font-bold text-[10px]">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Belum (Proyek Ada)
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> <span x-text="stat.status"></span>
                                         </span>
                                     </template>
                                     <template x-if="stat.status === 'Belum Mendaftar'">
@@ -330,6 +347,9 @@
                 init() {
                     this.$watch('tabJenis', val => this.$dispatch('update-jenis-main', val === 'Semua' ? 'All' : val));
                     this.$nextTick(() => this.$dispatch('update-jenis-main', this.tabJenis === 'Semua' ? 'All' : this.tabJenis));
+                    
+                    this.$watch('searchStatus', () => this.statusCurrentPage = 1);
+                    this.$watch('filterStatusUpload', () => this.statusCurrentPage = 1);
                 },
 
                 openModalCatatan(formElement, pesan) {
@@ -344,6 +364,7 @@
                     input.name = 'catatan';
                     input.value = this.modalCatatanValue;
                     this.modalFormEl.appendChild(input);
+                    sessionStorage.setItem('scrollPosition', window.scrollY);
                     this.modalFormEl.submit();
                 },
 
@@ -351,7 +372,9 @@
                     let filtered = this.statusRows;
                     if (this.filterStatusUpload !== 'all') {
                         if (this.filterStatusUpload === 'sudah') {
-                            filtered = filtered.filter(r => r.status === 'Sudah Mendaftar');
+                            filtered = filtered.filter(r => ['Sudah Mendaftar', 'Disetujui', 'Disetujui (Proyek Ada)'].includes(r.status));
+                        } else if (this.filterStatusUpload === 'menunggu') {
+                            filtered = filtered.filter(r => ['Menunggu Persetujuan', 'Menunggu Persetujuan (Proyek Ada)'].includes(r.status));
                         } else if (this.filterStatusUpload === 'belum') {
                             filtered = filtered.filter(r => r.status === 'Belum Mendaftar' || r.status === 'Belum Mendaftar (Proyek Ada)');
                         }
@@ -360,7 +383,8 @@
                         const term = this.searchStatus.toLowerCase();
                         filtered = filtered.filter(r => 
                             (r.name && r.name.toLowerCase().includes(term)) || 
-                            (r.nim && r.nim.toLowerCase().includes(term))
+                            (r.nim && r.nim.toLowerCase().includes(term)) ||
+                            (r.status && r.status.toLowerCase().includes(term))
                         );
                     }
                     return filtered;
@@ -382,7 +406,9 @@
                 exportPDF(mode) {
                     let dataToExport = [];
                     if (mode === 'sudah') {
-                        dataToExport = this.statusRows.filter(r => r.status === 'Sudah Mendaftar');
+                        dataToExport = this.statusRows.filter(r => ['Sudah Mendaftar', 'Disetujui', 'Disetujui (Proyek Ada)'].includes(r.status));
+                    } else if (mode === 'menunggu') {
+                        dataToExport = this.statusRows.filter(r => ['Menunggu Persetujuan', 'Menunggu Persetujuan (Proyek Ada)'].includes(r.status));
                     } else if (mode === 'belum') {
                         dataToExport = this.statusRows.filter(r => r.status === 'Belum Mendaftar' || r.status === 'Belum Mendaftar (Proyek Ada)');
                     } else {

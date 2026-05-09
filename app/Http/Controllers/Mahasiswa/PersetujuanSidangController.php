@@ -17,16 +17,23 @@ class PersetujuanSidangController extends Controller
     {
         $mahasiswaId = Auth::user()->id;
 
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+
         // Ambil data Pendaftaran KP yang sudah APPROVED milik mahasiswa ini (termasuk kelompook)
-        $pendaftaran = PendaftaranKp::with(['mahasiswa.user', 'pembimbing'])
+        $query = PendaftaranKp::withoutGlobalScope('periode')
+            ->with(['mahasiswa.user', 'pembimbing'])
             ->where(function ($q) use ($mahasiswaId) {
                 $q->where('mahasiswa_id', $mahasiswaId)
                     ->orWhereJsonContains('anggota_kelompok_ids', $mahasiswaId)
                     ->orWhereJsonContains('anggota_kelompok_ids', (string) $mahasiswaId);
             })
-            ->where('status_kp', 'approved') // Pastikan hanya KP yang disetujui
-            ->latest()
-            ->first();
+            ->where('status_kp', 'approved'); // Pastikan hanya KP yang disetujui
+            
+        if ($periodeId) {
+            $query->where('tahun_ajaran_id', $periodeId);
+        }
+
+        $pendaftaran = $query->latest()->first();
 
         $totalBimbingan = 0;
         $persetujuan = null;
@@ -55,15 +62,22 @@ class PersetujuanSidangController extends Controller
 
         $mahasiswaId = Auth::user()->id;
 
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+
         // Cari ID KP yang aktif untuk mahasiswa (termasuk kelompok)
-        $pendaftaran = PendaftaranKp::where(function ($q) use ($mahasiswaId) {
-            $q->where('mahasiswa_id', $mahasiswaId)
-                ->orWhereJsonContains('anggota_kelompok_ids', $mahasiswaId)
-                ->orWhereJsonContains('anggota_kelompok_ids', (string) $mahasiswaId);
-        })
-            ->where('status_kp', 'approved')
-            ->latest()
-            ->first();
+        $query = PendaftaranKp::withoutGlobalScope('periode')
+            ->where(function ($q) use ($mahasiswaId) {
+                $q->where('mahasiswa_id', $mahasiswaId)
+                    ->orWhereJsonContains('anggota_kelompok_ids', $mahasiswaId)
+                    ->orWhereJsonContains('anggota_kelompok_ids', (string) $mahasiswaId);
+            })
+            ->where('status_kp', 'approved');
+            
+        if ($periodeId) {
+            $query->where('tahun_ajaran_id', $periodeId);
+        }
+
+        $pendaftaran = $query->latest()->first();
 
         if (! $pendaftaran) {
             return back()->with('error', 'Anda belum memiliki pendaftaran KP yang disetujui oleh Koordinator.');

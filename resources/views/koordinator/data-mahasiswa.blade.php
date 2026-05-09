@@ -160,10 +160,10 @@
 
                                                         <template x-if="p.pengerjaan_kp === 'Kelompok' && p.anggota_lain && p.anggota_lain.length">
                                                             <div class="contents">
-                                                                <div class="text-gray-500 font-medium md:text-black">Anggota Kelompok</div>
-                                                                <div class="hidden md:block">:</div>
-                                                                <div class="font-semibold text-black">
-                                                                    <ul class="list-disc list-inside">
+                                                                <div class="text-gray-500 font-medium md:text-black align-top md:pt-[2px]">Anggota Kelompok</div>
+                                                                <div class="hidden md:block align-top md:pt-[2px]">:</div>
+                                                                <div class="font-semibold text-black md:pt-[2px]">
+                                                                    <ul class="flex flex-col gap-1">
                                                                         <template x-for="ang in p.anggota_lain" :key="ang.nim">
                                                                             <li x-text="ang.nim + ' - ' + ang.nama"></li>
                                                                         </template>
@@ -184,9 +184,13 @@
                                                         <div class="hidden md:block">:</div>
                                                         <div class="font-semibold text-black" x-text="p.supervisor"></div>
 
-                                                        <div class="text-gray-500 font-medium md:text-black">Email Supervisor</div>
-                                                        <div class="hidden md:block">:</div>
-                                                        <div class="font-semibold text-black" x-text="p.email_supervisor"></div>
+                                                        <template x-if="p.jenis_instansi !== 'Internal'">
+                                                            <div class="contents">
+                                                                <div class="text-gray-500 font-medium md:text-black">Email Supervisor</div>
+                                                                <div class="hidden md:block">:</div>
+                                                                <div class="font-semibold text-black" x-text="p.email_supervisor"></div>
+                                                            </div>
+                                                        </template>
 
                                                         <div class="text-gray-500 font-medium md:text-black">Judul KP</div>
                                                         <div class="hidden md:block">:</div>

@@ -10,12 +10,16 @@ class TimelineController extends Controller
 {
     public function index()
     {
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+
         $timelineMahasiswa = TimelineKegiatan::where('kategori', 'mahasiswa')
+            ->where('periode_id', $periodeId)
             ->orderBy('tanggal', 'asc')
             ->orderBy('waktu', 'asc')
             ->get();
 
         $timelineDosen = TimelineKegiatan::where('kategori', 'dosen')
+            ->where('periode_id', $periodeId)
             ->orderBy('tanggal', 'asc')
             ->orderBy('waktu', 'asc')
             ->get();
@@ -37,7 +41,12 @@ class TimelineController extends Controller
             'keterangan' => 'nullable|string',
         ]);
 
-        TimelineKegiatan::create($request->all());
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        
+        $data = $request->all();
+        $data['periode_id'] = $periodeId;
+
+        TimelineKegiatan::create($data);
 
         return redirect()->back()->with('success', 'Timeline berhasil ditambahkan.');
     }

@@ -26,6 +26,11 @@ class RoleMiddleware
             return $next($request);
         }
 
+        // Let koordinator pass if 'dosen' is required (since Koordinator is also a Dosen)
+        if ($role === 'dosen' && ($userRole === 'koordinator_kp' || str_contains($userRole, 'koordinator'))) {
+            return $next($request);
+        }
+
         if ($userRole !== strtolower($role)) {
             // Redirect to their own dashboard
             if ($userRole === 'koordinator_kp' || str_contains($userRole, 'koordinator')) {

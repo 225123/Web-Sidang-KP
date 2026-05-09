@@ -183,15 +183,21 @@
                     </canvas>
                 </div>
             </div>
-            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
-                <button type="button" @click="clearCanvas()" class="text-red-600 hover:text-red-800 font-semibold text-sm">Hapus / Ulang</button>
-                <div class="flex gap-3">
-                    <button type="button" @click="showSigModal = false" class="px-4 py-2 bg-white border border-gray-300 rounded text-sm font-semibold hover:bg-gray-50">Batal</button>
-                    <form action="{{ route('profil.updateSignatureDraw') }}" method="POST" id="draw-form">
-                        @csrf
-                        <input type="hidden" name="signature_base64" id="signature_base64">
-                        <button type="button" @click="saveCanvas()" class="px-4 py-2 bg-blue-600 text-white rounded text-sm font-semibold hover:bg-blue-700 shadow-sm">Simpan</button>
-                    </form>
+            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col gap-3">
+                <div x-show="sigErrorMsg" x-transition style="display: none;" class="w-full bg-red-50 border border-red-200 text-red-600 rounded p-2 text-sm text-center font-medium shadow-sm flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <span x-text="sigErrorMsg"></span>
+                </div>
+                <div class="flex justify-between items-center w-full">
+                    <button type="button" @click="clearCanvas()" class="text-red-600 hover:text-red-800 font-semibold text-sm">Hapus / Ulang</button>
+                    <div class="flex gap-3">
+                        <button type="button" @click="showSigModal = false" class="px-4 py-2 bg-white border border-gray-300 rounded text-sm font-semibold hover:bg-gray-50">Batal</button>
+                        <form action="{{ route('profil.updateSignatureDraw') }}" method="POST" id="draw-form">
+                            @csrf
+                            <input type="hidden" name="signature_base64" id="signature_base64">
+                            <button type="button" @click="saveCanvas()" class="px-4 py-2 bg-blue-600 text-white rounded text-sm font-semibold hover:bg-blue-700 shadow-sm transition-colors">Simpan</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -204,6 +210,7 @@ window.profileManager = function() {
     return {
         editMode: false,
         showSigModal: false,
+        sigErrorMsg: '',
         isDrawing: false,
         lastX: 0,
         lastY: 0,
@@ -299,7 +306,8 @@ window.profileManager = function() {
             blank.height = canvas.height;
             
             if(dataURL === blank.toDataURL('image/png')) {
-                alert('Kanvas tanda tangan Anda masih kosong!');
+                this.sigErrorMsg = 'Kanvas tanda tangan Anda masih kosong! Silakan isi terlebih dahulu.';
+                setTimeout(() => { this.sigErrorMsg = ''; }, 3000);
                 return;
             }
             

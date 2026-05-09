@@ -16,10 +16,6 @@
     <span x-show="sidebarOpen" x-transition>Dashboard</span>
 </a>
 
-<a href="{{ route('koordinator.notifikasi') }}" class="{{ $active == 'notifikasi' ? $activeClass : $inactiveClass }} mb-2">
-    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-    <span x-show="sidebarOpen" x-transition>Notifikasi</span>
-</a>
 
 <a href="{{ route('koordinator.timeline.index') }}" class="{{ $active == 'timeline' ? $activeClass : $inactiveClass }}">
     <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
@@ -93,7 +89,7 @@
         </a>
         <a href="{{ route('koordinator.dosen-penguji') }}" class="{{ $active == 'dosen-penguji' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-            <span x-show="sidebarOpen" x-transition>Dosen Penguji</span>
+            <span x-show="sidebarOpen" x-transition>Penugasan Penguji</span>
         </a>
         <a href="{{ route('koordinator.kalender-sidang') }}" class="{{ $active == 'kalender-sidang' ? $subActiveClass : $subInactiveClass }}">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
@@ -183,6 +179,11 @@
 </div>
 
 <div class="mt-4">
+    <a href="{{ route('koordinator.notifikasi') }}" class="{{ $active == 'notifikasi' ? $activeClass : $inactiveClass }} mb-1">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span x-show="sidebarOpen" x-transition>Notifikasi</span>
+    </a>
+
     <a href="{{ route('profil.index') }}" class="{{ $active == 'profil' ? $activeClass : $inactiveClass }}">
         <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
         <span x-show="sidebarOpen" x-transition>Profil</span>

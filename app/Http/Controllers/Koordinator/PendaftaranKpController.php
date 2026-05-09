@@ -45,10 +45,10 @@ class PendaftaranKpController extends Controller
         $usersMahasiswaQuery = User::where('role', 'mahasiswa');
         if (session()->has('selected_periode_id')) {
             $periodeId = session('selected_periode_id');
-            $usersMahasiswaQuery->where(function($q) use ($periodeId) {
-                $q->whereHas('mahasiswa', function($sq) use ($periodeId) {
+            $usersMahasiswaQuery->where(function ($q) use ($periodeId) {
+                $q->whereHas('mahasiswa', function ($sq) use ($periodeId) {
                     $sq->where('tahun_ajaran_id', $periodeId);
-                })->orWhereIn('id', function($sub) use ($periodeId) {
+                })->orWhereIn('id', function ($sub) use ($periodeId) {
                     $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
                 });
             });
@@ -61,7 +61,16 @@ class PendaftaranKpController extends Controller
             $latestKp = PendaftaranKp::where('mahasiswa_id', $u->id)
                 ->orWhereJsonContains('anggota_kelompok_ids', $u->id)
                 ->orWhereJsonContains('anggota_kelompok_ids', (string) $u->id)
-                ->orderBy('created_at', 'desc')
+                ->orderByRaw("
+                    CASE 
+                        WHEN status_kp = 'approved' THEN 1
+                        WHEN status_kp = 'verified' THEN 2
+                        WHEN status_kp = 'pending' THEN 3
+                        WHEN status_kp IS NULL THEN 4
+                        WHEN status_kp = 'rejected' THEN 5
+                        ELSE 6
+                    END
+                ")->latest('updated_at')
                 ->first();
 
             if ($latestKp) {
@@ -82,27 +91,38 @@ class PendaftaranKpController extends Controller
 
         $allStatusRows = $usersMahasiswa->map(function ($u) {
             $ownKp = PendaftaranKp::where('mahasiswa_id', $u->id)
-                ->orderBy('created_at', 'desc')
+                ->orderByRaw("
+                    CASE 
+                        WHEN status_kp = 'approved' THEN 1
+                        WHEN status_kp = 'verified' THEN 2
+                        WHEN status_kp = 'pending' THEN 3
+                        WHEN status_kp IS NULL THEN 4
+                        WHEN status_kp = 'rejected' THEN 5
+                        ELSE 6
+                    END
+                ")->latest('updated_at')
                 ->first();
 
             $isSudah = false;
+            $statusText = 'Belum Mendaftar';
+
             if ($ownKp && in_array($ownKp->status_kp, ['pending', 'approved'])) {
                 $isSudah = true;
+                $statusText = $ownKp->status_kp === 'approved' ? 'Disetujui' : 'Menunggu Persetujuan';
             }
 
-            $invitedKp = PendaftaranKp::where(function ($q) use ($u) {
-                $q->whereJsonContains('anggota_kelompok_ids', $u->id)
-                    ->orWhereJsonContains('anggota_kelompok_ids', (string) $u->id);
-            })
-                ->whereIn('status_kp', ['pending', 'approved'])
-                ->latest()
-                ->first();
+            if (!$isSudah) {
+                $invitedKp = PendaftaranKp::where(function ($q) use ($u) {
+                    $q->whereJsonContains('anggota_kelompok_ids', $u->id)
+                        ->orWhereJsonContains('anggota_kelompok_ids', (string) $u->id);
+                })
+                    ->whereIn('status_kp', ['pending', 'approved'])
+                    ->latest('updated_at')
+                    ->first();
 
-            $statusText = 'Belum Mendaftar';
-            if ($isSudah) {
-                $statusText = 'Sudah Mendaftar';
-            } elseif ($invitedKp) {
-                $statusText = 'Belum Mendaftar (Proyek Ada)';
+                if ($invitedKp) {
+                    $statusText = $invitedKp->status_kp === 'approved' ? 'Disetujui (Proyek Ada)' : 'Menunggu Persetujuan (Proyek Ada)';
+                }
             }
 
             return [
@@ -132,7 +152,7 @@ class PendaftaranKpController extends Controller
         foreach ($paginator as $p) {
             // Check for group duplicates
             $groupMembers = [$p->mahasiswa_id];
-            if (in_array(strtolower($p->pengerjaan_kp), ['kelompok', 'berkelompok']) && ! empty($p->anggota_kelompok_ids)) {
+            if (in_array(strtolower($p->pengerjaan_kp), ['kelompok', 'berkelompok']) && !empty($p->anggota_kelompok_ids)) {
                 $anggotaIds = is_string($p->anggota_kelompok_ids) ? json_decode($p->anggota_kelompok_ids, true) : $p->anggota_kelompok_ids;
                 if (is_array($anggotaIds)) {
                     foreach ($anggotaIds as $aid) {
@@ -161,11 +181,12 @@ class PendaftaranKpController extends Controller
                     'is_leader' => true,
                     'judul_kp' => $p->judul_kp,
                     'instansi_nama' => $p->instansi_nama,
+                    'kp_id' => $p->id,
                 ];
             }
 
-            if (in_array(strtolower($p->pengerjaan_kp), ['kelompok', 'berkelompok']) && ! empty($p->anggota_kelompok_ids)) {
-                $anggotaIds = is_string($p->anggota_kelompok_ids) ? json_decode($p->anggota_kelompok_ids, true) : $p->anggota_kelompok_ids;
+            if (in_array(strtolower($p->pengerjaan_kp), ['kelompok', 'berkelompok']) && !empty($p->anggota_kelompok_ids)) {
+                $anggotaIds = $p->anggota_kelompok_ids;
                 if (is_array($anggotaIds)) {
                     $members = User::whereIn('id', $anggotaIds)
                         ->orWhereHas('mahasiswa', function ($q) use ($anggotaIds) {
@@ -178,8 +199,16 @@ class PendaftaranKpController extends Controller
                         }
 
                         $memberKp = PendaftaranKp::where('mahasiswa_id', $member->id)
-                            ->whereIn('status_kp', ['pending', 'approved'])
-                            ->latest()
+                            ->orderByRaw("
+                                CASE 
+                                    WHEN status_kp = 'approved' THEN 1
+                                    WHEN status_kp = 'verified' THEN 2
+                                    WHEN status_kp = 'pending' THEN 3
+                                    WHEN status_kp IS NULL THEN 4
+                                    WHEN status_kp = 'rejected' THEN 5
+                                    ELSE 6
+                                END
+                            ")->latest()
                             ->first();
 
                         $mahasiswas[] = [
@@ -189,6 +218,7 @@ class PendaftaranKpController extends Controller
                             'is_leader' => false,
                             'judul_kp' => $memberKp ? $memberKp->judul_kp : null,
                             'instansi_nama' => $memberKp ? $memberKp->instansi_nama : null,
+                            'kp_id' => $memberKp ? $memberKp->id : null,
                         ];
                     }
                 }
@@ -203,20 +233,14 @@ class PendaftaranKpController extends Controller
         }
     }
 
-    public function show($slug)
+    public function show($id)
     {
-        $parts = explode('-', $slug);
-        $nim = end($parts);
-
-        $kp = PendaftaranKp::with(['supervisorInstansi', 'user.mahasiswa'])
-            ->whereHas('user.mahasiswa', function ($q) use ($nim) {
-                $q->where('nim', $nim);
-            })->latest()->firstOrFail();
+        $kp = PendaftaranKp::with(['supervisorInstansi', 'user.mahasiswa'])->findOrFail($id);
 
         // Process details sorting
         $mahasiswasDetail = [];
-        if (in_array(strtolower($kp->pengerjaan_kp), ['kelompok', 'berkelompok']) && ! empty($kp->anggota_kelompok_ids)) {
-            $anggotaIds = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
+        if (in_array(strtolower($kp->pengerjaan_kp), ['kelompok', 'berkelompok']) && !empty($kp->anggota_kelompok_ids)) {
+            $anggotaIds = $kp->anggota_kelompok_ids;
             if (is_array($anggotaIds)) {
                 $members = User::whereIn('id', $anggotaIds)
                     ->orWhereHas('mahasiswa', function ($q) use ($anggotaIds) {
@@ -282,11 +306,12 @@ class PendaftaranKpController extends Controller
 
         // 2. Notifikasi untuk Anggota Kelompok
         if ($kp->anggota_kelompok_ids) {
-            $anggotaIds = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
+            $anggotaIds = $kp->anggota_kelompok_ids;
             if (is_array($anggotaIds)) {
                 foreach ($anggotaIds as $aid) {
-                    if ($aid == $kp->mahasiswa_id) continue;
-                    
+                    if ($aid == $kp->mahasiswa_id)
+                        continue;
+
                     // Cek apakah aid adalah ID user atau NIM
                     $user = User::where('id', $aid)->orWhereHas('mahasiswa', fn($q) => $q->where('nim', $aid))->first();
                     if ($user) {
@@ -314,9 +339,9 @@ class PendaftaranKpController extends Controller
         if ($request->has('search') && $request->search != '') {
             $search = strtolower($request->search);
 
-            $matchingUsers = User::whereRaw('LOWER(name) LIKE ?', ['%'.$search.'%'])
+            $matchingUsers = User::whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%'])
                 ->orWhereHas('mahasiswa', function ($q) use ($search) {
-                    $q->whereRaw('LOWER(nim) LIKE ?', ['%'.$search.'%']);
+                    $q->whereRaw('LOWER(nim) LIKE ?', ['%' . $search . '%']);
                 })->get();
 
             $matchingUserIds = $matchingUsers->pluck('id')->toArray();
@@ -326,9 +351,9 @@ class PendaftaranKpController extends Controller
 
             $query->where(function ($q) use ($search, $matchingUserIds, $matchingNims) {
                 $q->whereHas('user', function ($uq) use ($search) {
-                    $uq->whereRaw('LOWER(name) LIKE ?', ['%'.$search.'%'])
+                    $uq->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%'])
                         ->orWhereHas('mahasiswa', function ($mq) use ($search) {
-                            $mq->whereRaw('LOWER(nim) LIKE ?', ['%'.$search.'%']);
+                            $mq->whereRaw('LOWER(nim) LIKE ?', ['%' . $search . '%']);
                         });
                 });
 
@@ -340,7 +365,7 @@ class PendaftaranKpController extends Controller
                     $q->orWhereJsonContains('anggota_kelompok_ids', $nim);
                 }
 
-                $q->orWhereRaw('LOWER(judul_kp) LIKE ?', ['%'.$search.'%']);
+                $q->orWhereRaw('LOWER(judul_kp) LIKE ?', ['%' . $search . '%']);
             });
         }
 

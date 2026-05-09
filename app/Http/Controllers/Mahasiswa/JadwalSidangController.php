@@ -14,11 +14,19 @@ class JadwalSidangController extends Controller
     {
         $user = auth()->user();
 
-        // Cari pendaftaran sidang mahasiswa bersangkutan yang status koordinatornya verified
-        $sidang = PendaftaranSidang::with(['pendaftaranKp', 'penguji1', 'penguji2'])
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+
+        $query = PendaftaranSidang::with(['pendaftaranKp', 'penguji1', 'penguji2'])
             ->where('mahasiswa_id', $user->id)
-            ->where('status_koordinator', 'verified')
-            ->first();
+            ->where('status_koordinator', 'verified');
+            
+        if ($periodeId) {
+            $query->whereHas('pendaftaranKp', function($q) use ($periodeId) {
+                $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+            });
+        }
+
+        $sidang = $query->latest()->first();
 
         return view('mahasiswa.jadwal-sidang', compact('sidang', 'user'));
     }
@@ -27,10 +35,19 @@ class JadwalSidangController extends Controller
     {
         $user = auth()->user();
 
-        $sidang = PendaftaranSidang::with(['pendaftaranKp', 'penguji1', 'penguji2'])
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+
+        $query = PendaftaranSidang::with(['pendaftaranKp', 'penguji1', 'penguji2'])
             ->where('mahasiswa_id', $user->id)
-            ->where('status_koordinator', 'verified')
-            ->first();
+            ->where('status_koordinator', 'verified');
+            
+        if ($periodeId) {
+            $query->whereHas('pendaftaranKp', function($q) use ($periodeId) {
+                $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+            });
+        }
+
+        $sidang = $query->latest()->first();
 
         if (!$sidang || $sidang->status_jadwal !== 'submitted') {
             return response()->json(['success' => false, 'message' => 'Jadwal belum tersedia.'], 400);

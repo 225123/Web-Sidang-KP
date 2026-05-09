@@ -65,6 +65,7 @@ class PeriodeKpController extends Controller
             'tahun'              => $request->tahun,
             'label_tahun_ajaran' => $label,
             'is_active'          => true,
+            'koordinator_id'     => auth()->id(),
         ]);
 
         // Berpusat di periode yang baru dibuka

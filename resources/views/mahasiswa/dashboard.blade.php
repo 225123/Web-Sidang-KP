@@ -58,7 +58,7 @@
                             <div class="flex-1">: {{ $kp['pembimbing'] }}</div>
                         </div>
                         <div class="flex">
-                            <div class="w-[180px]">Bimbingan Dosen Disahkan</div>
+                            <div class="w-[180px]">Jumlah Bimbingan</div>
                             <div>: {{ $bimbinganDosen['current'] }} / {{ $bimbinganDosen['target'] }}</div>
                         </div>
 

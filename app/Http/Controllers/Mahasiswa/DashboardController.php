@@ -15,11 +15,32 @@ class DashboardController extends Controller
     {
         $userId = Auth::id();
 
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+
         // 1. Status Kerja Praktik
-        $latestKp = PendaftaranKp::with(['supervisorInstansi', 'pembimbing'])
-            ->where('mahasiswa_id', $userId)
-            ->latest()
-            ->first();
+        $queryKp = PendaftaranKp::withoutGlobalScope('periode')
+            ->with(['supervisorInstansi', 'pembimbing'])
+            ->where(function ($query) use ($userId) {
+                $query->where('mahasiswa_id', $userId)
+                      ->orWhereJsonContains('anggota_kelompok_ids', $userId)
+                      ->orWhereJsonContains('anggota_kelompok_ids', (string) $userId);
+            });
+
+        if ($periodeId) {
+            $queryKp->where('tahun_ajaran_id', $periodeId);
+        }
+
+        // Prioritize approved > verified > pending > draft > rejected
+        $latestKp = (clone $queryKp)->orderByRaw("
+            CASE 
+                WHEN status_kp = 'approved' THEN 1
+                WHEN status_kp = 'verified' THEN 2
+                WHEN status_kp = 'pending' THEN 3
+                WHEN status_kp IS NULL THEN 4
+                WHEN status_kp = 'rejected' THEN 5
+                ELSE 6
+            END
+        ")->latest()->first();
 
         $kpStatus = [
             'judul' => ($latestKp && $latestKp->judul_kp) ? $latestKp->judul_kp : '-',
@@ -54,16 +75,26 @@ class DashboardController extends Controller
 
         // 2. Timeline Terdekat (Mahasiswa)
         $timeline = TimelineKegiatan::where('kategori', 'mahasiswa')
+            ->where('periode_id', $periodeId)
             ->where('tanggal', '>=', now()->toDateString())
             ->orderBy('tanggal', 'asc')
             ->orderBy('waktu', 'asc')
             ->first();
 
         // 3. Status Sidang
-        $sidang = PendaftaranSidang::with(['penguji1', 'penguji2'])
-            ->where('mahasiswa_id', $userId)
-            ->latest()
-            ->first();
+        $sidangQuery = PendaftaranSidang::with(['penguji1', 'penguji2'])
+            ->where('mahasiswa_id', $userId);
+        
+        if ($latestKp) {
+            $sidangQuery->where('pendaftaran_kp_id', $latestKp->id);
+        } elseif ($periodeId) {
+            // fallback if no KP but period is selected, though unlikely to have sidang without KP
+            $sidangQuery->whereHas('pendaftaranKp', function($q) use ($periodeId) {
+                $q->where('tahun_ajaran_id', $periodeId);
+            });
+        }
+            
+        $sidang = $sidangQuery->latest()->first();
 
         // 4. Notifikasi (Dynamic)
         $notifikasi = \App\Models\NotifikasiLog::where(function ($query) use ($userId) {

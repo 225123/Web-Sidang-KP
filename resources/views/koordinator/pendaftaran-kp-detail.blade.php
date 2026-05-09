@@ -1,4 +1,4 @@
-<x-dashboard-layout header="" userName="{{ auth()->user()->name ?? 'KOORDINATOR KP' }}" roleName="KOORDINATOR KP">
+<x-dashboard-layout header="" :hidePeriodSelector="true" userName="{{ auth()->user()->name ?? 'KOORDINATOR KP' }}" roleName="KOORDINATOR KP">
     <x-slot:sidebar>
         @include('koordinator.components.sidebar', ['active' => 'pendaftaran-kp'])
     </x-slot>

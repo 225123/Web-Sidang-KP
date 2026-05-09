@@ -1,4 +1,4 @@
-<x-dashboard-layout header="Notifikasi" userName="{{ auth()->user()->name }}" roleName="DOSEN" hidePeriodSelector="true">
+<x-dashboard-layout header="Notifikasi" userName="{{ auth()->user()->name }}" roleName="DOSEN" hidePeriodSelector="true" :noTurboCache="true">
     <x-slot:sidebar>
         @include('dosen.components.sidebar', ['active' => 'notifikasi'])
     </x-slot>

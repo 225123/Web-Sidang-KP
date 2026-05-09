@@ -223,7 +223,7 @@
                                 <!-- Internal Mode: Searchable Dosen Dropdown -->
                                 <template x-if="jenisKp === 'Internal'">
                                     <div class="relative" @click.outside="openGiver = false">
-                                        <button type="button" @click="!isInvited && (openGiver = !openGiver; if(openGiver) searchGiver = '')"
+                                        <button type="button" @click="if(!isInvited) { openGiver = !openGiver; if(openGiver) searchGiver = ''; }"
                                             :class="isInvited ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'"
                                             class="w-full flex items-center justify-between border border-[#CAC0C0] rounded px-4 py-3 text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
                                             <span
@@ -392,13 +392,13 @@
                                     <div class="relative">
                                         <input type="text" name="nama_supervisor" id="nama_supervisor" required
                                             placeholder="Cari Dosen atau ketik nama supervisior..." x-model="selectedDosenName"
-                                            @focus="!isInvited && (openDosen = true, searchDosen = '')"
-                                            @input="!isInvited && (openDosen = true, selectedDosenId = '', searchDosen = $event.target.value)"
+                                            @focus="if(!isInvited) { openDosen = true; searchDosen = ''; }"
+                                            @input="if(!isInvited) { openDosen = true; selectedDosenId = ''; searchDosen = $event.target.value; }"
                                             :readonly="isInvited"
                                             :class="isInvited ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-white'"
                                             class="w-full border border-[#CAC0C0] rounded px-4 py-3 text-[14px] focus:outline-none focus:ring-1 focus:ring-blue-500">
 
-                                        <button type="button" @click="!isInvited && (openDosen = !openDosen)"
+                                        <button type="button" @click="if(!isInvited) openDosen = !openDosen"
                                             class="absolute right-3 top-1/2 -translate-y-1/2">
                                             <svg :class="openDosen ? 'rotate-90' : 'rotate-180'"
                                                 class="w-5 h-5 text-gray-400 transition-transform duration-200" fill="none"
