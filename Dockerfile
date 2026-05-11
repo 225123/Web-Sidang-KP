@@ -18,7 +18,10 @@ RUN apk add --no-cache \
     libzip-dev \
     nodejs \
     npm \
-    && sed -i 's/listen = \/.*$/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf
+    && sed -i 's/listen = 9000/listen = \/var\/run\/php-fpm.sock/' /usr/local/etc/php-fpm.d/www.conf \
+    && sed -i 's/;listen.owner = www-data/listen.owner = www-data/' /usr/local/etc/php-fpm.d/www.conf \
+    && sed -i 's/;listen.group = www-data/listen.group = www-data/' /usr/local/etc/php-fpm.d/www.conf \
+    && sed -i 's/;listen.mode = 0660/listen.mode = 0660/' /usr/local/etc/php-fpm.d/www.conf
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd \
@@ -38,34 +41,27 @@ RUN docker-php-ext-configure gd \
         zip \
         opcache
 
-# Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy composer files first (layer cache optimization)
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 
-# Copy application files
 COPY . .
 
-# Run composer autoloader & scripts
 RUN composer dump-autoload --optimize --no-dev
-
-# Build frontend assets
 RUN npm ci && npm run build && rm -rf node_modules
 
-# Set proper permissions
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache
 
-# Copy config files
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 COPY docker/start.sh /start.sh
+
 RUN chmod +x /start.sh
 
 EXPOSE 8080
