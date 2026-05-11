@@ -1,4 +1,4 @@
-FROM php:8.2-fpm-alpine
+FROM php:8.4-fpm-alpine
 
 # Install system dependencies
 RUN apk add --no-cache \
@@ -15,6 +15,7 @@ RUN apk add --no-cache \
     oniguruma-dev \
     libxml2-dev \
     postgresql-dev \
+    libzip-dev \
     nodejs \
     npm
 
@@ -33,6 +34,7 @@ RUN docker-php-ext-configure gd \
         ctype \
         fileinfo \
         bcmath \
+        zip \
         opcache
 
 # Install Composer
