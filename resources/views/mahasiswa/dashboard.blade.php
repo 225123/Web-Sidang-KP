@@ -32,6 +32,9 @@
                 <div class="bg-[#ECECEC] rounded-[30px] p-8 shadow-sm min-h-[436px]">
                     <div class="flex items-center gap-2 mb-6">
                         <h3 class="font-bold text-black text-[17px]">Status Kerja Praktik</h3>
+                        @if($kp['is_lanjutan'])
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-black text-white border border-black">Lanjut</span>
+                        @endif
                         <span class="font-medium text-black text-[17px] ml-1">:
                             <span
                                 class="{{ $kp['status_raw'] === 'approved' ? 'text-green-600' : ($kp['status_raw'] === 'pending' ? 'text-[#BFA512]' : 'text-red-600') }}">
@@ -41,6 +44,12 @@
                     </div>
 
                     <div class="flex flex-col gap-3.5 text-[13px] font-medium text-black">
+                        @if($kp['is_lanjutan'])
+                        <div class="flex items-center">
+                            <div class="w-[180px]">Status KP</div>
+                            <div class="flex-1">: <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-black text-white border border-black">Lanjut</span> <span class="text-[11px] text-black/50 italic">(melanjutkan dari periode sebelumnya)</span></div>
+                        </div>
+                        @endif
                         <div class="flex">
                             <div class="w-[180px]">Judul Projek KP</div>
                             <div class="flex-1">: {{ $kp['judul'] }}</div>

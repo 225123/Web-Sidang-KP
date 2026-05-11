@@ -89,12 +89,15 @@ class PersetujuanSidangController extends Controller
         }
 
         // Simpan atau update jika sudah ada (mencegah pendobelan row)
+        // PENTING: status_koordinator HARUS 'unsubmitted' saat tahap ini agar record
+        // tidak muncul di tabel Verifikasi Berkas Koordinator sebelum mahasiswa submit berkas final.
         PendaftaranSidang::updateOrCreate(
             ['pendaftaran_kp_id' => $pendaftaran->id, 'mahasiswa_id' => $mahasiswaId],
             [
                 'file_laporan' => $filePath,
                 'link_github' => $request->link_drive,
                 'status_verifikasi' => 'pending', // Sesuai constraint DB ('pending', 'verified', 'rejected')
+                'status_koordinator' => 'unsubmitted', // Belum diajukan ke koordinator — hanya persetujuan dosen
             ]
         );
 

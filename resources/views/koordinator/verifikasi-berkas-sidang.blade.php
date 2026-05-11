@@ -27,7 +27,6 @@
                 'file_laporan' => $item->file_laporan ? asset('storage/'.$item->file_laporan) : null,
                 'file_log_bimbingan' => $item->file_log_bimbingan ? asset('storage/'.$item->file_log_bimbingan) : null,
                 'file_persetujuan' => $item->status_verifikasi === 'verified' ? route('mahasiswa.persetujuan-sidang.cetak', $item->id) : null,
-                'file_supervisor' => $item->file_nilai_supervisor ? asset('storage/'.$item->file_nilai_supervisor) : null,
                 'file_lainnya' => $item->file_berkas_lainnya ? asset('storage/'.$item->file_berkas_lainnya) : null,
                 'link_drive' => $item->link_drive,
                 'link_github' => $item->link_github,
@@ -277,44 +276,6 @@
                                                         </template>
                                                     </div>
 
-                                                    <!-- Nilai Superv -->
-                                                    <div class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-[8px] shadow-sm">
-                                                        <div class="flex items-center gap-3 w-full">
-                                                            <template x-if="row.token_penilaian_supervisor">
-                                                                <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-                                                                </div>
-                                                            </template>
-                                                            <template x-if="!row.token_penilaian_supervisor">
-                                                                <div class="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center shrink-0" :class="!row.file_supervisor ? 'bg-gray-100 text-gray-400' : ''">
-                                                                    <svg x-show="row.file_supervisor" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                                                                    <svg x-show="!row.file_supervisor" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12H4"></path></svg>
-                                                                </div>
-                                                            </template>
-                                                            
-                                                            <div class="flex flex-col flex-1 min-w-0">
-                                                                <span class="text-[11px] font-bold text-gray-700">Nilai Superv.</span>
-                                                                
-                                                                <!-- Jika pakai Link Token -->
-                                                                <template x-if="row.token_penilaian_supervisor">
-                                                                    <div class="flex items-center gap-1 mt-0.5">
-                                                                        <input type="text" readonly :value="`${window.location.origin}/penilaian-supervisor/${row.token_penilaian_supervisor}`" class="text-[9px] w-full bg-gray-50 border border-gray-200 rounded px-1.5 py-0.5 text-blue-600 truncate focus:outline-none">
-                                                                        <button @click="navigator.clipboard.writeText(`${window.location.origin}/penilaian-supervisor/${row.token_penilaian_supervisor}`); alert('Link Berhasil Disalin!')" class="shrink-0 text-gray-500 hover:text-blue-600 bg-gray-100 hover:bg-blue-50 rounded p-1 transition-colors" title="Copy Link">
-                                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                                                                        </button>
-                                                                    </div>
-                                                                </template>
-                                                                
-                                                                <!-- Jika Upload Biasa (Internal) -->
-                                                                <template x-if="!row.token_penilaian_supervisor">
-                                                                    <span class="text-[10px]" :class="row.file_supervisor ? 'text-green-600' : 'text-gray-400'" x-text="row.file_supervisor ? 'Terkumpul' : 'Opsional'"></span>
-                                                                </template>
-                                                            </div>
-                                                        </div>
-                                                        <template x-if="!row.token_penilaian_supervisor && row.file_supervisor">
-                                                            <a :href="row.file_supervisor" target="_blank" class="ml-2 px-3 py-1.5 bg-[#F8F9FA] hover:bg-gray-200 text-gray-700 border border-gray-300 text-[9px] font-bold rounded-[5px] transition-colors uppercase tracking-wider shrink-0">Lihat</a>
-                                                        </template>
-                                                    </div>
 
                                                     <!-- Lainnya -->
                                                     <div class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-[8px] shadow-sm">

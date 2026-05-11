@@ -298,25 +298,33 @@ class InputNilaiController extends Controller
         }
 
         if ($isComplete) {
-            $avg = array_sum($scores) / 4;
+            // Bobot resmi: Pembimbing 40%, Supervisor 10%, Penguji1 25%, Penguji2 25%
+            $pembimbing = (float) $sidang->nilai_pembimbing * 0.40;
+            $supervisor = (float) $sidang->nilai_supervisor * 0.10;
+            $penguji1   = (float) $sidang->nilai_penguji_1 * 0.25;
+            $penguji2   = (float) $sidang->nilai_penguji_2 * 0.25;
+            $avg = $pembimbing + $supervisor + $penguji1 + $penguji2;
+
             $sidang->nilai_akhir = round($avg, 3); // 3 decimals
 
-            if ($avg >= 85) {
+            if ($avg >= 86) {
                 $sidang->grade = 'A';
-            } elseif ($avg >= 80) {
+            } elseif ($avg >= 81) {
                 $sidang->grade = 'A-';
-            } elseif ($avg >= 75) {
+            } elseif ($avg >= 76) {
                 $sidang->grade = 'B+';
-            } elseif ($avg >= 70) {
+            } elseif ($avg >= 71) {
                 $sidang->grade = 'B';
-            } elseif ($avg >= 65) {
+            } elseif ($avg >= 66) {
                 $sidang->grade = 'B-';
-            } elseif ($avg >= 60) {
+            } elseif ($avg >= 61) {
                 $sidang->grade = 'C+';
-            } elseif ($avg >= 55) {
+            } elseif ($avg >= 56) {
                 $sidang->grade = 'C';
+            } elseif ($avg >= 46) {
+                $sidang->grade = 'D';
             } else {
-                $sidang->grade = 'D/E';
+                $sidang->grade = 'E';
             }
 
             $sidang->save();

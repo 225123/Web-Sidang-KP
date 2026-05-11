@@ -57,7 +57,6 @@ class PendaftaranSidangController extends Controller
         $request->validate([
             'file_laporan' => 'required|mimes:pdf|max:5120',
             'file_log_bimbingan' => 'required|mimes:pdf|max:5120',
-            'file_nilai_supervisor' => 'nullable|mimes:pdf|max:5120',
             'file_berkas_lainnya' => 'nullable|mimes:pdf|max:5120',
             'link_drive' => 'nullable|url',
             'link_github' => 'nullable|url',
@@ -106,9 +105,6 @@ class PendaftaranSidangController extends Controller
         }
         if ($request->hasFile('file_log_bimbingan')) {
             $dataToUpdate['file_log_bimbingan'] = $request->file('file_log_bimbingan')->store('sidang_berkas', 'public');
-        }
-        if ($request->hasFile('file_nilai_supervisor')) {
-            $dataToUpdate['file_nilai_supervisor'] = $request->file('file_nilai_supervisor')->store('sidang_berkas', 'public');
         }
         if ($request->hasFile('file_berkas_lainnya')) {
             $dataToUpdate['file_berkas_lainnya'] = $request->file('file_berkas_lainnya')->store('sidang_berkas', 'public');

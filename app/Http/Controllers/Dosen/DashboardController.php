@@ -31,9 +31,16 @@ class DashboardController extends Controller
         }
 
         // Ambil pendaftaran KP dimana dosen menjadi pembimbing
-        $kps = PendaftaranKp::with(['logBimbingans', 'mahasiswa.user', 'pembimbing'])
-            ->where('pembimbing_id', $dosenId)
-            ->get();
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+
+        $kpsQuery = PendaftaranKp::with(['logBimbingans', 'mahasiswa.user', 'pembimbing'])
+            ->where('pembimbing_id', $dosenId);
+
+        if ($periodeId) {
+            $kpsQuery->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+        }
+
+        $kps = $kpsQuery->get();
 
         $mahasiswaBimbingan = 0;
         $belumSidang = 0;
@@ -173,7 +180,6 @@ class DashboardController extends Controller
         $progressBimbingan = $totalBimbinganTarget > 0 ? round(($totalBimbinganSelesai / $totalBimbinganTarget) * 100) : 0;
 
         // 6. Timeline
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
         $timeline = TimelineKegiatan::where('kategori', 'dosen')
             ->where('periode_id', $periodeId)
             ->where('tanggal', '>=', now()->toDateString())

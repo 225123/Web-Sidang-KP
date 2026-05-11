@@ -10,21 +10,45 @@
 
             @if(session('success') || isset($existingKp))
 
-                <div class="flex flex-col items-center justify-center mt-12 w-full text-center">
-                    <svg class="w-28 h-28 mb-4 text-[#008000]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path
-                            d="M12 2l2.4 2.6L18 4l.6 3.4 3.4.6L20 10.4 22 14l-2.6 2.4L20 20l-3.4-.6L13.2 22 12 19.6 9.6 22 6.2 21.4 5.6 18 2 17.4 4 14 2 10.4l2.6-2.4L4 4l3.4.6L10.8 2 12 4.4z">
-                        </path>
-                        <polyline points="8 12 11 15 16 9" stroke-width="2.5"></polyline>
-                    </svg>
+                @if(isset($existingKp) && $existingKp->is_lanjutan)
+                    {{-- Banner khusus Mahasiswa Lanjut --}}
+                    <div class="flex flex-col items-center justify-center mt-12 w-full text-center">
+                        <div class="w-24 h-24 mb-5 flex items-center justify-center bg-[#EBEBEB] rounded-full">
+                            <svg class="w-12 h-12 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                        </div>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest bg-black text-white border border-black mb-3">Mahasiswa Lanjut</span>
+                        <h3 class="text-[17px] font-bold text-black mb-2">KP Periode Ini Sudah Terdaftar (Lanjutan)</h3>
+                        <p class="text-[14px] text-[#1A1A1A] font-medium max-w-md leading-relaxed">
+                            Data KP kamu dari periode sebelumnya sudah otomatis dipindahkan ke periode ini oleh sistem.
+                            Kamu tidak perlu mendaftar ulang &mdash; judul, instansi, supervisor, dan dosen pembimbing tetap sama.
+                            Segala tahapan bimbingan dan sidang akan dimulai dari awal.
+                        </p>
+                        <div class="mt-6 bg-[#F5F5F5] rounded-[10px] border border-[#D9D9D9] px-8 py-5 text-left text-[13px] font-medium text-black max-w-sm w-full space-y-2">
+                            <div class="flex"><div class="w-[130px] text-black/50">Judul KP</div><div class="flex-1">: {{ $existingKp->judul_kp ?? '-' }}</div></div>
+                            <div class="flex"><div class="w-[130px] text-black/50">Instansi</div><div class="flex-1">: {{ $existingKp->instansi_nama ?? '-' }}</div></div>
+                            <div class="flex"><div class="w-[130px] text-black/50">Pengerjaan</div><div class="flex-1">: {{ ucfirst($existingKp->pengerjaan_kp ?? '-') }}</div></div>
+                        </div>
+                    </div>
+                @else
+                    {{-- Banner biasa untuk pendaftaran berhasil / sudah terdaftar --}}
+                    <div class="flex flex-col items-center justify-center mt-12 w-full text-center">
+                        <svg class="w-28 h-28 mb-4 text-[#008000]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M12 2l2.4 2.6L18 4l.6 3.4 3.4.6L20 10.4 22 14l-2.6 2.4L20 20l-3.4-.6L13.2 22 12 19.6 9.6 22 6.2 21.4 5.6 18 2 17.4 4 14 2 10.4l2.6-2.4L4 4l3.4.6L10.8 2 12 4.4z">
+                            </path>
+                            <polyline points="8 12 11 15 16 9" stroke-width="2.5"></polyline>
+                        </svg>
 
-                    <h3 class="text-[17px] font-bold text-black mb-2">
-                        {{ isset($existingKp) && $existingKp->status_kp === 'approved' ? 'Pendaftaran KP Disetujui' : 'Kamu Telah Berhasil Mendaftar' }}
-                    </h3>
-                    <p class="text-[14px] text-[#1A1A1A] font-medium">Informasi selanjutnya akan diumumkan oleh koordinator
-                        KP melalui Email atau Notifikasi</p>
-                </div>
+                        <h3 class="text-[17px] font-bold text-black mb-2">
+                            {{ isset($existingKp) && $existingKp->status_kp === 'approved' ? 'Pendaftaran KP Disetujui' : 'Kamu Telah Berhasil Mendaftar' }}
+                        </h3>
+                        <p class="text-[14px] text-[#1A1A1A] font-medium">Informasi selanjutnya akan diumumkan oleh koordinator
+                            KP melalui Email atau Notifikasi</p>
+                    </div>
+                @endif
             @else
                     <div class="flex flex-col lg:flex-row items-start lg:items-center gap-6 mb-10 w-full">
                         <div class="bg-[#F8D7DA] rounded-[30px] py-4 px-6 flex items-center gap-4 w-full">

@@ -124,34 +124,6 @@
                             <div class="text-[10px] text-gray-400 font-medium">Maks. 5 MB (PDF)</div>
                         </div>
 
-                        @if($pendaftaran && $pendaftaran->jenis_instansi === 'Internal')
-                            <!-- Surat Penilaian Supervisor (Hanya Internal) -->
-                            <div x-data="{ hasFile: false }"
-                                class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
-                                <div class="text-[13px] font-bold text-black mb-3 flex justify-between items-start">
-                                    <span>Surat Nilai SPV</span>
-                                    <a href="{{ route('mahasiswa.pendaftaran-sidang.template-supervisor') }}"
-                                        class="text-[9px] bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold hover:bg-blue-200 transition-colors">Template</a>
-                                </div>
-                                <div class="flex items-start gap-2">
-                                    <input type="file" name="file_nilai_supervisor" accept=".pdf" x-ref="supervisor" @change="hasFile = $refs.supervisor.files.length > 0"
-                                        class="flex-1 text-[11px] text-gray-600 mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                                    <button type="button" x-cloak x-show="hasFile" @click="$refs.supervisor.value = ''; hasFile = false" 
-                                        class="shrink-0 p-1 mt-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Hapus File">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                    </button>
-                                </div>
-                                <div class="text-[10px] text-gray-400 font-medium">Opsional - Maks. 5 MB (PDF)</div>
-                            </div>
-                        @else
-                            <!-- Surat Penilaian Supervisor External diganti dengan info Link -->
-                            <div
-                                class="bg-blue-50 rounded-lg p-5 flex flex-col justify-center items-center text-center relative shadow-sm border border-blue-200">
-                                <svg class="w-8 h-8 text-blue-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <div class="text-[13px] font-bold text-blue-800 mb-1">Surat Nilai SPV</div>
-                                <div class="text-[10px] text-blue-600 font-medium leading-relaxed">Nilai akan langsung diinput oleh Supervisor Anda melalui tautan yang dikirimkan ke email mereka setelah sidang ini disetujui. Anda tidak perlu mengunggahnya.</div>
-                            </div>
-                        @endif
 
                         <!-- Berkas Lainnya -->
                         <div x-data="{ hasFile: false }"

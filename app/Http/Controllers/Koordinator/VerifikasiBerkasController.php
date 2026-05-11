@@ -22,7 +22,11 @@ class VerifikasiBerkasController extends Controller
                 $query->where('tahun_ajaran_id', $activePeriodId);
             })
             ->where('status_verifikasi', 'verified')
-            ->where('status_koordinator', '!=', 'unsubmitted')
+            ->where(function($q) {
+                // Hanya ambil yang sudah benar-benar diajukan ke koordinator (bukan NULL dan bukan unsubmitted)
+                $q->where('status_koordinator', '!=', 'unsubmitted')
+                  ->whereNotNull('status_koordinator');
+            })
             ->get();
 
         // 1. Yang ada di tabel utama (Pending, Verified, Rejected) -> Semua yang sudah diajukan
@@ -37,12 +41,16 @@ class VerifikasiBerkasController extends Controller
             ->get();
 
         // 3. Yang belum submit sama sekali (Tapi sudah ACC dosen) - Filter by period
+        // Juga tangkap status_koordinator = NULL (data legacy yang tidak ter-set dengan benar)
         $belumKumpuls = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp'])
             ->whereHas('pendaftaranKp', function($query) use ($activePeriodId) {
                 $query->where('tahun_ajaran_id', $activePeriodId);
             })
             ->where('status_verifikasi', 'verified')
-            ->where('status_koordinator', 'unsubmitted')
+            ->where(function($q) {
+                $q->where('status_koordinator', 'unsubmitted')
+                  ->orWhereNull('status_koordinator');
+            })
             ->get();
 
         // Rekap widget

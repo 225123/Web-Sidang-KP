@@ -80,9 +80,14 @@ class PeriodeKpController extends Controller
 
     private function carryOverLanjutStudents($oldPeriodeId, $newPeriodeId)
     {
-        $sidangs = \App\Models\PendaftaranSidang::with(['pendaftaranKp.supervisorInstansi'])
+        // PENTING: Gunakan withoutGlobalScope karena session sudah di-set ke $newPeriodeId
+        // sebelum fungsi ini dipanggil. Tanpa ini, Global Scope memblokir query ke periode lama.
+        $sidangs = \App\Models\PendaftaranSidang::withoutGlobalScope('periode')
+            ->with(['pendaftaranKp' => function ($q) {
+                $q->withoutGlobalScope('periode')->with('supervisorInstansi');
+            }])
             ->whereHas('pendaftaranKp', function ($q) use ($oldPeriodeId) {
-                $q->where('tahun_ajaran_id', $oldPeriodeId);
+                $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $oldPeriodeId);
             })
             ->whereIn('status_kelulusan', ['Lanjut', 'Tidak Lulus'])
             ->get();
@@ -91,7 +96,9 @@ class PeriodeKpController extends Controller
             $oldKp = $sidang->pendaftaranKp;
             if (!$oldKp) continue;
 
-            $exists = PendaftaranKp::where('mahasiswa_id', $oldKp->mahasiswa_id)
+            // Bypass global scope — kita sedang mengecek di periode BARU
+            $exists = PendaftaranKp::withoutGlobalScope('periode')
+                ->where('mahasiswa_id', $oldKp->mahasiswa_id)
                 ->where('tahun_ajaran_id', $newPeriodeId)
                 ->where('is_lanjutan', true)
                 ->exists();
@@ -110,7 +117,7 @@ class PeriodeKpController extends Controller
                     'tipe_kp' => $oldKp->tipe_kp,
                     'pengerjaan_kp' => $oldKp->pengerjaan_kp,
                     'anggota_kelompok_ids' => $oldKp->anggota_kelompok_ids,
-                    'status_kp' => 'approved', // Langsung disetujui tanpa verifikasi
+                    'status_kp' => 'approved', // Langsung disetujui tanpa verifikasi ulang
                     'is_lanjutan' => true,
                     'pendaftaran_asal_id' => $oldKp->id,
                 ]);

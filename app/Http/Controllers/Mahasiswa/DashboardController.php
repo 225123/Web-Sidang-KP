@@ -50,6 +50,7 @@ class DashboardController extends Controller
             'pembimbing' => ($latestKp && $latestKp->pembimbing && $latestKp->pembimbing->name) ? $latestKp->pembimbing->name : '-',
             'status_teks' => $latestKp ? ($latestKp->status_kp === 'approved' ? 'On Progress' : ($latestKp->status_kp === 'pending' ? 'Pending Approval' : 'Belum Mendaftar')) : 'Belum Mendaftar',
             'status_raw' => $latestKp->status_kp ?? 'none',
+            'is_lanjutan' => $latestKp ? (bool) $latestKp->is_lanjutan : false,
         ];
 
         $bimbinganDosenCount = 0;
