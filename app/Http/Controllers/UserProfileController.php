@@ -29,7 +29,7 @@ class UserProfileController extends Controller
             $profileData['id_label'] = 'NIM';
             $profileData['id_value'] = $user->mahasiswa->nim;
             $profileData['no_hp'] = $user->mahasiswa->no_hp ?? '-';
-        } elseif (in_array($role, ['dosen', 'koordinator_kp']) && $user->dosen) {
+        } elseif (in_array($role, ['dosen', 'koordinator']) && $user->dosen) {
             $profileData['id_label'] = 'NIDN/NIDK';
             $profileData['id_value'] = $user->dosen->nidn;
             $profileData['no_hp'] = $user->dosen->no_hp ?? '-';
@@ -39,7 +39,7 @@ class UserProfileController extends Controller
         $viewName = match ($role) {
             'mahasiswa' => 'mahasiswa.profil',
             'dosen' => 'dosen.profil',
-            'koordinator_kp' => 'koordinator.profil',
+            'koordinator' => 'koordinator.profil',
             default => 'dashboard', // fallback
         };
 
