@@ -25,13 +25,13 @@ class UserProfileController extends Controller
             'no_hp' => '-',
         ];
 
-        if ($role === 'mahasiswa' && $user->mahasiswa) {
+        if ($role === 'mahasiswa') {
             $profileData['id_label'] = 'NIM';
-            $profileData['id_value'] = $user->mahasiswa->nim;
+            $profileData['id_value'] = $user->mahasiswa->nim ?? '-';
             $profileData['no_hp'] = $user->mahasiswa->no_hp ?? '-';
-        } elseif (in_array($role, ['dosen', 'koordinator']) && $user->dosen) {
+        } elseif (in_array($role, ['dosen', 'koordinator'])) {
             $profileData['id_label'] = 'NIDN/NIDK';
-            $profileData['id_value'] = $user->dosen->nidn;
+            $profileData['id_value'] = $user->dosen->nidn ?? '-';
             $profileData['no_hp'] = $user->dosen->no_hp ?? '-';
         }
 
