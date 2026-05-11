@@ -3,9 +3,6 @@ set -e
 
 cd /var/www/html
 
-# Ganti port 8080 di nginx.conf dengan port dari Railway ($PORT)
-sed -i "s/listen 8080;/listen ${PORT:-8080};/" /etc/nginx/nginx.conf
-
 echo "==> Running migrations (FRESH) & Seeding..."
 php artisan migrate:fresh --seed --force
 
