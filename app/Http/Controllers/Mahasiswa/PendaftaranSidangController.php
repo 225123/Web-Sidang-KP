@@ -101,13 +101,13 @@ class PendaftaranSidangController extends Controller
         ];
 
         if ($request->hasFile('file_laporan')) {
-            $dataToUpdate['file_laporan'] = $request->file('file_laporan')->store('sidang_berkas', 'public');
+            $dataToUpdate['file_laporan'] = $request->file('file_laporan')->store('sidang_berkas', upload_disk());
         }
         if ($request->hasFile('file_log_bimbingan')) {
-            $dataToUpdate['file_log_bimbingan'] = $request->file('file_log_bimbingan')->store('sidang_berkas', 'public');
+            $dataToUpdate['file_log_bimbingan'] = $request->file('file_log_bimbingan')->store('sidang_berkas', upload_disk());
         }
         if ($request->hasFile('file_berkas_lainnya')) {
-            $dataToUpdate['file_berkas_lainnya'] = $request->file('file_berkas_lainnya')->store('sidang_berkas', 'public');
+            $dataToUpdate['file_berkas_lainnya'] = $request->file('file_berkas_lainnya')->store('sidang_berkas', upload_disk());
         }
 
         $pengajuan->update($dataToUpdate);

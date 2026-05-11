@@ -55,7 +55,7 @@ class RevisiController extends Controller
         }
 
         if ($request->hasFile('file_revisi')) {
-            $path = $request->file('file_revisi')->store('revisi_sidang', 'public');
+            $path = $request->file('file_revisi')->store('revisi_sidang', upload_disk());
             $sidang->file_revisi = $path;
         }
 

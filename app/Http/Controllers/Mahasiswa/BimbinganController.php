@@ -97,7 +97,7 @@ class BimbinganController extends Controller
 
         $filePath = null;
         if ($request->hasFile('bukti')) {
-            $filePath = $request->file('bukti')->store('log_bimbingan_bukti', 'public');
+            $filePath = $request->file('bukti')->store('log_bimbingan_bukti', upload_disk());
         }
 
         LogBimbingan::create([

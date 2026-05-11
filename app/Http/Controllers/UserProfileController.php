@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Helpers\ImageHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class UserProfileController extends Controller
 {
@@ -76,16 +78,24 @@ class UserProfileController extends Controller
     public function updateAvatar(Request $request)
     {
         $request->validate([
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
         ]);
 
         $user = Auth::user();
 
         if ($request->hasFile('avatar')) {
+            // Hapus avatar lama
             if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
+                Storage::disk(upload_disk())->delete($user->avatar);
             }
-            $path = $request->file('avatar')->store('avatars', 'public');
+
+            // Konversi ke WebP (max 400×400, quality 85)
+            $path = ImageHelper::convertToWebP(
+                $request->file('avatar'),
+                'avatars',
+                400, 400, 85, upload_disk()
+            );
+
             $user->avatar = $path;
             $user->save();
         }
@@ -96,16 +106,23 @@ class UserProfileController extends Controller
     public function updateSignatureUpload(Request $request)
     {
         $request->validate([
-            'signature_file' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'signature_file' => 'required|image|mimes:jpeg,png,jpg,webp|max:4096',
         ]);
 
         $user = Auth::user();
 
         if ($request->hasFile('signature_file')) {
             if ($user->signature_path) {
-                Storage::disk('public')->delete($user->signature_path);
+                Storage::disk(upload_disk())->delete($user->signature_path);
             }
-            $path = $request->file('signature_file')->store('signatures', 'public');
+
+            // Konversi ke WebP (max 800×250, quality 90 — transparan dipertahankan)
+            $path = ImageHelper::convertToWebP(
+                $request->file('signature_file'),
+                'signatures',
+                800, 250, 90, upload_disk()
+            );
+
             $user->signature_path = $path;
             $user->save();
         }
@@ -121,18 +138,32 @@ class UserProfileController extends Controller
 
         $user = Auth::user();
 
-        $image_parts = explode(';base64,', $request->signature_base64);
-        $image_type_aux = explode('image/', $image_parts[0]);
-        $image_type = $image_type_aux[1] ?? 'png';
-        $image_base64 = base64_decode($image_parts[1]);
+        // Decode base64 PNG dari canvas
+        $image_parts   = explode(';base64,', $request->signature_base64);
+        $image_base64  = base64_decode($image_parts[1] ?? '');
 
-        $fileName = 'signatures/'.uniqid().'.png';
+        // Konversi PNG canvas → WebP menggunakan GD
+        $source = imagecreatefromstring($image_base64);
+        $webpData = null;
 
-        Storage::disk('public')->put($fileName, $image_base64);
+        if ($source) {
+            // Pertahankan transparansi
+            imagealphablending($source, true);
+            imagesavealpha($source, true);
 
-        if ($user->signature_path) {
-            Storage::disk('public')->delete($user->signature_path);
+            ob_start();
+            imagewebp($source, null, 90);
+            $webpData = ob_get_clean();
+            imagedestroy($source);
         }
+
+        // Hapus signature lama
+        if ($user->signature_path) {
+            Storage::disk(upload_disk())->delete($user->signature_path);
+        }
+
+        $fileName = 'signatures/' . Str::uuid() . '.webp';
+        Storage::disk(upload_disk())->put($fileName, $webpData ?? $image_base64);
 
         $user->signature_path = $fileName;
         $user->save();

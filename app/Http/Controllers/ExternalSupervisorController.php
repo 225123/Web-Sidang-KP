@@ -57,7 +57,7 @@ class ExternalSupervisorController extends Controller
         // Upload PDF
         $filePath = null;
         if ($request->hasFile('file_nilai_supervisor')) {
-            $filePath = $request->file('file_nilai_supervisor')->store('sidang_berkas', 'public');
+            $filePath = $request->file('file_nilai_supervisor')->store('sidang_berkas', upload_disk());
         }
 
         $sidang->update([

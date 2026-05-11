@@ -49,7 +49,7 @@ class PengumumanController extends Controller
         $filePath = null;
 
         if ($request->hasFile('attachment')) {
-            $filePath = $request->file('attachment')->store('announcements', 'public');
+            $filePath = $request->file('attachment')->store('announcements', upload_disk());
         }
 
         if (in_array($target, ['semua', 'mahasiswa', 'dosen'])) {

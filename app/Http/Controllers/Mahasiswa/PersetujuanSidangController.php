@@ -85,7 +85,7 @@ class PersetujuanSidangController extends Controller
 
         $filePath = null;
         if ($request->hasFile('file_laporan')) {
-            $filePath = $request->file('file_laporan')->store('laporan_kp', 'public');
+            $filePath = $request->file('file_laporan')->store('laporan_kp', upload_disk());
         }
 
         // Simpan atau update jika sudah ada (mencegah pendobelan row)
