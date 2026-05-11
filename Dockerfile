@@ -65,6 +65,6 @@ COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 COPY docker/start.sh /start.sh
 RUN chmod +x /start.sh
 
-EXPOSE 10000
+EXPOSE 8080
 
 CMD ["/start.sh"]
