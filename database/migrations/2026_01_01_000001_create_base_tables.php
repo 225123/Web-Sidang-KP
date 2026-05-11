@@ -21,8 +21,7 @@ return new class extends Migration
             $table->timestamp('reset_token_expires')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
-            $table->timestamp('created_at')->useCurrent();
-            // User model uses const UPDATED_AT = null
+            $table->timestamps();
         });
 
         // 2. Tahun Ajaran Table
@@ -47,7 +46,7 @@ return new class extends Migration
             $table->string('angkatan')->nullable();
             $table->string('no_hp')->nullable();
             $table->string('email')->nullable();
-            // Mahasiswa model uses public $timestamps = false
+            $table->foreignId('pembimbing_id')->nullable()->constrained('users')->onDelete('set null');
         });
 
         // 4. Dosen Table
