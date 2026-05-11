@@ -3,9 +3,6 @@ set -e
 
 cd /var/www/html
 
-echo "==> Checking socket status..."
-ls -la /var/run || true
-
 echo "==> Running migrations (FRESH) & Seeding..."
 php artisan migrate:fresh --seed --force
 

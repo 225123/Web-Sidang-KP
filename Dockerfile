@@ -18,10 +18,7 @@ RUN apk add --no-cache \
     libzip-dev \
     nodejs \
     npm \
-    && sed -i 's/listen = .*$/listen = \/var\/run\/php-fpm.sock/' /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's/;listen.owner = www-data/listen.owner = www-data/' /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's/;listen.group = www-data/listen.group = www-data/' /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's/;listen.mode = 0660/listen.mode = 0660/' /usr/local/etc/php-fpm.d/www.conf
+    && sed -i 's/listen = .*$/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd \
@@ -53,11 +50,9 @@ COPY . .
 RUN composer dump-autoload --optimize --no-dev
 RUN npm ci && npm run build && rm -rf node_modules
 
-# Pastikan folder storage dan bootstrap cache punya izin tulis
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache \
-    && mkdir -p /var/run && chown www-data:www-data /var/run
+    && chmod -R 775 /var/www/html/bootstrap/cache
 
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
