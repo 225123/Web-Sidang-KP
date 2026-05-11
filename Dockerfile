@@ -61,6 +61,6 @@ COPY docker/start.sh /start.sh
 
 RUN chmod +x /start.sh
 
-EXPOSE 8080
+EXPOSE 80
 
 CMD ["/start.sh"]
