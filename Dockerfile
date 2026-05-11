@@ -17,7 +17,8 @@ RUN apk add --no-cache \
     postgresql-dev \
     libzip-dev \
     nodejs \
-    npm
+    npm \
+    && sed -i 's/listen = \/.*$/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd \
