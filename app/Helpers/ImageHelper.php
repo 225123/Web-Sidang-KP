@@ -66,13 +66,11 @@ class ImageHelper
 
         // Resize gambar
         imagecopyresampled($canvas, $source, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
-        imagedestroy($source);
 
         // Tulis WebP ke buffer memory
         ob_start();
         imagewebp($canvas, null, $quality);
         $webpData = ob_get_clean();
-        imagedestroy($canvas);
 
         // Simpan ke storage
         $filename = $folder . '/' . Str::uuid() . '.webp';

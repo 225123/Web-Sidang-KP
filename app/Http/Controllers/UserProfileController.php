@@ -154,7 +154,6 @@ class UserProfileController extends Controller
             ob_start();
             imagewebp($source, null, 90);
             $webpData = ob_get_clean();
-            imagedestroy($source);
         }
 
         // Hapus signature lama

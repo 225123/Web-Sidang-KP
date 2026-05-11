@@ -55,9 +55,24 @@ return [
             'secret'                  => env('CLOUDFLARE_R2_SECRET_ACCESS_KEY'),
             'region'                  => 'auto',
             'bucket'                  => env('CLOUDFLARE_R2_BUCKET'),
-            'url'                     => env('CLOUDFLARE_R2_URL'),       // Public URL: https://pub-xxx.r2.dev
-            'endpoint'                => env('CLOUDFLARE_R2_ENDPOINT'),  // https://<ACCOUNT_ID>.r2.cloudflarestorage.com
+            'url'                     => env('CLOUDFLARE_R2_URL'),
+            'endpoint'                => env('CLOUDFLARE_R2_ENDPOINT'),
             'use_path_style_endpoint' => true,
+            'visibility'              => 'public',
+            'throw'                   => false,
+        ],
+
+        // Storj — S3-compatible, gratis 25GB, TANPA kartu kredit
+        // Aktifkan di production dengan FILESYSTEM_DISK=storj
+        'storj' => [
+            'driver'                  => 's3',
+            'key'                     => env('STORJ_ACCESS_KEY_ID'),
+            'secret'                  => env('STORJ_SECRET_ACCESS_KEY'),
+            'region'                  => 'global',
+            'bucket'                  => env('STORJ_BUCKET', 'kp-sidang-storage'),
+            'url'                     => env('STORJ_URL'),
+            'endpoint'                => 'https://gateway.storjshare.io',
+            'use_path_style_endpoint' => false,
             'visibility'              => 'public',
             'throw'                   => false,
         ],

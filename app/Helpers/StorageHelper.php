@@ -28,7 +28,9 @@ if (! function_exists('storage_url')) {
         }
 
         // Untuk disk lain (r2, s3), gunakan Storage::disk()->url()
-        return Storage::disk($activeDisk)->url($path);
+        /** @var \Illuminate\Contracts\Filesystem\Cloud $cloudDisk */
+        $cloudDisk = Storage::disk($activeDisk);
+        return $cloudDisk->url($path);
     }
 }
 
