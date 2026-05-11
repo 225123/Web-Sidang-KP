@@ -33,7 +33,7 @@ class NotifikasiController extends Controller
         }
 
         // Sort Filter
-        $sort = $request->get('sort', 'desc');
+        $sort = $request->input('sort', 'desc');
         $query->orderBy('created_at', $sort);
 
         $notifikasis = $query->paginate(50);

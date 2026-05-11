@@ -72,7 +72,7 @@ class UserController extends Controller
             });
             $activeId = \App\Models\TahunAjaran::where('is_active', true)->value('id');
             if ($activeId) {
-                \Illuminate\Support\Facades\DB::table('mahasiswa')->update(['tahun_ajaran_id' => $activeId]);
+                DB::table('mahasiswa')->update(['tahun_ajaran_id' => $activeId]);
             }
         }
 
