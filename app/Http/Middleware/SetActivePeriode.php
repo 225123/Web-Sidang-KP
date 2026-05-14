@@ -48,7 +48,7 @@ class SetActivePeriode
                 }
 
                 // Fokus pada periode terbaru (paling atas di list)
-                $selected_period_id = $available_periods->first()->id ?? null;
+                $selected_period_id = optional($available_periods->first())->id;
                 
                 if ($selected_period_id) {
                     session(['selected_periode_id' => $selected_period_id]);

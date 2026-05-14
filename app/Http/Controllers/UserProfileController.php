@@ -36,11 +36,11 @@ class UserProfileController extends Controller
         }
 
         // Tentukan view yang tepat berdasarkan role
-        $viewName = match ($role) {
-            'mahasiswa' => 'mahasiswa.profil',
-            'dosen' => 'dosen.profil',
-            'koordinator' => 'koordinator.profil',
-            default => 'dashboard', // fallback
+        $viewName = match (true) {
+            $role === 'mahasiswa'                                          => 'mahasiswa.profil',
+            $role === 'dosen'                                             => 'dosen.profil',
+            $role === 'koordinator_kp' || str_contains($role, 'koordinator') => 'koordinator.profil',
+            default                                                       => 'koordinator.profil', // safe fallback
         };
 
         return view($viewName, compact('user', 'profileData', 'active'));
