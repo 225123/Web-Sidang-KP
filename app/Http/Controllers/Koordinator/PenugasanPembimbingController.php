@@ -91,7 +91,9 @@ class PenugasanPembimbingController extends Controller
 
     public function index(Request $request)
     {
-        $this->syncAllMahasiswa();
+        try {
+            $this->syncAllMahasiswa();
+
 
         $dosens = Dosen::with('user')->where('is_aktif', true)->get();
 
@@ -200,17 +202,22 @@ class PenugasanPembimbingController extends Controller
 
         return view('koordinator.Penugasan-Pembimbing', [
             'dosenList' => $dosenList,
-            'pendaftarans' => $paginatedItems,
-            'paginator' => $pendaftarans,
-            'startNumber' => $startNumber,
-            'endNumber' => $endNumber,
-            'totalMahasiswa' => $totalAllMahasiswa,
+            'pendaftarans'           => $paginatedItems,
+            'paginator'              => $pendaftarans,
+            'startNumber'            => $startNumber,
+            'endNumber'              => $endNumber,
+            'totalMahasiswa'         => $totalAllMahasiswa,
             'filteredMahasiswaCount' => $filteredMahasiswaCount,
-            'ditugaskanCount' => $ditugaskanCount,
-            'menungguCount' => $menungguCount,
-            'allGroupSizes' => $allGroupSizes,
+            'ditugaskanCount'        => $ditugaskanCount,
+            'menungguCount'          => $menungguCount,
+            'allGroupSizes'          => $allGroupSizes,
         ]);
+        } catch (\Throwable $e) {
+            error_log('[PenugasanPembimbing ERROR] ' . $e->getMessage() . ' | File: ' . $e->getFile() . ':' . $e->getLine());
+            throw $e;
+        }
     }
+
 
     private function formatClusters($allMahasiswas)
     {

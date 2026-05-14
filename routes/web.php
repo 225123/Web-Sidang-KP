@@ -31,8 +31,31 @@ use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    if (auth()->check()) {
+        $role = auth()->user()->role;
+        return match($role) {
+            'koordinator_kp' => redirect()->route('koordinator.dashboard'),
+            'dosen'          => redirect()->route('dosen.dashboard'),
+            'mahasiswa'      => redirect()->route('mahasiswa.dashboard'),
+            default          => redirect()->route('login'),
+        };
+    }
     return redirect()->route('login');
 });
+
+// /dashboard → redirect sesuai role (bukan halaman default Laravel Breeze)
+Route::get('/dashboard', function () {
+    if (auth()->check()) {
+        $role = auth()->user()->role;
+        return match($role) {
+            'koordinator_kp' => redirect()->route('koordinator.dashboard'),
+            'dosen'          => redirect()->route('dosen.dashboard'),
+            'mahasiswa'      => redirect()->route('mahasiswa.dashboard'),
+            default          => redirect()->route('login'),
+        };
+    }
+    return redirect()->route('login');
+})->middleware(['auth'])->name('dashboard');
 
 // ==========================================
 // PUBLIC ROUTES (External Supervisor)
@@ -40,10 +63,6 @@ Route::get('/', function () {
 Route::get('/penilaian-supervisor/success', [\App\Http\Controllers\ExternalSupervisorController::class, 'success'])->name('supervisor.penilaian.success');
 Route::get('/penilaian-supervisor/{token}', [\App\Http\Controllers\ExternalSupervisorController::class, 'showForm'])->name('supervisor.penilaian.form');
 Route::post('/penilaian-supervisor/{token}', [\App\Http\Controllers\ExternalSupervisorController::class, 'submitNilai'])->name('supervisor.penilaian.submit');
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
