@@ -88,7 +88,7 @@
                 </a>
 
                 <div class="flex items-center gap-3 md:gap-4">
-                    <div class="text-right flex flex-col justify-center max-w-[90px] sm:max-w-[150px] md:max-w-none">
+                    <div class="text-right flex flex-col justify-center max-w-[120px] sm:max-w-[150px] md:max-w-[200px] lg:max-w-[250px]">
                         <span class="text-[10px] sm:text-[12px] md:text-[14px] lg:text-[17px] font-bree uppercase text-black font-normal truncate">{{ $roleName ?? 'ROLE' }}</span>
                         <span class="text-[10px] sm:text-[12px] md:text-[14px] lg:text-[17px] font-bree text-black font-normal truncate">
                             @php
