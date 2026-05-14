@@ -62,8 +62,10 @@ class TahunAjaran extends Model
      */
     public function scopeTerbaru($query)
     {
-        return $query->orderByRaw("CAST(SUBSTR(tahun, 1, INSTR(tahun, '/') - 1) AS INTEGER) DESC")
-            ->orderByRaw("CASE semester WHEN 'Genap' THEN 1 ELSE 0 END DESC");
+        // Menggunakan ORDER BY tahun DESC (format "YYYY/YYYY" — urutan leksikografis = numerik)
+        // CASE WHEN adalah SQL standar, kompatibel SQLite & PostgreSQL
+        return $query->orderBy('tahun', 'desc')
+            ->orderByRaw("CASE WHEN semester = 'Genap' THEN 1 ELSE 0 END DESC");
     }
     public function pendaftaranKps()
     {
