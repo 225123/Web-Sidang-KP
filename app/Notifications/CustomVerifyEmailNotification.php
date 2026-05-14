@@ -10,7 +10,9 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\URL;
 
-class CustomVerifyEmailNotification extends Notification
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+class CustomVerifyEmailNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 

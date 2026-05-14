@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\URL;
 
-class CustomResetPasswordNotification extends Notification
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+class CustomResetPasswordNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
