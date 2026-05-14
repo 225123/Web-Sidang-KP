@@ -3,8 +3,8 @@ set -e
 
 cd /var/www/html
 
-echo "==> Running migrations (FRESH) & Seeding..."
-php artisan migrate:fresh --seed --force
+echo "==> Running migrations..."
+php artisan migrate --force
 
 echo "==> Clearing cache..."
 php artisan config:clear
