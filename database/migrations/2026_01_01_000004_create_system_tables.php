@@ -40,11 +40,12 @@ return new class extends Migration
         // 3. Timeline Kegiatan
         Schema::create('timeline_kegiatan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tahun_ajaran_id')->constrained('tahun_ajaran')->onDelete('cascade');
+            $table->foreignId('periode_id')->nullable()->constrained('tahun_ajaran')->onDelete('cascade');
             $table->string('nama_kegiatan');
-            $table->date('tanggal_mulai');
-            $table->date('tanggal_selesai');
-            $table->string('warna')->default('blue');
+            $table->date('tanggal');
+            $table->time('waktu')->nullable();
+            $table->string('kategori')->default('mahasiswa'); // 'mahasiswa' | 'dosen'
+            $table->text('keterangan')->nullable();
             $table->timestamps();
         });
 
