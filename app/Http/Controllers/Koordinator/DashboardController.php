@@ -7,120 +7,125 @@ use App\Models\PendaftaranKp;
 use App\Models\PendaftaranSidang;
 use App\Models\TimelineKegiatan;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Statistics for Cards
-        // 1. Statistics for Cards
-        // Peserta KP: Users who are mahasiswa AND have registration in the selected period
-        $totalMahasiswaQuery = User::where('role', 'mahasiswa');
-        if (session()->has('selected_periode_id')) {
-            $periodeId = session('selected_periode_id');
-            // Filter melalui pendaftaranKps (mahasiswas tidak memiliki kolom tahun_ajaran_id)
-            $totalMahasiswaQuery->whereHas('mahasiswa', function($sq) use ($periodeId) {
-                $sq->whereHas('pendaftaranKps', function($q2) use ($periodeId) {
-                    $q2->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+        try {
+            // 1. Statistics for Cards
+            // Peserta KP: Users who are mahasiswa AND have registration in the selected period
+            $totalMahasiswaQuery = User::where('role', 'mahasiswa');
+            if (session()->has('selected_periode_id')) {
+                $periodeId = session('selected_periode_id');
+                $totalMahasiswaQuery->whereHas('mahasiswa', function($sq) use ($periodeId) {
+                    $sq->whereHas('pendaftaranKps', function($q2) use ($periodeId) {
+                        $q2->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+                    });
                 });
-            });
+            }
+            $totalMahasiswa = $totalMahasiswaQuery->count();
+
+            // KP Berjalan: Mahasiswa yang sudah approved KP tapi BELUM selesai sidang
+            $kpBerjalan = PendaftaranKp::where('status_kp', 'approved')
+                ->whereDoesntHave('pendaftaranSidang', function($q) {
+                    $q->where('pelaksanaan', 'Selesai');
+                })->count();
+
+            // KP Selesai
+            $kpSelesai = PendaftaranSidang::where('pelaksanaan', 'Selesai')->count();
+
+            // Sidang Terjadwal
+            $sidangTerjadwal = PendaftaranSidang::where('status_jadwal', 'submitted')->count();
+
+            // Berkas Sidang
+            $sudahKumpulBerkas = PendaftaranSidang::where('status_koordinator', 'verified')->count();
+            $belumKumpulBerkas = PendaftaranSidang::where('status_koordinator', 'pending')->count();
+
+            $stats = [
+                'total_mahasiswa' => $totalMahasiswa,
+                'kp_berjalan'     => $kpBerjalan,
+                'kp_selesai'      => $kpSelesai,
+                'sidang_terjadwal' => $sidangTerjadwal,
+                'sudah_berkas'    => $sudahKumpulBerkas,
+                'belum_berkas'    => $belumKumpulBerkas,
+            ];
+
+            $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
+
+            // 2. Timeline terdekat
+            $timelineDosen = TimelineKegiatan::where('kategori', 'dosen')
+                ->where('periode_id', $periodeId)
+                ->where('tanggal', '>=', now()->toDateString())
+                ->orderBy('tanggal', 'asc')
+                ->orderBy('waktu', 'asc')
+                ->take(1)
+                ->first();
+
+            // 3. Chart Data: Weekly Sidang count per day (Carbon-based, DB-agnostic)
+            $sidangsThisWeek = PendaftaranSidang::whereNotNull('tanggal_sidang')
+                ->whereBetween('tanggal_sidang', [now()->startOfWeek(), now()->endOfWeek()])
+                ->pluck('tanggal_sidang');
+
+            $currentWeekSidangs = [];
+            foreach ($sidangsThisWeek as $tanggal) {
+                $day = (int) \Carbon\Carbon::parse($tanggal)->dayOfWeek;
+                $currentWeekSidangs[$day] = ($currentWeekSidangs[$day] ?? 0) + 1;
+            }
+
+            $weeklySidangStats = [];
+            for ($i = 0; $i < 7; $i++) {
+                $weeklySidangStats[] = $currentWeekSidangs[$i] ?? 0;
+            }
+
+            // 4. Progress Sidang
+            $totalApprovedKp = PendaftaranKp::where('status_kp', 'approved')->count();
+            $sudahSidang     = PendaftaranSidang::where('pelaksanaan', 'Selesai')->count();
+            $belumSidang     = max(0, $totalApprovedKp - $sudahSidang);
+
+            $progressSidang = [
+                'sudah' => $totalApprovedKp > 0 ? round(($sudahSidang / $totalApprovedKp) * 100) : 0,
+                'belum' => $totalApprovedKp > 0 ? round(($belumSidang / $totalApprovedKp) * 100) : 100,
+            ];
+
+            // 5. Notifikasi
+            $userId = auth()->id();
+            $notifikasi = \App\Models\NotifikasiLog::where(function ($query) use ($userId) {
+                    $query->where('receiver_id', $userId)
+                          ->orWhere('target_role', 'koordinator');
+                })
+                ->where('is_read', false)
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get();
+
+            $notifikasiCount = \App\Models\NotifikasiLog::where(function ($query) use ($userId) {
+                    $query->where('receiver_id', $userId)
+                          ->orWhere('target_role', 'koordinator');
+                })
+                ->where('is_read', false)
+                ->count();
+
+            return view('koordinator.dashboard', [
+                'active'          => 'dashboard',
+                'stats'           => $stats,
+                'timeline'        => $timelineDosen,
+                'weeklySidangStats' => $weeklySidangStats,
+                'progressSidang'  => $progressSidang,
+                'sudahSidangCount' => $sudahSidang,
+                'belumSidangCount' => $belumSidang,
+                'notifikasi'      => $notifikasi,
+                'notifikasiCount' => $notifikasiCount,
+            ]);
+
+        } catch (\Throwable $e) {
+            Log::error('[KoordinatorDashboard] ' . $e->getMessage(), [
+                'file'  => $e->getFile(),
+                'line'  => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e; // Re-throw agar muncul di Railway stderr logs
         }
-        $totalMahasiswa = $totalMahasiswaQuery->count();
-
-        // The following counts automatically use the global scope from PendaftaranKp and PendaftaranSidang
-        // KP Berjalan: Mahasiswa yang sudah approved KP tapi BELUM selesai sidang
-        $kpBerjalan = PendaftaranKp::where('status_kp', 'approved')
-            ->whereDoesntHave('pendaftaranSidang', function($q) {
-                $q->where('pelaksanaan', 'Selesai');
-            })->count();
-        // KP Selesai: Mahasiswa yang sudah melakukan sidang (pelaksanaan = Selesai), apapun hasilnya
-        $kpSelesai = PendaftaranSidang::where('pelaksanaan', 'Selesai')->count();
-        
-        // Sidang Terjadwal: Sudah dipublikasikan ke kalender (submitted)
-        $sidangTerjadwal = PendaftaranSidang::where('status_jadwal', 'submitted')->count();
-        
-        // Berkas Sidang (Verifikasi Koordinator)
-        $sudahKumpulBerkas = PendaftaranSidang::where('status_koordinator', 'verified')->count();
-        $belumKumpulBerkas = PendaftaranSidang::where('status_koordinator', 'pending')->count();
-
-        $stats = [
-            'total_mahasiswa' => $totalMahasiswa,
-            'kp_berjalan' => $kpBerjalan,
-            'kp_selesai' => $kpSelesai,
-            'sidang_terjadwal' => $sidangTerjadwal,
-            'sudah_berkas' => $sudahKumpulBerkas,
-            'belum_berkas' => $belumKumpulBerkas,
-        ];
-
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
-
-        // 2. Timeline (Closest for Dosen)
-        $timelineDosen = TimelineKegiatan::where('kategori', 'dosen')
-            ->where('periode_id', $periodeId)
-            ->where('tanggal', '>=', now()->toDateString())
-            ->orderBy('tanggal', 'asc')
-            ->orderBy('waktu', 'asc')
-            ->take(1)
-            ->first();
-
-        // 3. Chart Data: Weekly Sidang count per day
-        // Menggunakan PHP (Carbon) untuk kompatibilitas SQLite & PostgreSQL
-        // strftime() adalah SQLite-only dan tidak berjalan di PostgreSQL
-        $sidangsThisWeek = PendaftaranSidang::whereNotNull('tanggal_sidang')
-            ->whereBetween('tanggal_sidang', [now()->startOfWeek(), now()->endOfWeek()])
-            ->pluck('tanggal_sidang');
-
-        $currentWeekSidangs = [];
-        foreach ($sidangsThisWeek as $tanggal) {
-            $day = (int) \Carbon\Carbon::parse($tanggal)->dayOfWeek; // 0=Sun … 6=Sat
-            $currentWeekSidangs[$day] = ($currentWeekSidangs[$day] ?? 0) + 1;
-        }
-
-        // Weekly labels: Sun (0) to Sat (6)
-        $weeklySidangStats = [];
-        for ($i = 0; $i < 7; $i++) {
-            $weeklySidangStats[] = $currentWeekSidangs[$i] ?? 0;
-        }
-
-        // 4. Progress Sidang: sudah vs belum
-        // Progress based on students who have approved KP in this period
-        $totalApprovedKp = PendaftaranKp::where('status_kp', 'approved')->count();
-        $sudahSidang = PendaftaranSidang::where('pelaksanaan', 'Selesai')->count();
-        $belumSidang = max(0, $totalApprovedKp - $sudahSidang);
-
-        $progressSidang = [
-            'sudah' => $totalApprovedKp > 0 ? round(($sudahSidang / $totalApprovedKp) * 100) : 0,
-            'belum' => $totalApprovedKp > 0 ? round(($belumSidang / $totalApprovedKp) * 100) : 100,
-        ];
-
-        // 5. Notifikasi (Dynamic)
-        $userId = auth()->id();
-        $notifikasi = \App\Models\NotifikasiLog::where(function ($query) use ($userId) {
-                $query->where('receiver_id', $userId)
-                    ->orWhere('target_role', 'koordinator');
-            })
-            ->where('is_read', false)
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
-            
-        $notifikasiCount = \App\Models\NotifikasiLog::where(function ($query) use ($userId) {
-                $query->where('receiver_id', $userId)
-                    ->orWhere('target_role', 'koordinator');
-            })
-            ->where('is_read', false)
-            ->count();
-
-        return view('koordinator.dashboard', [
-            'active' => 'dashboard',
-            'stats' => $stats,
-            'timeline' => $timelineDosen,
-            'weeklySidangStats' => $weeklySidangStats,
-            'progressSidang' => $progressSidang,
-            'sudahSidangCount' => $sudahSidang,
-            'belumSidangCount' => $belumSidang,
-            'notifikasi' => $notifikasi,
-            'notifikasiCount' => $notifikasiCount,
-        ]);
     }
 }
