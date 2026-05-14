@@ -43,4 +43,10 @@ class Mahasiswa extends Model
             ->latestOfMany()
             ->withDefault();
     }
+
+    public function pendaftaranKps()
+    {
+        // mahasiswa_id di pendaftaran_kp merujuk ke user_id di tabel mahasiswa
+        return $this->hasMany(PendaftaranKp::class, 'mahasiswa_id', 'user_id');
+    }
 }

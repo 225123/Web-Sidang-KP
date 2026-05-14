@@ -7,7 +7,6 @@ use App\Models\PendaftaranKp;
 use App\Models\PendaftaranSidang;
 use App\Models\TimelineKegiatan;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -19,8 +18,11 @@ class DashboardController extends Controller
         $totalMahasiswaQuery = User::where('role', 'mahasiswa');
         if (session()->has('selected_periode_id')) {
             $periodeId = session('selected_periode_id');
+            // Filter melalui pendaftaranKps (mahasiswas tidak memiliki kolom tahun_ajaran_id)
             $totalMahasiswaQuery->whereHas('mahasiswa', function($sq) use ($periodeId) {
-                $sq->where('tahun_ajaran_id', $periodeId);
+                $sq->whereHas('pendaftaranKps', function($q2) use ($periodeId) {
+                    $q2->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+                });
             });
         }
         $totalMahasiswa = $totalMahasiswaQuery->count();
@@ -61,13 +63,18 @@ class DashboardController extends Controller
             ->take(1)
             ->first();
 
-        // 3. Chart Data: Monthly Registrations
-        $currentWeekSidangs = PendaftaranSidang::whereNotNull('tanggal_sidang')
+        // 3. Chart Data: Weekly Sidang count per day
+        // Menggunakan PHP (Carbon) untuk kompatibilitas SQLite & PostgreSQL
+        // strftime() adalah SQLite-only dan tidak berjalan di PostgreSQL
+        $sidangsThisWeek = PendaftaranSidang::whereNotNull('tanggal_sidang')
             ->whereBetween('tanggal_sidang', [now()->startOfWeek(), now()->endOfWeek()])
-            ->select(DB::raw('strftime("%w", tanggal_sidang) as day'), DB::raw('count(*) as count'))
-            ->groupBy('day')
-            ->pluck('count', 'day')
-            ->toArray();
+            ->pluck('tanggal_sidang');
+
+        $currentWeekSidangs = [];
+        foreach ($sidangsThisWeek as $tanggal) {
+            $day = (int) \Carbon\Carbon::parse($tanggal)->dayOfWeek; // 0=Sun … 6=Sat
+            $currentWeekSidangs[$day] = ($currentWeekSidangs[$day] ?? 0) + 1;
+        }
 
         // Weekly labels: Sun (0) to Sat (6)
         $weeklySidangStats = [];
