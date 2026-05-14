@@ -120,12 +120,8 @@ class DashboardController extends Controller
             ]);
 
         } catch (\Throwable $e) {
-            Log::error('[KoordinatorDashboard] ' . $e->getMessage(), [
-                'file'  => $e->getFile(),
-                'line'  => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-            throw $e; // Re-throw agar muncul di Railway stderr logs
+            error_log('[KOORDINATOR_DASHBOARD_ERROR] ' . get_class($e) . ': ' . $e->getMessage() . ' | File: ' . $e->getFile() . ' Line: ' . $e->getLine());
+            throw $e;
         }
     }
 }
