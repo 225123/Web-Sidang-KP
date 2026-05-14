@@ -250,18 +250,45 @@
                             <div x-show="isDosenDuplicate" class="text-red-600 text-[13px] md:ml-[230px] font-bold mt-1">ID ini sudah terdaftar sebagai Dosen/Koordinator. Duplikasi ditolak.</div>
                             <div x-show="isCheckingId" class="text-blue-500 text-[12px] md:ml-[230px] mt-1">Mengecek ID...</div>
 
+                            <!-- Banner: User ditemukan dari periode sebelumnya -->
+                            <div x-show="isExistingUser && !isDosenDuplicate" x-cloak
+                                 class="md:ml-[230px] flex items-start gap-2 bg-amber-50 border border-amber-300 rounded-lg px-3 py-2.5 text-[12.5px] text-amber-800">
+                                <svg class="w-4 h-4 text-amber-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0-6v2m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                                <span><strong>User ditemukan dari periode sebelumnya.</strong> Data nama, email, dan role diisi otomatis dan <strong>tidak dapat diubah</strong> untuk menjaga konsistensi data.</span>
+                            </div>
+
                             <!-- Nama -->
                             <div class="flex flex-col md:flex-row md:items-center">
                                 <label class="w-full md:w-[200px] text-[15px] text-black font-medium mb-1 md:mb-0">Nama Lengkap</label>
                                 <span class="hidden md:inline text-black mx-4">:</span>
-                                <input type="text" name="name" x-model="formData.name" required class="flex-1 w-full md:max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Ketik nama...">
+                                <div class="relative flex-1 w-full md:max-w-[300px]">
+                                    <input type="text" name="name" x-model="formData.name" required
+                                           :readonly="isExistingUser"
+                                           :class="isExistingUser ? 'bg-gray-200 text-gray-500 cursor-not-allowed select-none' : 'bg-[#D9D9D9] focus:ring-1 focus:ring-blue-500'"
+                                           class="w-full h-[32px] px-3 font-italic text-[14px] text-black outline-none pr-8"
+                                           placeholder="Ketik nama...">
+                                    <svg x-show="isExistingUser" class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
+                                </div>
                             </div>
 
                             <!-- Email -->
                             <div class="flex flex-col md:flex-row md:items-center">
                                 <label class="w-full md:w-[200px] text-[15px] text-black font-medium mb-1 md:mb-0">Email Utama</label>
                                 <span class="hidden md:inline text-black mx-4">:</span>
-                                <input type="email" name="email" x-model="formData.email" required class="flex-1 w-full md:max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Input Email User">
+                                <div class="relative flex-1 w-full md:max-w-[300px]">
+                                    <input type="email" name="email" x-model="formData.email" required
+                                           :readonly="isExistingUser"
+                                           :class="isExistingUser ? 'bg-gray-200 text-gray-500 cursor-not-allowed select-none' : 'bg-[#D9D9D9] focus:ring-1 focus:ring-blue-500'"
+                                           class="w-full h-[32px] px-3 font-italic text-[14px] text-black outline-none pr-8"
+                                           placeholder="Input Email User">
+                                    <svg x-show="isExistingUser" class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
+                                </div>
                             </div>
 
                             <!-- Role Dropdown -->
@@ -269,13 +296,25 @@
                                 <label class="w-full md:w-[200px] text-[15px] text-black md:mt-1 font-medium mb-1 md:mb-0">Role System</label>
                                 <span class="hidden md:inline text-black mx-4 mt-1">:</span>
                                 <div class="relative flex-1 w-full md:max-w-[300px]">
-                                    <button @click="openRole = !openRole" type="button" class="w-full h-[32px] bg-[#D9D9D9] px-3 flex items-center justify-between outline-none focus:ring-1 focus:ring-blue-500">
-                                        <span x-text="selectedRole" :class="selectedRole === 'Input Role User' ? 'text-black/50 italic text-[14px]' : 'text-black text-[14px] font-medium'"></span>
-                                        <span class="text-black/70 font-bold transform rotate-90" :class="openRole ? '-rotate-90' : ''">&gt;</span>
-                                    </button>
+                                    <!-- Locked display (readonly state) -->
+                                    <template x-if="isExistingUser">
+                                        <div class="w-full h-[32px] bg-gray-200 px-3 pr-8 flex items-center justify-between cursor-not-allowed">
+                                            <span x-text="selectedRole" class="text-[14px] text-gray-500 font-medium"></span>
+                                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                            </svg>
+                                        </div>
+                                    </template>
+                                    <!-- Editable dropdown -->
+                                    <template x-if="!isExistingUser">
+                                        <button @click="openRole = !openRole" type="button" class="w-full h-[32px] bg-[#D9D9D9] px-3 flex items-center justify-between outline-none focus:ring-1 focus:ring-blue-500">
+                                            <span x-text="selectedRole" :class="selectedRole === 'Input Role User' ? 'text-black/50 italic text-[14px]' : 'text-black text-[14px] font-medium'"></span>
+                                            <span class="text-black/70 font-bold transform rotate-90" :class="openRole ? '-rotate-90' : ''">&gt;</span>
+                                        </button>
+                                    </template>
 
                                     <!-- Dropdown Menu -->
-                                    <div x-show="openRole" @click.away="openRole = false" class="absolute z-10 w-full mt-1 bg-[#E4E3E3] shadow-md border border-gray-300">
+                                    <div x-show="openRole && !isExistingUser" @click.away="openRole = false" class="absolute z-10 w-full mt-1 bg-[#E4E3E3] shadow-md border border-gray-300">
                                         <div @click="selectedRole = 'Koordinator KP'; openRole = false" class="px-4 py-2 text-[14px] font-medium cursor-pointer hover:bg-[#456DA7] hover:text-[#EBDFDF] transition-colors" :class="selectedRole === 'Koordinator KP' ? 'bg-[#456DA7] text-[#EBDFDF]' : 'text-[#333]'">Koordinator KP</div>
                                         <div @click="selectedRole = 'Dosen'; openRole = false" class="px-4 py-2 text-[14px] font-medium cursor-pointer hover:bg-[#456DA7] hover:text-[#EBDFDF] transition-colors" :class="selectedRole === 'Dosen' ? 'bg-[#456DA7] text-[#EBDFDF]' : 'text-[#333]'">Dosen</div>
                                         <div @click="selectedRole = 'Mahasiswa'; openRole = false" class="px-4 py-2 text-[14px] font-medium cursor-pointer hover:bg-[#456DA7] hover:text-[#EBDFDF] transition-colors" :class="selectedRole === 'Mahasiswa' ? 'bg-[#456DA7] text-[#EBDFDF]' : 'text-[#333]'">Mahasiswa</div>
@@ -383,10 +422,12 @@
                 },
                 isCheckingId: false,
                 isDosenDuplicate: false,
+                isExistingUser: false,
 
                 async checkIdUser() {
                     if (!this.formData.id_user) {
                         this.isDosenDuplicate = false;
+                        this.isExistingUser = false;
                         return;
                     }
                     
@@ -396,17 +437,24 @@
                         const data = await response.json();
                         
                         if (data.exists) {
-                            this.formData.name = data.name;
+                            // Auto-fill fields from server data
+                            this.formData.name  = data.name;
                             this.formData.email = data.email;
-                            this.selectedRole = data.role;
+                            this.selectedRole   = data.role;
                             
                             if (data.role_type === 'dosen') {
+                                // Dosen/Koordinator: duplikat ditolak, tapi field tetap bisa dibaca
                                 this.isDosenDuplicate = true;
+                                this.isExistingUser   = false;
                             } else {
+                                // Mahasiswa dari periode sebelumnya: field dikunci
                                 this.isDosenDuplicate = false;
+                                this.isExistingUser   = true;
                             }
                         } else {
+                            // ID tidak ditemukan: semua state direset, field bisa diisi bebas
                             this.isDosenDuplicate = false;
+                            this.isExistingUser   = false;
                         }
                     } catch (error) {
                         console.error('Error checking ID:', error);
