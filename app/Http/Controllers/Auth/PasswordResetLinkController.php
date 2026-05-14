@@ -40,7 +40,10 @@ class PasswordResetLinkController extends Controller
                         : back()->withInput($request->only('email'))
                             ->withErrors(['email' => __($status)]);
         } catch (\Throwable $e) {
-            error_log('[ForgotPassword ERROR] ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('[ForgotPassword ERROR] ' . $e->getMessage(), [
+                'exception' => $e,
+                'email' => $request->email
+            ]);
             return back()->withInput($request->only('email'))
                 ->withErrors(['email' => 'Gagal mengirim email. Pastikan konfigurasi email sudah benar atau coba lagi nanti.']);
         }
