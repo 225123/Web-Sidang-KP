@@ -208,7 +208,7 @@ class PendaftaranKpController extends Controller
 
             $dataKp = [
                 'mahasiswa_id' => auth()->id(),
-                'tahun_ajaran_id' => \App\Models\TahunAjaran::aktif()->id ?? null,
+                'tahun_ajaran_id' => \App\Models\TahunAjaran::aktif()?->id ?? null,
                 'judul_kp' => $request->judul_kp,
                 'jenis_instansi' => $request->jenis_instansi,
                 'tipe_kp' => strtolower($request->jenis_instansi),

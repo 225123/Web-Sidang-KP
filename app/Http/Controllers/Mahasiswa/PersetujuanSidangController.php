@@ -17,7 +17,7 @@ class PersetujuanSidangController extends Controller
     {
         $mahasiswaId = Auth::user()->id;
 
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         // Ambil data Pendaftaran KP yang sudah APPROVED milik mahasiswa ini (termasuk kelompook)
         $query = PendaftaranKp::withoutGlobalScope('periode')
@@ -62,7 +62,7 @@ class PersetujuanSidangController extends Controller
 
         $mahasiswaId = Auth::user()->id;
 
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         // Cari ID KP yang aktif untuk mahasiswa (termasuk kelompok)
         $query = PendaftaranKp::withoutGlobalScope('periode')

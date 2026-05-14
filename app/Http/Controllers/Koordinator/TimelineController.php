@@ -10,7 +10,7 @@ class TimelineController extends Controller
 {
     public function index()
     {
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         $timelineMahasiswa = TimelineKegiatan::where('kategori', 'mahasiswa')
             ->where('periode_id', $periodeId)
@@ -41,7 +41,7 @@ class TimelineController extends Controller
             'keterangan' => 'nullable|string',
         ]);
 
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
         
         $data = $request->all();
         $data['periode_id'] = $periodeId;

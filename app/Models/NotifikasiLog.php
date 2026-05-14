@@ -13,7 +13,7 @@ class NotifikasiLog extends Model
     {
         static::creating(function ($notifikasi) {
             if (!$notifikasi->periode_id) {
-                $notifikasi->periode_id = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+                $notifikasi->periode_id = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
             }
         });
     }

@@ -52,7 +52,7 @@ class DashboardController extends Controller
             'belum_berkas' => $belumKumpulBerkas,
         ];
 
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         // 2. Timeline (Closest for Dosen)
         $timelineDosen = TimelineKegiatan::where('kategori', 'dosen')

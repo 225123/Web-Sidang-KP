@@ -12,7 +12,7 @@ class VerifikasiBerkasController extends Controller
 {
     public function index()
     {
-        $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id;
+        $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id;
 
         // Ambil semua data sidang yang sudah diajukan ke Koordinator (status_koordinator != 'unsubmitted')
         // Dan hanya ambil yang status_verifikasi (Dosen) = 'verified' karena itu prasyarat
@@ -135,7 +135,7 @@ class VerifikasiBerkasController extends Controller
 
         if ($request->ajax()) {
             // Re-calculate stats for real-time update
-            $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id;
+            $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id;
             
             $semua = PendaftaranSidang::whereHas('pendaftaranKp', function($query) use ($activePeriodId) {
                     $query->where('tahun_ajaran_id', $activePeriodId);

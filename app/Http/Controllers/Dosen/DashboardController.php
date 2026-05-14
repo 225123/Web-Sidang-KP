@@ -31,7 +31,7 @@ class DashboardController extends Controller
         }
 
         // Ambil pendaftaran KP dimana dosen menjadi pembimbing
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         $kpsQuery = PendaftaranKp::with(['logBimbingans', 'mahasiswa.user', 'pembimbing'])
             ->where('pembimbing_id', $dosenId);

@@ -13,7 +13,7 @@ class RevisiController extends Controller
     public function index()
     {
         $mahasiswaId = Auth::user()->id;
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         $query = PendaftaranSidang::with(['pendaftaranKp.pembimbing.dosen', 'penguji1.dosen', 'penguji2.dosen'])
             ->where('mahasiswa_id', $mahasiswaId);

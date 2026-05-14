@@ -17,7 +17,7 @@ class PendaftaranSidangController extends Controller
     {
         $mahasiswaId = Auth::user()->id;
 
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         // Cari data pendaftaran KP aktif
         $query = PendaftaranKp::withoutGlobalScope('periode')
@@ -64,7 +64,7 @@ class PendaftaranSidangController extends Controller
         ]);
 
         $mahasiswaId = Auth::user()->id;
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         $query = PendaftaranKp::withoutGlobalScope('periode')
             ->where(function ($query) use ($mahasiswaId) {
@@ -129,7 +129,7 @@ class PendaftaranSidangController extends Controller
     {
         $mahasiswaId = Auth::user()->id;
         $mhs = Mahasiswa::with('user')->where('user_id', $mahasiswaId)->first();
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         $query = PendaftaranKp::withoutGlobalScope('periode')
             ->where(function ($query) use ($mahasiswaId) {

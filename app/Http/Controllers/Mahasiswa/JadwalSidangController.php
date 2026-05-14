@@ -14,7 +14,7 @@ class JadwalSidangController extends Controller
     {
         $user = auth()->user();
 
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         $query = PendaftaranSidang::with(['pendaftaranKp', 'penguji1', 'penguji2'])
             ->where('mahasiswa_id', $user->id)
@@ -35,7 +35,7 @@ class JadwalSidangController extends Controller
     {
         $user = auth()->user();
 
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         $query = PendaftaranSidang::with(['pendaftaranKp', 'penguji1', 'penguji2'])
             ->where('mahasiswa_id', $user->id)

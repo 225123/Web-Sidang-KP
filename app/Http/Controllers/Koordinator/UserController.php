@@ -164,7 +164,7 @@ class UserController extends Controller
         ]);
 
         // Pastikan pendaftaran manual selalu masuk ke periode AKTIF secara global, bukan bergantung pada filter dropdown
-        $activePeriodId = \App\Models\TahunAjaran::aktif()->id;
+        $activePeriodId = \App\Models\TahunAjaran::aktif()?->id;
 
         // Validasi dan Pengecekan Duplikat ID
         if ($request->role === 'mahasiswa') {
@@ -474,7 +474,7 @@ class UserController extends Controller
                         'nim' => $row['id'],
                         'email' => $row['email'],
                         'prodi' => 'Informatika',
-                        'tahun_ajaran_id' => session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id,
+                        'tahun_ajaran_id' => session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id,
                         'status_mahasiswa' => 'baru',
                     ]);
                 } elseif (in_array($user->role, ['dosen', 'koordinator_kp'])) {

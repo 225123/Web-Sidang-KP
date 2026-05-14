@@ -14,7 +14,7 @@ class BimbinganController extends Controller
 {
     public function index(Request $request)
     {
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         $userId = Auth::id();
         $query = PendaftaranKp::withoutGlobalScope('periode')
@@ -63,7 +63,7 @@ class BimbinganController extends Controller
             'bukti' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         $userId = Auth::id();
         $query = PendaftaranKp::withoutGlobalScope('periode')
@@ -134,7 +134,7 @@ class BimbinganController extends Controller
 
     public function exportPdf()
     {
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         $userId = Auth::id();
         $query = PendaftaranKp::withoutGlobalScope('periode')

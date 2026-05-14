@@ -13,7 +13,7 @@ class PenjadwalanSidangController extends Controller
     public function index(Request $request)
     {
         // Safety net: filter periode secara eksplisit (Global Scope juga sudah menangani ini)
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         // Daftar Tunggu: status koordinator verified tapi tanggal sidang masih kosong.
         $daftarTunggu = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp'])

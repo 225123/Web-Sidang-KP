@@ -15,7 +15,7 @@ class DashboardController extends Controller
     {
         $userId = Auth::id();
 
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         // 1. Status Kerja Praktik
         $queryKp = PendaftaranKp::withoutGlobalScope('periode')

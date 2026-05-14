@@ -12,7 +12,7 @@ class NilaiAkhirController extends Controller
     {
         $userId = Auth::id();
 
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         $query = PendaftaranSidang::with(['mahasiswa.user', 'penguji1', 'penguji2', 'pendaftaranKp.pembimbing', 'pendaftaranKp.supervisorInstansi'])
             ->whereHas('mahasiswa', function ($query) use ($userId) {
@@ -47,7 +47,7 @@ class NilaiAkhirController extends Controller
     {
         $userId = Auth::id();
 
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         $query = PendaftaranSidang::with(['mahasiswa.user', 'penguji1', 'penguji2'])
             ->whereHas('mahasiswa', function ($query) use ($userId) {
@@ -79,7 +79,7 @@ class NilaiAkhirController extends Controller
     public function downloadNilai()
     {
         $userId = Auth::id();
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         $query = PendaftaranSidang::with(['mahasiswa.user', 'penguji1', 'penguji2', 'pendaftaranKp.pembimbing', 'pendaftaranKp.supervisorInstansi'])
             ->whereHas('mahasiswa', function ($query) use ($userId) {
@@ -111,7 +111,7 @@ class NilaiAkhirController extends Controller
     public function downloadBeritaAcara()
     {
         $userId = Auth::id();
-        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id ?? null;
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
 
         $query = PendaftaranSidang::with(['mahasiswa.user', 'penguji1.dosen', 'penguji2.dosen', 'pendaftaranKp.pembimbing.dosen', 'pendaftaranKp.supervisorInstansi'])
             ->whereHas('mahasiswa', function ($query) use ($userId) {
