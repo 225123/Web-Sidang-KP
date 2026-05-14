@@ -84,16 +84,17 @@ class UserProfileController extends Controller
         $user = Auth::user();
 
         if ($request->hasFile('avatar')) {
-            // Hapus avatar lama
+            // Hapus avatar lama — selalu dari disk 'public'
             if ($user->avatar) {
-                Storage::disk(upload_disk())->delete($user->avatar);
+                Storage::disk('public')->delete($user->avatar);
             }
 
             // Konversi ke WebP (max 400×400, quality 85)
+            // Gunakan disk 'public' agar accessible via asset('storage/...')
             $path = ImageHelper::convertToWebP(
                 $request->file('avatar'),
                 'avatars',
-                400, 400, 85, upload_disk()
+                400, 400, 85, 'public'
             );
 
             $user->avatar = $path;
@@ -113,14 +114,15 @@ class UserProfileController extends Controller
 
         if ($request->hasFile('signature_file')) {
             if ($user->signature_path) {
-                Storage::disk(upload_disk())->delete($user->signature_path);
+                Storage::disk('public')->delete($user->signature_path);
             }
 
             // Konversi ke WebP (max 800×250, quality 90 — transparan dipertahankan)
+            // Gunakan disk 'public' agar accessible via asset('storage/...')
             $path = ImageHelper::convertToWebP(
                 $request->file('signature_file'),
                 'signatures',
-                800, 250, 90, upload_disk()
+                800, 250, 90, 'public'
             );
 
             $user->signature_path = $path;
@@ -138,31 +140,44 @@ class UserProfileController extends Controller
 
         $user = Auth::user();
 
-        // Decode base64 PNG dari canvas
-        $image_parts   = explode(';base64,', $request->signature_base64);
-        $image_base64  = base64_decode($image_parts[1] ?? '');
+        // Pisahkan header dan data base64
+        $parts = explode(';base64,', $request->signature_base64, 2);
+        if (count($parts) !== 2) {
+            return redirect()->back()->withErrors(['signature' => 'Format tanda tangan tidak valid.']);
+        }
+
+        $binaryData = base64_decode($parts[1], strict: true);
+        if ($binaryData === false || strlen($binaryData) < 10) {
+            return redirect()->back()->withErrors(['signature' => 'Data tanda tangan tidak dapat diproses.']);
+        }
 
         // Konversi PNG canvas → WebP menggunakan GD
-        $source = imagecreatefromstring($image_base64);
+        // Gunakan @ untuk mencegah E_WARNING dikonversi ke ErrorException oleh Laravel
         $webpData = null;
+        $source = @imagecreatefromstring($binaryData);
 
-        if ($source) {
-            // Pertahankan transparansi
+        if ($source instanceof \GdImage) {
             imagealphablending($source, true);
             imagesavealpha($source, true);
 
             ob_start();
             imagewebp($source, null, 90);
-            $webpData = ob_get_clean();
+            $webpData = ob_get_clean() ?: null;
+
+            imagedestroy($source); // Bebaskan memori GD
         }
+
+        // Selalu gunakan disk 'public' agar file accessible via asset('storage/...')
+        // Disk 'local' mengarah ke storage/app/private/ yang tidak dapat diakses web
+        $disk = 'public';
 
         // Hapus signature lama
         if ($user->signature_path) {
-            Storage::disk(upload_disk())->delete($user->signature_path);
+            Storage::disk($disk)->delete($user->signature_path);
         }
 
         $fileName = 'signatures/' . Str::uuid() . '.webp';
-        Storage::disk(upload_disk())->put($fileName, $webpData ?? $image_base64);
+        Storage::disk($disk)->put($fileName, $webpData ?? $binaryData);
 
         $user->signature_path = $fileName;
         $user->save();
