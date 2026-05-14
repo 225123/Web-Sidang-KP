@@ -49,43 +49,45 @@ class PenugasanPembimbingController extends Controller
         // Cleanup corrupt data created by previous bug
         PendaftaranKp::withoutGlobalScopes()->whereNull('tahun_ajaran_id')->whereNull('status_kp')->delete();
 
-        $query = User::where('role', 'mahasiswa');
         $periodeId = session('selected_periode_id');
-        
-        if ($periodeId) {
-            $query->whereIn('id', function($sub) use ($periodeId) {
-                $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
-            });
-        }
-        $mahasiswas = $query->get();
+        $activeId  = $periodeId ?? \App\Models\TahunAjaran::where('is_active', true)->value('id');
+
+        if (! $activeId) return; // Tidak ada periode aktif, skip
+
+        // Ambil SEMUA mahasiswas — tidak difilter periode.
+        $mahasiswas = User::where('role', 'mahasiswa')->get();
+
         foreach ($mahasiswas as $mhs) {
-            $exists = PendaftaranKp::where('mahasiswa_id', $mhs->id)
-                ->orWhere(function ($q) use ($mhs) {
-                    $q->whereJsonContains('anggota_kelompok_ids', $mhs->id)
-                        ->orWhereJsonContains('anggota_kelompok_ids', (string) $mhs->id);
+            // Cek apakah mahasiswa sudah punya record untuk PERIODE INI khususnya
+            $existsForPeriod = PendaftaranKp::where('tahun_ajaran_id', $activeId)
+                ->where(function ($q) use ($mhs) {
+                    $q->where('mahasiswa_id', $mhs->id)
+                      ->orWhereJsonContains('anggota_kelompok_ids', $mhs->id)
+                      ->orWhereJsonContains('anggota_kelompok_ids', (string) $mhs->id);
                 })->exists();
 
-            if (! $exists) {
-                // Buat data draft untuk mahasiswa yang belum mendaftar sama sekali agar masuk tabel
-                $activeId = $periodeId ?? \App\Models\TahunAjaran::where('is_active', true)->value('id');
+            if (! $existsForPeriod) {
+                // Buat draft untuk periode aktif agar mahasiswa muncul di tabel penugasan
                 PendaftaranKp::firstOrCreate(
                     [
-                        'mahasiswa_id' => $mhs->id,
-                        'tahun_ajaran_id' => $activeId
+                        'mahasiswa_id'    => $mhs->id,
+                        'tahun_ajaran_id' => $activeId,
                     ],
                     [
-                        'pengerjaan_kp' => 'individu',
-                        'status_kp' => null,
-                        'judul_kp' => '-',
-                        'jenis_proyek' => '-',
-                        'instansi_nama' => '-',
+                        'pengerjaan_kp'  => 'individu',
+                        'status_kp'      => null,
+                        'judul_kp'       => '-',
+                        'jenis_proyek'   => '-',
+                        'instansi_nama'  => '-',
                         'jenis_instansi' => 'Internal',
-                        'tipe_kp' => 'internal',
+                        'tipe_kp'        => 'internal',
                     ]
                 );
             }
         }
     }
+
+
 
     public function index(Request $request)
     {
