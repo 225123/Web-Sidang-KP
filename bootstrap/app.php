@@ -4,6 +4,7 @@ use App\Http\Middleware\EnsureTtdExists;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -24,5 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // 419: Sesi habis / CSRF token mismatch → redirect ke login
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, Request $request) {
+            return redirect()->route('login')
+                ->with('error', 'Sesi Anda telah berakhir. Silakan login kembali.');
+        });
     })->create();

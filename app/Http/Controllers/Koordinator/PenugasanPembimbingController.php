@@ -53,12 +53,8 @@ class PenugasanPembimbingController extends Controller
         $periodeId = session('selected_periode_id');
         
         if ($periodeId) {
-            $query->where(function($q) use ($periodeId) {
-                $q->whereHas('mahasiswa', function($sq) use ($periodeId) {
-                    $sq->where('tahun_ajaran_id', $periodeId);
-                })->orWhereIn('id', function($sub) use ($periodeId) {
-                    $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
-                });
+            $query->whereIn('id', function($sub) use ($periodeId) {
+                $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
             });
         }
         $mahasiswas = $query->get();
@@ -101,12 +97,8 @@ class PenugasanPembimbingController extends Controller
         $query = User::with(['mahasiswa'])->where('role', 'mahasiswa');
         if (session()->has('selected_periode_id')) {
             $periodeId = session('selected_periode_id');
-            $query->where(function($q) use ($periodeId) {
-                $q->whereHas('mahasiswa', function($sq) use ($periodeId) {
-                    $sq->where('tahun_ajaran_id', $periodeId);
-                })->orWhereIn('id', function($sub) use ($periodeId) {
-                    $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
-                });
+            $query->whereIn('id', function($sub) use ($periodeId) {
+                $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
             });
         }
 
@@ -174,12 +166,8 @@ class PenugasanPembimbingController extends Controller
         $totalQuery = User::where('role', 'mahasiswa')->has('mahasiswa');
         if (session()->has('selected_periode_id')) {
             $periodeId = session('selected_periode_id');
-            $totalQuery->where(function($q) use ($periodeId) {
-                $q->whereHas('mahasiswa', function($sq) use ($periodeId) {
-                    $sq->where('tahun_ajaran_id', $periodeId);
-                })->orWhereIn('id', function($sub) use ($periodeId) {
-                    $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
-                });
+            $totalQuery->whereIn('id', function($sub) use ($periodeId) {
+                $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
             });
         }
         $totalAllMahasiswa = $totalQuery->count();
@@ -438,12 +426,8 @@ class PenugasanPembimbingController extends Controller
             $allMhsQuery = User::with('mahasiswa')->where('role', 'mahasiswa');
             if (session()->has('selected_periode_id')) {
                 $periodeId = session('selected_periode_id');
-                $allMhsQuery->where(function($q) use ($periodeId) {
-                    $q->whereHas('mahasiswa', function($sq) use ($periodeId) {
-                        $sq->where('tahun_ajaran_id', $periodeId);
-                    })->orWhereIn('id', function($sub) use ($periodeId) {
-                        $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
-                    });
+                $allMhsQuery->whereIn('id', function($sub) use ($periodeId) {
+                    $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
                 });
             }
             $allMahasiswas = $allMhsQuery->get();
