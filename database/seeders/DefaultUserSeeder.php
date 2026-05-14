@@ -19,9 +19,10 @@ class DefaultUserSeeder extends Seeder
         $mahasiswaUser = User::updateOrCreate(
             ['email' => 'mahasiswa@example.com'],
             [
-                'name' => 'Mahasiswa Default',
-                'password' => Hash::make('password'),
-                'role' => 'mahasiswa',
+                'name'              => 'Mahasiswa Default',
+                'password'          => Hash::make('password'),
+                'role'              => 'mahasiswa',
+                'email_verified_at' => now(), // bypass middleware 'verified'
             ]
         );
 
@@ -29,9 +30,9 @@ class DefaultUserSeeder extends Seeder
             ['nim' => '412023024'],
             [
                 'user_id' => $mahasiswaUser->id,
-                'prodi' => 'Informatika',
-                'no_hp' => '081234567890',
-                'email' => 'mahasiswa.nim@example.com',
+                'prodi'   => 'Informatika',
+                'no_hp'   => '081234567890',
+                'email'   => 'mahasiswa.nim@example.com',
             ]
         );
 
@@ -39,18 +40,19 @@ class DefaultUserSeeder extends Seeder
         $koordinatorUser = User::updateOrCreate(
             ['email' => 'koordinator@example.com'],
             [
-                'name' => 'Koordinator Default',
-                'password' => Hash::make('password'),
-                'role' => 'koordinator_kp',
+                'name'              => 'Koordinator Default',
+                'password'          => Hash::make('password'),
+                'role'              => 'koordinator_kp',
+                'email_verified_at' => now(),
             ]
         );
 
         Dosen::updateOrCreate(
             ['nidn' => '1234567890'],
             [
-                'user_id' => $koordinatorUser->id,
-                'kuota_bimbingan' => 20,
-                'is_aktif' => true,
+                'user_id'          => $koordinatorUser->id,
+                'kuota_bimbingan'  => 20,
+                'is_aktif'         => true,
             ]
         );
 
@@ -58,18 +60,19 @@ class DefaultUserSeeder extends Seeder
         $dosenUser = User::updateOrCreate(
             ['email' => 'dosen@example.com'],
             [
-                'name' => 'Dosen Default',
-                'password' => Hash::make('password'),
-                'role' => 'dosen',
+                'name'              => 'Dosen Default',
+                'password'          => Hash::make('password'),
+                'role'              => 'dosen',
+                'email_verified_at' => now(),
             ]
         );
 
         Dosen::updateOrCreate(
             ['nidn' => '0987654321'],
             [
-                'user_id' => $dosenUser->id,
+                'user_id'         => $dosenUser->id,
                 'kuota_bimbingan' => 10,
-                'is_aktif' => true,
+                'is_aktif'        => true,
             ]
         );
     }
