@@ -86,8 +86,10 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DB_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
+            'url' => null,
+            'host' => (str_contains(env('DB_HOST', ''), 'neon.tech')) 
+                ? (str_replace('-pooler', '', env('DB_HOST')) . " options='endpoint=" . str_replace('-pooler', '', explode('.', env('DB_HOST'))[0]) . "'") 
+                : env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'laravel'),
             'username' => env('DB_USERNAME', 'root'),
@@ -97,7 +99,6 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
-            'options' => (str_contains(env('DB_HOST', ''), 'neon.tech')) ? ('--endpoint=' . explode('.', env('DB_HOST', ''))[0]) : null,
         ],
 
         'sqlsrv' => [
