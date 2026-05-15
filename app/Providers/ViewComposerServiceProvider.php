@@ -49,8 +49,7 @@ class ViewComposerServiceProvider extends ServiceProvider
             }
             
             $selected_period = $available_periods->where('id', $selected_period_id)->first();
-            $koordinatorName = $selected_period && $selected_period->koordinator ? ' - ' . $selected_period->koordinator->name : '';
-            $selected_period_label = $selected_period ? ($selected_period->label_tahun_ajaran . $koordinatorName) : 'Pilih Periode';
+            $selected_period_label = $selected_period ? $selected_period->label_tahun_ajaran : 'Pilih Periode';
 
             // Cek apakah periode yang dipilih adalah periode absolut terbaru di database
             $latest_all = TahunAjaran::terbaru()->first();

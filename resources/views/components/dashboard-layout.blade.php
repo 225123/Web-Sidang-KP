@@ -166,11 +166,10 @@
                                             class="absolute right-0 z-50 w-full md:w-[212px] mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden max-h-60 overflow-y-auto">
                                             <ul class="py-1 text-[13px] font-medium text-black">
                                                 @foreach($available_periods as $period)
-                                                    @php $kName = $period->koordinator ? ' - ' . $period->koordinator->name : ''; @endphp
                                                     <li>
                                                         <button type="button" onclick="document.getElementById('periode-id-input').value = '{{ $period->id }}'; document.getElementById('periode-form').submit();"
                                                             class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer text-black {{ $selected_period_id == $period->id ? 'bg-[#E8E5E5] font-semibold' : '' }}">
-                                                            {{ $period->label_tahun_ajaran }}{{ $kName }}
+                                                            {{ $period->label_tahun_ajaran }}
                                                         </button>
                                                     </li>
                                                 @endforeach
@@ -216,12 +215,11 @@
                                         class="absolute right-0 z-50 w-full mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden max-h-60 overflow-y-auto">
                                         <ul class="py-1 text-[13px] font-medium text-black">
                                             @foreach($available_periods as $period)
-                                                @php $kName = $period->koordinator ? ' - ' . $period->koordinator->name : ''; @endphp
                                                 <li>
                                                     <button type="button"
                                                         onclick="document.getElementById('periode-id-standalone').value = '{{ $period->id }}'; document.getElementById('periode-form-standalone').submit();"
                                                         class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer text-black {{ $selected_period_id == $period->id ? 'bg-[#E8E5E5] font-semibold' : '' }}">
-                                                        {{ $period->label_tahun_ajaran }}{{ $kName }}
+                                                        {{ $period->label_tahun_ajaran }}
                                                     </button>
                                                 </li>
                                             @endforeach
