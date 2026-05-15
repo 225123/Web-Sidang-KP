@@ -7,10 +7,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
-    ->withConfig([
-        'app.storage' => env('VERCEL') ? '/tmp' : storage_path(),
-    ])
-    ->booting(function ($app) {
+    ->registered(function ($app) {
         if (env('VERCEL')) {
             $app->useStoragePath('/tmp');
         }
