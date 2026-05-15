@@ -1,4 +1,4 @@
 <?php
 
-// Forward Vercel requests to normal Laravel index.php
+// Mengarahkan request ke file index.php bawaan Laravel di folder public
 require __DIR__ . '/../public/index.php';
