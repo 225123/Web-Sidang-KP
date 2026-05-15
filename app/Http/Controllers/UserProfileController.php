@@ -151,20 +151,21 @@ class UserProfileController extends Controller
             return redirect()->back()->withErrors(['signature' => 'Data tanda tangan tidak dapat diproses.']);
         }
 
-        // Konversi PNG canvas → WebP menggunakan GD
-        // Gunakan @ untuk mencegah E_WARNING dikonversi ke ErrorException oleh Laravel
+        // Konversi PNG canvas → WebP menggunakan GD jika tersedia
         $webpData = null;
-        $source = @imagecreatefromstring($binaryData);
+        if (function_exists('imagecreatefromstring')) {
+            $source = @imagecreatefromstring($binaryData);
 
-        if ($source instanceof \GdImage) {
-            imagealphablending($source, true);
-            imagesavealpha($source, true);
+            if ($source instanceof \GdImage) {
+                imagealphablending($source, true);
+                imagesavealpha($source, true);
 
-            ob_start();
-            imagewebp($source, null, 90);
-            $webpData = ob_get_clean() ?: null;
+                ob_start();
+                imagewebp($source, null, 90);
+                $webpData = ob_get_clean() ?: null;
 
-            imagedestroy($source); // Bebaskan memori GD
+                imagedestroy($source); // Bebaskan memori GD
+            }
         }
 
         // Selalu gunakan disk 'public' agar file accessible via asset('storage/...')
