@@ -385,20 +385,3 @@ Route::prefix('dosen')->name('dosen.')->middleware(['auth', 'verified', 'role:do
 });
 
 require __DIR__.'/auth.php';
-
-Route::get('/debug-email/{to}', function ($to) {
-    try {
-        \Illuminate\Support\Facades\Mail::raw('Testing email configuration from Vercel.', function ($message) use ($to) {
-            $message->to($to)->subject('Debug Email');
-        });
-        return "Email sent successfully to $to! Config is correct.";
-    } catch (\Throwable $e) {
-        $error = "Failed to send email.\n";
-        $error .= "Message: " . $e->getMessage() . "\n";
-        $error .= "Host: " . config('mail.mailers.smtp.host') . "\n";
-        $error .= "Port: " . config('mail.mailers.smtp.port') . "\n";
-        $error .= "Encryption: " . config('mail.mailers.smtp.encryption') . "\n";
-        $error .= "Mailer: " . config('mail.default') . "\n";
-        return "<pre>$error</pre>";
-    }
-});
