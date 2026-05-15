@@ -138,10 +138,10 @@
 
     <!-- Actions Section -->
     <div class="flex flex-col sm:flex-row justify-center items-center gap-4 pt-6 border-t border-gray-200 mt-2 mb-4">
-        <button type="button" onclick="alert('Fitur Reset Password (Dummy)')" class="w-full sm:w-auto bg-white text-black border border-[#CAC0C0] hover:bg-gray-100 rounded-[25px] px-10 py-2.5 font-bold text-[13px] shadow-sm transition-colors flex items-center justify-center gap-2">
+        <a href="{{ route('profil.password.edit') }}" id="reset-password-btn" class="w-full sm:w-auto bg-white text-black border border-[#CAC0C0] hover:bg-gray-100 rounded-[25px] px-10 py-2.5 font-bold text-[13px] shadow-sm transition-colors flex items-center justify-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
             Reset Password
-        </button>
+        </a>
         <form action="{{ route('logout') }}" method="POST" class="w-full sm:w-auto m-0">
             @csrf
             <button type="submit" class="w-full bg-[#EA4335] hover:bg-red-700 text-white rounded-[25px] px-10 py-2.5 font-bold text-[13px] shadow-md transition-colors flex items-center justify-center gap-2">
@@ -217,6 +217,15 @@ window.profileManager = function() {
         ctx: null,
 
         init() {
+            // Cek jika ada instruksi scroll dari URL
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('scroll') === 'reset-btn') {
+                setTimeout(() => {
+                    const btn = document.getElementById('reset-password-btn');
+                    if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 500);
+            }
+
             this.$watch('showSigModal', value => {
                 if(value) {
                     setTimeout(() => {

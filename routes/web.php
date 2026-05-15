@@ -75,6 +75,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/profil/avatar', [UserProfileController::class, 'updateAvatar'])->name('profil.updateAvatar');
     Route::post('/profil/signature/upload', [UserProfileController::class, 'updateSignatureUpload'])->name('profil.updateSignatureUpload');
     Route::post('/profil/signature/draw', [UserProfileController::class, 'updateSignatureDraw'])->name('profil.updateSignatureDraw');
+    Route::get('/profil/password', [UserProfileController::class, 'showChangePassword'])->name('profil.password.edit');
+    Route::put('/profil/password', [UserProfileController::class, 'updatePassword'])->name('profil.password.update');
 
     Route::post('/set-periode', [\App\Http\Controllers\PeriodeSessionController::class, 'setPeriode'])->name('set-periode');
 });

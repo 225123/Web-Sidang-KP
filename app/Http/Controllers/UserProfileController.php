@@ -7,6 +7,8 @@ use App\Helpers\ImageHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Str;
 
 class UserProfileController extends Controller
@@ -183,5 +185,24 @@ class UserProfileController extends Controller
         $user->save();
 
         return redirect()->back()->with('success', 'Tanda tangan berhasil dibuat!');
+    }
+
+    public function showChangePassword()
+    {
+        return view('profile.change-password');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $validated = $request->validateWithBag('updatePassword', [
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', Password::defaults(), 'confirmed'],
+        ]);
+
+        $request->user()->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return redirect()->route('profil.index', ['scroll' => 'reset-btn'])->with('success', 'Password berhasil diperbarui!');
     }
 }
