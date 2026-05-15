@@ -7,14 +7,6 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
-    ->registered(function ($app) {
-        if (env('VERCEL')) {
-            $app->useStoragePath('/tmp');
-            
-            // Redirect package manifest agar tidak menulis ke bootstrap/cache
-            $app->instance('manifest.path', '/tmp/packages.php');
-        }
-    })
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',

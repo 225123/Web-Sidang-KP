@@ -1,15 +1,16 @@
 <?php
 
-// 1. Pengaturan Lingkungan Vercel
+use Illuminate\Http\Request;
+
+// 1. Load Autoloader
+require __DIR__ . '/../vendor/autoload.php';
+
+// 2. Persiapkan Lingkungan Vercel
 putenv('LOG_CHANNEL=stderr');
-putenv('APP_DEBUG=true');
 putenv('APP_STORAGE=/tmp');
+$_ENV['APP_STORAGE'] = '/tmp';
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// 2. Siapkan folder writable di /tmp
+// 3. Siapkan folder writable di /tmp
 $tmpDir = '/tmp/laravel/framework';
 foreach (['/views', '/cache', '/sessions', '/logs'] as $path) {
     if (!is_dir($tmpDir . $path)) {
@@ -17,12 +18,21 @@ foreach (['/views', '/cache', '/sessions', '/logs'] as $path) {
     }
 }
 
-// 3. JANGAN hapus file di bootstrap/cache. 
-// Malah, kita pastikan folder tersebut "terasa" ada isinya agar Laravel tidak mencoba menulis.
-$cacheDir = __DIR__ . '/../bootstrap/cache';
-if (!is_dir($cacheDir)) {
-    @mkdir($cacheDir, 0777, true);
-}
+// 4. Buat Instansi Aplikasi
+/** @var \Illuminate\Foundation\Application $app */
+$app = require_once __DIR__ . '/../bootstrap/app.php';
 
-// 4. Jalankan aplikasi melalui public/index.php
-require __DIR__ . '/../public/index.php';
+// 5. PAKSA semua jalur ke /tmp agar tidak ada masalah Read-Only
+$app->useStoragePath('/tmp');
+
+// Trik Pamungkas: Paksa jalur manifest paket ke /tmp
+$app->instance('manifest.path', '/tmp/packages.php');
+
+// 6. Jalankan Request
+$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+
+$response = $kernel->handle(
+    $request = Request::capture()
+)->send();
+
+$kernel->terminate($request, $response);
