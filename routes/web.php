@@ -386,6 +386,20 @@ Route::prefix('dosen')->name('dosen.')->middleware(['auth', 'role:dosen'])->grou
 
 require __DIR__.'/auth.php';
 
+// Route untuk melayani file storage di Vercel (karena symlink sering bermasalah di serverless)
+Route::get('/storage/{path}', function ($path) {
+    $fullPath = storage_path('app/public/' . $path);
+    
+    if (!\Illuminate\Support\Facades\File::exists($fullPath)) {
+        abort(404);
+    }
+
+    $file = \Illuminate\Support\Facades\File::get($fullPath);
+    $type = \Illuminate\Support\Facades\File::mimeType($fullPath);
+
+    return response($file)->header('Content-Type', $type);
+})->where('path', '.*');
+
 Route::get('/debug-email/{to}', function ($to) {
     try {
         \Illuminate\Support\Facades\Mail::raw('Testing email configuration from Vercel.', function ($message) use ($to) {
