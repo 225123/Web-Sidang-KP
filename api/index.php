@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Http\Request;
-use Illuminate\Foundation\PackageManifest;
-use Illuminate\Filesystem\Filesystem;
 
 // 1. Pelaporan error total
 ini_set('display_errors', 1);
@@ -13,31 +11,34 @@ try {
     // 2. Load Autoloader
     require __DIR__ . '/../vendor/autoload.php';
 
-    // 3. Konfigurasi Lingkungan
+    // 3. SOLUSI TOTAL: Paksa semua file cache bootstrap ke /tmp
+    // Ini mencegah error "bootstrap/cache directory must be writable"
+    putenv('APP_SERVICES_CACHE=/tmp/services.php');
+    putenv('APP_PACKAGES_CACHE=/tmp/packages.php');
+    putenv('APP_CONFIG_CACHE=/tmp/config.php');
+    putenv('APP_ROUTES_CACHE=/tmp/routes.php');
+    putenv('APP_EVENTS_CACHE=/tmp/events.php');
+    
+    // Setel juga di $_ENV agar Laravel membacanya dengan pasti
+    $_ENV['APP_SERVICES_CACHE'] = '/tmp/services.php';
+    $_ENV['APP_PACKAGES_CACHE'] = '/tmp/packages.php';
+    $_ENV['APP_CONFIG_CACHE'] = '/tmp/config.php';
+    $_ENV['APP_ROUTES_CACHE'] = '/tmp/routes.php';
+    $_ENV['APP_EVENTS_CACHE'] = '/tmp/events.php';
+
+    // 4. Konfigurasi Lingkungan Lainnya
     putenv('LOG_CHANNEL=stderr');
     putenv('APP_STORAGE=/tmp');
     $_ENV['APP_STORAGE'] = '/tmp';
 
-    // 4. Inisialisasi Aplikasi
+    // 5. Inisialisasi Aplikasi
     /** @var \Illuminate\Foundation\Application $app */
     $app = require_once __DIR__ . '/../bootstrap/app.php';
 
-    // 5. SOLUSI JALUR: Paksa PackageManifest menggunakan folder /tmp
-    $app->instance(PackageManifest::class, new PackageManifest(
-        new Filesystem,
-        $app->basePath(),
-        '/tmp/packages.php'
-    ));
-
-    // 6. DAFTARKAN PROVIDER INTI SECARA MANUAL
-    // Ini agar jika terjadi error saat bootstrap, Exception Handler bisa menampilkan errornya (karena 'view' & 'files' sudah ada)
-    $app->register(\Illuminate\Filesystem\FilesystemServiceProvider::class);
-    $app->register(\Illuminate\View\ViewServiceProvider::class);
-
-    // 7. Paksa jalur penyimpanan ke /tmp
+    // 6. Paksa jalur penyimpanan ke /tmp
     $app->useStoragePath('/tmp');
 
-    // 8. Jalankan Kernel
+    // 7. Jalankan Kernel
     $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
     $response = $kernel->handle(
@@ -49,7 +50,7 @@ try {
     $kernel->terminate($request, $response);
 
 } catch (\Throwable $e) {
-    echo "<h1>ROOT ERROR REVEALED</h1>";
+    echo "<h1>CRITICAL ERROR DETECTED</h1>";
     echo "<p><b>Message:</b> " . $e->getMessage() . "</p>";
     echo "<p><b>File:</b> " . $e->getFile() . " on line " . $e->getLine() . "</p>";
     
