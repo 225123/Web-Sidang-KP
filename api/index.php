@@ -2,18 +2,14 @@
 
 use Illuminate\Http\Request;
 
-// Aktifkan pelaporan error sedini mungkin
+// Aktifkan pelaporan error
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 try {
     // 1. Load Autoloader
-    $autoload = __DIR__ . '/../vendor/autoload.php';
-    if (!file_exists($autoload)) {
-        die("Autoloader not found at: $autoload");
-    }
-    require $autoload;
+    require __DIR__ . '/../vendor/autoload.php';
 
     // 2. Persiapkan Lingkungan Vercel
     putenv('LOG_CHANNEL=stderr');
@@ -29,16 +25,18 @@ try {
     }
 
     // 4. Buat Instansi Aplikasi
-    $bootstrap = __DIR__ . '/../bootstrap/app.php';
-    if (!file_exists($bootstrap)) {
-        die("Bootstrap file not found at: $bootstrap");
-    }
-    $app = require $bootstrap;
+    $app = require_once __DIR__ . '/../bootstrap/app.php';
 
-    // 5. PAKSA semua jalur ke /tmp
+    // 5. Pendaftaran Manual Provider Penting (Solusi untuk masalah "view not exist")
+    // Kita daftar manual karena auto-discovery gagal di Vercel
+    $app->register(\Illuminate\Events\EventServiceProvider::class);
+    $app->register(\Illuminate\Routing\RoutingServiceProvider::class);
+    $app->register(\Illuminate\View\ViewServiceProvider::class);
+
+    // 6. PAKSA semua jalur ke /tmp
     $app->useStoragePath('/tmp');
 
-    // 6. Jalankan Request
+    // 7. Jalankan Request
     $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
     $response = $kernel->handle(
@@ -50,7 +48,7 @@ try {
     $kernel->terminate($request, $response);
 
 } catch (\Throwable $e) {
-    echo "<h1>FATA ERROR DURING BOOTSTRAP</h1>";
+    echo "<h1>CRITICAL ERROR DURING MANIFEST BOOTSTRAP</h1>";
     echo "<p><b>Message:</b> " . $e->getMessage() . "</p>";
     echo "<p><b>File:</b> " . $e->getFile() . "</p>";
     echo "<p><b>Line:</b> " . $e->getLine() . "</p>";
