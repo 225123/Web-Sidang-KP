@@ -5,7 +5,20 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// 2. Pastikan kita punya folder yang bisa ditulis untuk views & cache
+// 2. Bersihkan sisa-sisa cache bootstrap yang mungkin terbawa dari Windows
+$cacheFiles = [
+    __DIR__ . '/../bootstrap/cache/config.php',
+    __DIR__ . '/../bootstrap/cache/services.php',
+    __DIR__ . '/../bootstrap/cache/packages.php',
+    __DIR__ . '/../bootstrap/cache/routes-v7.php',
+];
+foreach ($cacheFiles as $file) {
+    if (file_exists($file)) {
+        @unlink($file);
+    }
+}
+
+// 3. Pastikan kita punya folder yang bisa ditulis untuk views & cache
 // Vercel hanya mengizinkan penulisan di folder /tmp
 $tmpDir = '/tmp/laravel/framework';
 foreach (['/views', '/cache', '/sessions'] as $path) {
