@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->registered(function ($app) {
+        // Paksa pendaftaran ViewServiceProvider jika auto-discovery gagal
+        $app->register(\Illuminate\View\ViewServiceProvider::class);
+        
         if (env('VERCEL')) {
             $app->useStoragePath('/tmp');
         }
