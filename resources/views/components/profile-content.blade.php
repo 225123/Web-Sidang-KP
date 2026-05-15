@@ -90,7 +90,7 @@
         <div class="flex flex-col items-center w-full md:w-[30%] relative group">
             <div class="w-[140px] h-[140px] md:w-[160px] md:h-[160px] rounded-full bg-[#E6F0FA] border-4 border-white flex justify-center items-center text-gray-400 overflow-hidden shadow-lg relative">
                 @if($user->avatar)
-                    <img src="{{ asset('storage/' . $user->avatar) }}" alt="Avatar" class="w-full h-full object-cover">
+                    <img src="{{ route('serve.file', ['path' => $user->avatar]) }}" alt="Avatar" class="w-full h-full object-cover">
                 @else
                     <svg class="w-[80px] h-[80px]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                 @endif
@@ -119,11 +119,7 @@
         
         <div class="bg-gray-50 w-full max-w-[400px] h-[160px] border border-gray-300 border-dashed rounded-[10px] flex justify-center items-center mb-5 overflow-hidden relative shadow-inner">
             @if($user->signature_path)
-                @php
-                    $isBase64 = str_starts_with($user->signature_path, 'data:');
-                    $sigSrc = $isBase64 ? $user->signature_path : asset('storage/' . $user->signature_path);
-                @endphp
-                <img src="{{ $sigSrc }}" alt="Tanda Tangan" class="max-w-[80%] max-h-[80%] object-contain">
+                <img src="{{ route('serve.file', ['path' => $user->signature_path]) }}" alt="Tanda Tangan" class="max-w-[80%] max-h-[80%] object-contain">
             @else
                 <div class="flex flex-col items-center text-gray-400 gap-2">
                     <svg class="w-8 h-8 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>

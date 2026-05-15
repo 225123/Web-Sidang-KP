@@ -386,8 +386,23 @@ Route::prefix('dosen')->name('dosen.')->middleware(['auth', 'role:dosen'])->grou
 
 require __DIR__.'/auth.php';
 
-// Route untuk melayani file storage di Vercel (karena symlink sering bermasalah di serverless)
-Route::get('/storage/{path}', function ($path) {
+// Route khusus untuk membersihkan data tanda tangan yang rusak di database
+Route::get('/cleanup-ttd', function () {
+    $users = \App\Models\User::all();
+    $count = 0;
+    foreach ($users as $user) {
+        // Hapus jika isinya Base64 (terlalu panjang) atau data lama yang tidak valid
+        if (str_starts_with($user->signature_path, 'data:') || (strlen($user->signature_path) > 100)) {
+            $user->signature_path = null;
+            $user->save();
+            $count++;
+        }
+    }
+    return "Berhasil membersihkan $count data tanda tangan yang rusak.";
+});
+
+// Route untuk melayani file storage di Vercel dengan prefix unik
+Route::get('/file-manager/{path}', function ($path) {
     $fullPath = storage_path('app/public/' . $path);
     
     if (!\Illuminate\Support\Facades\File::exists($fullPath)) {
@@ -398,21 +413,4 @@ Route::get('/storage/{path}', function ($path) {
     $type = \Illuminate\Support\Facades\File::mimeType($fullPath);
 
     return response($file)->header('Content-Type', $type);
-})->where('path', '.*');
-
-Route::get('/debug-email/{to}', function ($to) {
-    try {
-        \Illuminate\Support\Facades\Mail::raw('Testing email configuration from Vercel.', function ($message) use ($to) {
-            $message->to($to)->subject('Debug Email');
-        });
-        return "Email sent successfully to $to! Config is correct.";
-    } catch (\Throwable $e) {
-        $error = "Failed to send email.\n";
-        $error .= "Message: " . $e->getMessage() . "\n";
-        $error .= "Host: " . config('mail.mailers.smtp.host') . "\n";
-        $error .= "Port: " . config('mail.mailers.smtp.port') . "\n";
-        $error .= "Encryption: " . config('mail.mailers.smtp.encryption') . "\n";
-        $error .= "Mailer: " . config('mail.default') . "\n";
-        return "<pre>$error</pre>";
-    }
-});
+})->where('path', '.*')->name('serve.file');
