@@ -113,19 +113,11 @@ class UserProfileController extends Controller
         $user = Auth::user();
 
         if ($request->hasFile('signature_file')) {
-            if ($user->signature_path) {
-                Storage::disk('public')->delete($user->signature_path);
-            }
+            $file = $request->file('signature_file');
+            $binaryData = file_get_contents($file->getRealPath());
+            $base64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode($binaryData);
 
-            // Konversi ke WebP (max 800×250, quality 90 — transparan dipertahankan)
-            // Gunakan disk 'public' agar accessible via asset('storage/...')
-            $path = ImageHelper::convertToWebP(
-                $request->file('signature_file'),
-                'signatures',
-                800, 250, 90, 'public'
-            );
-
-            $user->signature_path = $path;
+            $user->signature_path = $base64;
             $user->save();
         }
 
@@ -172,15 +164,7 @@ class UserProfileController extends Controller
         // Disk 'local' mengarah ke storage/app/private/ yang tidak dapat diakses web
         $disk = 'public';
 
-        // Hapus signature lama
-        if ($user->signature_path) {
-            Storage::disk($disk)->delete($user->signature_path);
-        }
-
-        $fileName = 'signatures/' . Str::uuid() . '.webp';
-        Storage::disk($disk)->put($fileName, $webpData ?? $binaryData);
-
-        $user->signature_path = $fileName;
+        $user->signature_path = $request->signature_base64;
         $user->save();
 
         return redirect()->back()->with('success', 'Tanda tangan berhasil dibuat!');

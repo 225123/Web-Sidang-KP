@@ -82,7 +82,7 @@ Route::middleware('auth')->group(function () {
 // ==========================================
 // ROUTE KOORDINATOR (Sudah Disatukan & Dirapihkan)
 // ==========================================
-Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verified', 'role:koordinator'])->group(function () {
+Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'role:koordinator'])->group(function () {
     // Periode KP
     Route::get('/periode-kp', [App\Http\Controllers\Koordinator\PeriodeKpController::class, 'index'])->name('periode-kp.index');
     Route::post('/periode-kp', [App\Http\Controllers\Koordinator\PeriodeKpController::class, 'store'])->name('periode-kp.store');
@@ -250,7 +250,7 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'verifie
 // ==========================================
 // SIMULASI UI DASHBOARD MAHASISWA
 // ==========================================
-Route::prefix('mahasiswa')->name('mahasiswa.')->middleware(['auth', 'verified', 'role:mahasiswa'])->group(function () {
+Route::prefix('mahasiswa')->name('mahasiswa.')->middleware(['auth', 'role:mahasiswa'])->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Mahasiswa\DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/pendaftaran-kp', [MahasiswaPendaftaranKpController::class, 'create'])->name('pendaftaran-kp.create');
@@ -325,7 +325,7 @@ Route::prefix('mahasiswa')->name('mahasiswa.')->middleware(['auth', 'verified', 
 // ==========================================
 // SIMULASI UI DASHBOARD DOSEN
 // ==========================================
-Route::prefix('dosen')->name('dosen.')->middleware(['auth', 'verified', 'role:dosen'])->group(function () {
+Route::prefix('dosen')->name('dosen.')->middleware(['auth', 'role:dosen'])->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Dosen\DashboardController::class, 'index'])->name('dashboard');
 
     // Daftar Mahasiswa (Dosen)
