@@ -223,8 +223,8 @@
                 </form>
 
                 <turbo-frame id="table-data">
-                <div class="border border-gray-200 rounded-[10px] shadow-sm overflow-hidden">
-                    <div class="overflow-x-auto custom-scrollbar min-h-[500px]">
+                <div class="border border-gray-200 rounded-[10px] shadow-sm">
+                    <div class="overflow-x-auto custom-scrollbar min-h-[600px] relative">
                         <table class="w-full min-w-[1000px] border-collapse text-[12px] text-center bg-white">
                             <thead class="bg-[#EBEBEB] font-bold text-black h-[45px]">
                                 <tr>
@@ -300,27 +300,17 @@
                                                     </button>
 
                                                     <!-- Dropdown Menu -->
-                                                    <div x-show="openDropdown === '{{ $p['id'] }}'" x-transition 
-                                                         style="{{ $pIndex > 12 ? 'bottom: 100%; margin-bottom: 8px; top: auto;' : 'top: 100%; margin-top: 4px; bottom: auto;' }}"
-                                                         class="absolute z-[100000] right-0 min-w-[320px] bg-white border-2 border-gray-400 rounded-lg shadow-[0_20px_60px_rgba(0,0,0,0.4)] ring-1 ring-black/5 overflow-hidden text-left" style="display: none;">
+                                                     <div x-show="openDropdown === '{{ $p['id'] }}'" x-transition 
+                                                          style="{{ ($loop->last || $loop->iteration > (count($pendaftarans) - 3)) ? 'bottom: 100%; margin-bottom: 8px; top: auto;' : 'top: 100%; margin-top: 4px; bottom: auto;' }}"
+                                                          class="absolute z-[9999] right-0 min-w-[320px] bg-white border border-gray-400 rounded-lg shadow-[0_10px_40px_rgba(0,0,0,0.2)] ring-1 ring-black/5 overflow-hidden text-left" style="display: none;">
                                                         
-                                                        <!-- Ghost elements to permanently reserve max width -->
-                                                        <div class="h-0 overflow-hidden invisible pointer-events-none flex flex-col" aria-hidden="true">
-                                                            <template x-for="dosen in currentLoads" :key="'ghost-'+dosen.id">
-                                                                <div class="px-3 py-1.5 flex justify-between gap-6 text-[13px] font-bold">
-                                                                    <span class="whitespace-nowrap" x-text="dosen.nama"></span>
-                                                                    <span>(9)</span>
-                                                                </div>
-                                                            </template>
-                                                        </div>
-
                                                         <div class="p-1.5 border-b border-gray-200 bg-gray-50 flex items-center gap-2">
                                                             <svg class="w-4 h-4 text-gray-400 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                                                            <input type="text" x-model="searchDosen" class="w-full bg-transparent text-[13px] outline-none text-gray-700 py-1" placeholder="Cari Dosen...">
+                                                            <input type="text" x-model="searchDosen" class="w-full bg-transparent text-[12px] outline-none text-gray-700 py-1" placeholder="Cari Dosen...">
                                                         </div>
-                                                        <ul class="py-1 text-[13px] max-h-[220px] overflow-y-auto custom-scrollbar bg-white">
+                                                        <ul class="py-1 text-[12px] max-h-[220px] overflow-y-auto custom-scrollbar bg-white">
                                                             <li x-show="assignments['{{ $p['id'] }}'] !== ''">
-                                                                <button type="button" @click.prevent="setAssignment('{{ $p['id'] }}', '')" class="w-full text-left px-3 py-2 font-semibold text-red-600 hover:bg-red-50 flex items-center gap-2 border-b border-gray-100 whitespace-nowrap">
+                                                                <button type="button" @click.prevent="setAssignment('{{ $p['id'] }}', '')" class="w-full text-left px-3 py-2 font-bold text-red-600 hover:bg-red-50 flex items-center gap-2 border-b border-gray-100 whitespace-nowrap text-[12px]">
                                                                     Batalkan Pilihan
                                                                 </button>
                                                             </li>
@@ -328,7 +318,7 @@
                                                             <template x-for="dosen in filteredDosenList" :key="dosen.id">
                                                                 <li>
                                                                     <button type="button" @click.prevent="setAssignment('{{ $p['id'] }}', dosen.id)" 
-                                                                            class="w-full text-left px-3 py-2.5 flex justify-between items-center transition-colors border-b border-gray-100/50"
+                                                                            class="w-full text-left px-3 py-2 flex justify-between items-center transition-colors border-b border-gray-100/50 text-[12px]"
                                                                             :class="[
                                                                                 supervisorMap['{{ $p['id'] }}'] == dosen.id ? 'bg-red-50 text-red-500 cursor-not-allowed opacity-80' : 
                                                                                 (assignments['{{ $p['id'] }}'] == dosen.id ? 'bg-[#E6F0FA] font-bold text-gray-900 pointer-events-none' : 'hover:bg-blue-50 cursor-pointer text-gray-700 font-bold'),
@@ -338,7 +328,7 @@
                                                                         <div class="flex items-center gap-2 truncate pr-2">
                                                                             <span class="truncate" x-text="dosen.nama"></span>
                                                                             <template x-if="supervisorMap['{{ $p['id'] }}'] == dosen.id">
-                                                                                <span class="text-[9px] bg-red-100 text-red-600 px-1 rounded uppercase font-bold flex-shrink-0 border border-red-200">SUPERVISOR</span>
+                                                                                <span class="text-[8px] bg-red-100 text-red-600 px-1 rounded uppercase font-bold flex-shrink-0 border border-red-200">SUPERVISOR</span>
                                                                             </template>
                                                                         </div>
                                                                         <span class="shrink-0 font-bold ml-auto text-right whitespace-nowrap text-[#4285F4]" x-text="dosen.beban"></span>

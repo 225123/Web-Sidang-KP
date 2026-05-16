@@ -29,7 +29,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                 </div>
-                <input id="login_id" type="text" name="login_id" value="{{ old('login_id') }}" required autofocus autocomplete="username"
+                <input id="login_id" type="text" name="login_id" value="{{ session('prefilled_id') ?? old('login_id') }}" required autofocus autocomplete="username"
                     class="block w-full pl-10 pt-3 pb-3 sm:text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     placeholder="Masukkan NIM atau NIDN">
             </div>
