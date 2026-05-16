@@ -59,8 +59,15 @@ class BimbinganController extends Controller
     {
         $request->validate([
             'tanggal' => 'required|date',
+            'waktuMulai' => 'required',
+            'waktuSelesai' => 'required',
+            'tempat' => 'required|string',
+            'topik' => 'required|string',
             'detail' => 'required|string',
-            'bukti' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'bukti' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'bukti.required' => 'Bukti bimbingan wajib diunggah.',
+            'bukti.image' => 'File harus berupa gambar.',
         ]);
 
         $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id ?? null;
@@ -97,7 +104,12 @@ class BimbinganController extends Controller
 
         $filePath = null;
         if ($request->hasFile('bukti')) {
-            $filePath = $request->file('bukti')->store('log_bimbingan_bukti', upload_disk());
+            // Pakai disk 'public' secara eksplisit
+            $filePath = $request->file('bukti')->store('log_bimbingan_bukti', 'public');
+        }
+
+        if (! $filePath) {
+            return back()->with('error', 'Gagal mengunggah bukti bimbingan. Silakan coba lagi.');
         }
 
         LogBimbingan::create([
