@@ -403,6 +403,16 @@ Route::get('/cleanup-ttd', function () {
     return "Berhasil membersihkan $count data tanda tangan yang rusak.";
 });
 
+// Route sementara untuk menjalankan migration di Vercel
+Route::get('/run-migrations', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return "Migrasi berhasil dijalankan!<br><pre>" . \Illuminate\Support\Facades\Artisan::output() . "</pre>";
+    } catch (\Exception $e) {
+        return "Gagal menjalankan migrasi: " . $e->getMessage();
+    }
+});
+
 // Route untuk melayani file storage di Vercel dengan prefix unik
 Route::get('/file-manager/{path}', function ($path) {
     $fullPath = storage_path('app/public/' . $path);
