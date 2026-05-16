@@ -21,16 +21,16 @@ if (! function_exists('storage_url')) {
         }
 
         $activeDisk = $disk ?? config('filesystems.default', 'public');
+        $driver = config("filesystems.disks.{$activeDisk}.driver", 'local');
 
-        // Untuk disk 'public' lokal, gunakan rute file-manager agar file dapat diakses di Vercel
-        if ($activeDisk === 'public') {
+        // Jika menggunakan driver local (termasuk disk 'public' atau 'local' default), 
+        // gunakan rute file-manager agar file dapat diakses di Vercel
+        if ($driver === 'local') {
             return route('serve.file', ['path' => $path]);
         }
 
-        // Untuk disk lain (r2, s3), gunakan Storage::disk()->url()
-        /** @var \Illuminate\Contracts\Filesystem\Cloud $cloudDisk */
-        $cloudDisk = Storage::disk($activeDisk);
-        return $cloudDisk->url($path);
+        // Untuk disk cloud (r2, s3, storj), gunakan Storage::disk()->url()
+        return Storage::disk($activeDisk)->url($path);
     }
 }
 

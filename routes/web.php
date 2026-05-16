@@ -415,8 +415,14 @@ Route::get('/run-migrations', function () {
 
 // Route untuk melayani file storage di Vercel dengan prefix unik
 Route::get('/file-manager/{path}', function ($path) {
+    // Cek di public first
     $fullPath = storage_path('app/public/' . $path);
     
+    // Fallback ke private (jika sebelumnya pakai disk 'local')
+    if (!\Illuminate\Support\Facades\File::exists($fullPath)) {
+        $fullPath = storage_path('app/private/' . $path);
+    }
+
     if (!\Illuminate\Support\Facades\File::exists($fullPath)) {
         abort(404);
     }
