@@ -554,7 +554,7 @@ class UserController extends Controller
 
         $query = User::leftJoin('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
             ->leftJoin('dosen', 'users.id', '=', 'dosen.user_id')
-            ->select('users.*', DB::raw('COALESCE(mahasiswa.nim, dosen.nidn) as identifier_id'), 'dosen.is_aktif');
+            ->select('users.*', DB::raw('COALESCE(mahasiswa.nim, dosen.nidn) as identifier_id'), 'dosen.is_aktif', 'mahasiswa.status_mahasiswa');
 
         $title = 'DAFTAR SELURUH PENGGUNA SISTEM';
 

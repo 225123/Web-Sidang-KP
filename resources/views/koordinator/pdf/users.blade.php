@@ -105,9 +105,7 @@
                 <th style="width: 15%;">ID (NIM/NIDN)</th>
                 <th style="width: 25%;">Email</th>
                 <th style="width: 15%;">Role</th>
-                @if($type === 'dosen' || $type === 'semua')
                 <th style="width: 15%;">Status</th>
-                @endif
             </tr>
         </thead>
         <tbody>
@@ -118,19 +116,19 @@
                 <td class="text-center">{{ $user->identifier_id ?? '-' }}</td>
                 <td>{{ $user->email }}</td>
                 <td class="text-center">{{ ucwords(str_replace('_', ' ', $user->role)) }}</td>
-                @if($type === 'dosen' || $type === 'semua')
                 <td class="text-center">
                     @if(in_array($user->role, ['dosen', 'koordinator_kp']))
                         {{ $user->is_aktif !== false ? 'Aktif' : 'Tidak Aktif' }}
+                    @elseif($user->role === 'mahasiswa')
+                        {{ ucfirst($user->status_mahasiswa ?? 'baru') }}
                     @else
                         -
                     @endif
                 </td>
-                @endif
             </tr>
             @empty
             <tr>
-                <td colspan="{{ ($type === 'dosen' || $type === 'semua') ? 6 : 5 }}" class="text-center">Tidak ada data pengguna yang ditemukan pada kategori ini.</td>
+                <td colspan="6" class="text-center">Tidak ada data pengguna yang ditemukan pada kategori ini.</td>
             </tr>
             @endforelse
         </tbody>

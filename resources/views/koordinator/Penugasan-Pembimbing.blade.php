@@ -223,8 +223,8 @@
                 </form>
 
                 <turbo-frame id="table-data">
-                <div class="border border-gray-200 rounded-[10px] shadow-sm">
-                    <div class="overflow-x-auto sm:overflow-visible custom-scrollbar min-h-[500px]">
+                <div class="border border-gray-200 rounded-[10px] shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto custom-scrollbar min-h-[500px]">
                         <table class="w-full min-w-[1000px] border-collapse text-[12px] text-center bg-white">
                             <thead class="bg-[#EBEBEB] font-bold text-black h-[45px]">
                                 <tr>
@@ -232,10 +232,10 @@
                                     <th class="border-b border-r border-gray-300 px-4 py-3">Mahasiswa</th>
                                     <th class="border-b border-r border-gray-300 px-4 py-3">Jenis KP</th>
                                     <th class="border-b border-r border-gray-300 px-4 py-3">Supervisor</th>
-                                    <th class="border-b border-r border-gray-300 px-4 py-3 min-w-[280px]">Judul KP</th>
-                                    <th class="border-b border-r border-gray-300 px-4 py-3 min-w-[200px]">Dosen Pembimbing</th>
-                                    <th class="border-b border-r border-gray-300 px-4 py-3 min-w-[120px]">Status</th>
-                                    <th class="border-b border-gray-300 px-4 py-3 w-[80px]">Detail KP</th>
+                                    <th class="border-b border-r border-gray-300 px-4 py-3 min-w-[200px]">Judul KP</th>
+                                    <th class="border-b border-r border-gray-300 px-4 py-3 min-w-[180px]">Dosen Pembimbing</th>
+                                    <th class="border-b border-r border-gray-300 px-4 py-3 min-w-[110px]">Status</th>
+                                    <th class="border-b border-gray-300 px-4 py-3 min-w-[100px]">Detail KP</th>
                                 </tr>
                             </thead>
                         <!-- Alpine State Injector for Turbo Fetch -->
@@ -281,7 +281,9 @@
                                         @endif
                                         
                                         <!-- Judul KP for each Mahasiswa -->
-                                        <td class="border-r border-gray-200 px-4 py-2 align-middle text-center max-w-[180px] break-words" title="{{ $mhs['judul_kp'] }}">{{ Str::limit($mhs['judul_kp'], 50) }}</td>
+                                        <td class="border-r border-gray-200 px-4 py-2 align-middle text-left max-w-[200px]" title="{{ $mhs['judul_kp'] }}">
+                                            <div class="line-clamp-2 break-words leading-relaxed">{{ $mhs['judul_kp'] }}</div>
+                                        </td>
 
                                         @if($mIndex === 0)
                                             <!-- Dosen Plotting Column -->
