@@ -28,10 +28,19 @@
         $nilaiAkhir = (optional($sidang)->nilai_akhir_display !== null) ? number_format($sidang->nilai_akhir_display, 2) . ' (' . $sidang->grade_display . ')' : '-';
         $statusLulus = optional($sidang)->status_kelulusan ?? '-';
         $catatanSidang = optional($sidang)->catatan_sidang ?? '-';
+
+        // Pengecekan apakah nilai sudah mulai diinput oleh salah satu (Penguji 1, Penguji 2, Pembimbing, atau Supervisor)
+        $isNilaiMasuk = (
+            optional($sidang)->nilai_penguji_1 !== null || 
+            optional($sidang)->nilai_penguji_2 !== null || 
+            optional($sidang)->nilai_pembimbing !== null || 
+            optional($sidang)->nilai_supervisor !== null
+        );
     @endphp
 
     <div class="mt-6 max-w-6xl mx-auto space-y-6 pb-12">
-        <!-- Section 1: Informasi Mahasiswa -->
+        @if($sidang && $isNilaiMasuk)
+            <!-- Section 1: Informasi Mahasiswa -->
         <div class="bg-[#EBEBEB] rounded-[10px] p-8 shadow-sm border border-[#CAC0C0]">
             <h3 class="text-[18px] font-bold text-black mb-6 uppercase tracking-tight">Informasi Mahasiswa</h3>
             
@@ -139,6 +148,26 @@
                 </div>
             </div>
         </div>
+            </div>
+        </div>
+        @else
+            <!-- Empty state -->
+            <div class="bg-white rounded-[15px] p-12 shadow-sm flex flex-col items-center justify-center min-h-[450px] border border-gray-200">
+                <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-6 border border-dashed border-gray-300">
+                    <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-[20px] font-bold text-gray-900 mb-3 uppercase tracking-tight">Hasil Sidang Belum Tersedia</h3>
+                <p class="text-[14px] text-gray-500 text-center max-w-md leading-relaxed font-medium">
+                    Nilai sidang Anda sedang dalam proses penginputan oleh tim penguji dan pembimbing. Silakan cek kembali halaman ini setelah proses penilaian selesai.
+                </p>
+                <div class="mt-8 flex items-center gap-2 text-[12px] text-blue-600 font-bold bg-blue-50 px-4 py-2 rounded-full border border-blue-100">
+                    <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    Menunggu publikasi nilai...
+                </div>
+            </div>
+        @endif
     </div>
 
     <style>

@@ -261,7 +261,7 @@
                                 
                                 @foreach($mhsList as $mIndex => $mhs)
                                     <tr class="hover:bg-gray-50 border-b border-gray-200 font-medium transition-colors" 
-                                        :style="openDropdown === '{{ $p['id'] }}' ? 'position: relative; z-index: 100;' : ''">
+                                        :style="openDropdown === '{{ $p['id'] }}' ? 'position: relative; z-index: 999;' : ''">
                                         
                                         <!-- Index -->
                                         <td class="border-r border-gray-200 px-4 py-4 text-center font-bold text-gray-700 align-middle">{{ $noCounter++ }}</td>
@@ -301,7 +301,7 @@
 
                                                     <!-- Dropdown Menu -->
                                                     <div x-show="openDropdown === '{{ $p['id'] }}'" x-transition 
-                                                         style="{{ $loop->iteration > (count($pendaftarans) - 3) ? 'bottom: 100%; margin-bottom: 8px;' : 'top: 100%; margin-top: 4px;' }}"
+                                                         style="{{ $loop->remaining < 3 ? 'bottom: 100%; margin-bottom: 8px;' : 'top: 100%; margin-top: 4px;' }}"
                                                          class="absolute z-[9999] right-0 min-w-[320px] bg-white border border-gray-400 rounded-lg shadow-[0_10px_40px_rgba(0,0,0,0.25)] ring-1 ring-black/5 overflow-hidden text-left" style="display: none;">
                                                         
                                                         <div class="px-2.5 py-2 border-b border-gray-200 bg-gray-50 flex items-center gap-2">
