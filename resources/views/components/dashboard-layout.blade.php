@@ -46,41 +46,6 @@
             </div>
             
             <div class="flex items-center gap-4 md:gap-6 mt-1">
-                @if(!isset($hidePeriodSelector) && isset($available_periods) && $available_periods->isNotEmpty())
-                    @php
-                        $__pRole = auth()->check() ? strtolower(auth()->user()->role) : '';
-                        $__pColor = '#4CC098';
-                        if ($__pRole === 'mahasiswa') $__pColor = '#F48200';
-                        elseif ($__pRole === 'dosen') $__pColor = '#CDA057';
-                    @endphp
-                    <div class="hidden sm:block relative w-[160px] md:w-[190px]">
-                        <form method="POST" action="{{ route('set-periode') }}" id="periode-form-header">
-                            @csrf
-                            <input type="hidden" name="periode_id" id="periode-id-header" value="{{ $selected_period_id }}">
-                            <div x-data="{ open: false }" class="relative">
-                                <button @click="open = !open" @click.outside="open = false" type="button"
-                                    :style="open ? 'border-color: {{ $__pColor }}; ring: 1px {{ $__pColor }};' : 'border-color: #A0A0A0;'"
-                                    class="w-full flex items-center justify-between border bg-white/80 backdrop-blur-sm rounded-[6px] shadow-sm text-[11px] md:text-[12px] font-bold py-1.5 px-3 focus:outline-none cursor-pointer text-black h-[32px] transition-all hover:bg-white">
-                                    <span class="truncate">{{ $selected_period_label }}</span>
-                                    <svg :class="open ? 'rotate-0' : 'rotate-90'" class="w-3 h-3 text-gray-500 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
-                                </button>
-                                <div x-show="open" x-transition x-cloak class="absolute right-0 z-[100] w-full mt-1 bg-white border border-gray-200 rounded-[8px] shadow-xl overflow-hidden max-h-60 overflow-y-auto">
-                                    <ul class="py-1 text-[12px] font-bold text-gray-700">
-                                        @foreach($available_periods as $p)
-                                            <li>
-                                                <button type="button" onclick="document.getElementById('periode-id-header').value = '{{ $p->id }}'; document.getElementById('periode-form-header').submit();"
-                                                    class="block w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors {{ $selected_period_id == $p->id ? 'bg-gray-50 text-blue-600' : '' }}">
-                                                    {{ $p->label_tahun_ajaran }}
-                                                </button>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                @endif
-
                 @php
                     $unreadCount = 0;
                     if (auth()->check()) {
@@ -175,6 +140,45 @@
                             @endif
                             {{ $header }}
                         </h2>
+                        @if(!isset($hidePeriodSelector) && isset($available_periods) && $available_periods->isNotEmpty())
+                            @php
+                                $__pRole = auth()->check() ? strtolower(auth()->user()->role) : '';
+                                $__pColor = '#4CC098'; // koordinator default
+                                if ($__pRole === 'mahasiswa') $__pColor = '#F48200';
+                                elseif ($__pRole === 'dosen') $__pColor = '#CDA057';
+                            @endphp
+                            <div class="relative w-full md:w-[212px] mt-2 md:mt-0 z-10">
+                                <form method="POST" action="{{ route('set-periode') }}" id="periode-form">
+                                    @csrf
+                                    <input type="hidden" name="periode_id" id="periode-id-input" value="{{ $selected_period_id }}">
+                                    <div x-data="{ open: false }" class="relative">
+                                        <button @click="open = !open" @click.outside="open = false" type="button"
+                                            :style="open ? 'border-color: {{ $__pColor }}; box-shadow: 0 0 0 1px {{ $__pColor }};' : 'border-color: #CAC0C0;'"
+                                            class="w-full flex items-center justify-between border bg-[#FBFBFB] rounded-[5px] shadow-sm text-[13px] font-medium py-1.5 px-3 focus:outline-none cursor-pointer text-black h-[32px] transition-colors">
+                                            <span class="truncate">{{ $selected_period_label }}</span>
+                                            <svg :class="open ? 'rotate-0' : 'rotate-90'"
+                                                class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                        </button>
+                                        <div x-show="open" x-transition x-cloak style="display: none;"
+                                            class="absolute right-0 z-50 w-full md:w-[212px] mt-1 bg-[#FBFBFB] border border-[#CAC0C0] rounded-[5px] shadow-lg overflow-hidden max-h-60 overflow-y-auto">
+                                            <ul class="py-1 text-[13px] font-medium text-black">
+                                                @foreach($available_periods as $period)
+                                                    <li>
+                                                        <button type="button" onclick="document.getElementById('periode-id-input').value = '{{ $period->id }}'; document.getElementById('periode-form').submit();"
+                                                            class="block w-full text-left px-3 py-2 hover:bg-[#E8E5E5] transition-colors cursor-pointer text-black {{ $selected_period_id == $period->id ? 'bg-[#E8E5E5] font-semibold' : '' }}">
+                                                            {{ $period->label_tahun_ajaran }}
+                                                        </button>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        @endif
                     </div>
                 @endif
 
@@ -192,7 +196,7 @@
 
                 @if($__showStandalonePeriode)
                     <div class="flex justify-end mb-4">
-                        <div class="relative w-full sm:w-[212px] z-50">
+                        <div class="relative w-full sm:w-[212px] z-10">
                             <form method="POST" action="{{ route('set-periode') }}" id="periode-form-standalone">
                                 @csrf
                                 <input type="hidden" name="periode_id" id="periode-id-standalone" value="{{ $selected_period_id }}">
