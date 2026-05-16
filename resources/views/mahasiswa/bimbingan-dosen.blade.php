@@ -140,25 +140,41 @@
         </div>
 
         <!-- Image Preview Modal -->
-        <div x-cloak x-show="previewImage" style="display:none;"
-            class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 transition-opacity backdrop-blur-sm p-4">
-            <div @click.away="previewImage = null" class="relative max-w-4xl max-h-screen">
-                <button @click="previewImage = null" class="absolute -top-3 -right-3 bg-white text-black rounded-full w-8 h-8 flex items-center justify-center font-bold shadow-lg hover:bg-gray-200 z-10 transition-colors">✕</button>
-                <img :src="previewImage" class="max-w-full max-h-[90vh] object-contain rounded-lg border-4 border-white shadow-2xl">
+        <template x-teleport="body">
+            <div x-cloak x-show="previewImage" 
+                class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 transition-all"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100">
+                <div @click.away="previewImage = null" class="relative max-w-4xl max-h-screen transform transition-all"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="scale-95 opacity-0"
+                     x-transition:enter-end="scale-100 opacity-100">
+                    <button @click="previewImage = null" class="absolute -top-4 -right-4 bg-white text-black rounded-full w-10 h-10 flex items-center justify-center font-bold shadow-2xl hover:bg-gray-200 z-10 transition-colors border-2 border-black/10">✕</button>
+                    <img :src="previewImage" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl">
+                </div>
             </div>
-        </div>
+        </template>
 
         <!-- Add Bimbingan Modal -->
-        <div x-cloak x-show="isModalOpen" style="display:none;"
-            class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4 transition-all overflow-y-auto">
-            <div @click.away="isModalOpen = false" class="bg-white w-full max-w-2xl rounded-[20px] shadow-2xl relative my-8 overflow-hidden transform transition-all scale-100">
-                
-                <div class="bg-gray-50 border-b border-gray-100 px-8 py-5 flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-black uppercase tracking-tight">Tambah Bimbingan Dosen</h2>
-                    <button @click="isModalOpen = false" class="text-black/40 hover:text-black transition-colors">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
+        <template x-teleport="body">
+            <div x-cloak x-show="isModalOpen" 
+                class="fixed inset-0 z-[9998] flex items-center justify-center bg-black/50 backdrop-blur-[3px] p-4 transition-all overflow-y-auto custom-scrollbar">
+                <div @click.away="isModalOpen = false" 
+                     class="bg-white w-full max-w-2xl rounded-[24px] shadow-[0_20px_70px_-10px_rgba(0,0,0,0.5)] relative my-auto overflow-hidden transform transition-all"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 translate-y-8 scale-95"
+                     x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                     x-transition:leave-end="opacity-0 translate-y-8 scale-95">
+                    
+                    <div class="bg-gray-50 border-b border-gray-100 px-8 py-6 flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-black uppercase tracking-tight">Tambah Bimbingan Dosen</h2>
+                        <button @click="isModalOpen = false" class="p-2 hover:bg-gray-200 rounded-full transition-colors">
+                            <svg class="w-6 h-6 text-black/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
 
                 <div class="p-8">
                     <form action="{{ route('mahasiswa.bimbingan-dosen.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
@@ -223,7 +239,7 @@
                     </form>
                 </div>
             </div>
-        </div>
+        </template>
     </div>
 
     <!-- Alpine Script Handled via x-data inline -->
