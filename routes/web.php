@@ -427,7 +427,7 @@ Route::get('/file-manager/{path}', function ($path) {
 
     $fullPath = null;
     foreach ($locations as $loc) {
-        // Gunakan realpath untuk memastikan path benar di Windows
+        // Gunakan realpath untuk memastikan path benar di Windows dan menangani spasi
         if (file_exists($loc)) {
             $fullPath = $loc;
             break;
@@ -435,10 +435,12 @@ Route::get('/file-manager/{path}', function ($path) {
     }
 
     if (!$fullPath) {
+        // DEBUG: Berikan daftar lokasi yang dicek agar user bisa verifikasi folder fisiknya
         return response()->json([
-            'error' => 'File not found',
-            'path_requested' => $path,
-            'checked_locations' => $locations
+            'status' => 'error',
+            'message' => 'File fisik tidak ditemukan di server.',
+            'filename' => $path,
+            'debug_locations_checked' => $locations
         ], 404);
     }
 
