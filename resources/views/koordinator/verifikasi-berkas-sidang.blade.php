@@ -24,10 +24,10 @@
                 'nim' => $item->mahasiswa->nim ?? 'N/A',
                 'status' => $item->status_koordinator,
                 'is_complete' => $isComplete,
-                'file_laporan' => $item->file_laporan ? asset('storage/'.$item->file_laporan) : null,
-                'file_log_bimbingan' => $item->file_log_bimbingan ? asset('storage/'.$item->file_log_bimbingan) : null,
+                'file_laporan' => $item->file_laporan ? storage_url($item->file_laporan) : null,
+                'file_log_bimbingan' => $item->file_log_bimbingan ? storage_url($item->file_log_bimbingan) : null,
                 'file_persetujuan' => $item->status_verifikasi === 'verified' ? route('mahasiswa.persetujuan-sidang.cetak', $item->id) : null,
-                'file_lainnya' => $item->file_berkas_lainnya ? asset('storage/'.$item->file_berkas_lainnya) : null,
+                'file_lainnya' => $item->file_berkas_lainnya ? storage_url($item->file_berkas_lainnya) : null,
                 'link_drive' => $item->link_drive,
                 'link_github' => $item->link_github,
                 'link_deploy' => $item->link_deploy,
@@ -580,10 +580,14 @@
         $koordinator = auth()->user();
         $sigData = '';
         if ($koordinator && $koordinator->signature_path) {
-            $sp = public_path('storage/' . $koordinator->signature_path);
-            if (file_exists($sp)) {
-                $st = pathinfo($sp, PATHINFO_EXTENSION);
-                $sigData = 'data:image/' . $st . ';base64,' . base64_encode(file_get_contents($sp));
+            if (str_starts_with($koordinator->signature_path, 'data:')) {
+                $sigData = $koordinator->signature_path;
+            } else {
+                $sp = storage_path('app/public/' . $koordinator->signature_path);
+                if (file_exists($sp)) {
+                    $st = pathinfo($sp, PATHINFO_EXTENSION);
+                    $sigData = 'data:image/' . $st . ';base64,' . base64_encode(file_get_contents($sp));
+                }
             }
         }
         $koordName = $koordinator ? $koordinator->name : '-';

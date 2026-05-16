@@ -104,8 +104,8 @@
                                 <td class="py-4 px-4 text-center">
                                     @if($log->file_progress)
                                         <div class="w-16 h-12 mx-auto rounded-lg border border-gray-200 overflow-hidden bg-gray-50 cursor-pointer shadow-sm hover:ring-2 hover:ring-blue-500 transition-all"
-                                            @click="previewImage = '{{ asset('storage/' . $log->file_progress) }}'">
-                                            <img src="{{ asset('storage/' . $log->file_progress) }}" class="w-full h-full object-cover">
+                                            @click="previewImage = '{{ storage_url($log->file_progress) }}'">
+                                            <img src="{{ storage_url($log->file_progress) }}" class="w-full h-full object-cover">
                                         </div>
                                     @else
                                         <div class="w-14 h-10 mx-auto rounded border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-black/30 font-bold uppercase text-center leading-tight">No<br>File</div>
@@ -149,12 +149,20 @@
         </div>
 
         <!-- Image Preview Modal -->
-        <div x-cloak x-show="previewImage" style="display:none;"
-            class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 transition-opacity backdrop-blur-sm p-4">
-            <div @click.away="previewImage = null" class="relative max-w-4xl max-h-screen transform transition-all scale-100 shadow-2xl">
-                <button @click="previewImage = null" class="absolute -top-3 -right-3 bg-white text-black rounded-full w-8 h-8 flex items-center justify-center font-bold shadow-lg hover:bg-gray-100 transition-colors z-10">✕</button>
-                <img :src="previewImage" class="max-w-full max-h-[90vh] object-contain rounded-lg border-4 border-white">
+        <template x-teleport="body">
+            <div x-cloak x-show="previewImage" 
+                class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 transition-all"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100">
+                <div @click.away="previewImage = null" class="relative max-w-4xl max-h-screen transform transition-all shadow-2xl"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="scale-95 opacity-0"
+                     x-transition:enter-end="scale-100 opacity-100">
+                    <button @click="previewImage = null" class="absolute -top-4 -right-4 bg-white text-black rounded-full w-10 h-10 flex items-center justify-center font-bold shadow-2xl hover:bg-gray-200 transition-colors z-10 border-2 border-black/10">✕</button>
+                    <img :src="previewImage" class="max-w-full max-h-[90vh] object-contain rounded-lg border-4 border-white shadow-2xl">
+                </div>
             </div>
-        </div>
+        </template>
     </div>
 </x-dashboard-layout>

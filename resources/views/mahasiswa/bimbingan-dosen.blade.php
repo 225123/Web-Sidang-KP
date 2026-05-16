@@ -103,8 +103,8 @@
                                 <td class="py-4 px-4 text-center">
                                     @if($log && $log->file_progress)
                                         <div class="w-14 h-10 mx-auto rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:ring-2 hover:ring-blue-400 transition-all cursor-pointer bg-gray-50"
-                                            @click="previewImage = '{{ asset('storage/' . $log->file_progress) }}'">
-                                            <img src="{{ asset('storage/' . $log->file_progress) }}" class="w-full h-full object-cover">
+                                            @click="previewImage = '{{ storage_url($log->file_progress) }}'">
+                                            <img src="{{ storage_url($log->file_progress) }}" class="w-full h-full object-cover">
                                         </div>
                                     @else
                                         <div class="w-12 h-8 mx-auto border border-dashed border-gray-300 rounded flex items-center justify-center text-[9px] text-black/30 font-bold uppercase text-center leading-tight">No<br>Img</div>

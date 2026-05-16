@@ -22,9 +22,9 @@ if (! function_exists('storage_url')) {
 
         $activeDisk = $disk ?? config('filesystems.default', 'public');
 
-        // Untuk disk 'public' lokal, gunakan asset() agar symlink storage berfungsi
+        // Untuk disk 'public' lokal, gunakan rute file-manager agar file dapat diakses di Vercel
         if ($activeDisk === 'public') {
-            return asset('storage/' . $path);
+            return route('serve.file', ['path' => $path]);
         }
 
         // Untuk disk lain (r2, s3), gunakan Storage::disk()->url()

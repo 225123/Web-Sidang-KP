@@ -108,7 +108,7 @@
                     </div>
                     <a href="{{ route('profil.index') }}" class="h-[32px] w-[32px] sm:h-[40px] sm:w-[40px] md:h-[58px] md:w-[58px] lg:h-[68px] lg:w-[68px] rounded-full bg-[#140EBF] flex items-center justify-center text-white font-bold text-sm md:text-xl lg:text-2xl border-[2px] md:border-[3px] lg:border-4 border-[#D9D9D9] overflow-hidden shadow-sm hover:scale-105 transition-transform shrink-0">
                         @if(auth()->user() && auth()->user()->avatar)
-                            <img src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Avatar" class="w-full h-full object-cover">
+                            <img src="{{ storage_url(auth()->user()->avatar) }}" alt="Avatar" class="w-full h-full object-cover">
                         @else
                             {{ substr($userName ?? 'R', 0, 1) }}
                         @endif
