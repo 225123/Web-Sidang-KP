@@ -415,20 +415,46 @@ Route::get('/run-migrations', function () {
 
 // Route untuk melayani file storage di Vercel dengan prefix unik
 Route::get('/file-manager/{path}', function ($path) {
-    // Cek di public first
-    $fullPath = storage_path('app/public/' . $path);
+    // Normalisasi path untuk Windows (ganti / jadi DIRECTORY_SEPARATOR jika perlu, 
+    // tapi PHP biasanya handle / dengan baik. Kita pastikan saja tidak ada dobel slash)
+    $path = ltrim($path, '/');
     
-    // Fallback ke private (jika sebelumnya pakai disk 'local')
-    if (!\Illuminate\Support\Facades\File::exists($fullPath)) {
-        $fullPath = storage_path('app/private/' . $path);
+    // Daftar lokasi pengecekan (Prioritas: public -> private -> app root)
+    $locations = [
+        storage_path('app/public/' . $path),
+        storage_path('app/private/' . $path),
+        storage_path('app/' . $path),
+    ];
+
+    $fullPath = null;
+    foreach ($locations as $loc) {
+        if (\Illuminate\Support\Facades\File::exists($loc)) {
+            $fullPath = $loc;
+            break;
+        }
     }
 
-    if (!\Illuminate\Support\Facades\File::exists($fullPath)) {
-        abort(404);
+    if (!$fullPath) {
+        abort(404, "File not found at any location: " . $path);
     }
 
     $file = \Illuminate\Support\Facades\File::get($fullPath);
-    $type = \Illuminate\Support\Facades\File::mimeType($fullPath);
+    
+    // Fallback MimeType detection
+    try {
+        $type = \Illuminate\Support\Facades\File::mimeType($fullPath);
+    } catch (\Exception $e) {
+        $extension = pathinfo($fullPath, PATHINFO_EXTENSION);
+        $type = match(strtolower($extension)) {
+            'jpg', 'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'pdf' => 'application/pdf',
+            default => 'application/octet-stream',
+        };
+    }
 
-    return response($file)->header('Content-Type', $type);
+    return response($file)
+        ->header('Content-Type', $type)
+        ->header('Cache-Control', 'public, max-age=3600');
 })->where('path', '.*')->name('serve.file');
