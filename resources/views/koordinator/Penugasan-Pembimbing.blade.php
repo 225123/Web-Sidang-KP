@@ -260,7 +260,8 @@
                                 @endphp
                                 
                                 @foreach($mhsList as $mIndex => $mhs)
-                                    <tr class="hover:bg-gray-50 border-b border-gray-200 font-medium transition-colors" :class="openDropdown === '{{ $p['id'] }}' ? 'relative z-[1000]' : ''">
+                                    <tr class="hover:bg-gray-50 border-b border-gray-200 font-medium transition-colors" 
+                                        :style="openDropdown === '{{ $p['id'] }}' ? 'position: relative; z-index: 100;' : ''">
                                         
                                         <!-- Index -->
                                         <td class="border-r border-gray-200 px-4 py-4 text-center font-bold text-gray-700 align-middle">{{ $noCounter++ }}</td>
@@ -288,77 +289,54 @@
                                         @if($mIndex === 0)
                                              <!-- Dosen Plotting Column -->
                                             <td rowspan="{{ $rowspan }}" class="border-r border-gray-200 px-4 py-2 align-middle">
-                                                <div class="relative w-full max-w-[200px] mx-auto" x-data="{ 
-                                                    dropdownId: '{{ $p['id'] }}',
-                                                    get dropdownStyle() {
-                                                        const btn = $refs.trigger;
-                                                        if (!btn) return {};
-                                                        const rect = btn.getBoundingClientRect();
-                                                        const spaceBelow = window.innerHeight - rect.bottom;
-                                                        const showUp = spaceBelow < 250; 
-                                                        
-                                                        return {
-                                                            position: 'fixed',
-                                                            top: showUp ? 'auto' : (rect.bottom + 4) + 'px',
-                                                            bottom: showUp ? (window.innerHeight - rect.top + 4) + 'px' : 'auto',
-                                                            left: rect.left + 'px',
-                                                            width: '320px',
-                                                            zIndex: 99999
-                                                        };
-                                                    }
-                                                }">
+                                                <div class="relative w-full max-w-[200px] mx-auto" @click.outside="openDropdown === '{{ $p['id'] }}' ? closeDropdown('{{ $p['id'] }}') : null">
                                                     <input type="hidden" name="assignments[{{ $p['id'] }}]" :value="assignments['{{ $p['id'] }}']" form="form-assignment">
                                                     
-                                                    <button type="button" x-ref="trigger" @click.stop="triggerDropdown(dropdownId)" 
+                                                    <button type="button" @click.stop="triggerDropdown('{{ $p['id'] }}')" 
                                                             class="w-full py-2 px-3 border rounded-[5px] text-[12px] flex items-center justify-between transition-all shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white hover:border-gray-400"
-                                                            :class="assignments[dropdownId] !== '' ? 'text-black font-bold border-gray-300' : 'text-gray-500 font-medium border-gray-300 border-dashed'">
-                                                        <span class="truncate pr-2 text-left flex-1" x-text="getDosenName(assignments[dropdownId])"></span>
-                                                        <svg :class="openDropdown === dropdownId ? 'rotate-180' : 'rotate-0'" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                            :class="assignments['{{ $p['id'] }}'] !== '' ? 'text-black font-bold border-gray-300' : 'text-gray-500 font-medium border-gray-300 border-dashed'">
+                                                        <span class="truncate pr-2 text-left flex-1" x-text="getDosenName(assignments['{{ $p['id'] }}'])"></span>
+                                                        <svg :class="openDropdown === '{{ $p['id'] }}' ? 'rotate-180' : 'rotate-0'" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                                     </button>
 
-                                                    <template x-teleport="body">
-                                                        <div x-show="openDropdown === dropdownId" 
-                                                             @click.outside="openDropdown === dropdownId ? closeDropdown(dropdownId) : null"
-                                                             x-transition:enter="transition ease-out duration-100"
-                                                             x-transition:enter-start="opacity-0 scale-95"
-                                                             x-transition:enter-end="opacity-100 scale-100"
-                                                             :style="dropdownStyle"
-                                                             class="bg-white border border-gray-400 rounded-lg shadow-[0_10px_40px_rgba(0,0,0,0.25)] ring-1 ring-black/5 overflow-hidden text-left">
+                                                    <!-- Dropdown Menu -->
+                                                    <div x-show="openDropdown === '{{ $p['id'] }}'" x-transition 
+                                                         style="{{ $loop->iteration > (count($pendaftarans) - 3) ? 'bottom: 100%; margin-bottom: 8px;' : 'top: 100%; margin-top: 4px;' }}"
+                                                         class="absolute z-[9999] right-0 min-w-[320px] bg-white border border-gray-400 rounded-lg shadow-[0_10px_40px_rgba(0,0,0,0.25)] ring-1 ring-black/5 overflow-hidden text-left" style="display: none;">
+                                                        
+                                                        <div class="px-2.5 py-2 border-b border-gray-200 bg-gray-50 flex items-center gap-2">
+                                                            <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                                            <input type="text" x-model="searchDosen" @click.stop class="w-full bg-transparent text-[12px] outline-none text-gray-700 py-1" placeholder="Cari Dosen...">
+                                                        </div>
+                                                        <ul class="py-1 text-[12px] max-h-[220px] overflow-y-auto custom-scrollbar bg-white">
+                                                            <li x-show="assignments['{{ $p['id'] }}'] !== ''">
+                                                                <button type="button" @click.prevent="setAssignment('{{ $p['id'] }}', '')" class="w-full text-left px-3 py-2 font-bold text-red-600 hover:bg-red-50 flex items-center gap-2 border-b border-gray-100 whitespace-nowrap text-[12px]">
+                                                                    Batalkan Pilihan
+                                                                </button>
+                                                            </li>
                                                             
-                                                            <div class="px-2.5 py-2 border-b border-gray-200 bg-gray-50 flex items-center gap-2">
-                                                                <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                                                                <input type="text" x-model="searchDosen" @click.stop class="w-full bg-transparent text-[12px] outline-none text-gray-700 py-1" placeholder="Cari Dosen...">
-                                                            </div>
-                                                            <ul class="py-1 text-[12px] max-h-[220px] overflow-y-auto custom-scrollbar bg-white">
-                                                                <li x-show="assignments[dropdownId] !== ''">
-                                                                    <button type="button" @click.prevent="setAssignment(dropdownId, '')" class="w-full text-left px-3 py-2 font-bold text-red-600 hover:bg-red-50 flex items-center gap-2 border-b border-gray-100 whitespace-nowrap text-[12px]">
-                                                                        Batalkan Pilihan
+                                                            <template x-for="dosen in filteredDosenList" :key="dosen.id">
+                                                                <li>
+                                                                    <button type="button" @click.prevent="setAssignment('{{ $p['id'] }}', dosen.id)" 
+                                                                            class="w-full text-left px-3 py-2.5 flex justify-between items-center transition-colors border-b border-gray-100/50 text-[12px]"
+                                                                            :class="[
+                                                                                supervisorMap['{{ $p['id'] }}'] == dosen.id ? 'bg-red-50 text-red-500 cursor-not-allowed opacity-80' : 
+                                                                                (assignments['{{ $p['id'] }}'] == dosen.id ? 'bg-[#E6F0FA] font-bold text-gray-900 pointer-events-none' : 'hover:bg-blue-50 cursor-pointer text-gray-700 font-bold'),
+                                                                                Number(dosen.beban) >= Number(dosen.kuota) && assignments['{{ $p['id'] }}'] != dosen.id && supervisorMap['{{ $p['id'] }}'] != dosen.id ? 'opacity-50 cursor-not-allowed text-gray-400' : ''
+                                                                            ]"
+                                                                            :disabled="(Number(dosen.beban) >= Number(dosen.kuota) && assignments['{{ $p['id'] }}'] != dosen.id) || supervisorMap['{{ $p['id'] }}'] == dosen.id">
+                                                                        <div class="flex items-center gap-2 truncate pr-2">
+                                                                            <span class="truncate" x-text="dosen.nama"></span>
+                                                                            <template x-if="supervisorMap['{{ $p['id'] }}'] == dosen.id">
+                                                                                <span class="text-[8px] bg-red-100 text-red-600 px-1 rounded uppercase font-bold flex-shrink-0 border border-red-200">SUPERVISOR</span>
+                                                                            </template>
+                                                                        </div>
+                                                                        <span class="shrink-0 font-bold ml-auto text-right whitespace-nowrap text-[#4285F4]" x-text="dosen.beban"></span>
                                                                     </button>
                                                                 </li>
-                                                                
-                                                                <template x-for="dosen in filteredDosenList" :key="dosen.id">
-                                                                    <li>
-                                                                        <button type="button" @click.prevent="setAssignment(dropdownId, dosen.id)" 
-                                                                                class="w-full text-left px-3 py-2.5 flex justify-between items-center transition-colors border-b border-gray-100/50 text-[12px]"
-                                                                                :class="[
-                                                                                    supervisorMap[dropdownId] == dosen.id ? 'bg-red-50 text-red-500 cursor-not-allowed opacity-80' : 
-                                                                                    (assignments[dropdownId] == dosen.id ? 'bg-[#E6F0FA] font-bold text-gray-900 pointer-events-none' : 'hover:bg-blue-50 cursor-pointer text-gray-700 font-bold'),
-                                                                                    Number(dosen.beban) >= Number(dosen.kuota) && assignments[dropdownId] != dosen.id && supervisorMap[dropdownId] != dosen.id ? 'opacity-50 cursor-not-allowed text-gray-400' : ''
-                                                                                ]"
-                                                                                :disabled="(Number(dosen.beban) >= Number(dosen.kuota) && assignments[dropdownId] != dosen.id) || supervisorMap[dropdownId] == dosen.id">
-                                                                            <div class="flex items-center gap-2 truncate pr-2">
-                                                                                <span class="truncate" x-text="dosen.nama"></span>
-                                                                                <template x-if="supervisorMap[dropdownId] == dosen.id">
-                                                                                    <span class="text-[8px] bg-red-100 text-red-600 px-1 rounded uppercase font-bold flex-shrink-0 border border-red-200">SUPERVISOR</span>
-                                                                                </template>
-                                                                            </div>
-                                                                            <span class="shrink-0 font-bold ml-auto text-right whitespace-nowrap text-[#4285F4]" x-text="dosen.beban"></span>
-                                                                        </button>
-                                                                    </li>
-                                                                </template>
-                                                            </ul>
-                                                        </div>
-                                                    </template>
+                                                            </template>
+                                                        </ul>
+                                                    </div>
                                                 </div>
                                             </td>
 
