@@ -47,7 +47,7 @@
             { 
                 id: '{{ $user->id }}', 
                 name: '{{ addslashes($displayName) }}', 
-                avatar: '{{ $user->avatar ? asset('storage/'.$user->avatar) : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&background=random' }}',
+                avatar: '{{ $user->avatar ? storage_url($user->avatar) : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&background=random' }}',
                 role: '{{ strtoupper($user->role) }}',
                 identifier: '{{ $identifier }}'
             },
@@ -64,7 +64,7 @@
             'penerima_id' => !$l->target_role && $l->receiver ? ($l->receiver->nim ?? $l->receiver->dosen->nidn ?? '') : '',
             'judul' => $l->judul,
             'pesan' => $l->pesan,
-            'file_path' => $l->file_path ? asset('storage/'.$l->file_path) : null,
+            'file_path' => $l->file_path ? storage_url($l->file_path) : null,
             'hari' => $l->created_at->isoFormat('dddd,'),
             'tanggal' => $l->created_at->isoFormat('DD MMMM YYYY'),
             'timestamp' => $l->created_at->timestamp,

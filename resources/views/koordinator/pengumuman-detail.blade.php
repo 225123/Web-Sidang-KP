@@ -92,7 +92,7 @@
                                         @endphp
 
                                         @if($isImage)
-                                            <img src="{{ asset('storage/' . $log->file_path) }}"
+                                            <img src="{{ storage_url($log->file_path) }}"
                                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                         @else
                                             <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor"
@@ -103,10 +103,9 @@
                                             </svg>
                                         @endif
 
-                                        <!-- Hover Overlay -->
                                         <div
                                             class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-6 transition-opacity duration-300">
-                                            <a href="{{ asset('storage/' . $log->file_path) }}" target="_blank"
+                                            <a href="{{ storage_url($log->file_path) }}" target="_blank"
                                                 class="p-3 bg-white/20 hover:bg-white/40 rounded-full text-white transition-all transform hover:scale-110"
                                                 title="Lihat">
                                                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,7 +116,7 @@
                                                     </path>
                                                 </svg>
                                             </a>
-                                            <a href="{{ asset('storage/' . $log->file_path) }}" download
+                                            <a href="{{ storage_url($log->file_path) }}" download
                                                 class="p-3 bg-white/20 hover:bg-white/40 rounded-full text-white transition-all transform hover:scale-110"
                                                 title="Download">
                                                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
