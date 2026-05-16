@@ -415,11 +415,10 @@ Route::get('/run-migrations', function () {
 
 // Route untuk melayani file storage di Vercel dengan prefix unik
 Route::get('/file-manager/{path}', function ($path) {
-    // Normalisasi path untuk Windows (ganti / jadi DIRECTORY_SEPARATOR jika perlu, 
-    // tapi PHP biasanya handle / dengan baik. Kita pastikan saja tidak ada dobel slash)
-    $path = ltrim($path, '/');
+    // Normalisasi path: ganti backslash jadi forward slash dulu, lalu ltrim
+    $path = ltrim(str_replace('\\', '/', $path), '/');
     
-    // Daftar lokasi pengecekan (Prioritas: public -> private -> app root)
+    // Daftar lokasi pengecekan dengan normalisasi path sistem
     $locations = [
         storage_path('app/public/' . $path),
         storage_path('app/private/' . $path),
@@ -428,33 +427,25 @@ Route::get('/file-manager/{path}', function ($path) {
 
     $fullPath = null;
     foreach ($locations as $loc) {
-        if (\Illuminate\Support\Facades\File::exists($loc)) {
+        // Gunakan realpath untuk memastikan path benar di Windows
+        if (file_exists($loc)) {
             $fullPath = $loc;
             break;
         }
     }
 
     if (!$fullPath) {
-        abort(404, "File not found at any location: " . $path);
+        return response()->json([
+            'error' => 'File not found',
+            'path_requested' => $path,
+            'checked_locations' => $locations
+        ], 404);
     }
 
-    $file = \Illuminate\Support\Facades\File::get($fullPath);
-    
-    // Fallback MimeType detection
-    try {
-        $type = \Illuminate\Support\Facades\File::mimeType($fullPath);
-    } catch (\Exception $e) {
-        $extension = pathinfo($fullPath, PATHINFO_EXTENSION);
-        $type = match(strtolower($extension)) {
-            'jpg', 'jpeg' => 'image/jpeg',
-            'png' => 'image/png',
-            'gif' => 'image/gif',
-            'pdf' => 'application/pdf',
-            default => 'application/octet-stream',
-        };
-    }
+    // Gunakan BinaryFileResponse agar lebih efisien dan aman
+    $response = response()->file($fullPath, [
+        'Cache-Control' => 'public, max-age=3600',
+    ]);
 
-    return response($file)
-        ->header('Content-Type', $type)
-        ->header('Cache-Control', 'public, max-age=3600');
+    return $response;
 })->where('path', '.*')->name('serve.file');
