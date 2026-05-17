@@ -20,7 +20,6 @@ class InputNilaiController extends Controller
 
         // Kita menggunakan pencocokan berbasis Mahasiswa ID untuk mengatasi data pendaftaran sidang yang mungkin link ke KP ID yang salah (lama/rejected)
         $sidangs = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp.supervisorInternal', 'pendaftaranKp.supervisorInstansi'])
-            ->whereNotNull('tanggal_sidang')
             ->where(function ($query) use ($currentUserId, $currentUserName) {
                 $query->where('penguji_1_id', $currentUserId)
                     ->orWhere('penguji_2_id', $currentUserId)

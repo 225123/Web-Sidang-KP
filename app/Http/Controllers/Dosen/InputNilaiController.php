@@ -20,7 +20,6 @@ class InputNilaiController extends Controller
 
         // Ambil mahasiswa di mana dosen ini memiliki peran apapun (Penguji, Pembimbing, atau Supervisior)
         $sidangs = PendaftaranSidang::with(['mahasiswa.user'])
-            ->whereNotNull('tanggal_sidang')
             ->where(function ($query) use ($currentUserId, $currentUserName) {
                 // Peran sebagai Penguji
                 $query->where('penguji_1_id', $currentUserId)
