@@ -175,12 +175,17 @@
 
         if(str_starts_with($pathAsset, 'data:image')) return $pathAsset;
 
-        // Gunakan storage_path untuk melewati symlink issue di Windows DomPDF
-        $path = storage_path('app/public/' . $pathAsset);
-        if(file_exists($path)) {
-            $type = pathinfo($path, PATHINFO_EXTENSION);
-            return 'data:image/' . $type . ';base64,' . base64_encode(file_get_contents($path));
+        $disk = upload_disk();
+        try {
+            if (\Illuminate\Support\Facades\Storage::disk($disk)->exists($pathAsset)) {
+                $type = pathinfo($pathAsset, PATHINFO_EXTENSION);
+                $data = \Illuminate\Support\Facades\Storage::disk($disk)->get($pathAsset);
+                return 'data:image/' . $type . ';base64,' . base64_encode($data);
+            }
+        } catch (\Exception $e) {
+            // ignore error
         }
+        
         return null;
     }
 

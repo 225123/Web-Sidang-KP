@@ -249,12 +249,16 @@
             @if($persetujuan->status_verifikasi === 'verified' && $pembimbing?->signature_path)
                 <!-- Load base64 image from storage to bypass DomPDF remote fetching limitations -->
                 @php
-                    $sigPath = public_path('storage/' . $pembimbing->signature_path);
+                    $disk = upload_disk();
                     $sigData = '';
-                    if (file_exists($sigPath)) {
-                        $type = pathinfo($sigPath, PATHINFO_EXTENSION);
-                        $data = file_get_contents($sigPath);
-                        $sigData = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                    try {
+                        if (\Illuminate\Support\Facades\Storage::disk($disk)->exists($pembimbing->signature_path)) {
+                            $type = pathinfo($pembimbing->signature_path, PATHINFO_EXTENSION);
+                            $data = \Illuminate\Support\Facades\Storage::disk($disk)->get($pembimbing->signature_path);
+                            $sigData = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                        }
+                    } catch (\Exception $e) {
+                        // ignore error
                     }
                 @endphp
                 @if($sigData)
