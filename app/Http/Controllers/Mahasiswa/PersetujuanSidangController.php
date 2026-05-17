@@ -59,8 +59,8 @@ class PersetujuanSidangController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'file_laporan' => 'nullable|mimes:pdf|max:5120',
-            'link_drive' => 'nullable|url',
+            'file_laporan' => 'required_without:link_drive|mimes:pdf|max:5120',
+            'link_drive' => 'required_without:file_laporan|url',
         ]);
 
         $mahasiswaId = Auth::user()->id;
@@ -98,7 +98,7 @@ class PersetujuanSidangController extends Controller
             ['pendaftaran_kp_id' => $pendaftaran->id, 'mahasiswa_id' => $mahasiswaId],
             [
                 'file_laporan' => $filePath,
-                'link_github' => $request->link_drive,
+                'link_drive' => $request->link_drive,
                 'status_verifikasi' => 'pending', // Sesuai constraint DB ('pending', 'verified', 'rejected')
                 'status_koordinator' => 'unsubmitted', // Belum diajukan ke koordinator — hanya persetujuan dosen
             ]

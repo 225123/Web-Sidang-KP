@@ -87,7 +87,7 @@
                 @endif
 
                 <form id="formPendaftaranSidang" action="{{ route('mahasiswa.pendaftaran-sidang.store') }}" method="POST" enctype="multipart/form-data"
-                    class="bg-[#eeeeee] rounded-xl p-8 mb-6 mt-4">
+                    class="bg-[#eeeeee] rounded-xl p-8 mb-6 mt-4" x-data="{ linkDrive: '{{ old('link_drive') }}' }">
                     @csrf
                     <h3 class="text-lg font-bold text-gray-800 mt-0 mb-6">Kelengkapan Dokumen Sidang</h3>
 
@@ -96,9 +96,9 @@
                         <div x-data="{ hasFile: false }"
                             class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
                             <div class="text-[13px] font-bold text-black mb-3">Laporan KP <span
-                                    class="text-red-500 ml-1">*</span></div>
+                                    class="text-red-500 ml-1" x-show="!linkDrive">*</span></div>
                             <div class="flex items-start gap-2">
-                                <input type="file" name="file_laporan" required accept=".pdf" x-ref="laporan" 
+                                <input type="file" name="file_laporan" :required="!linkDrive" accept=".pdf" x-ref="laporan" 
                                     @change="window.handleFileSelection($event, 5242880, (isValid) => { hasFile = isValid; })"
                                     class="flex-1 text-[11px] text-gray-600 mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                                 <button type="button" x-cloak x-show="hasFile" @click="$refs.laporan.value = ''; hasFile = false" 
@@ -113,9 +113,9 @@
                         <div x-data="{ hasFile: false }"
                             class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
                             <div class="text-[13px] font-bold text-black mb-3">Laporan Bimbingan KP <span
-                                    class="text-red-500 ml-1">*</span></div>
+                                    class="text-red-500 ml-1" x-show="!linkDrive">*</span></div>
                             <div class="flex items-start gap-2">
-                                <input type="file" name="file_log_bimbingan" required accept=".pdf" x-ref="bimbingan" 
+                                <input type="file" name="file_log_bimbingan" :required="!linkDrive" accept=".pdf" x-ref="bimbingan" 
                                     @change="window.handleFileSelection($event, 5242880, (isValid) => { hasFile = isValid; })"
                                     class="flex-1 text-[11px] text-gray-600 mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                                 <button type="button" x-cloak x-show="hasFile" @click="$refs.bimbingan.value = ''; hasFile = false" 
@@ -147,7 +147,7 @@
                         <div
                             class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
                             <div class="text-[13px] font-bold text-black mb-3">Link Google Drive</div>
-                            <input type="url" name="link_drive" placeholder="https://drive.google.com/..."
+                            <input type="url" name="link_drive" x-model="linkDrive" placeholder="https://drive.google.com/..."
                                 class="border border-gray-300 rounded-[5px] px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 w-full bg-gray-50 mb-1">
                             <div class="text-[10px] text-gray-400 mt-1">Jika file > 5MB</div>
                         </div>

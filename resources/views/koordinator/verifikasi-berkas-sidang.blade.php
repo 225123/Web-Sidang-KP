@@ -17,7 +17,9 @@
 
     @php
         $mapper = function ($item) {
-            $isComplete = $item->file_laporan && $item->file_log_bimbingan && $item->link_github && $item->link_deploy && $item->status_verifikasi === 'verified';
+            $hasLaporan = $item->file_laporan || $item->link_drive;
+            $hasLog = $item->file_log_bimbingan || $item->link_drive;
+            $isComplete = $hasLaporan && $hasLog && $item->link_github && $item->link_deploy && $item->status_verifikasi === 'verified';
             return [
                 'id' => $item->id,
                 'name' => $item->mahasiswa->user->name ?? 'N/A',
