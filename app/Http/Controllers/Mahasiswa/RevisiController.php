@@ -26,7 +26,43 @@ class RevisiController extends Controller
 
         $sidang = $query->latest()->first();
 
+        if ($sidang) {
+            $sidangScore = ((float) ($sidang->nilai_penguji_1 ?? 0) * 0.5) + ((float) ($sidang->nilai_penguji_2 ?? 0) * 0.5);
+            $originalGrade = $this->getGradeFromScore($sidangScore);
+            
+            $revisiVerified = ($sidang->status_revisi === 'Disahkan' || $sidang->status_revisi === 'Diterima');
+            $finalGrade = $originalGrade;
+            
+            if ($sidang->status_kelulusan === 'Lulus Dengan Revisi' && !$revisiVerified) {
+                $finalGrade = $this->getPenalizedGrade($originalGrade);
+            }
+            
+            $sidang->nilai_akhir_display = $sidangScore;
+            $sidang->grade_display = $finalGrade;
+        }
+
         return view('mahasiswa.revisi', compact('sidang'));
+    }
+
+    private function getGradeFromScore($nilai)
+    {
+        if ($nilai >= 86) return 'A';
+        if ($nilai >= 81) return 'A-';
+        if ($nilai >= 76) return 'B+';
+        if ($nilai >= 71) return 'B';
+        if ($nilai >= 66) return 'B-';
+        if ($nilai >= 61) return 'C+';
+        if ($nilai >= 56) return 'C';
+        if ($nilai >= 46) return 'D';
+        return 'E';
+    }
+
+    private function getPenalizedGrade($grade)
+    {
+        $grades = ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'D', 'E'];
+        $index = array_search($grade, $grades);
+        $newIndex = min($index + 1, count($grades) - 1);
+        return $grades[$newIndex];
     }
 
     public function store(Request $request)

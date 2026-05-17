@@ -45,7 +45,7 @@
                 <div>: {{ $sidang->ruang_sidang ?? '-' }}</div>
 
                 <div>Nilai Akhir Sidang</div>
-                <div>: {{ $sidang->nilai_akhir ? number_format((float)$sidang->nilai_akhir, 2) : '-' }} ({{ $sidang->grade ?? '-' }})</div>
+                <div>: {{ $sidang->nilai_akhir_display !== null ? number_format((float)$sidang->nilai_akhir_display, 2) : '-' }} ({{ $sidang->grade_display ?? '-' }})</div>
 
 
 
