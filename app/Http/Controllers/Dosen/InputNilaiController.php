@@ -38,15 +38,15 @@ class InputNilaiController extends Controller
             })
             ->get()
             ->map(function (PendaftaranSidang $sidang) use ($currentUserId, $currentUserName) {
-                // FORCE: Cari data pendaftaran KP yang APPROVED untuk mahasiswa ini
-                $kp = PendaftaranKp::with(['supervisorInternal', 'supervisorInstansi'])
-                    ->where('mahasiswa_id', $sidang->mahasiswa_id)
-                    ->where('status_kp', 'approved')
-                    ->first();
+                // FORCE: Prioritaskan mencari data pendaftaran KP dari foreign key pendaftaran_sidang agar data Anggota tidak nyasar ke KP individu lama.
+                $kp = PendaftaranKp::with(['supervisorInternal', 'supervisorInstansi'])->find($sidang->pendaftaran_kp_id);
 
-                // Jika tidak ada yang approved, fallback ke yang terhubung di pendaftaran sidang (jika ada)
-                if (! $kp && $sidang->pendaftaran_kp_id) {
-                    $kp = PendaftaranKp::with(['supervisorInternal', 'supervisorInstansi'])->find($sidang->pendaftaran_kp_id);
+                // Jika tidak ada (sangat jarang), fallback ke pencarian berdasarkan mahasiswa_id
+                if (! $kp) {
+                    $kp = PendaftaranKp::with(['supervisorInternal', 'supervisorInstansi'])
+                        ->where('mahasiswa_id', $sidang->mahasiswa_id)
+                        ->where('status_kp', 'approved')
+                        ->first();
                 }
 
                 // Set relasi agar view menggunakan data KP yang benar
@@ -91,15 +91,15 @@ class InputNilaiController extends Controller
         $userName = Auth::user()->name;
         $sidang = PendaftaranSidang::with(['mahasiswa.user'])->findOrFail($id);
 
-        // Cari data pendaftaran KP yang APPROVED untuk mahasiswa ini guna otoritas & konteks data
-        $kp = PendaftaranKp::with(['supervisorInternal', 'supervisorInstansi'])
-            ->where('mahasiswa_id', $sidang->mahasiswa_id)
-            ->where('status_kp', 'approved')
-            ->first();
+        // FORCE: Prioritaskan mencari data pendaftaran KP dari foreign key pendaftaran_sidang agar data Anggota tidak nyasar ke KP individu lama.
+        $kp = PendaftaranKp::with(['supervisorInternal', 'supervisorInstansi'])->find($sidang->pendaftaran_kp_id);
 
-        // Jika tidak ada yang approved, fallback ke yang terhubung di pendaftaran sidang (jika ada)
-        if (! $kp && $sidang->pendaftaran_kp_id) {
-            $kp = PendaftaranKp::with(['supervisorInternal', 'supervisorInstansi'])->find($sidang->pendaftaran_kp_id);
+        // Jika tidak ada (sangat jarang), fallback ke pencarian berdasarkan mahasiswa_id
+        if (! $kp) {
+            $kp = PendaftaranKp::with(['supervisorInternal', 'supervisorInstansi'])
+                ->where('mahasiswa_id', $sidang->mahasiswa_id)
+                ->where('status_kp', 'approved')
+                ->first();
         }
 
         // Set relasi agar view menggunakan data KP yang benar
@@ -142,9 +142,9 @@ class InputNilaiController extends Controller
         $userName = Auth::user()->name;
 
         // Validasi authority yang sama dengan detail()
-        $kp = PendaftaranKp::where('mahasiswa_id', $sidang->mahasiswa_id)->where('status_kp', 'approved')->first();
-        if (! $kp && $sidang->pendaftaran_kp_id) {
-            $kp = PendaftaranKp::find($sidang->pendaftaran_kp_id);
+        $kp = PendaftaranKp::find($sidang->pendaftaran_kp_id);
+        if (! $kp) {
+            $kp = PendaftaranKp::where('mahasiswa_id', $sidang->mahasiswa_id)->where('status_kp', 'approved')->first();
         }
 
         $isAuthorized = false;
