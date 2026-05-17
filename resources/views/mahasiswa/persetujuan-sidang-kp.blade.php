@@ -55,7 +55,7 @@
                     <div>: {{ $mahasiswaData->nim ?? '412023024' }}</div>
 
                     <div>Judul KP</div>
-                    <div>: {{ $pendaftaran->judul_kp ?? 'Website Sidang KP' }}</div>
+                    <div>: {{ $ownKp->judul_kp ?? ($pendaftaran->judul_kp ?? 'Website Sidang KP') }}</div>
 
                     <div>Dosen Pembimbing</div>
                     <div>: {{ $pendaftaran->pembimbing->name ?? 'Belum ada pembimbing' }}</div>

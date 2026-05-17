@@ -43,15 +43,16 @@ class PersetujuanSidangController extends Controller
                 ->where('mahasiswa_id', $mahasiswaId)
                 ->where('status_approval', 'approved')
                 ->count();
-            // Ambil data pengajuan sidang berdasarkan pendaftaran_kp_id dan mahasiswa_id
             $persetujuan = PendaftaranSidang::where('pendaftaran_kp_id', $pendaftaran->id)
                 ->where('mahasiswa_id', $mahasiswaId)
                 ->first();
         }
 
+        $ownKp = PendaftaranKp::where('mahasiswa_id', $mahasiswaId)->latest()->first();
+
         $mahasiswaData = Auth::user()->mahasiswa;
 
-        return view('mahasiswa.persetujuan-sidang-kp', compact('pendaftaran', 'totalBimbingan', 'persetujuan', 'mahasiswaData'));
+        return view('mahasiswa.persetujuan-sidang-kp', compact('pendaftaran', 'totalBimbingan', 'persetujuan', 'mahasiswaData', 'ownKp'));
     }
 
     // 2. Menyimpan/Mengajukan Laporan ke Dosen Pembimbing
