@@ -111,17 +111,19 @@ class BimbinganSayaController extends Controller
             },
         ])->where('id', $id)->firstOrFail();
 
-        // Cek authorization: Dosen berhak akses jika ia pembimbing langsung ATAU pembimbing dari pendaftaran asal (Ketua Kelompok)
+        // Cek authorization: Dosen berhak akses jika ia pembimbing mahasiswa ini 
+        // (baik sebagai ketua maupun sebagai anggota kelompok di pendaftaran yang dibimbingnya)
         $isAuthorized = false;
-        if (Auth::user()->role == 'koordinator_kp' || Auth::user()->role == 'koordinator') {
+        if (Auth::user()->role == 'koordinator' || Auth::user()->role == 'koordinator_kp') {
             $isAuthorized = true;
-        } elseif ($pendaftaran->pembimbing_id == $dosenId) {
-            $isAuthorized = true;
-        } elseif (!$pendaftaran->pembimbing_id && $pendaftaran->pendaftaran_asal_id) {
-            $parentKp = PendaftaranKp::find($pendaftaran->pendaftaran_asal_id);
-            if ($parentKp && $parentKp->pembimbing_id == $dosenId) {
-                $isAuthorized = true;
-            }
+        } else {
+            $mhsId = $pendaftaran->mahasiswa_id;
+            $isAuthorized = PendaftaranKp::where('pembimbing_id', $dosenId)
+                ->where(function($q) use ($mhsId) {
+                    $q->where('mahasiswa_id', $mhsId)
+                      ->orWhere('anggota_kelompok_ids', 'LIKE', '%"'.$mhsId.'"%')
+                      ->orWhere('anggota_kelompok_ids', 'LIKE', '%'.$mhsId.'%');
+                })->exists();
         }
 
         if (!$isAuthorized) {
