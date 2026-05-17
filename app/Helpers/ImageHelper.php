@@ -33,6 +33,11 @@ class ImageHelper
         $mime = $file->getMimeType();
         $tempPath = $file->getRealPath();
 
+        // Pastikan ekstensi GD tersedia di server (Vercel terkadang tidak memiliki GD)
+        if (!function_exists('imagecreatefromjpeg') || !function_exists('imagewebp')) {
+            return $file->store($folder, $disk);
+        }
+
         // Load sumber gambar sesuai tipe MIME
         $source = match (true) {
             str_contains($mime, 'jpeg') || str_contains($mime, 'jpg') => imagecreatefromjpeg($tempPath),
