@@ -98,7 +98,16 @@
                             <div class="text-[13px] font-bold text-black mb-3">Laporan KP <span
                                     class="text-red-500 ml-1">*</span></div>
                             <div class="flex items-start gap-2">
-                                <input type="file" name="file_laporan" required accept=".pdf" x-ref="laporan" @change="hasFile = $refs.laporan.files.length > 0"
+                                <input type="file" name="file_laporan" required accept=".pdf" x-ref="laporan" 
+                                    @change="
+                                        if($refs.laporan.files.length > 0 && $refs.laporan.files[0].size > 5242880) {
+                                            Swal.fire({icon: 'error', title: 'Ukuran File Terlalu Besar', text: 'Maksimal berukuran 5 MB.'});
+                                            $refs.laporan.value = '';
+                                            hasFile = false;
+                                        } else {
+                                            hasFile = $refs.laporan.files.length > 0;
+                                        }
+                                    "
                                     class="flex-1 text-[11px] text-gray-600 mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                                 <button type="button" x-cloak x-show="hasFile" @click="$refs.laporan.value = ''; hasFile = false" 
                                     class="shrink-0 p-1 mt-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Hapus File">
@@ -114,7 +123,16 @@
                             <div class="text-[13px] font-bold text-black mb-3">Laporan Bimbingan KP <span
                                     class="text-red-500 ml-1">*</span></div>
                             <div class="flex items-start gap-2">
-                                <input type="file" name="file_log_bimbingan" required accept=".pdf" x-ref="bimbingan" @change="hasFile = $refs.bimbingan.files.length > 0"
+                                <input type="file" name="file_log_bimbingan" required accept=".pdf" x-ref="bimbingan" 
+                                    @change="
+                                        if($refs.bimbingan.files.length > 0 && $refs.bimbingan.files[0].size > 5242880) {
+                                            Swal.fire({icon: 'error', title: 'Ukuran File Terlalu Besar', text: 'Maksimal berukuran 5 MB.'});
+                                            $refs.bimbingan.value = '';
+                                            hasFile = false;
+                                        } else {
+                                            hasFile = $refs.bimbingan.files.length > 0;
+                                        }
+                                    "
                                     class="flex-1 text-[11px] text-gray-600 mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                                 <button type="button" x-cloak x-show="hasFile" @click="$refs.bimbingan.value = ''; hasFile = false" 
                                     class="shrink-0 p-1 mt-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Hapus File">
@@ -130,7 +148,16 @@
                             class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
                             <div class="text-[13px] font-bold text-black mb-3">Berkas Lainnya</div>
                             <div class="flex items-start gap-2">
-                                <input type="file" name="file_berkas_lainnya" accept=".pdf" x-ref="lainnya" @change="hasFile = $refs.lainnya.files.length > 0"
+                                <input type="file" name="file_berkas_lainnya" accept=".pdf" x-ref="lainnya" 
+                                    @change="
+                                        if($refs.lainnya.files.length > 0 && $refs.lainnya.files[0].size > 5242880) {
+                                            Swal.fire({icon: 'error', title: 'Ukuran File Terlalu Besar', text: 'Maksimal berukuran 5 MB.'});
+                                            $refs.lainnya.value = '';
+                                            hasFile = false;
+                                        } else {
+                                            hasFile = $refs.lainnya.files.length > 0;
+                                        }
+                                    "
                                     class="flex-1 text-[11px] text-gray-600 mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                                 <button type="button" x-cloak x-show="hasFile" @click="$refs.lainnya.value = ''; hasFile = false" 
                                     class="shrink-0 p-1 mt-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Hapus File">
@@ -152,16 +179,16 @@
                         <!-- Link Github -->
                         <div
                             class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200">
-                            <div class="text-[13px] font-bold text-black mb-3">Link Project (Github)</div>
-                            <input type="url" name="link_github" placeholder="https://github.com/..."
+                            <div class="text-[13px] font-bold text-black mb-3">Link Project (Github) <span class="text-red-500 ml-1">*</span></div>
+                            <input type="url" name="link_github" required placeholder="https://github.com/..."
                                 class="border border-gray-300 rounded-[5px] px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 w-full bg-gray-50 mb-1">
                         </div>
 
                         <!-- Link Deploy -->
                         <div
                             class="bg-white rounded-lg p-5 flex flex-col justify-between relative shadow-sm border border-gray-200 lg:col-start-1 lg:col-end-4 md:col-start-1 md:col-end-3">
-                            <div class="text-[13px] font-bold text-black mb-3">Link Deploy / Publish Project</div>
-                            <input type="url" name="link_deploy" placeholder="https://myapp.com/..."
+                            <div class="text-[13px] font-bold text-black mb-3">Link Deploy / Publish Project <span class="text-red-500 ml-1">*</span></div>
+                            <input type="url" name="link_deploy" required placeholder="https://myapp.com/..."
                                 class="border border-gray-300 rounded-[5px] px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 w-full sm:w-[50%] bg-gray-50 mb-1">
                         </div>
                     </div>
@@ -181,33 +208,4 @@
             @endif
 
         </div>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const fileInputs = document.querySelectorAll('input[type="file"]');
-                const MAX_PER_FILE = 5 * 1024 * 1024; // 5 MB per file
-
-                fileInputs.forEach(input => {
-                    input.addEventListener('change', function(e) {
-                        if (this.files.length > 0) {
-                            const size = this.files[0].size;
-                            if (size > MAX_PER_FILE) {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Ukuran File Terlalu Besar',
-                                    text: 'Setiap berkas maksimal berukuran 5 MB.',
-                                    confirmButtonColor: '#d33'
-                                });
-                                
-                                // Kosongkan file yang dipilih
-                                this.value = '';
-                                
-                                // Trigger event change agar AlpineJS (jika ada) ikut me-reset UI-nya
-                                this.dispatchEvent(new Event('change', { bubbles: true }));
-                            }
-                        }
-                    });
-                });
-            });
-        </script>
 </x-dashboard-layout>

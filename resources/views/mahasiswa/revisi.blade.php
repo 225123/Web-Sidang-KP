@@ -57,7 +57,19 @@
                             @csrf
 
                             <div class="relative flex items-center gap-2" x-show="uploadType === 'file' || uploadType === ''">
-                                <input type="file" name="file_revisi" id="file_revisi" accept=".pdf" class="hidden" @change="fileName = $event.target.files[0].name; uploadType = 'file'" x-ref="fileInput">
+                                <input type="file" name="file_revisi" id="file_revisi" accept=".pdf" class="hidden" 
+                                    @change="
+                                        if($event.target.files.length > 0 && $event.target.files[0].size > 5242880) {
+                                            Swal.fire({icon: 'error', title: 'Ukuran File Terlalu Besar', text: 'Maksimal berukuran 5 MB.'});
+                                            $event.target.value = '';
+                                            fileName = '';
+                                            uploadType = '';
+                                        } else {
+                                            fileName = $event.target.files.length > 0 ? $event.target.files[0].name : ''; 
+                                            uploadType = $event.target.files.length > 0 ? 'file' : '';
+                                        }
+                                    " 
+                                    x-ref="fileInput">
                                 <button type="button" @click="$refs.fileInput.click()" class="bg-[#F0F0F0] border border-gray-300 text-gray-600 text-[13px] px-4 py-1.5 rounded-[20px] flex items-center gap-2 hover:bg-gray-200 transition-colors">
                                     <svg class="w-4 h-4 text-[#8A9CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
@@ -183,31 +195,5 @@
             }) + ' WIB';
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const fileInputs = document.querySelectorAll('input[type="file"]');
-            const MAX_PER_FILE = 5 * 1024 * 1024; // 5 MB per file
-
-            fileInputs.forEach(input => {
-                input.addEventListener('change', function(e) {
-                    if (this.files.length > 0) {
-                        const size = this.files[0].size;
-                        if (size > MAX_PER_FILE) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Ukuran File Terlalu Besar',
-                                text: 'Setiap berkas maksimal berukuran 5 MB.',
-                                confirmButtonColor: '#d33'
-                            });
-                            
-                            // Kosongkan file yang dipilih
-                            this.value = '';
-                            
-                            // Trigger event change agar AlpineJS (jika ada) ikut me-reset UI-nya
-                            this.dispatchEvent(new Event('change', { bubbles: true }));
-                        }
-                    }
-                });
-            });
-        });
     </script>
 </x-dashboard-layout>

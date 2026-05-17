@@ -59,8 +59,8 @@ class PendaftaranSidangController extends Controller
             'file_log_bimbingan' => 'required|mimes:pdf|max:5120',
             'file_berkas_lainnya' => 'nullable|mimes:pdf|max:5120',
             'link_drive' => 'nullable|url',
-            'link_github' => 'nullable|url',
-            'link_deploy' => 'nullable|url',
+            'link_github' => 'required|url',
+            'link_deploy' => 'required|url',
         ]);
 
         $mahasiswaId = Auth::user()->id;

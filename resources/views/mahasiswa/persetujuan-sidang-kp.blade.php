@@ -75,7 +75,17 @@
 
                                 <div class="relative flex items-center gap-2" x-show="uploadType === 'file' || uploadType === ''">
                                     <input type="file" name="file_laporan" id="file_laporan" accept=".pdf" class="hidden"
-                                        @change="fileName = $event.target.files[0].name; uploadType = 'file'"
+                                        @change="
+                                            if($event.target.files.length > 0 && $event.target.files[0].size > 5242880) {
+                                                Swal.fire({icon: 'error', title: 'Ukuran File Terlalu Besar', text: 'Maksimal berukuran 5 MB.'});
+                                                $event.target.value = '';
+                                                fileName = '';
+                                                uploadType = '';
+                                            } else {
+                                                fileName = $event.target.files.length > 0 ? $event.target.files[0].name : ''; 
+                                                uploadType = $event.target.files.length > 0 ? 'file' : '';
+                                            }
+                                        "
                                         x-ref="fileInput">
 
                                     <button type="button" @click="$refs.fileInput.click()"
@@ -180,32 +190,5 @@
             </div>
         </div>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const fileInputs = document.querySelectorAll('input[type="file"]');
-                const MAX_PER_FILE = 5 * 1024 * 1024; // 5 MB per file
-
-                fileInputs.forEach(input => {
-                    input.addEventListener('change', function(e) {
-                        if (this.files.length > 0) {
-                            const size = this.files[0].size;
-                            if (size > MAX_PER_FILE) {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Ukuran File Terlalu Besar',
-                                    text: 'Setiap berkas maksimal berukuran 5 MB.',
-                                    confirmButtonColor: '#d33'
-                                });
-                                
-                                // Kosongkan file yang dipilih
-                                this.value = '';
-                                
-                                // Trigger event change agar AlpineJS (jika ada) ikut me-reset UI-nya
-                                this.dispatchEvent(new Event('change', { bubbles: true }));
-                            }
-                        }
-                    });
-                });
-            });
-        </script>
+        </div>
 </x-dashboard-layout>
