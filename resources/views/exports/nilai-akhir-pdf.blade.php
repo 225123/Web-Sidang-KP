@@ -97,7 +97,7 @@
         <tr>
             <td class="label">Judul Kerja Praktek</td>
             <td class="separator">:</td>
-            <td style="font-style: italic;">{{ $sidang->pendaftaranKp->judul_kp ?? '-' }}</td>
+            <td style="font-style: italic;">{{ $sidang->judul_kp_display ?? '-' }}</td>
         </tr>
         <tr>
             <td class="label">Dosen Pembimbing</td>

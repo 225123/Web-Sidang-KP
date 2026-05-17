@@ -25,7 +25,7 @@
                 <div>: {{ $sidang->ruang_sidang }}</div>
 
                 <div>Judul KP</div>
-                <div class="sentence-case">: {{ strtolower($sidang->pendaftaranKp->judul_kp) }}</div>
+                <div class="sentence-case">: {{ strtolower($sidang->judul_kp_display ?? '-') }}</div>
 
                 <div>Dosen Pembimbing</div>
                 <div>: {{ $sidang->pendaftaranKp->pembimbing->name ?? '-' }}</div>

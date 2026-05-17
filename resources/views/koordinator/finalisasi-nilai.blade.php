@@ -146,7 +146,7 @@
                                         </td>
                                         <td class="py-4 px-4 text-left border-r border-gray-100">
                                             <div class="text-black font-medium sentence-case leading-tight text-[11px]"
-                                                x-text="sidang.pendaftaran_kp.judul_kp.toLowerCase()"></div>
+                                                x-text="sidang.judul_kp_display ? sidang.judul_kp_display.toLowerCase() : '-'"></div>
                                         </td>
                                         <td class="py-4 px-4 text-center border-r border-gray-100 font-black text-[13px]"
                                             :class="sidang.status_kelulusan === 'Lanjut' ? 'text-red-600' : 'text-black'"
@@ -501,7 +501,7 @@
                             res = res.filter(s =>
                                 s.mahasiswa.nim.toLowerCase().includes(q) ||
                                 s.mahasiswa.user.name.toLowerCase().includes(q) ||
-                                s.pendaftaran_kp.judul_kp.toLowerCase().includes(q)
+                                (s.judul_kp_display && s.judul_kp_display.toLowerCase().includes(q))
                             );
                         }
                         if (this.filterStatus !== 'all') res = res.filter(s => s.status_kelulusan === this.filterStatus);

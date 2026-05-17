@@ -30,6 +30,13 @@ class FinalisasiNilaiController extends Controller
                 $sidang->original_grade = $logic['original_grade'];
                 $sidang->is_penalized = $logic['is_penalized'];
 
+                // Dapatkan Judul KP spesifik milik mahasiswa (karena anggota kelompok bisa beda judul)
+                $ownKp = \App\Models\PendaftaranKp::where('mahasiswa_id', $sidang->mahasiswa_id)
+                    ->where('status_kp', 'approved')
+                    ->latest()
+                    ->first();
+                $sidang->judul_kp_display = $ownKp ? $ownKp->judul_kp : ($sidang->pendaftaranKp->judul_kp ?? '-');
+
                 return $sidang;
             });
 
@@ -82,6 +89,13 @@ class FinalisasiNilaiController extends Controller
         $sidang->original_grade = $logic['original_grade'];
         $sidang->is_penalized = $logic['is_penalized'];
 
+        // Dapatkan Judul KP spesifik milik mahasiswa (karena anggota kelompok bisa beda judul)
+        $ownKp = \App\Models\PendaftaranKp::where('mahasiswa_id', $sidang->mahasiswa_id)
+            ->where('status_kp', 'approved')
+            ->latest()
+            ->first();
+        $sidang->judul_kp_display = $ownKp ? $ownKp->judul_kp : ($sidang->pendaftaranKp->judul_kp ?? '-');
+
         return view('koordinator.finalisasi-nilai-detail', compact('sidang'));
     }
 
@@ -95,6 +109,13 @@ class FinalisasiNilaiController extends Controller
         $sidang->grade_display = $logic['grade'];
         $sidang->original_grade = $logic['original_grade'];
         $sidang->is_penalized = $logic['is_penalized'];
+
+        // Dapatkan Judul KP spesifik milik mahasiswa
+        $ownKp = \App\Models\PendaftaranKp::where('mahasiswa_id', $sidang->mahasiswa_id)
+            ->where('status_kp', 'approved')
+            ->latest()
+            ->first();
+        $sidang->judul_kp_display = $ownKp ? $ownKp->judul_kp : ($sidang->pendaftaranKp->judul_kp ?? '-');
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.nilai-akhir-pdf', compact('sidang'));
         return $pdf->download('Nilai_Akhir_' . ($sidang->mahasiswa->nim ?? 'Mahasiswa') . '.pdf');
