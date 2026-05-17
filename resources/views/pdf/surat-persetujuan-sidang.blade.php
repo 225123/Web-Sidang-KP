@@ -162,6 +162,23 @@
                 <tr>
                     <td width="15%" style="text-align: center;">
                         @php
+                            function getAbsoluteImagePath($pathAsset) {
+                                if(!$pathAsset) return null;
+                                if(str_starts_with($pathAsset, 'data:image')) return $pathAsset;
+                        
+                                $disk = upload_disk();
+                                try {
+                                    if (\Illuminate\Support\Facades\Storage::disk($disk)->exists($pathAsset)) {
+                                        $type = pathinfo($pathAsset, PATHINFO_EXTENSION);
+                                        $data = \Illuminate\Support\Facades\Storage::disk($disk)->get($pathAsset);
+                                        return 'data:image/' . $type . ';base64,' . base64_encode($data);
+                                    }
+                                } catch (\Exception $e) {
+                                    // ignore error
+                                }
+                                return null;
+                            }
+
                             $logoPath = public_path('images/logo.png');
                             $logoData = '';
                             if (file_exists($logoPath)) {
@@ -249,17 +266,7 @@
             @if($persetujuan->status_verifikasi === 'verified' && $pembimbing?->signature_path)
                 <!-- Load base64 image from storage to bypass DomPDF remote fetching limitations -->
                 @php
-                    $disk = upload_disk();
-                    $sigData = '';
-                    try {
-                        if (\Illuminate\Support\Facades\Storage::disk($disk)->exists($pembimbing->signature_path)) {
-                            $type = pathinfo($pembimbing->signature_path, PATHINFO_EXTENSION);
-                            $data = \Illuminate\Support\Facades\Storage::disk($disk)->get($pembimbing->signature_path);
-                            $sigData = 'data:image/' . $type . ';base64,' . base64_encode($data);
-                        }
-                    } catch (\Exception $e) {
-                        // ignore error
-                    }
+                    $sigData = getAbsoluteImagePath($pembimbing->signature_path ?? null);
                 @endphp
                 @if($sigData)
                     <img src="{{ $sigData }}" class="sig-image" alt="Tanda Tangan Dosen">
