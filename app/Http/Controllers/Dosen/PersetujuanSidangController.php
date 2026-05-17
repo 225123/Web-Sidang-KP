@@ -76,9 +76,15 @@ class PersetujuanSidangController extends Controller
         // Fitur notifikasi di-bypass karena belum ada tabel/Model NotifikasiLog
         // NotifikasiLog::create([...]);
 
+        if ($pengajuan->file_laporan) {
+            \Illuminate\Support\Facades\Storage::disk(upload_disk())->delete($pengajuan->file_laporan);
+        }
+
         $pengajuan->update([
             'status_verifikasi' => 'rejected',
             'dosen_feedback' => $request->feedback,
+            'file_laporan' => null,
+            'link_drive' => null,
         ]);
 
         // --- Kirim Notifikasi Sistem ---

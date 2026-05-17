@@ -79,6 +79,25 @@ class VerifikasiBerkasController extends Controller
         ]);
 
         if ($request->status_koordinator === 'rejected') {
+            // Hapus file fisik dari storage
+            if ($pengajuan->file_laporan) {
+                \Illuminate\Support\Facades\Storage::disk(upload_disk())->delete($pengajuan->file_laporan);
+            }
+            if ($pengajuan->file_log_bimbingan) {
+                \Illuminate\Support\Facades\Storage::disk(upload_disk())->delete($pengajuan->file_log_bimbingan);
+            }
+            if ($pengajuan->file_berkas_lainnya) {
+                \Illuminate\Support\Facades\Storage::disk(upload_disk())->delete($pengajuan->file_berkas_lainnya);
+            }
+
+            // Kosongkan path di database agar saat upload ulang bersih
+            $pengajuan->update([
+                'file_laporan' => null,
+                'file_log_bimbingan' => null,
+                'file_berkas_lainnya' => null,
+                'link_drive' => null,
+            ]);
+
             RiwayatPenolakanSidang::create([
                 'pendaftaran_sidang_id' => $pengajuan->id,
                 'alasan_penolakan' => $request->feedback,

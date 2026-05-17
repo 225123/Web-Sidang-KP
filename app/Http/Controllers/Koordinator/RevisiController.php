@@ -51,7 +51,13 @@ class RevisiController extends Controller
             return back()->with('error', 'Status revisi belum bisa diproses.');
         }
 
+        if ($sidang->file_revisi) {
+            \Illuminate\Support\Facades\Storage::disk(upload_disk())->delete($sidang->file_revisi);
+        }
+
         $sidang->status_revisi = 'Ditolak';
+        $sidang->file_revisi = null;
+        $sidang->link_revisi = null;
         $sidang->save();
 
         return back()->with('success', 'Revisi mahasiswa berhasil DITOLAK.');
