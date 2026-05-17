@@ -165,14 +165,23 @@
 <body>
 
 @php
-    function resolveSignature($path) {
-        if (!$path) return null;
-        // Jika sudah berupa base64 (dari fitur draw ttd)
-        if (str_starts_with($path, 'data:image')) {
-            return $path;
+    function getAbsoluteImagePath($pathAsset) {
+        if(!$pathAsset) return null;
+        
+        // Prevent Vercel GD error (500) if image is a PNG/base64 and GD is missing
+        if (!extension_loaded('gd') && !str_ends_with(strtolower($pathAsset), '.jpg') && !str_ends_with(strtolower($pathAsset), '.jpeg')) {
+            return null;
         }
-        // Jika berupa file upload, gunakan storage_url untuk mengambil dari S3/Lokal
-        return storage_url($path);
+
+        if(str_starts_with($pathAsset, 'data:image')) return $pathAsset;
+
+        // Gunakan storage_path untuk melewati symlink issue di Windows DomPDF
+        $path = storage_path('app/public/' . $pathAsset);
+        if(file_exists($path)) {
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            return 'data:image/' . $type . ';base64,' . base64_encode(file_get_contents($path));
+        }
+        return null;
     }
 
     // Eksekusi logic untuk memastikan tidak error jika ada relasi yang null
@@ -184,9 +193,16 @@
         }
     }
 
-    $sig_dosen = resolveSignature($pembimbing->signature_path ?? null);
-    $sig_mhs = resolveSignature($pendaftaran->user->signature_path ?? null);
-    $logo_url = asset('images/logo.png');
+    $base64_dosen = getAbsoluteImagePath($pembimbing->signature_path ?? null);
+    $base64_mhs = getAbsoluteImagePath($pendaftaran->user->signature_path ?? null);
+    
+    // Logo resolve directly from original public path instead of base64 function
+    $logo_path = public_path('images/logo.png');
+    $base64_logo = null;
+    if(file_exists($logo_path) && extension_loaded('gd')) {
+        $type = pathinfo($logo_path, PATHINFO_EXTENSION);
+        $base64_logo = 'data:image/' . $type . ';base64,' . base64_encode(file_get_contents($logo_path));
+    }
 @endphp
 
 <div class="paper">
@@ -194,7 +210,12 @@
         <table>
             <tr>
                 <td style="width: 100px;">
-                    <img src="{{ $logo_url }}" alt="Logo UKRIDA" class="logo" onerror="this.src='https://upload.wikimedia.org/wikipedia/id/8/80/Logo_UKRIDA.png'">
+                    @if($base64_logo)
+                        <img src="{{ $base64_logo }}" alt="Logo UKRIDA" class="logo">
+                    @else
+                        <!-- Fallback jamin tampil bila base64 logo.png gagal diproses -->
+                        <img src="https://upload.wikimedia.org/wikipedia/id/8/80/Logo_UKRIDA.png" alt="Logo UKRIDA" class="logo">
+                    @endif
                 </td>
                 <td>
                     <div class="header-text">
@@ -260,8 +281,8 @@
                     <td style="white-space: nowrap; padding: 8px 10px;">{{ $materi['waktuMulai'] ?? '00:00' }} - {{ $materi['waktuSelesai'] ?? '00:00' }} ({{ $materi['tempat'] ?? '-' }})</td>
                     <td class="col-topik">{{ $materi['topik'] ?? '-' }}</td>
                     <td style="white-space: nowrap; padding: 8px 10px;">
-                        @if($sig_dosen)
-                            <img src="{{ $sig_dosen }}" style="max-height: 25px;" alt="sig">
+                        @if($base64_dosen)
+                            <img src="{{ $base64_dosen }}" style="max-height: 25px;" alt="sig">
                         @endif
                     </td>
                 </tr>
@@ -298,8 +319,8 @@
                 <div class="sig-block" style="width: 250px; text-align: left;">
                     <div style="margin-bottom: 25px;">Dosen Pembimbing</div>
                     <div class="sig-space" style="height: 70px; text-align: left;">
-                        @if($sig_dosen)
-                            <img src="{{ $sig_dosen }}" style="max-height: 60px; max-width: 150px; margin-top: 10px;">
+                        @if($base64_dosen)
+                            <img src="{{ $base64_dosen }}" style="max-height: 60px; max-width: 150px; margin-top: 10px;">
                         @endif
                     </div>
                     <div class="name-line" style="border-bottom: 1px solid #000; padding-bottom: 3px; margin-bottom: 5px;">
@@ -315,8 +336,8 @@
                     <div style="margin-bottom: 5px;">Mengetahui & Menyetujui,</div>
                     <div style="margin-bottom: 5px;">Mahasiswa</div>
                     <div class="sig-space" style="height: 70px; text-align: left;">
-                        @if($sig_mhs)
-                            <img src="{{ $sig_mhs }}" style="max-height: 60px; max-width: 150px; margin-top: 10px;">
+                        @if($base64_mhs)
+                            <img src="{{ $base64_mhs }}" style="max-height: 60px; max-width: 150px; margin-top: 10px;">
                         @endif
                     </div>
                     <div class="name-line" style="border-bottom: 1px solid #000; padding-bottom: 3px; margin-bottom: 5px;">
@@ -339,13 +360,5 @@
     </table>
 </div>
 
-<script>
-    // Tunggu gambar selesai di-load sebelum menampilkan dialog print
-    window.onload = function() {
-        setTimeout(() => {
-            window.print();
-        }, 500); // Beri sedikit jeda agar gambar dari internet sempat termuat
-    };
-</script>
 </body>
 </html>

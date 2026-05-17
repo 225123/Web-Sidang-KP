@@ -178,9 +178,11 @@ class BimbinganController extends Controller
             ->orderBy('tanggal', 'asc')
             ->get();
 
-        return view('pdf.bimbingan_log', [
+        $pdf = Pdf::loadView('pdf.bimbingan_log', [
             'pendaftaran' => $pendaftaran,
             'logs' => $logs,
         ]);
+
+        return $pdf->download('Log_Bimbingan_'.($pendaftaran->user->mahasiswa->nim ?? 'MHS').'.pdf');
     }
 }
