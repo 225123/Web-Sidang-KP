@@ -49,7 +49,7 @@
 
 
 
-                @if(!$sidang->status_revisi || in_array(strtolower($sidang->status_revisi), ['belum mengumpulkan', 'ditolak']))
+                @if(!$sidang->status_revisi || !in_array(strtolower($sidang->status_revisi), ['menunggu', 'disahkan', 'diterima']))
                     <div class="pt-6">Upload Berkas Revisi</div>
                     <div class="pt-6 flex items-center gap-2">
                         <span class="mr-2">:</span>
@@ -130,7 +130,7 @@
         <div class="text-center pb-12">
             <h2 class="text-[18px] font-bold text-black mb-4">Status Pemeriksaan Berkas Revisi</h2>
 
-            @if(!$sidang->status_revisi || in_array(strtolower($sidang->status_revisi), ['belum mengumpulkan', 'ditolak']))
+            @if(!$sidang->status_revisi || !in_array(strtolower($sidang->status_revisi), ['menunggu', 'disahkan', 'diterima']))
                 <p class="text-[14px] text-gray-700 font-medium mb-8">Klik 'Submit Revisi' untuk mengirimkan berkas revisi Anda ke Dosen Penguji 1.</p>
                 <button type="button" onclick="document.getElementById('formAjukan').submit()" class="bg-[#008000] hover:bg-green-700 text-white font-bold text-[14px] px-8 py-2.5 rounded-full shadow-md flex items-center justify-center gap-2 mx-auto transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
