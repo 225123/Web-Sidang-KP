@@ -33,7 +33,7 @@ class VerifikasiBerkasController extends Controller
         $pengajuans = $semuaPengajuan->values();
 
         // 2. Riwayat Penolakan (semua history penolakan) - Filter by period
-        $ditolaks = RiwayatPenolakanSidang::with(['mahasiswa.user'])
+        $ditolaks = RiwayatPenolakanSidang::with(['pendaftaranSidang.mahasiswa.user'])
             ->whereHas('pendaftaranSidang.pendaftaranKp', function($query) use ($activePeriodId) {
                 $query->where('tahun_ajaran_id', $activePeriodId);
             })
@@ -81,8 +81,7 @@ class VerifikasiBerkasController extends Controller
         if ($request->status_koordinator === 'rejected') {
             RiwayatPenolakanSidang::create([
                 'pendaftaran_sidang_id' => $pengajuan->id,
-                'mahasiswa_id' => $pengajuan->mahasiswa_id,
-                'feedback' => $request->feedback,
+                'alasan_penolakan' => $request->feedback,
                 'ditolak_oleh' => 'koordinator',
             ]);
 

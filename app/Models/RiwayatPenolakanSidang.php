@@ -9,20 +9,29 @@ class RiwayatPenolakanSidang extends Model
 {
     use HasFactory;
 
+    protected $table = 'riwayat_penolakan_sidang';
+
     protected $fillable = [
         'pendaftaran_sidang_id',
-        'mahasiswa_id',
-        'feedback',
+        'alasan_penolakan',
         'ditolak_oleh',
     ];
+
+    protected $appends = ['mahasiswa', 'feedback'];
+
+    public function getFeedbackAttribute()
+    {
+        return $this->alasan_penolakan;
+    }
 
     public function pendaftaranSidang()
     {
         return $this->belongsTo(PendaftaranSidang::class, 'pendaftaran_sidang_id');
     }
 
-    public function mahasiswa()
+    // Relasi mahasiswa diakses melalui pendaftaranSidang, karena tabel ini tidak menyimpan mahasiswa_id
+    public function getMahasiswaAttribute()
     {
-        return $this->belongsTo(Mahasiswa::class, 'mahasiswa_id', 'user_id');
+        return $this->pendaftaranSidang ? $this->pendaftaranSidang->mahasiswa : null;
     }
 }
