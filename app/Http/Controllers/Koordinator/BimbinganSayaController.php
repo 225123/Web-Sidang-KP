@@ -65,7 +65,7 @@ class BimbinganSayaController extends Controller
                     $kpToUse = $ownKp ?: $kp;
 
                     $pendaftarans->push([
-                        'id' => $kpToUse->id,
+                        'id' => $mhs->user_id, // Gunakan user_id mahasiswa agar setiap anggota punya URL unik
                         'display_mahasiswa' => $mhs,
                         'display_judul_kp' => $kpToUse->judul_kp ?? '-',
                         'display_instansi' => $kpToUse->instansi_nama ?? '-',
@@ -96,39 +96,41 @@ class BimbinganSayaController extends Controller
     public function detail($id)
     {
         $dosenId = Auth::id();
+        $mhsId = $id;
 
-        // Ambil data pendaftaran
-        $pendaftaran = PendaftaranKp::findOrFail($id);
+        // Ambil data mahasiswa
+        $mhs = Mahasiswa::with('user')->where('user_id', $mhsId)->firstOrFail();
 
-        // PERBAIKAN DI SINI: Ambil data mahasiswa dari pendaftaran ini
-        $mhs = Mahasiswa::with('user')->where('user_id', $pendaftaran->mahasiswa_id)->firstOrFail();
+        // Cari pendaftaran KP kelompok ini yang bukan draft (agar log yang terkait bisa dimuat)
+        $query = PendaftaranKp::whereNotIn('status_kp', ['rejected', 'pending'])
+            ->where(function($q) use ($mhsId) {
+                $q->where('mahasiswa_id', $mhsId)
+                  ->orWhere('anggota_kelompok_ids', 'LIKE', '%"'.$mhsId.'"%')
+                  ->orWhere('anggota_kelompok_ids', 'LIKE', '%'.$mhsId.'%');
+            });
 
-        // Re-load pendaftaran dengan log yang sudah DIFILTER berdasarkan pemiliknya
-        $pendaftaranLoad = PendaftaranKp::with([
-            'logBimbingans' => function ($q) use ($mhs) {
-                $q->where('mahasiswa_id', $mhs->user_id) // <-- Filter agar hanya log milik mahasiswa ini
-                    ->orderBy('tanggal', 'desc');
-            },
-        ])->where('id', $id)->firstOrFail();
-
-        // Cek authorization: Dosen berhak akses jika ia pembimbing mahasiswa ini 
-        // (baik sebagai ketua maupun sebagai anggota kelompok di pendaftaran yang dibimbingnya)
+        // Cek authorization
         $isAuthorized = false;
         if (Auth::user()->role == 'koordinator' || Auth::user()->role == 'koordinator_kp') {
             $isAuthorized = true;
         } else {
-            $mhsId = $pendaftaran->mahasiswa_id;
-            $isAuthorized = PendaftaranKp::where('pembimbing_id', $dosenId)
-                ->where(function($q) use ($mhsId) {
-                    $q->where('mahasiswa_id', $mhsId)
-                      ->orWhere('anggota_kelompok_ids', 'LIKE', '%"'.$mhsId.'"%')
-                      ->orWhere('anggota_kelompok_ids', 'LIKE', '%'.$mhsId.'%');
-                })->exists();
+            $hasGroup = (clone $query)->where('pembimbing_id', $dosenId)->exists();
+            if ($hasGroup) {
+                $isAuthorized = true;
+            }
         }
 
         if (!$isAuthorized) {
             abort(403, 'Unauthorized access. Anda bukan dosen pembimbing mahasiswa ini.');
         }
+
+        // Re-load pendaftaran dengan log yang sudah DIFILTER berdasarkan pemiliknya
+        $pendaftaranLoad = $query->with([
+            'logBimbingans' => function ($q) use ($mhsId) {
+                $q->where('mahasiswa_id', $mhsId)
+                    ->orderBy('tanggal', 'desc');
+            },
+        ])->latest()->firstOrFail();
 
         $pendaftaranLoad->display_mahasiswa = $mhs;
         $pendaftaranLoad->display_judul_kp = $pendaftaranLoad->judul_kp;
