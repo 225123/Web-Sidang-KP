@@ -49,7 +49,9 @@ class PersetujuanSidangController extends Controller
                 ->first();
         }
 
-        return view('mahasiswa.persetujuan-sidang-kp', compact('pendaftaran', 'totalBimbingan', 'persetujuan'));
+        $mahasiswaData = Auth::user()->mahasiswa;
+
+        return view('mahasiswa.persetujuan-sidang-kp', compact('pendaftaran', 'totalBimbingan', 'persetujuan', 'mahasiswaData'));
     }
 
     // 2. Menyimpan/Mengajukan Laporan ke Dosen Pembimbing

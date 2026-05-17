@@ -49,10 +49,10 @@
 
                 <div class="grid grid-cols-[180px_auto] gap-y-3 text-[14px] font-medium text-black">
                     <div>Nama</div>
-                    <div>: {{ $pendaftaran->mahasiswa->user->name ?? 'GEOVANO YANSEN JAS' }}</div>
+                    <div>: {{ $mahasiswaData->user->name ?? 'GEOVANO YANSEN JAS' }}</div>
 
                     <div>NIM</div>
-                    <div>: {{ $pendaftaran->mahasiswa->nim ?? '412023024' }}</div>
+                    <div>: {{ $mahasiswaData->nim ?? '412023024' }}</div>
 
                     <div>Judul KP</div>
                     <div>: {{ $pendaftaran->judul_kp ?? 'Website Sidang KP' }}</div>
