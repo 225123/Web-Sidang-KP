@@ -23,7 +23,7 @@ class InputNilaiController extends Controller
             ->where(function ($query) use ($currentUserId, $currentUserName) {
                 $query->where('penguji_1_id', $currentUserId)
                     ->orWhere('penguji_2_id', $currentUserId)
-                      // Cari pendaftaran sidang milik mahasiswa yang memiliki KP approved besutan dosen ini
+                    // Cari pendaftaran sidang milik mahasiswa yang memiliki KP approved besutan dosen ini
                     ->orWhereHas('pendaftaranKp', function ($sq) use ($currentUserId, $currentUserName) {
                         $sq->where('pembimbing_id', $currentUserId)
                             ->orWhere('supervisor_internal_id', $currentUserId)
@@ -40,7 +40,7 @@ class InputNilaiController extends Controller
                 // FORCE: Prioritaskan mencari data pendaftaran KP dari foreign key pendaftaran_sidang agar data Anggota tidak nyasar ke KP individu lama.
                 $kp = PendaftaranKp::with(['supervisorInternal', 'supervisorInstansi'])->find($sidang->pendaftaran_kp_id);
 
-                if (! $kp) {
+                if (!$kp) {
                     $kp = PendaftaranKp::with(['supervisorInternal', 'supervisorInstansi'])
                         ->where('mahasiswa_id', $sidang->mahasiswa_id)
                         ->where('status_kp', 'approved')
@@ -87,7 +87,7 @@ class InputNilaiController extends Controller
         // FORCE: Prioritaskan mencari data pendaftaran KP dari foreign key pendaftaran_sidang agar data Anggota tidak nyasar ke KP individu lama.
         $kp = PendaftaranKp::with(['supervisorInternal', 'supervisorInstansi'])->find($sidang->pendaftaran_kp_id);
 
-        if (! $kp) {
+        if (!$kp) {
             $kp = PendaftaranKp::with(['supervisorInternal', 'supervisorInstansi'])
                 ->where('mahasiswa_id', $sidang->mahasiswa_id)
                 ->where('status_kp', 'approved')
@@ -166,7 +166,7 @@ class InputNilaiController extends Controller
             $timestamp = now()->format('d/m/Y H:i');
             $roleLabel = strtoupper($role);
             $newNote = "[{$timestamp} - {$roleLabel}]: {$request->catatan}";
-            $sidang->catatan_sidang = $sidang->catatan_sidang ? $sidang->catatan_sidang."\n".$newNote : $newNote;
+            $sidang->catatan_sidang = $sidang->catatan_sidang ? $sidang->catatan_sidang . "\n" . $newNote : $newNote;
             $sidang->save();
         }
 
@@ -180,7 +180,7 @@ class InputNilaiController extends Controller
         $sidang = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp.supervisorInternal'])->findOrFail($id);
         $pdf = Pdf::loadView('pdf.grading-summary', compact('sidang', 'role'));
 
-        return $pdf->stream('Nilai_Sidang_'.$role.'_'.$sidang->mahasiswa->nim.'.pdf');
+        return $pdf->stream('Nilai_Sidang_' . $role . '_' . $sidang->mahasiswa->nim . '.pdf');
     }
 
     public function updateStatus(Request $request, $id)
@@ -202,9 +202,16 @@ class InputNilaiController extends Controller
     private function sanitizeNumeric(&$input)
     {
         $fields = [
-            'nb_laporan', 'nb_produk', 'nb_sikap',
-            'n_laporan', 'n_produk', 'n_presentasi',
-            'ns_motivasi', 'ns_kualitas', 'ns_inisiatif', 'ns_sikap',
+            'nb_laporan',
+            'nb_produk',
+            'nb_sikap',
+            'n_laporan',
+            'n_produk',
+            'n_presentasi',
+            'ns_motivasi',
+            'ns_kualitas',
+            'ns_inisiatif',
+            'ns_sikap',
         ];
         foreach ($fields as $field) {
             if (isset($input[$field]) && is_string($input[$field])) {
@@ -234,9 +241,9 @@ class InputNilaiController extends Controller
             // Bobot resmi: Pembimbing 40%, Supervisor 10%, Penguji1 25%, Penguji2 25%
             $pembimbing = (float) $sidang->nilai_pembimbing * 0.40;
             $supervisor = (float) $sidang->nilai_supervisor * 0.10;
-            $penguji1   = (float) $sidang->nilai_penguji_1 * 0.25;
-            $penguji2   = (float) $sidang->nilai_penguji_2 * 0.25;
-            
+            $penguji1 = (float) $sidang->nilai_penguji_1 * 0.25;
+            $penguji2 = (float) $sidang->nilai_penguji_2 * 0.25;
+
             $avg = $pembimbing + $supervisor + $penguji1 + $penguji2;
             $sidang->nilai_akhir = round($avg, 3); // 3 decimals
 
