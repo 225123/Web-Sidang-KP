@@ -120,9 +120,8 @@ class DaftarBimbinganController extends Controller
         // Ambil data mahasiswa
         $mhs = Mahasiswa::with('user')->where('user_id', $mhsId)->firstOrFail();
 
-        // Cari pendaftaran KP kelompok ini yang bukan draft (agar log yang terkait bisa dimuat)
-        $query = PendaftaranKp::whereNotIn('status_kp', ['rejected', 'pending'])
-            ->where(function($q) use ($mhsId) {
+        // Cari pendaftaran KP kelompok ini
+        $query = PendaftaranKp::where(function($q) use ($mhsId) {
                 $q->where('mahasiswa_id', $mhsId)
                   ->orWhere('anggota_kelompok_ids', 'LIKE', '%"'.$mhsId.'"%')
                   ->orWhere('anggota_kelompok_ids', 'LIKE', '%'.$mhsId.'%');
@@ -133,10 +132,8 @@ class DaftarBimbinganController extends Controller
         if (Auth::user()->role == 'koordinator' || Auth::user()->role == 'koordinator_kp') {
             $isAuthorized = true;
         } else {
-            $hasGroup = (clone $query)->where('pembimbing_id', $dosenId)->exists();
-            if ($hasGroup) {
-                $isAuthorized = true;
-            }
+            $query->where('pembimbing_id', $dosenId);
+            $isAuthorized = (clone $query)->exists();
         }
 
         if (!$isAuthorized) {
