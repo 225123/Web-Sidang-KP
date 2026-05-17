@@ -23,8 +23,8 @@
 </head>
 <body x-data="{ sidebarOpen: $persist(true), footerVisible: false }" @toggle-footer.window="footerVisible = $event.detail" class="font-inter antialiased bg-[#F5F6F8] text-gray-900 flex flex-col h-screen overflow-hidden">
     
-    <header class="bg-[#D9D9D9] flex-shrink-0 relative top-0 z-50 shadow-[0px_4px_4px_rgba(0,0,0,0.25)] border-b border-gray-300 h-[76px]">
-        <div class="flex items-center justify-between px-4 md:px-9 h-full">
+    <header class="bg-[#D9D9D9] flex-shrink-0 relative top-0 z-50 shadow-[0px_4px_4px_rgba(0,0,0,0.25)] border-b border-gray-300 min-h-[76px] h-auto py-2">
+        <div class="flex items-center justify-between px-4 md:px-9 min-h-[60px] h-full">
             <div class="flex items-center gap-4 md:gap-6 shrink-0">
                 <button @click="sidebarOpen = !sidebarOpen" type="button" class="p-1.5 md:p-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition-colors focus:outline-none z-50 relative flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -88,9 +88,9 @@
                 </a>
 
                 <div class="flex items-center gap-3 md:gap-4">
-                    <div class="text-right flex flex-col justify-center max-w-[120px] sm:max-w-[150px] md:max-w-[200px] lg:max-w-[250px]">
-                        <span class="text-[10px] sm:text-[12px] md:text-[14px] lg:text-[17px] font-bree uppercase text-black font-normal truncate">{{ $roleName ?? 'ROLE' }}</span>
-                        <span class="text-[10px] sm:text-[12px] md:text-[14px] lg:text-[17px] font-bree text-black font-normal truncate">
+                    <div class="text-right flex flex-col justify-center max-w-[50vw] sm:max-w-[60vw] md:max-w-[400px]">
+                        <span class="text-[10px] sm:text-[12px] md:text-[14px] lg:text-[17px] font-bree uppercase text-black font-normal mb-0.5 break-words leading-tight">{{ $roleName ?? 'ROLE' }}</span>
+                        <span class="text-[10px] sm:text-[12px] md:text-[14px] lg:text-[17px] font-bree text-black font-normal break-words leading-tight whitespace-normal">
                             @php
                                 $dUser = auth()->user();
                                 $dId = '';
