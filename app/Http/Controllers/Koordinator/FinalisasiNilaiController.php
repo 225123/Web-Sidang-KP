@@ -130,18 +130,10 @@ class FinalisasiNilaiController extends Controller
             ];
         }
 
-        $nilaiFinal = (float) $sidang->nilai_akhir;
-
-        if ($nilaiFinal <= 0) {
-            $pembimbing = (float) ($sidang->nilai_pembimbing ?? 0) * 0.4;
-            $supervisor = (float) ($sidang->nilai_supervisor ?? 0) * 0.1;
-            $penguji1 = (float) ($sidang->nilai_penguji_1 ?? 0) * 0.25;
-            $penguji2 = (float) ($sidang->nilai_penguji_2 ?? 0) * 0.25;
-            $nilaiFinal = $pembimbing + $supervisor + $penguji1 + $penguji2;
-        }
+        $sidangScore = ((float) ($sidang->nilai_penguji_1 ?? 0) * 0.5) + ((float) ($sidang->nilai_penguji_2 ?? 0) * 0.5);
 
         $revisiVerified = ($sidang->status_revisi === 'Disahkan' || $sidang->status_revisi === 'Diterima');
-        $originalGrade = $this->getGradeFromScore($nilaiFinal);
+        $originalGrade = $this->getGradeFromScore($sidangScore);
         $finalGrade = $originalGrade;
         $isPenalized = false;
 
@@ -151,7 +143,7 @@ class FinalisasiNilaiController extends Controller
         }
 
         return [
-            'nilai' => $nilaiFinal,
+            'nilai' => $sidangScore,
             'grade' => $finalGrade,
             'original_grade' => $originalGrade,
             'is_penalized' => $isPenalized,
@@ -192,7 +184,7 @@ class FinalisasiNilaiController extends Controller
     {
         $grades = ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'D', 'E'];
         $index = array_search($grade, $grades);
-        $newIndex = min($index + 3, count($grades) - 1);
+        $newIndex = min($index + 1, count($grades) - 1);
 
         return $grades[$newIndex];
     }
