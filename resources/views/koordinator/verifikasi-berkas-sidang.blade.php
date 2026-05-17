@@ -26,7 +26,7 @@
                 'is_complete' => $isComplete,
                 'file_laporan' => $item->file_laporan ? storage_url($item->file_laporan) : null,
                 'file_log_bimbingan' => $item->file_log_bimbingan ? storage_url($item->file_log_bimbingan) : null,
-                'file_persetujuan' => $item->status_verifikasi === 'verified' ? route('mahasiswa.persetujuan-sidang.cetak', $item->id) : null,
+                'file_persetujuan' => $item->status_verifikasi === 'verified' ? route('koordinator.persetujuan-sidang.cetak', $item->id) : null,
                 'file_lainnya' => $item->file_berkas_lainnya ? storage_url($item->file_berkas_lainnya) : null,
                 'link_drive' => $item->link_drive,
                 'link_github' => $item->link_github,

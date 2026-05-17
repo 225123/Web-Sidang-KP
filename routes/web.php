@@ -135,6 +135,7 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'role:ko
     Route::get('/persetujuan-sidang', [App\Http\Controllers\Koordinator\PersetujuanSidangController::class, 'index'])->name('persetujuan-sidang.index');
     Route::put('/persetujuan-sidang/{id}/update', [App\Http\Controllers\Koordinator\PersetujuanSidangController::class, 'update'])->name('persetujuan-sidang.update');
     Route::delete('/persetujuan-sidang/{id}/tolak', [App\Http\Controllers\Koordinator\PersetujuanSidangController::class, 'tolak'])->name('persetujuan-sidang.tolak');
+    Route::get('/persetujuan-sidang/{id}/cetak', [App\Http\Controllers\Mahasiswa\PersetujuanSidangController::class, 'cetakPersetujuan'])->name('persetujuan-sidang.cetak');
 
     // 5. Verifikasi Berkas Sidang (Koordinator)
     Route::get('/verifikasi', [VerifikasiBerkasController::class, 'index'])->name('verifikasi-berkas');
