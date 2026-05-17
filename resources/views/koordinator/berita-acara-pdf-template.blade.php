@@ -80,7 +80,7 @@
         <table class="content-table">
             <tr><td class="w-40">Nama Mahasiswa</td><td>: <strong>{{ strtoupper($sidang->mahasiswa->user->name ?? '-') }}</strong></td></tr>
             <tr><td>NIM</td><td>: <strong>{{ $sidang->mahasiswa->nim ?? '-' }}</strong></td></tr>
-            <tr><td>Judul Kerja Praktek</td><td>: <strong>{{ $sidang->pendaftaranKp->judul_kp ?? '-' }}</strong></td></tr>
+            <tr><td>Judul Kerja Praktek</td><td>: <strong>{{ $sidang->judul_kp_display ?? '-' }}</strong></td></tr>
         </table>
 
         <p style="margin-top: 25px;">Sidang ini dihadiri dan dinilai oleh tim penguji sebagai berikut:</p>

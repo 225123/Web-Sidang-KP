@@ -130,6 +130,13 @@ class FinalisasiNilaiController extends Controller
             abort(403, 'Berita acara belum tersedia karena sidang belum selesai.');
         }
 
+        // Dapatkan Judul KP spesifik milik mahasiswa
+        $ownKp = \App\Models\PendaftaranKp::where('mahasiswa_id', $sidang->mahasiswa_id)
+            ->where('status_kp', 'approved')
+            ->latest()
+            ->first();
+        $sidang->judul_kp_display = $ownKp ? $ownKp->judul_kp : ($sidang->pendaftaranKp->judul_kp ?? '-');
+
         // Get Koordinator (Official role)
         $koordinator = \App\Models\User::where('role', 'koordinator_kp')->with('dosen')->first();
 
