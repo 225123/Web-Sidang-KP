@@ -130,8 +130,21 @@ class DaftarBimbinganController extends Controller
             },
         ])->where('id', $id)->firstOrFail();
 
-        if ($pendaftaran->pembimbing_id != $dosenId && Auth::user()->role != 'koordinator') {
-            abort(403, 'Unauthorized access.');
+        // Cek authorization: Dosen berhak akses jika ia pembimbing langsung ATAU pembimbing dari pendaftaran asal (Ketua Kelompok)
+        $isAuthorized = false;
+        if (Auth::user()->role == 'koordinator') {
+            $isAuthorized = true;
+        } elseif ($pendaftaran->pembimbing_id == $dosenId) {
+            $isAuthorized = true;
+        } elseif (!$pendaftaran->pembimbing_id && $pendaftaran->pendaftaran_asal_id) {
+            $parentKp = PendaftaranKp::find($pendaftaran->pendaftaran_asal_id);
+            if ($parentKp && $parentKp->pembimbing_id == $dosenId) {
+                $isAuthorized = true;
+            }
+        }
+
+        if (!$isAuthorized) {
+            abort(403, 'Unauthorized access. Anda bukan dosen pembimbing mahasiswa ini.');
         }
 
         $pendaftaranLoad->display_mahasiswa = $mhs;
