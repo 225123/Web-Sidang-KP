@@ -104,8 +104,8 @@ class BimbinganController extends Controller
 
         $filePath = null;
         if ($request->hasFile('bukti')) {
-            // Pakai disk 'public' secara eksplisit
-            $filePath = $request->file('bukti')->store('log_bimbingan_bukti', 'public');
+            // Gunakan upload_disk() agar membaca dari konfigurasi (storj/public)
+            $filePath = $request->file('bukti')->store('log_bimbingan_bukti', upload_disk());
         }
 
         if (! $filePath) {
