@@ -327,42 +327,14 @@
                 </div>
             </div>
 
-            <!-- Sentinel element for tracking bottom of main content -->
-            <div id="footer-sentinel" class="h-1 w-full mt-auto bg-transparent"></div>
+            <!-- Footer -->
+            <footer class="w-full bg-[#040404] text-white text-[11px] font-medium font-inter text-center h-[40px] flex items-center justify-center gap-2 flex-shrink-0 mt-auto">
+                <span>2026 Sidang KP | Universitas Kristen Krida Wacana</span>
+                <div class="w-[9px] h-[9px] rounded-full bg-black border border-white flex items-center justify-center text-[9px] italic ml-1">
+                    <span class="leading-none transform -translate-y-px">c</span>
+                </div>
+            </footer>
         </main>
     </div>
-
-    <!-- Fixed Footer that only appears when scrolled to bottom -->
-    <footer :class="footerVisible ? 'translate-y-0' : 'translate-y-full'" class="fixed bottom-0 left-0 w-full bg-[#040404] text-white text-[11px] font-medium font-inter text-center h-[40px] flex items-center justify-center gap-2 z-[60] transition-transform duration-300 shadow-[0px_-4px_10px_rgba(0,0,0,0.15)]">
-        <span>2026 Sidang KP | Universitas Kristen Krida Wacana</span>
-        <div class="w-[9px] h-[9px] rounded-full bg-black border border-white flex items-center justify-center text-[9px] italic ml-1">
-            <span class="leading-none transform -translate-y-px">c</span>
-        </div>
-    </footer>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            let observer = null;
-            const setupObserver = () => {
-                const sentinel = document.getElementById('footer-sentinel');
-                const mainArea = document.getElementById('main-scroll-area');
-                
-                if(observer) {
-                    observer.disconnect();
-                }
-                
-                if(sentinel && mainArea) {
-                    observer = new IntersectionObserver((entries) => {
-                        entries.forEach(entry => {
-                            window.dispatchEvent(new CustomEvent('toggle-footer', { detail: entry.isIntersecting }));
-                        });
-                    }, { root: mainArea, threshold: 0 });
-                    observer.observe(sentinel);
-                }
-            };
-            setupObserver();
-            document.addEventListener('turbo:render', setupObserver);
-        });
-    </script>
 </body>
 </html>
