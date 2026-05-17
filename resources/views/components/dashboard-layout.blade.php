@@ -326,15 +326,15 @@
                     {{ $slot }}
                 </div>
             </div>
-
-            <!-- Footer -->
-            <footer class="w-full bg-[#040404] text-white text-[11px] font-medium font-inter text-center h-[40px] flex items-center justify-center gap-2 flex-shrink-0 mt-auto">
-                <span>2026 Sidang KP | Universitas Kristen Krida Wacana</span>
-                <div class="w-[9px] h-[9px] rounded-full bg-black border border-white flex items-center justify-center text-[9px] italic ml-1">
-                    <span class="leading-none transform -translate-y-px">c</span>
-                </div>
-            </footer>
         </main>
     </div>
+
+    <!-- Full-width Footer -->
+    <footer class="w-full bg-[#040404] text-white text-[11px] font-medium font-inter text-center h-[40px] flex items-center justify-center gap-2 flex-shrink-0 z-50 relative">
+        <span>2026 Sidang KP | Universitas Kristen Krida Wacana</span>
+        <div class="w-[9px] h-[9px] rounded-full bg-black border border-white flex items-center justify-center text-[9px] italic ml-1">
+            <span class="leading-none transform -translate-y-px">c</span>
+        </div>
+    </footer>
 </body>
 </html>
