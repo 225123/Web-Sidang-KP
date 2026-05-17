@@ -226,7 +226,7 @@
                 <tr>
                     <td class="label-col">Judul KP</td>
                     <td class="sep-col">:</td>
-                    <td>{{ $persetujuan->pendaftaranKp?->judul_kp ?? '-' }}</td>
+                    <td>{{ $persetujuan->judul_kp_display ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td class="label-col">Instansi KP</td>

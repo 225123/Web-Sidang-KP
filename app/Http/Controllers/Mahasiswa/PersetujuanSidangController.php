@@ -123,6 +123,12 @@ class PersetujuanSidangController extends Controller
     {
         $persetujuan = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp.pembimbing.dosen'])->findOrFail($id);
 
+        $ownKp = \App\Models\PendaftaranKp::where('mahasiswa_id', $persetujuan->mahasiswa_id)
+            ->where('status_kp', 'approved')
+            ->latest()
+            ->first();
+        $persetujuan->judul_kp_display = $ownKp ? $ownKp->judul_kp : ($persetujuan->pendaftaranKp->judul_kp ?? '-');
+
         $pdf = Pdf::loadView('pdf.surat-persetujuan-sidang', compact('persetujuan'));
 
         // Jika parameter download=true ada di URL, maka file akan terdownload
