@@ -50,7 +50,7 @@
                 <div class="space-y-12">
                     <!-- Dosen Pembimbing (40%) -->
                     <div>
-                        <h4 class="text-[15px] font-bold text-black mb-4 border-b border-gray-400 pb-1">Dosen Pembimbing <span class="font-normal">(40%)</span></h4>
+                        <h4 class="text-[15px] font-bold text-black mb-4 border-b border-gray-400 pb-1">Dosen Pembimbing <span class="font-normal">(Nilai Proses)</span></h4>
                         <div class="space-y-2 text-[13px] font-medium text-black">
                             <div class="flex justify-between"><span>Kualitas Laporan</span><span>: {{ $sidang->nb_laporan ?? 0 }}</span></div>
                             <div class="flex justify-between"><span>Kualitas Produk</span><span>: {{ $sidang->nb_produk ?? 0 }}</span></div>
@@ -63,7 +63,7 @@
 
                     <!-- Supervisor (10%) -->
                     <div>
-                        <h4 class="text-[15px] font-bold text-black mb-4 border-b border-gray-400 pb-1">Supervisor <span class="font-normal">(10%)</span></h4>
+                        <h4 class="text-[15px] font-bold text-black mb-4 border-b border-gray-400 pb-1">Supervisor <span class="font-normal">(Nilai Lapangan)</span></h4>
                         <div class="space-y-2 text-[13px] font-medium text-black">
                             <div class="flex justify-between"><span>Kemampuan & Motivasi</span><span>: {{ $sidang->ns_motivasi ?? 0 }}</span></div>
                             <div class="flex justify-between"><span>Kualitas Kerja</span><span>: {{ $sidang->ns_kualitas ?? 0 }}</span></div>
@@ -78,7 +78,7 @@
 
                 <!-- Kolom Kanan: Dosen Penguji & Hasil Akhir -->
                 <div class="flex flex-col h-full">
-                    <h4 class="text-[15px] font-bold text-black mb-4 border-b border-gray-400 pb-1">Dosen Penguji <span class="font-normal">(50%)</span></h4>
+                    <h4 class="text-[15px] font-bold text-black mb-4 border-b border-gray-400 pb-1">Dosen Penguji <span class="font-normal">(100% Nilai Sidang)</span></h4>
                     
                     <div class="grid grid-cols-2 gap-8 mb-6">
                         <!-- Penguji 1 -->
