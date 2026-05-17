@@ -99,15 +99,7 @@
                                     class="text-red-500 ml-1">*</span></div>
                             <div class="flex items-start gap-2">
                                 <input type="file" name="file_laporan" required accept=".pdf" x-ref="laporan" 
-                                    @change="
-                                        if($refs.laporan.files.length > 0 && $refs.laporan.files[0].size > 5242880) {
-                                            Swal.fire({icon: 'error', title: 'Ukuran File Terlalu Besar', text: 'Maksimal berukuran 5 MB.'});
-                                            $refs.laporan.value = '';
-                                            hasFile = false;
-                                        } else {
-                                            hasFile = $refs.laporan.files.length > 0;
-                                        }
-                                    "
+                                    @change="window.handleFileSelection($event, 5242880, (isValid) => { hasFile = isValid; })"
                                     class="flex-1 text-[11px] text-gray-600 mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                                 <button type="button" x-cloak x-show="hasFile" @click="$refs.laporan.value = ''; hasFile = false" 
                                     class="shrink-0 p-1 mt-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Hapus File">
@@ -124,15 +116,7 @@
                                     class="text-red-500 ml-1">*</span></div>
                             <div class="flex items-start gap-2">
                                 <input type="file" name="file_log_bimbingan" required accept=".pdf" x-ref="bimbingan" 
-                                    @change="
-                                        if($refs.bimbingan.files.length > 0 && $refs.bimbingan.files[0].size > 5242880) {
-                                            Swal.fire({icon: 'error', title: 'Ukuran File Terlalu Besar', text: 'Maksimal berukuran 5 MB.'});
-                                            $refs.bimbingan.value = '';
-                                            hasFile = false;
-                                        } else {
-                                            hasFile = $refs.bimbingan.files.length > 0;
-                                        }
-                                    "
+                                    @change="window.handleFileSelection($event, 5242880, (isValid) => { hasFile = isValid; })"
                                     class="flex-1 text-[11px] text-gray-600 mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                                 <button type="button" x-cloak x-show="hasFile" @click="$refs.bimbingan.value = ''; hasFile = false" 
                                     class="shrink-0 p-1 mt-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Hapus File">
@@ -149,15 +133,7 @@
                             <div class="text-[13px] font-bold text-black mb-3">Berkas Lainnya</div>
                             <div class="flex items-start gap-2">
                                 <input type="file" name="file_berkas_lainnya" accept=".pdf" x-ref="lainnya" 
-                                    @change="
-                                        if($refs.lainnya.files.length > 0 && $refs.lainnya.files[0].size > 5242880) {
-                                            Swal.fire({icon: 'error', title: 'Ukuran File Terlalu Besar', text: 'Maksimal berukuran 5 MB.'});
-                                            $refs.lainnya.value = '';
-                                            hasFile = false;
-                                        } else {
-                                            hasFile = $refs.lainnya.files.length > 0;
-                                        }
-                                    "
+                                    @change="window.handleFileSelection($event, 5242880, (isValid) => { hasFile = isValid; })"
                                     class="flex-1 text-[11px] text-gray-600 mb-3 cursor-pointer file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                                 <button type="button" x-cloak x-show="hasFile" @click="$refs.lainnya.value = ''; hasFile = false" 
                                     class="shrink-0 p-1 mt-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Hapus File">
@@ -208,4 +184,30 @@
             @endif
 
         </div>
+
+        <script>
+            window.handleFileSelection = function(event, maxSize, callback) {
+                const files = event.target.files;
+                if (files && files.length > 0) {
+                    if (files[0].size > maxSize) {
+                        if (window.Swal) {
+                            window.Swal.fire({
+                                icon: 'error',
+                                title: 'Ukuran File Terlalu Besar',
+                                text: 'Maksimal berukuran 5 MB.',
+                                confirmButtonColor: '#d33'
+                            });
+                        } else {
+                            alert('Ukuran File Terlalu Besar! Maksimal berukuran 5 MB.');
+                        }
+                        event.target.value = '';
+                        callback(false, '');
+                    } else {
+                        callback(true, files[0].name);
+                    }
+                } else {
+                    callback(false, '');
+                }
+            };
+        </script>
 </x-dashboard-layout>
