@@ -19,8 +19,15 @@ class NewPasswordController extends Controller
     /**
      * Display the password reset view.
      */
-    public function create(Request $request): View
+    public function create(Request $request)
     {
+        // Jika user masih login, paksa logout agar mereka bisa melihat halaman reset password
+        if (auth()->check()) {
+            auth()->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+        
         return view('auth.reset-password', ['request' => $request]);
     }
 
