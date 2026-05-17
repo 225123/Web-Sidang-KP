@@ -86,17 +86,17 @@ class UserProfileController extends Controller
         $user = Auth::user();
 
         if ($request->hasFile('avatar')) {
-            // Hapus avatar lama — selalu dari disk 'public'
+            // Hapus avatar lama dari disk yang sedang aktif
             if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
+                Storage::disk(upload_disk())->delete($user->avatar);
             }
 
             // Konversi ke WebP (max 400×400, quality 85)
-            // Gunakan disk 'public' agar accessible via asset('storage/...')
+            // Gunakan upload_disk() agar sinkron dengan konfigurasi cloud/lokal
             $path = ImageHelper::convertToWebP(
                 $request->file('avatar'),
                 'avatars',
-                400, 400, 85, 'public'
+                400, 400, 85, upload_disk()
             );
 
             $user->avatar = $path;
