@@ -86,7 +86,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('mahasiswa.pendaftaran-sidang.store') }}" method="POST" enctype="multipart/form-data"
+                <form id="formPendaftaranSidang" action="{{ route('mahasiswa.pendaftaran-sidang.store') }}" method="POST" enctype="multipart/form-data"
                     class="bg-[#eeeeee] rounded-xl p-8 mb-6 mt-4">
                     @csrf
                     <h3 class="text-lg font-bold text-gray-800 mt-0 mb-6">Kelengkapan Dokumen Sidang</h3>
@@ -181,4 +181,52 @@
             @endif
 
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('formPendaftaranSidang');
+                if (form) {
+                    form.addEventListener('submit', function(e) {
+                        const fileInputs = form.querySelectorAll('input[type="file"]');
+                        let totalSize = 0;
+                        const MAX_PER_FILE = 5 * 1024 * 1024; // 5 MB per file
+                        const MAX_TOTAL = 4.3 * 1024 * 1024; // 4.3 MB total untuk menghindari Vercel 413 error (Limit asli 4.5MB)
+                        let hasOversizedFile = false;
+
+                        fileInputs.forEach(input => {
+                            if (input.files.length > 0) {
+                                const size = input.files[0].size;
+                                totalSize += size;
+                                if (size > MAX_PER_FILE) {
+                                    hasOversizedFile = true;
+                                }
+                            }
+                        });
+
+                        if (hasOversizedFile) {
+                            e.preventDefault();
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Ukuran File Terlalu Besar',
+                                text: 'Setiap berkas maksimal berukuran 5 MB.',
+                                confirmButtonColor: '#d33'
+                            });
+                            return false;
+                        }
+
+                        // Vercel hard limit check (4.5 MB Total Payload)
+                        if (totalSize > MAX_TOTAL) {
+                            e.preventDefault();
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Total Ukuran Terlalu Besar (Limit Vercel)',
+                                text: 'Karena keterbatasan server Vercel, TOTAL ukuran semua file yang diupload sekaligus tidak boleh lebih dari 4.5 MB. Silakan kompres file Anda atau gunakan Link Google Drive untuk file yang besar.',
+                                confirmButtonColor: '#d33'
+                            });
+                            return false;
+                        }
+                    });
+                }
+            });
+        </script>
 </x-dashboard-layout>
