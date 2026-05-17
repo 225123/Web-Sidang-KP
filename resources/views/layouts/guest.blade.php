@@ -13,6 +13,9 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Force full reload to prevent Turbo layout merging bugs when session expires -->
+    <meta name="turbo-visit-control" content="reload">
 </head>
 <body class="font-inter antialiased text-gray-900 bg-white">
     <div class="min-h-screen flex">

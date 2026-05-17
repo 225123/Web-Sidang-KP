@@ -19,6 +19,7 @@
         [x-cloak] { display: none !important; }
         .font-bree { font-family: 'Bree Serif', serif; }
         .font-inter { font-family: 'Inter', sans-serif; }
+        html, body { background-color: #F5F6F8 !important; }
     </style>
 </head>
 <body x-data="{ sidebarOpen: $persist(true), footerVisible: false }" @toggle-footer.window="footerVisible = $event.detail" class="font-inter antialiased bg-[#F5F6F8] text-gray-900 flex flex-col h-screen overflow-hidden">
