@@ -182,34 +182,30 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const form = document.getElementById('formAjukan');
-                if (form) {
-                    form.addEventListener('submit', function(e) {
-                        const fileInputs = form.querySelectorAll('input[type="file"]');
-                        const MAX_PER_FILE = 5 * 1024 * 1024;
-                        let hasOversizedFile = false;
+                const fileInputs = document.querySelectorAll('input[type="file"]');
+                const MAX_PER_FILE = 5 * 1024 * 1024; // 5 MB per file
 
-                        fileInputs.forEach(input => {
-                            if (input.files.length > 0) {
-                                const size = input.files[0].size;
-                                if (size > MAX_PER_FILE) {
-                                    hasOversizedFile = true;
-                                }
+                fileInputs.forEach(input => {
+                    input.addEventListener('change', function(e) {
+                        if (this.files.length > 0) {
+                            const size = this.files[0].size;
+                            if (size > MAX_PER_FILE) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Ukuran File Terlalu Besar',
+                                    text: 'Setiap berkas maksimal berukuran 5 MB.',
+                                    confirmButtonColor: '#d33'
+                                });
+                                
+                                // Kosongkan file yang dipilih
+                                this.value = '';
+                                
+                                // Trigger event change agar AlpineJS (jika ada) ikut me-reset UI-nya
+                                this.dispatchEvent(new Event('change', { bubbles: true }));
                             }
-                        });
-
-                        if (hasOversizedFile) {
-                            e.preventDefault();
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Ukuran File Terlalu Besar',
-                                text: 'Berkas maksimal berukuran 5 MB.',
-                                confirmButtonColor: '#d33'
-                            });
-                            return false;
                         }
                     });
-                }
+                });
             });
         </script>
 </x-dashboard-layout>
