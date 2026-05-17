@@ -29,8 +29,16 @@ if (! function_exists('storage_url')) {
             return route('serve.file', ['path' => $path]);
         }
 
-        // Untuk disk cloud (r2, s3, storj), gunakan Storage::disk()->url()
-        return Storage::disk($activeDisk)->url($path);
+        // Untuk disk cloud (r2, s3, storj), gunakan presigned URL agar bisa bypass 
+        // batasan akses publik (seperti limitasi 10 menit pada Storj Free Tier)
+        try {
+            return Storage::disk($activeDisk)->temporaryUrl(
+                $path, now()->addMinutes(60) // URL valid selama 60 menit setiap kali di-load
+            );
+        } catch (\Exception $e) {
+            // Fallback jika driver tidak mendukung temporaryUrl
+            return Storage::disk($activeDisk)->url($path);
+        }
     }
 }
 
