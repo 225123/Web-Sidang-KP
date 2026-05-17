@@ -196,10 +196,11 @@
     $base64_dosen = getAbsoluteImagePath($pembimbing->signature_path ?? null);
     $base64_mhs = getAbsoluteImagePath($pendaftaran->user->signature_path ?? null);
     
-    // Logo resolve directly from original public path instead of base64 function
+    // Logo resolve directly from original public path using base64
+    // Standard PNGs don't trigger the GD fallback crash in dompdf
     $logo_path = public_path('images/logo.png');
     $base64_logo = null;
-    if(file_exists($logo_path) && extension_loaded('gd')) {
+    if(file_exists($logo_path)) {
         $type = pathinfo($logo_path, PATHINFO_EXTENSION);
         $base64_logo = 'data:image/' . $type . ';base64,' . base64_encode(file_get_contents($logo_path));
     }
@@ -213,7 +214,7 @@
                     @if($base64_logo)
                         <img src="{{ $base64_logo }}" alt="Logo UKRIDA" class="logo">
                     @else
-                        <!-- Fallback jamin tampil bila base64 logo.png gagal diproses -->
+                        <!-- Fallback jika gagal -->
                         <img src="https://upload.wikimedia.org/wikipedia/id/8/80/Logo_UKRIDA.png" alt="Logo UKRIDA" class="logo">
                     @endif
                 </td>
