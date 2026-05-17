@@ -22,7 +22,19 @@
         html, body { background-color: #F5F6F8 !important; }
     </style>
 </head>
-<body x-data="{ sidebarOpen: $persist(true), footerVisible: false }" @toggle-footer.window="footerVisible = $event.detail" class="font-inter antialiased bg-[#F5F6F8] text-gray-900 flex flex-col h-screen overflow-hidden">
+<body x-data="{ 
+    sidebarOpen: $persist(true), 
+    footerVisible: false,
+    globalAlert: { show: false, message: '', title: '', type: 'danger' }
+}" 
+@toggle-footer.window="footerVisible = $event.detail" 
+@show-alert.window="
+    globalAlert.title = $event.detail.title || 'Peringatan'; 
+    globalAlert.message = $event.detail.message; 
+    globalAlert.type = $event.detail.type || 'danger';
+    globalAlert.show = true; 
+"
+class="font-inter antialiased bg-[#F5F6F8] text-gray-900 flex flex-col h-screen overflow-hidden">
     
     <header class="bg-[#D9D9D9] flex-shrink-0 relative top-0 z-50 shadow-[0px_4px_4px_rgba(0,0,0,0.25)] border-b border-gray-300 min-h-[76px] h-auto py-2">
         <div class="flex items-center justify-between px-4 md:px-9 min-h-[60px] h-full">
@@ -337,34 +349,24 @@
         </div>
     </footer>
     <!-- Global Custom Alert Modal -->
-    <div x-data="{ 
-        show: false, 
-        message: '', 
-        title: 'Peringatan', 
-        type: 'danger' 
-    }" 
-    @show-alert.window="
-        show = true; 
-        message = $event.detail.message; 
-        title = $event.detail.title || 'Peringatan'; 
-        type = $event.detail.type || 'danger';
-    " 
-    x-cloak x-show="show" style="display: none;" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
-        <div @click.outside="show = false" class="bg-white rounded-[15px] w-full max-w-[420px] p-8 shadow-2xl flex flex-col items-center text-center relative overflow-hidden border border-gray-100">
-            
-            <!-- Icon Header -->
-            <div class="mb-6 w-20 h-20 rounded-full flex items-center justify-center" :class="type === 'danger' ? 'bg-red-50' : 'bg-blue-50'">
-                <svg x-show="type === 'danger'" class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                <svg x-show="type === 'info'" class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <template x-teleport="body">
+        <div x-cloak x-show="globalAlert.show" style="display: none;" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+            <div @click.outside="globalAlert.show = false" class="bg-white rounded-[15px] w-full max-w-[420px] p-8 shadow-2xl flex flex-col items-center text-center relative overflow-hidden border border-gray-100">
+                
+                <!-- Icon Header -->
+                <div class="mb-6 w-20 h-20 rounded-full flex items-center justify-center" :class="globalAlert.type === 'danger' ? 'bg-red-50' : 'bg-blue-50'">
+                    <svg x-show="globalAlert.type === 'danger'" class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <svg x-show="globalAlert.type === 'info'" class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+
+                <h3 class="text-[18px] font-bold text-gray-900 mb-3" x-text="globalAlert.title"></h3>
+                <p class="text-[14px] text-gray-500 mb-8 leading-relaxed px-2" x-text="globalAlert.message"></p>
+
+                <button @click="globalAlert.show = false" type="button" class="w-full h-[45px] text-white rounded-[10px] text-[14px] font-bold transition-all shadow-md active:transform active:scale-95" :class="globalAlert.type === 'danger' ? 'bg-[#E53935] hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'">
+                    Mengerti
+                </button>
             </div>
-
-            <h3 class="text-[18px] font-bold text-gray-900 mb-3" x-text="title"></h3>
-            <p class="text-[14px] text-gray-500 mb-8 leading-relaxed px-2" x-text="message"></p>
-
-            <button @click="show = false" type="button" class="w-full h-[45px] text-white rounded-[10px] text-[14px] font-bold transition-all shadow-md active:transform active:scale-95" :class="type === 'danger' ? 'bg-[#E53935] hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'">
-                Mengerti
-            </button>
         </div>
-    </div>
+    </template>
 </body>
 </html>
