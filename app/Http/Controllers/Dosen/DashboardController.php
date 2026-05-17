@@ -142,11 +142,12 @@ class DashboardController extends Controller
 
         $menungguPersetujuan = collect();
         foreach ($logsMenunggu as $log) {
+            $submitterName = \App\Models\User::find($log->mahasiswa_id)->name ?? 'Unknown';
             $menungguPersetujuan->push((object)[
-                'mahasiswa' => $log->pendaftaranKp->mahasiswa->user->name ?? 'Unknown',
+                'mahasiswa' => $submitterName,
                 'jenis' => 'Log Bimbingan',
                 'id' => $log->id,
-                'route' => route('dosen.daftar-mahasiswa.detail', $log->pendaftaran_kp_id),
+                'route' => route('dosen.daftar-mahasiswa.detail', $log->mahasiswa_id),
                 'color' => 'bg-[#FFF9C4] text-[#827717] border-[#FBC02D]',
             ]);
         }
