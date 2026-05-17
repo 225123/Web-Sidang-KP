@@ -49,7 +49,7 @@
 
 
 
-                @if(!$sidang->status_revisi || strtolower($sidang->status_revisi) === 'belum mengumpulkan')
+                @if(!$sidang->status_revisi || in_array(strtolower($sidang->status_revisi), ['belum mengumpulkan', 'ditolak']))
                     <div class="pt-6">Upload Berkas Revisi</div>
                     <div class="pt-6 flex items-center gap-2">
                         <span class="mr-2">:</span>
@@ -130,7 +130,7 @@
         <div class="text-center pb-12">
             <h2 class="text-[18px] font-bold text-black mb-4">Status Pemeriksaan Berkas Revisi</h2>
 
-            @if(!$sidang->status_revisi || strtolower($sidang->status_revisi) === 'belum mengumpulkan')
+            @if(!$sidang->status_revisi || in_array(strtolower($sidang->status_revisi), ['belum mengumpulkan', 'ditolak']))
                 <p class="text-[14px] text-gray-700 font-medium mb-8">Klik 'Submit Revisi' untuk mengirimkan berkas revisi Anda ke Dosen Penguji 1.</p>
                 <button type="button" onclick="document.getElementById('formAjukan').submit()" class="bg-[#008000] hover:bg-green-700 text-white font-bold text-[14px] px-8 py-2.5 rounded-full shadow-md flex items-center justify-center gap-2 mx-auto transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -152,15 +152,6 @@
                     <p class="text-sm text-green-600 mt-2">Selamat, revisi Anda telah diperiksa dan dinyatakan sah.</p>
                     <p class="text-[11px] text-green-800/60 mt-4 font-medium italic">
                         Berhasil diunggah pada: <span x-text="formatFullDate('{{ $sidang->tanggal_revisi }}')"></span>
-                    </p>
-                </div>
-            @elseif($sidang->status_revisi === 'Ditolak')
-                <div class="inline-flex flex-col items-center justify-center p-8 border-2 border-red-500 bg-red-50 rounded-lg">
-                    <svg class="w-12 h-12 text-red-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <h3 class="text-lg font-bold text-red-700 uppercase">REVISI DITOLAK</h3>
-                    <p class="text-sm text-red-600 mt-2">Berkas revisi Anda tidak memenuhi standar dan telah ditolak secara permanen.</p>
-                    <p class="text-[11px] text-red-800/60 mt-4 font-medium italic">
-                        Terakhir diunggah pada: <span x-text="formatFullDate('{{ $sidang->tanggal_revisi }}')"></span>
                     </p>
                 </div>
             @endif

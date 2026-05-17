@@ -69,7 +69,7 @@ class NilaiAkhirController extends Controller
             }
 
             $logic = $this->calculateFinalLogic($sidang);
-            $sidang->nilai_akhir_display = $logic['nilai'];
+            $sidang->nilai_akhir_display = $logic['sidang_score'];
             $sidang->grade_display = $logic['grade'];
         }
 
@@ -145,6 +145,7 @@ class NilaiAkhirController extends Controller
         if ($status === 'Lanjut' || $status === 'Tidak Lulus') {
             return [
                 'nilai' => 0,
+                'sidang_score' => 0,
                 'grade' => 'E',
                 'original_grade' => 'E',
                 'is_penalized' => false,
@@ -161,8 +162,10 @@ class NilaiAkhirController extends Controller
             $nilaiFinal = $pembimbing + $supervisor + $penguji1 + $penguji2;
         }
 
+        $sidangScore = ((float) ($sidang->nilai_penguji_1 ?? 0) * 0.5) + ((float) ($sidang->nilai_penguji_2 ?? 0) * 0.5);
+
         $revisiVerified = ($sidang->status_revisi === 'Disahkan' || $sidang->status_revisi === 'Diterima');
-        $originalGrade = $this->getGradeFromScore($nilaiFinal);
+        $originalGrade = $this->getGradeFromScore($sidangScore);
         $finalGrade = $originalGrade;
         $isPenalized = false;
 
@@ -173,6 +176,7 @@ class NilaiAkhirController extends Controller
 
         return [
             'nilai' => $nilaiFinal,
+            'sidang_score' => $sidangScore,
             'grade' => $finalGrade,
             'original_grade' => $originalGrade,
             'is_penalized' => $isPenalized,
@@ -196,7 +200,7 @@ class NilaiAkhirController extends Controller
     {
         $grades = ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'D', 'E'];
         $index = array_search($grade, $grades);
-        $newIndex = min($index + 3, count($grades) - 1);
+        $newIndex = min($index + 1, count($grades) - 1);
         return $grades[$newIndex];
     }
 }

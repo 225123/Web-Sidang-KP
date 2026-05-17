@@ -241,21 +241,23 @@ class InputNilaiController extends Controller
             $avg = $pembimbing + $supervisor + $penguji1 + $penguji2;
             $sidang->nilai_akhir = round($avg, 3); // 3 decimals
 
-            if ($avg >= 86) {
+            $sidangScore = ((float) $sidang->nilai_penguji_1 * 0.50) + ((float) $sidang->nilai_penguji_2 * 0.50);
+
+            if ($sidangScore >= 86) {
                 $sidang->grade = 'A';
-            } elseif ($avg >= 81) {
+            } elseif ($sidangScore >= 81) {
                 $sidang->grade = 'A-';
-            } elseif ($avg >= 76) {
+            } elseif ($sidangScore >= 76) {
                 $sidang->grade = 'B+';
-            } elseif ($avg >= 71) {
+            } elseif ($sidangScore >= 71) {
                 $sidang->grade = 'B';
-            } elseif ($avg >= 66) {
+            } elseif ($sidangScore >= 66) {
                 $sidang->grade = 'B-';
-            } elseif ($avg >= 61) {
+            } elseif ($sidangScore >= 61) {
                 $sidang->grade = 'C+';
-            } elseif ($avg >= 56) {
+            } elseif ($sidangScore >= 56) {
                 $sidang->grade = 'C';
-            } elseif ($avg >= 46) {
+            } elseif ($sidangScore >= 46) {
                 $sidang->grade = 'D';
             } else {
                 $sidang->grade = 'E';
