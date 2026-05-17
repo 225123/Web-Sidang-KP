@@ -24,19 +24,9 @@
 </head>
 <body x-data="{ 
     sidebarOpen: $persist(true), 
-    footerVisible: false,
-    alertShow: false, 
-    alertMessage: '', 
-    alertTitle: 'Peringatan', 
-    alertType: 'danger'
+    footerVisible: false
 }" 
 @toggle-footer.window="footerVisible = $event.detail" 
-@show-alert.window="
-    alertTitle = $event.detail.title || 'Peringatan'; 
-    alertMessage = $event.detail.message; 
-    alertType = $event.detail.type || 'danger';
-    alertShow = true; 
-"
 class="font-inter antialiased bg-[#F5F6F8] text-gray-900 flex flex-col h-screen overflow-hidden">
     
     <header class="bg-[#D9D9D9] flex-shrink-0 relative top-0 z-50 shadow-[0px_4px_4px_rgba(0,0,0,0.25)] border-b border-gray-300 min-h-[76px] h-auto py-2">
@@ -351,23 +341,73 @@ class="font-inter antialiased bg-[#F5F6F8] text-gray-900 flex flex-col h-screen 
             <span class="leading-none transform -translate-y-px">c</span>
         </div>
     </footer>
-    <!-- Global Custom Alert Modal -->
-    <div x-cloak x-show="alertShow" style="display: none;" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
-        <div @click.outside="alertShow = false" class="bg-white rounded-[15px] w-full max-w-[420px] p-8 shadow-2xl flex flex-col items-center text-center relative overflow-hidden border border-gray-100">
+    <!-- Global Custom Alert Modal (PURE VANILLA JS) -->
+    <div id="native-global-alert" style="display: none;" class="fixed inset-0 z-[100000] items-center justify-center bg-black/40 backdrop-blur-sm p-4 transition-opacity">
+        <div id="native-global-alert-backdrop" class="absolute inset-0"></div>
+        <div class="bg-white rounded-[15px] w-full max-w-[420px] p-8 shadow-2xl flex flex-col items-center text-center relative overflow-hidden border border-gray-100 z-10 transform transition-transform">
             
             <!-- Icon Header -->
-            <div class="mb-6 w-20 h-20 rounded-full flex items-center justify-center" :class="alertType === 'danger' ? 'bg-red-50' : 'bg-blue-50'">
-                <svg x-show="alertType === 'danger'" class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                <svg x-show="alertType === 'info'" class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div id="native-alert-icon-container" class="mb-6 w-20 h-20 rounded-full flex items-center justify-center bg-red-50">
+                <!-- Danger Icon -->
+                <svg id="native-alert-icon-danger" class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <!-- Info Icon -->
+                <svg id="native-alert-icon-info" style="display: none;" class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
 
-            <h3 class="text-[18px] font-bold text-gray-900 mb-3" x-text="alertTitle"></h3>
-            <p class="text-[14px] text-gray-500 mb-8 leading-relaxed px-2" x-text="alertMessage"></p>
+            <h3 id="native-alert-title" class="text-[18px] font-bold text-gray-900 mb-3">Peringatan</h3>
+            <p id="native-alert-message" class="text-[14px] text-gray-500 mb-8 leading-relaxed px-2"></p>
 
-            <button @click="alertShow = false" type="button" class="w-full h-[45px] text-white rounded-[10px] text-[14px] font-bold transition-all shadow-md active:transform active:scale-95" :class="alertType === 'danger' ? 'bg-[#E53935] hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'">
+            <button id="native-alert-close-btn" type="button" class="w-full h-[45px] text-white rounded-[10px] text-[14px] font-bold transition-all shadow-md active:transform active:scale-95 bg-[#E53935] hover:bg-red-700">
                 Mengerti
             </button>
         </div>
     </div>
+
+    <script>
+        window.showGlobalAlert = function(title, message, type = 'danger') {
+            const modal = document.getElementById('native-global-alert');
+            const titleEl = document.getElementById('native-alert-title');
+            const messageEl = document.getElementById('native-alert-message');
+            const iconContainer = document.getElementById('native-alert-icon-container');
+            const iconDanger = document.getElementById('native-alert-icon-danger');
+            const iconInfo = document.getElementById('native-alert-icon-info');
+            const closeBtn = document.getElementById('native-alert-close-btn');
+
+            if (!modal) return;
+
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+
+            if (type === 'danger') {
+                iconContainer.className = 'mb-6 w-20 h-20 rounded-full flex items-center justify-center bg-red-50';
+                iconDanger.style.display = 'block';
+                iconInfo.style.display = 'none';
+                closeBtn.className = 'w-full h-[45px] text-white rounded-[10px] text-[14px] font-bold transition-all shadow-md active:transform active:scale-95 bg-[#E53935] hover:bg-red-700';
+            } else {
+                iconContainer.className = 'mb-6 w-20 h-20 rounded-full flex items-center justify-center bg-blue-50';
+                iconDanger.style.display = 'none';
+                iconInfo.style.display = 'block';
+                closeBtn.className = 'w-full h-[45px] text-white rounded-[10px] text-[14px] font-bold transition-all shadow-md active:transform active:scale-95 bg-blue-600 hover:bg-blue-700';
+            }
+
+            modal.style.display = 'flex';
+        };
+
+        window.hideGlobalAlert = function() {
+            const modal = document.getElementById('native-global-alert');
+            if (modal) modal.style.display = 'none';
+        };
+
+        // Attach listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('native-alert-close-btn')?.addEventListener('click', window.hideGlobalAlert);
+            document.getElementById('native-global-alert-backdrop')?.addEventListener('click', window.hideGlobalAlert);
+        });
+        
+        // Also listen to custom event as fallback
+        window.addEventListener('show-alert', function(e) {
+            window.showGlobalAlert(e.detail.title, e.detail.message, e.detail.type);
+        });
+    </script>
 </body>
 </html>
