@@ -1,4 +1,4 @@
-<x-dashboard-layout header="Finalisasi Nilai KP" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR">
+<x-dashboard-layout header="Finalisasi Nilai KP" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR KP">
     <x-slot:sidebar>
         @include('koordinator.components.sidebar', ['active' => 'finalisasi-nilai'])
         </x-slot>
