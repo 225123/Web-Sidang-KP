@@ -36,8 +36,10 @@ if (! function_exists('storage_url')) {
                 $path, now()->addMinutes(60) // URL valid selama 60 menit setiap kali di-load
             );
         } catch (\Exception $e) {
-            // Fallback jika driver tidak mendukung temporaryUrl
-            return Storage::disk($activeDisk)->url($path);
+            // Log errornya agar kita tahu kenapa gagal
+            \Illuminate\Support\Facades\Log::error('S3 Presigned URL Error: ' . $e->getMessage());
+            // Return error message directly to see it in the browser
+            return 'error-generating-url?msg=' . urlencode($e->getMessage());
         }
     }
 }
