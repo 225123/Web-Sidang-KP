@@ -133,11 +133,17 @@ class DosenPengujiController extends Controller
     private function mapPendaftaran($collection)
     {
         return $collection->map(function ($p) {
+            $ownKp = \App\Models\PendaftaranKp::where('mahasiswa_id', $p->mahasiswa_id)
+                ->where('status_kp', 'approved')
+                ->latest()
+                ->first();
+            $judul = $ownKp ? $ownKp->judul_kp : ($p->pendaftaranKp->judul_kp ?? '-');
+
             return [
                 'id' => $p->id,
                 'nim' => $p->mahasiswa->nim ?? '-',
                 'name' => strtolower($p->mahasiswa->user->name ?? '-'),
-                'judul' => strtolower($p->pendaftaranKp->judul_kp ?? '-'),
+                'judul' => strtolower($judul),
                 'pembimbing_id' => $p->pendaftaranKp->pembimbing_id ?? null,
                 'pembimbing_name' => strtolower($p->pendaftaranKp->pembimbing->name ?? '-'),
                 'tanggal' => $p->tanggal_sidang,
