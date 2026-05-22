@@ -60,8 +60,10 @@ class BackupController extends Controller
             // 1. Generate Excel Data
             $excelFileName = "Data_Lengkap_Periode_{$periodeNameSafe}.xlsx";
             $excelPath = $tmpDir . '/' . $excelFileName;
-            Excel::store(new ArchivedPeriodeExport($periodeId, $periode->label_tahun_ajaran), $excelFileName, 'local');
-            File::move(storage_path('app/' . $excelFileName), $excelPath);
+            
+            // Buat Ad-hoc disk untuk Vercel /tmp
+            config(['filesystems.disks.backup_tmp' => ['driver' => 'local', 'root' => $tmpDir]]);
+            Excel::store(new ArchivedPeriodeExport($periodeId, $periode->label_tahun_ajaran), $excelFileName, 'backup_tmp');
 
             // 2. Kumpulkan file dari Storj (S3)
             $kps = PendaftaranKp::withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId)->get();
