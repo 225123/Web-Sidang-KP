@@ -80,7 +80,7 @@ class ArchivedPeriodeExport implements FromCollection, WithHeadings, WithMapping
                 'dosen_pembimbing' => $kp?->pembimbing?->name ?? '-',
                 'status_kp' => $kp?->status_kp ?? '-',
                 'tanggal_sidang' => '-',
-                'nilai_akhir' => 0,
+                'nilai_akhir' => '0',
                 'grade' => 'E',
                 'status_kelulusan' => 'Lanjut',
             ]);
@@ -146,7 +146,7 @@ class ArchivedPeriodeExport implements FromCollection, WithHeadings, WithMapping
         $status = $sidang->status_kelulusan;
 
         if ($status === 'Lanjut' || $status === 'Tidak Lulus') {
-            return ['nilai' => 0, 'grade' => 'E'];
+            return ['nilai' => '0', 'grade' => 'E'];
         }
 
         $nilaiFinal = (float) $sidang->nilai_akhir;
