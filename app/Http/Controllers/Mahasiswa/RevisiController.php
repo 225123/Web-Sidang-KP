@@ -93,10 +93,10 @@ class RevisiController extends Controller
         if ($request->hasFile('file_revisi')) {
             $path = $request->file('file_revisi')->store('revisi_sidang', upload_disk());
             $sidang->file_revisi = $path;
-        }
-
-        if ($request->filled('link_revisi')) {
+            $sidang->link_revisi = null;
+        } elseif ($request->filled('link_revisi')) {
             $sidang->link_revisi = $request->link_revisi;
+            $sidang->file_revisi = null;
         }
 
         $sidang->status_revisi = 'Menunggu';

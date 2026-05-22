@@ -94,6 +94,10 @@ class PersetujuanSidangController extends Controller
 
         if ($request->hasFile('file_laporan')) {
             $dataToUpdate['file_laporan'] = $request->file('file_laporan')->store('laporan_kp', upload_disk());
+            $dataToUpdate['link_drive'] = null;
+        } elseif ($request->filled('link_drive')) {
+            $dataToUpdate['link_drive'] = $request->link_drive;
+            $dataToUpdate['file_laporan'] = null;
         }
 
         // Simpan atau update jika sudah ada (mencegah pendobelan row)
