@@ -59,8 +59,8 @@ class PersetujuanSidangController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'file_laporan' => 'required_without:link_drive|mimes:pdf|max:5120',
-            'link_drive' => 'required_without:file_laporan|url',
+            'file_laporan' => 'nullable|required_without:link_drive|mimes:pdf|max:5120',
+            'link_drive' => 'nullable|required_without:file_laporan|url',
         ]);
 
         $mahasiswaId = Auth::user()->id;
