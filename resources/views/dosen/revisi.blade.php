@@ -155,7 +155,7 @@
                                     <td class="py-3 px-4 text-center border-r border-gray-200">
                                         <div class="flex flex-col gap-2 items-center">
                                             <template x-if="sidang.file_revisi">
-                                                <a :href="'/storage/' + sidang.file_revisi" target="_blank"
+                                                <a :href="sidang.file_revisi_url" target="_blank"
                                                     class="text-blue-600 hover:underline font-bold flex items-center gap-1 text-[12px]">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                         viewBox="0 0 24 24">
@@ -358,10 +358,23 @@
             </div>
         </div>
 
+        @php
+            $mappedSidangs = $sidangs->map(function ($item) {
+                $arr = $item->toArray();
+                // Assign relasi manual agar tidak hilang saat di-toArray()
+                $arr['mahasiswa'] = $item->mahasiswa ? $item->mahasiswa->toArray() : null;
+                if ($item->mahasiswa && $item->mahasiswa->user) {
+                    $arr['mahasiswa']['user'] = $item->mahasiswa->user->toArray();
+                }
+                $arr['file_revisi_url'] = $item->file_revisi ? storage_url($item->file_revisi) : null;
+                return $arr;
+            });
+        @endphp
+
         <script>
             window.revisiPage = function() {
                 return {
-                    sidangs: @json($sidangs),
+                    sidangs: @json($mappedSidangs),
                     search: '',
                     filterStatus: 'all',
                     currentPage: 1,

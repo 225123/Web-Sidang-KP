@@ -86,14 +86,9 @@ class PersetujuanSidangController extends Controller
             return back()->with('error', 'Anda belum memiliki pendaftaran KP yang disetujui oleh Koordinator.');
         }
 
-        $dataToUpdate = [
-            'link_drive' => $request->link_drive,
-            'status_verifikasi' => 'pending', // Sesuai constraint DB ('pending', 'verified', 'rejected')
-            'status_koordinator' => 'unsubmitted', // Belum diajukan ke koordinator — hanya persetujuan dosen
-        ];
-
+        $filePath = null;
         if ($request->hasFile('file_laporan')) {
-            $dataToUpdate['file_laporan'] = $request->file('file_laporan')->store('laporan_kp', upload_disk());
+            $filePath = $request->file('file_laporan')->store('laporan_kp', upload_disk());
         }
 
         // Simpan atau update jika sudah ada (mencegah pendobelan row)
@@ -101,7 +96,12 @@ class PersetujuanSidangController extends Controller
         // tidak muncul di tabel Verifikasi Berkas Koordinator sebelum mahasiswa submit berkas final.
         PendaftaranSidang::updateOrCreate(
             ['pendaftaran_kp_id' => $pendaftaran->id, 'mahasiswa_id' => $mahasiswaId],
-            $dataToUpdate
+            [
+                'file_laporan' => $filePath,
+                'link_drive' => $request->link_drive,
+                'status_verifikasi' => 'pending', // Sesuai constraint DB ('pending', 'verified', 'rejected')
+                'status_koordinator' => 'unsubmitted', // Belum diajukan ke koordinator — hanya persetujuan dosen
+            ]
         );
 
         // --- Kirim Notifikasi ke Pembimbing ---

@@ -27,15 +27,6 @@
                     <span class="block sm:inline">{{ session('error') }}</span>
                 </div>
             @endif
-            @if($errors->any())
-                <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-                    <ul class="list-disc pl-5">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
 
             @if($persetujuan && $persetujuan->status_verifikasi == 'rejected')
                 <div class="mb-6 bg-[#FFEAEA] border border-red-400 rounded-[10px] p-4 flex gap-4 shadow-sm items-start">

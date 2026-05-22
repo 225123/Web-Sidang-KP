@@ -24,15 +24,6 @@
                 <span class="block sm:inline">{{ session('error') }}</span>
             </div>
         @endif
-        @if($errors->any())
-            <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-                <ul class="list-disc pl-5">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
 
         <div class="bg-[#D9D9D9] rounded-[10px] p-8 shadow-sm mb-12">
             <h3 class="text-[18px] font-bold text-black mb-6">Informasi Mahasiswa & Pengumpulan Berkas</h3>
@@ -192,7 +183,6 @@
                 second: '2-digit'
             }) + ' WIB';
         }
-    </script>
 
     <script>
         window.handleFileSelection = function(event, maxSize, callback) {
