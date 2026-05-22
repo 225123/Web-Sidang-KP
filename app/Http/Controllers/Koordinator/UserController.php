@@ -363,59 +363,119 @@ class UserController extends Controller
             'file_import.mimes' => 'Format file tidak valid! Pastikan file yang diunggah hanyalah berformat Excel (.xlsx atau .xls) berbahasa Indonesia.',
         ]);
 
-        // Mengambil data sebagai Array
         $data = Excel::toArray(new UsersImport, $request->file('file_import'));
+        $rows = $data[0] ?? []; 
 
-        $rows = $data[0] ?? []; // Ambil worksheet pertama
         $validRows = [];
-        $duplikatData = [];
+        $duplikatAtauDitolak = [];
 
-        $eksisEmails = User::pluck('email')->toArray();
+        // Ambil data eksisting untuk cek di memory (efisiensi)
+        $existingUsers = User::with(['mahasiswa'])->get();
+        $eksisEmails = $existingUsers->pluck('email')->toArray();
+        
         $eksisNids = DB::table('dosen')->pluck('nidn')->toArray();
         $eksisNims = DB::table('mahasiswa')->pluck('nim')->toArray();
         $eksisIds = array_merge($eksisNids, $eksisNims);
 
         foreach ($rows as $row) {
-            // Evaluasi baris kosong
-            if (! empty($row['nama']) && ! empty($row['email'])) {
+            if (!empty($row['nama']) && !empty($row['email'])) {
                 $role = strtolower(str_replace(' ', '_', $row['role'] ?? ''));
-                $isDuplicateEmail = in_array(strtolower($row['email']), array_map('strtolower', $eksisEmails));
-                $isDuplicateId = in_array($row['id'], $eksisIds);
+                $rowId = (string)$row['id'];
+                $rowEmail = strtolower($row['email']);
+
+                // Cek apakah mahasiswa ini sudah ada
+                if ($role === 'mahasiswa' && in_array($rowId, $eksisNims)) {
+                    $userRecord = $existingUsers->where('email', $rowEmail)->first();
+                    // Jika beda email, mungkin konflik
+                    if (!$userRecord) {
+                        $mhsRecord = DB::table('mahasiswa')->where('nim', $rowId)->first();
+                        $userRecord = $existingUsers->where('id', $mhsRecord->user_id)->first();
+                    }
+
+                    // Cek kelayakan mahasiswa eksisting untuk mengulang
+                    $latestKp = DB::table('pendaftaran_kp')
+                        ->where('mahasiswa_id', $userRecord->id)
+                        ->orderBy('id', 'desc')
+                        ->first();
+
+                    $isAllowed = false;
+                    if (!$latestKp) {
+                        $isAllowed = true;
+                    } else {
+                        $latestSidang = DB::table('pendaftaran_sidang')
+                            ->where('pendaftaran_kp_id', $latestKp->id)
+                            ->first();
+
+                        if (!$latestSidang) {
+                            $isAllowed = true;
+                        } else {
+                            if (in_array($latestSidang->status_kelulusan, ['Lanjut', 'Tidak Lulus'])) {
+                                $isAllowed = true;
+                            } elseif (in_array($latestSidang->grade, ['D', 'E'])) {
+                                $isAllowed = true;
+                            }
+                        }
+                    }
+
+                    if (!$isAllowed) {
+                        $duplikatAtauDitolak[] = [
+                            'nama' => $row['nama'],
+                            'id' => $rowId,
+                            'email' => $rowEmail,
+                            'role' => $role,
+                            'keterangan' => 'Ditolak: Mahasiswa ini sudah dinyatakan Lulus di periode sebelumnya.'
+                        ];
+                        continue;
+                    }
+
+                    // Jika diizinkan mengulang, masukkan ke validRows tapi dengan tanda 'is_update'
+                    $validRows[] = [
+                        'nama' => $row['nama'],
+                        'id' => $rowId,
+                        'email' => $rowEmail,
+                        'role' => $role,
+                        'is_update' => true, // Flag untuk update
+                        'user_id' => $userRecord->id
+                    ];
+                    continue;
+                }
+
+                // Cek Dosen/Koordinator atau konflik email bagi user baru
+                $isDuplicateEmail = in_array($rowEmail, array_map('strtolower', $eksisEmails));
+                $isDuplicateId = in_array($rowId, $eksisIds);
 
                 if ($isDuplicateEmail || $isDuplicateId) {
-                    $duplikatData[] = [
+                    $duplikatAtauDitolak[] = [
                         'nama' => $row['nama'],
-                        'id' => $row['id'],
-                        'email' => $row['email'],
+                        'id' => $rowId,
+                        'email' => $rowEmail,
                         'role' => $role,
-                        'is_duplicate_email' => $isDuplicateEmail,
-                        'is_duplicate_id' => $isDuplicateId,
+                        'keterangan' => 'Duplikat ID atau Email dengan pengguna lain.'
                     ];
-
                     continue;
                 }
 
                 $validRows[] = [
                     'nama' => $row['nama'],
-                    'id' => $row['id'],
-                    'email' => $row['email'],
+                    'id' => $rowId,
+                    'email' => $rowEmail,
                     'role' => $role,
+                    'is_update' => false
                 ];
 
-                $eksisEmails[] = $row['email'];
-                $eksisIds[] = $row['id'];
+                $eksisEmails[] = $rowEmail;
+                $eksisIds[] = $rowId;
             }
         }
 
-        if (empty($validRows) && empty($duplikatData)) {
+        if (empty($validRows) && empty($duplikatAtauDitolak)) {
             return back()->with('error', 'File tidak memiliki baris data yang valid! Pastikan Anda mengisi kolom nama dan email.');
         }
 
-        if (count($duplikatData) > 0) {
-            session()->now('duplicateRows', $duplikatData);
+        if (count($duplikatAtauDitolak) > 0) {
+            session()->now('duplicateRows', $duplikatAtauDitolak);
         }
 
-        // Menyimpan array ke dalam session untuk ditampilkan di halaman preview
         session(['import_users_preview' => $validRows]);
 
         return view('koordinator.manajemen-user-preview-import-user', compact('validRows'));
@@ -432,77 +492,59 @@ class UserController extends Controller
             return redirect()->route('koordinator.manajemen-akses')->with('error', 'Tidak ada data user yang dikirim untuk diimport.');
         }
 
-        $eksisEmails = User::pluck('email')->toArray();
-        $eksisNids = DB::table('dosen')->pluck('nidn')->toArray();
-        $eksisNims = DB::table('mahasiswa')->pluck('nim')->toArray();
-        $eksisIds = array_merge($eksisNids, $eksisNims);
+        $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id;
 
-        $duplikatData = [];
-        $validRowsFinal = [];
+        DB::transaction(function () use ($rows, $activePeriodId) {
+            foreach ($rows as $row) {
+                if (empty($row['nama']) || empty($row['email'])) {
+                    continue;
+                }
 
-        foreach ($rows as $row) {
-            if (empty($row['nama']) || empty($row['email'])) {
-                continue; // skip if somehow empty
-            }
+                $isUpdate = isset($row['is_update']) && $row['is_update'] == '1';
 
-            if (in_array(strtolower($row['email']), array_map('strtolower', $eksisEmails)) || in_array($row['id'], $eksisIds)) {
-                $duplikatData[] = [
-                    'nama' => $row['nama'],
-                    'id' => $row['id'],
-                    'email' => $row['email'],
-                    'role' => $row['role'],
-                ];
-
-                continue; // Skip the insertion for this row if duplicate
-            }
-
-            $validRowsFinal[] = $row;
-            // Add to simulated existing arrays so we catch duplicates WITHIN the imported file itself
-            $eksisEmails[] = $row['email'];
-            $eksisIds[] = $row['id'];
-        }
-
-        if (empty($validRowsFinal) && count($duplikatData) > 0) {
-            return redirect()->route('koordinator.manajemen-akses')->with('error', 'Semua data gagal diimport karena Duplikat email atau ID.');
-        }
-
-        DB::transaction(function () use ($validRowsFinal) {
-            foreach ($validRowsFinal as $row) {
-                // 1. Simpan ke tabel users
-                $user = User::create([
-                    'name'     => $row['nama'],
-                    'email'    => $row['email'],
-                    'password' => bcrypt($row['id']), // Password default disamakan dengan ID (NIM/NIDN/NIDK)
-                    'role'     => strtolower(str_replace(' ', '_', $row['role'])),
-                ]);
-
-                // 2. Simpan ke tabel detail
-                if ($user->role === 'mahasiswa') {
-                    DB::table('mahasiswa')->insert([
-                        'user_id' => $user->id,
-                        'nim' => $row['id'],
+                if ($isUpdate && isset($row['user_id'])) {
+                    // Update user eksisting (Mahasiswa Mengulang)
+                    User::where('id', $row['user_id'])->update([
+                        'name' => $row['nama'],
                         'email' => $row['email'],
-                        'prodi' => 'Informatika',
-                        'tahun_ajaran_id' => session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id,
-                        'status_mahasiswa' => 'baru',
                     ]);
-                } elseif (in_array($user->role, ['dosen', 'koordinator_kp'])) {
-                    DB::table('dosen')->insert([
-                        'user_id' => $user->id,
-                        'nidn' => $row['id'],
-                        'is_aktif' => true,
+                    DB::table('mahasiswa')->where('user_id', $row['user_id'])->update([
+                        'email' => $row['email'],
+                        'tahun_ajaran_id' => $activePeriodId,
+                        'status_mahasiswa' => 'lanjut',
                     ]);
+                } else {
+                    // Create user baru
+                    $user = User::create([
+                        'name'     => $row['nama'],
+                        'email'    => $row['email'],
+                        'password' => bcrypt($row['id']),
+                        'role'     => strtolower(str_replace(' ', '_', $row['role'])),
+                    ]);
+
+                    if ($user->role === 'mahasiswa') {
+                        DB::table('mahasiswa')->insert([
+                            'user_id' => $user->id,
+                            'nim' => $row['id'],
+                            'email' => $row['email'],
+                            'prodi' => 'Informatika',
+                            'tahun_ajaran_id' => $activePeriodId,
+                            'status_mahasiswa' => 'baru',
+                        ]);
+                    } elseif (in_array($user->role, ['dosen', 'koordinator_kp'])) {
+                        DB::table('dosen')->insert([
+                            'user_id' => $user->id,
+                            'nidn' => $row['id'],
+                            'is_aktif' => true,
+                        ]);
+                    }
                 }
             }
         });
 
         session()->forget('import_users_preview');
 
-        if (count($duplikatData) > 0) {
-            return redirect()->route('koordinator.manajemen-akses')->with('success', count($validRowsFinal).' user berhasil didaftarkan. Beberapa dilewati karena duplikat.');
-        }
-
-        return redirect()->route('koordinator.manajemen-akses')->with('success', 'Seluruh data user ('.count($validRowsFinal).') berhasil diimport dan didaftarkan.');
+        return redirect()->route('koordinator.manajemen-akses')->with('success', 'Pendaftaran dan pembaruan '.count($rows).' data user berhasil dieksekusi secara penuh!');
     }
 
     /**
