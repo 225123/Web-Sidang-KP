@@ -35,6 +35,7 @@
                 'link_deploy' => $item->link_deploy,
                 'feedback' => $item->koordinator_feedback,
                 'token_penilaian_supervisor' => $item->token_penilaian_supervisor,
+                'jenis_instansi' => $item->pendaftaranKp->jenis_instansi ?? null,
             ];
         };
 
@@ -349,6 +350,22 @@
                                                             <a :href="row.link_deploy" target="_blank" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white border border-transparent text-[9px] font-bold rounded-[5px] transition-colors uppercase tracking-wider flex items-center gap-1">Buka <span>&rarr;</span></a>
                                                         </template>
                                                     </div>
+
+                                                    <!-- Penilaian Supervisor -->
+                                                    <template x-if="row.jenis_instansi === 'External' && row.token_penilaian_supervisor">
+                                                        <div class="flex items-center justify-between p-3 bg-white border border-orange-200 rounded-[8px] shadow-sm">
+                                                            <div class="flex items-center gap-3">
+                                                                <div class="w-8 h-8 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                                                </div>
+                                                                <div class="flex flex-col">
+                                                                    <span class="text-[11px] font-bold text-orange-700">Link Penilaian</span>
+                                                                    <span class="text-[10px] text-orange-600 font-medium truncate max-w-[70px]">Supervisor</span>
+                                                                </div>
+                                                            </div>
+                                                            <button type="button" @click="navigator.clipboard.writeText('{{ url('/penilaian-supervisor/') }}/' + row.token_penilaian_supervisor); window.showGlobalAlert('Berhasil', 'Link Penilaian Supervisor berhasil disalin!', 'info')" class="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white border border-transparent text-[9px] font-bold rounded-[5px] transition-colors uppercase tracking-wider flex items-center gap-1">Salin <span>&rarr;</span></button>
+                                                        </div>
+                                                    </template>
 
                                                 </div>
                                             </div>

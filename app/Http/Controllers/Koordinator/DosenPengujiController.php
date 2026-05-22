@@ -372,18 +372,6 @@ class DosenPengujiController extends Controller
                 'pesan' => "Anda telah ditugaskan sebagai Penguji 2 untuk sidang mahasiswa " . ($sidang->mahasiswa->user->name ?? '') . ". Silakan cek Jadwal Menguji.",
                 'target_url' => route('dosen.jadwal-menguji'),
             ]);
-
-            // --- Kirim Email ke Supervisor Instansi ---
-            $sidang->loadMissing('pendaftaranKp.supervisorInstansi');
-            $supervisorEmail = $sidang->pendaftaranKp->supervisorInstansi->email_supervisor ?? null;
-            if ($supervisorEmail) {
-                $urlPenilaian = route('supervisor.penilaian.form', ['token' => $sidang->token_penilaian_supervisor]);
-                try {
-                    Mail::to($supervisorEmail)->send(new SupervisorPenilaianMail($sidang, $urlPenilaian));
-                } catch (\Exception $e) {
-                    return redirect()->back()->with('error', 'Penugasan berhasil disubmit, namun pengiriman email ke Supervisor (' . $supervisorEmail . ') GAGAL: ' . $e->getMessage());
-                }
-            }
         }
 
         return redirect()->back()->with('success', 'Penugasan penguji telah berhasil disubmit.');
