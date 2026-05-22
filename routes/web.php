@@ -194,11 +194,10 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'role:ko
     // 12. Audit Log (Koordinator)
     Route::get('/audit-log', [App\Http\Controllers\Koordinator\AuditLogController::class, 'index'])->name('audit-log.index');
 
-    // 13. Backup Database (Koordinator)
+    // 13. Manajemen Penyimpanan & Arsip (Koordinator)
     Route::get('/backup', [App\Http\Controllers\Koordinator\BackupController::class, 'index'])->name('backup.index');
-    Route::post('/backup/store', [App\Http\Controllers\Koordinator\BackupController::class, 'store'])->name('backup.store');
-    Route::get('/backup/download/{filename}', [App\Http\Controllers\Koordinator\BackupController::class, 'download'])->name('backup.download');
-    Route::delete('/backup/{filename}', [App\Http\Controllers\Koordinator\BackupController::class, 'destroy'])->name('backup.destroy');
+    Route::post('/backup/download', [App\Http\Controllers\Koordinator\BackupController::class, 'downloadZip'])->name('backup.download');
+    Route::delete('/backup/purge', [App\Http\Controllers\Koordinator\BackupController::class, 'purgePeriode'])->name('backup.purge');
 
     // 12. Pengumuman (Koordinator)
     Route::get('/pengumuman', [PengumumanController::class, 'index'])->name('pengumuman.index');

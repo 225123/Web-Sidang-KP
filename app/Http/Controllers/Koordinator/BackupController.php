@@ -6,122 +6,152 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use App\Models\TahunAjaran;
+use App\Models\Mahasiswa;
+use App\Models\PendaftaranKp;
+use App\Models\PendaftaranSidang;
+use App\Exports\ArchivedPeriodeExport;
+use Maatwebsite\Excel\Facades\Excel;
+use ZipArchive;
 
 class BackupController extends Controller
 {
-    protected $backupPath = 'backups';
-
     public function index()
     {
-        // Ensure directory exists
-        if (!Storage::exists($this->backupPath)) {
-            Storage::makeDirectory($this->backupPath);
-        }
-
-        $files = Storage::files($this->backupPath);
-        $backups = [];
-
-        foreach ($files as $file) {
-            if (pathinfo($file, PATHINFO_EXTENSION) === 'sql') {
-                $backups[] = [
-                    'name' => basename($file),
-                    'size' => $this->formatBytes(Storage::size($file)),
-                    'date' => Carbon::createFromTimestamp(Storage::lastModified($file))->format('d M Y - H:i'),
-                    'status' => 'Sukses',
-                    'raw_date' => Storage::lastModified($file)
-                ];
-            }
-        }
-
-        // Sort by date latest
-        usort($backups, fn($a, $b) => $b['raw_date'] <=> $a['raw_date']);
-
-        $lastBackup = !empty($backups) ? $backups[0]['date'] . ' WIB' : 'Belum pernah';
+        $periodes = TahunAjaran::orderBy('created_at', 'desc')->get();
         
-        // Calculate storage: Current Database Size vs 3GB
-        $dbPath = database_path('database.sqlite');
-        $dbSize = File::exists($dbPath) ? File::size($dbPath) : 0;
-        $maxCapacity = 3 * 1024 * 1024 * 1024; // 3GB
+        // Cek kapasitas database (PostgreSQL)
+        $dbSize = 'Tidak diketahui';
+        try {
+            $dbName = env('DB_DATABASE');
+            $sizeResult = DB::selectOne("SELECT pg_size_pretty(pg_database_size(?)) as size", [$dbName]);
+            if ($sizeResult) {
+                $dbSize = $sizeResult->size;
+            }
+        } catch (\Exception $e) {
+            // Abaikan jika query tidak kompatibel
+        }
 
-        $capacityInfo = [
-            'used' => $this->formatBytes($dbSize),
-            'total' => '3,0 GB',
-            'percent' => round(($dbSize / $maxCapacity) * 100, 2)
-        ];
-
-        return view('koordinator.backup', compact('backups', 'lastBackup', 'capacityInfo'));
+        return view('koordinator.backup', compact('periodes', 'dbSize'));
     }
 
-    public function store()
+    public function downloadZip(Request $request)
     {
+        $request->validate(['periode_id' => 'required']);
+        $periodeId = $request->periode_id;
+        $periode = TahunAjaran::findOrFail($periodeId);
+
+        $periodeNameSafe = str_replace('/', '_', $periode->nama_tahun_ajaran);
+        $zipFileName = "Backup_KP_Periode_{$periodeNameSafe}.zip";
+        
+        // Buat folder temporary
+        $tmpDir = sys_get_temp_dir() . '/backup_' . uniqid();
+        File::makeDirectory($tmpDir, 0755, true);
+
         try {
-            $tables = \DB::select("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
-            $sqlDump = "-- Database Backup\n-- Date: " . now()->toDateTimeString() . "\n\n";
-            $sqlDump .= "PRAGMA foreign_keys=OFF;\n";
+            // 1. Generate Excel Data
+            $excelFileName = "Data_Lengkap_Periode_{$periodeNameSafe}.xlsx";
+            $excelPath = $tmpDir . '/' . $excelFileName;
+            Excel::store(new ArchivedPeriodeExport($periodeId, $periode->nama_tahun_ajaran), $excelFileName, 'local');
+            File::move(storage_path('app/' . $excelFileName), $excelPath);
 
-            foreach ($tables as $table) {
-                $tableName = $table->name;
-                
-                // Get Create Table Statement
-                $createTable = \DB::selectOne("SELECT sql FROM sqlite_master WHERE type='table' AND name = ?", [$tableName]);
-                $sqlDump .= "\n-- Table: $tableName\n";
-                $sqlDump .= "DROP TABLE IF EXISTS \"$tableName\";\n";
-                $sqlDump .= $createTable->sql . ";\n";
+            // 2. Kumpulkan file dari Storj (S3)
+            $kps = PendaftaranKp::withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId)->get();
+            $sidangs = PendaftaranSidang::withoutGlobalScope('periode')
+                ->whereIn('pendaftaran_kp_id', $kps->pluck('id'))
+                ->get();
 
-                // Get Data
-                $rows = \DB::table($tableName)->get();
-                foreach ($rows as $row) {
-                    $rowArray = (array)$row;
-                    $columns = implode('", "', array_keys($rowArray));
-                    $values = array_map(function($value) {
-                        if (is_null($value)) return 'NULL';
-                        return "'" . str_replace("'", "''", $value) . "'";
-                    }, array_values($rowArray));
-                    
-                    $sqlDump .= "INSERT INTO \"$tableName\" (\"$columns\") VALUES (" . implode(', ', $values) . ");\n";
+            $subDirs = ['File_Laporan_KP', 'File_Logbook', 'File_Revisi_Sidang'];
+            foreach ($subDirs as $dir) {
+                File::makeDirectory($tmpDir . '/' . $dir, 0755, true);
+            }
+
+            foreach ($kps as $kp) {
+                if ($kp->file_laporan && Storage::disk('s3')->exists($kp->file_laporan)) {
+                    $content = Storage::disk('s3')->get($kp->file_laporan);
+                    File::put($tmpDir . '/File_Laporan_KP/' . basename($kp->file_laporan), $content);
+                }
+                if ($kp->file_logbook && Storage::disk('s3')->exists($kp->file_logbook)) {
+                    $content = Storage::disk('s3')->get($kp->file_logbook);
+                    File::put($tmpDir . '/File_Logbook/' . basename($kp->file_logbook), $content);
                 }
             }
 
-            $sqlDump .= "\nPRAGMA foreign_keys=ON;";
+            foreach ($sidangs as $sidang) {
+                if ($sidang->file_revisi && Storage::disk('s3')->exists($sidang->file_revisi)) {
+                    $content = Storage::disk('s3')->get($sidang->file_revisi);
+                    File::put($tmpDir . '/File_Revisi_Sidang/' . basename($sidang->file_revisi), $content);
+                }
+            }
 
-            $timestamp = Carbon::now()->format('Y-m-d_H-i-s');
-            $backupName = "Backup_SidangKP_{$timestamp}.sql";
-            
-            Storage::put($this->backupPath . '/' . $backupName, $sqlDump);
+            // 3. Buat ZIP
+            $zipPath = sys_get_temp_dir() . '/' . $zipFileName;
+            $zip = new ZipArchive;
+            if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+                $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($tmpDir));
+                foreach ($files as $name => $file) {
+                    if (!$file->isDir()) {
+                        $filePath = $file->getRealPath();
+                        $relativePath = substr($filePath, strlen($tmpDir) + 1);
+                        $zip->addFile($filePath, $relativePath);
+                    }
+                }
+                $zip->close();
+            }
 
-            return back()->with('success', 'Backup database (.sql) berhasil dibuat.');
+            // Bersihkan tmpDir
+            File::deleteDirectory($tmpDir);
+
+            // Return ZIP Download
+            return response()->download($zipPath)->deleteFileAfterSend(true);
+
         } catch (\Exception $e) {
+            // Bersihkan tmpDir jika error
+            if (File::exists($tmpDir)) {
+                File::deleteDirectory($tmpDir);
+            }
             return back()->with('error', 'Gagal membuat backup: ' . $e->getMessage());
         }
     }
 
-    public function download($filename)
+    public function purgePeriode(Request $request)
     {
-        $path = $this->backupPath . '/' . $filename;
-        if (Storage::exists($path)) {
-            return Storage::download($path);
-        }
-        return back()->with('error', 'File tidak ditemukan.');
-    }
+        $request->validate(['periode_id' => 'required', 'konfirmasi' => 'required|in:HAPUS']);
+        $periodeId = $request->periode_id;
+        $periode = TahunAjaran::findOrFail($periodeId);
 
-    public function destroy($filename)
-    {
-        $path = $this->backupPath . '/' . $filename;
-        if (Storage::exists($path)) {
-            Storage::delete($path);
-            return back()->with('success', 'Backup berhasil dihapus.');
-        }
-        return back()->with('error', 'Gagal menghapus file.');
-    }
+        try {
+            DB::beginTransaction();
 
-    private function formatBytes($bytes, $precision = 2)
-    {
-        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-        $bytes = max($bytes, 0);
-        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-        $pow = min($pow, count($units) - 1);
-        $bytes /= pow(1024, $pow);
-        return round($bytes, $precision) . ' ' . $units[$pow];
+            $kps = PendaftaranKp::withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId)->get();
+            $sidangs = PendaftaranSidang::withoutGlobalScope('periode')
+                ->whereIn('pendaftaran_kp_id', $kps->pluck('id'))
+                ->get();
+
+            // 1. Hapus File dari S3
+            foreach ($kps as $kp) {
+                if ($kp->file_laporan) Storage::disk('s3')->delete($kp->file_laporan);
+                if ($kp->file_logbook) Storage::disk('s3')->delete($kp->file_logbook);
+            }
+            foreach ($sidangs as $sidang) {
+                if ($sidang->file_revisi) Storage::disk('s3')->delete($sidang->file_revisi);
+            }
+
+            // 2. Hapus Data dari Database
+            // Hapus Pendaftaran Sidang
+            PendaftaranSidang::withoutGlobalScope('periode')->whereIn('pendaftaran_kp_id', $kps->pluck('id'))->delete();
+            // Hapus Pendaftaran KP
+            PendaftaranKp::withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId)->delete();
+            // Hapus Mahasiswa
+            Mahasiswa::where('tahun_ajaran_id', $periodeId)->delete();
+
+            DB::commit();
+
+            return back()->with('success', 'Semua data dan file dari periode ' . $periode->nama_tahun_ajaran . ' berhasil dihapus permanen.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal membersihkan data: ' . $e->getMessage());
+        }
     }
 }
