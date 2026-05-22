@@ -378,7 +378,11 @@ class DosenPengujiController extends Controller
             $supervisorEmail = $sidang->pendaftaranKp->supervisorInstansi->email_supervisor ?? null;
             if ($supervisorEmail) {
                 $urlPenilaian = route('supervisor.penilaian.form', ['token' => $sidang->token_penilaian_supervisor]);
-                Mail::to($supervisorEmail)->send(new SupervisorPenilaianMail($sidang, $urlPenilaian));
+                try {
+                    Mail::to($supervisorEmail)->send(new SupervisorPenilaianMail($sidang, $urlPenilaian));
+                } catch (\Exception $e) {
+                    return redirect()->back()->with('error', 'Penugasan berhasil disubmit, namun pengiriman email ke Supervisor (' . $supervisorEmail . ') GAGAL: ' . $e->getMessage());
+                }
             }
         }
 
