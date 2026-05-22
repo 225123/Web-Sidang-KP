@@ -1,6 +1,6 @@
-<x-dashboard-layout title="Manajemen Penyimpanan & Arsip">
-    <x-slot name="sidebar">
-        @include('koordinator.sidebar')
+<x-dashboard-layout header="Manajemen Penyimpanan & Arsip" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR KP">
+    <x-slot:sidebar>
+        @include('koordinator.components.sidebar', ['active' => 'backup'])
     </x-slot>
     <div class="sm:flex sm:items-center sm:justify-between mb-8">
         <div>
