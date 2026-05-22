@@ -71,6 +71,22 @@ class ArchivedPeriodeExport implements FromCollection, WithHeadings, WithMapping
                 ->first();
         }
 
+        $statusKelulusan = '-';
+        $nilaiDisplay = '-';
+        $gradeDisplay = '-';
+
+        if ($sidang && in_array($sidang->status_kelulusan, ['Lulus', 'Lulus Dengan Revisi', 'Lanjut', 'Tidak Lulus'])) {
+            $logic = $this->calculateFinalLogic($sidang);
+            $statusKelulusan = $sidang->status_kelulusan === 'Tidak Lulus' ? 'Lanjut' : $sidang->status_kelulusan;
+            $nilaiDisplay = $logic['nilai'];
+            $gradeDisplay = $logic['grade'];
+        } else {
+            // Mahasiswa tanpa sidang atau yang belum finalisasi otomatis dianggap Lanjut
+            $statusKelulusan = 'Lanjut';
+            $nilaiDisplay = 0;
+            $gradeDisplay = 'E';
+        }
+
         return [
             $no++,
             $mhs->nim,
@@ -82,9 +98,9 @@ class ArchivedPeriodeExport implements FromCollection, WithHeadings, WithMapping
             $kp->pembimbing->name ?? '-',
             $kp->status_kp ?? '-',
             $sidang && $sidang->tanggal_sidang ? \Carbon\Carbon::parse($sidang->tanggal_sidang)->format('d M Y') : '-',
-            $sidang->nilai_akhir ?? '-',
-            $this->calculateGrade($sidang),
-            $sidang->status_kelulusan ?? '-',
+            $nilaiDisplay,
+            $gradeDisplay,
+            $statusKelulusan,
         ];
     }
 
@@ -101,13 +117,37 @@ class ArchivedPeriodeExport implements FromCollection, WithHeadings, WithMapping
         ];
     }
 
-    private function calculateGrade($sidang)
+    private function calculateFinalLogic($sidang)
     {
-        if (!$sidang) return '-';
-        if ($sidang->status_kelulusan === 'Lanjut' || $sidang->status_kelulusan === 'Tidak Lulus') return 'E';
-        if ($sidang->nilai_akhir <= 0) return '-';
+        $status = $sidang->status_kelulusan;
 
-        $nilai = $sidang->nilai_akhir;
+        if ($status === 'Lanjut' || $status === 'Tidak Lulus') {
+            return ['nilai' => 0, 'grade' => 'E'];
+        }
+
+        $nilaiFinal = (float) $sidang->nilai_akhir;
+
+        if ($nilaiFinal <= 0) {
+            $pembimbing = (float) ($sidang->nilai_pembimbing ?? 0) * 0.4;
+            $supervisor = (float) ($sidang->nilai_supervisor ?? 0) * 0.1;
+            $penguji1 = (float) ($sidang->nilai_penguji_1 ?? 0) * 0.25;
+            $penguji2 = (float) ($sidang->nilai_penguji_2 ?? 0) * 0.25;
+            $nilaiFinal = $pembimbing + $supervisor + $penguji1 + $penguji2;
+        }
+
+        $revisiVerified = ($sidang->status_revisi === 'Disahkan' || $sidang->status_revisi === 'Diterima');
+        $originalGrade = $this->getGradeFromScore($nilaiFinal);
+        $finalGrade = $originalGrade;
+
+        if ($status === 'Lulus Dengan Revisi' && !$revisiVerified) {
+            $finalGrade = $this->getPenalizedGrade($originalGrade);
+        }
+
+        return ['nilai' => $nilaiFinal, 'grade' => $finalGrade];
+    }
+
+    private function getGradeFromScore($nilai)
+    {
         if ($nilai >= 86) return 'A';
         if ($nilai >= 81) return 'A-';
         if ($nilai >= 76) return 'B+';
@@ -117,5 +157,12 @@ class ArchivedPeriodeExport implements FromCollection, WithHeadings, WithMapping
         if ($nilai >= 56) return 'C';
         if ($nilai >= 46) return 'D';
         return 'E';
+    }
+
+    private function getPenalizedGrade($grade)
+    {
+        $grades = ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'D', 'E'];
+        $index = array_search($grade, $grades);
+        return $grades[min($index + 3, count($grades) - 1)];
     }
 }
