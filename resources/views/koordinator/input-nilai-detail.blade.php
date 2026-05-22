@@ -271,13 +271,23 @@
 
                 sanitize(val) {
                     // Convert comma to dot
-                    let sanitized = val.replace(',', '.');
+                    let sanitized = val.replace(/,/g, '.');
                     // Allow only digits and one dot
                     sanitized = sanitized.replace(/[^0-9.]/g, '');
                     const parts = sanitized.split('.');
                     if (parts.length > 2) sanitized = parts[0] + '.' + parts.slice(1).join('');
                     // Limit to 3 decimals
                     if (parts.length > 1) sanitized = parts[0] + '.' + parts[1].substring(0, 3);
+
+                    // Auto-desimal: sisipkan titik pada digit ke-3, kecuali '100'
+                    const partsNow = sanitized.split('.');
+                    if (partsNow.length === 1) {
+                        if (sanitized.length === 3 && sanitized !== '100') {
+                            sanitized = sanitized.substring(0, 2) + '.' + sanitized.substring(2);
+                        } else if (sanitized.length > 3 && sanitized.substring(0, 3) !== '100') {
+                            sanitized = sanitized.substring(0, 2) + '.' + sanitized.substring(2, 5);
+                        }
+                    }
                     
                     // Smart Capping while typing
                     let num = parseFloat(sanitized);
