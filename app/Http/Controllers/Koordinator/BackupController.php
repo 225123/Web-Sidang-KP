@@ -11,6 +11,7 @@ use App\Models\TahunAjaran;
 use App\Models\Mahasiswa;
 use App\Models\PendaftaranKp;
 use App\Models\PendaftaranSidang;
+use App\Models\BackupHistory;
 use App\Exports\ArchivedPeriodeExport;
 use Maatwebsite\Excel\Facades\Excel;
 use ZipArchive;
@@ -40,7 +41,9 @@ class BackupController extends Controller
         $storjMax = '25 GB'; // Storj Free Tier Limit
         $neonMax = '500 MB'; // Neon Free Tier Limit
 
-        return view('koordinator.backup', compact('periodes', 'dbSize', 'neonMax', 'storjFilesCount', 'storjMax'));
+        $histories = BackupHistory::with('tahunAjaran', 'koordinator')->latest()->get();
+
+        return view('koordinator.backup', compact('periodes', 'dbSize', 'neonMax', 'storjFilesCount', 'storjMax', 'histories'));
     }
 
     public function downloadZip(Request $request)
@@ -105,13 +108,18 @@ class BackupController extends Controller
                     }
                 }
                 $zip->close();
+            } else {
+                return back()->with('error', 'Gagal membuat file ZIP.');
             }
 
-            // Bersihkan tmpDir
-            File::deleteDirectory($tmpDir);
+            // Catat ke riwayat
+            BackupHistory::create([
+                'koordinator_id' => auth()->id(),
+                'tahun_ajaran_id' => $periodeId,
+                'file_name' => $zipFileName,
+            ]);
 
-            // Return ZIP Download
-            return response()->download($zipPath)->deleteFileAfterSend(true);
+            return response()->download($zipPath, $zipFileName)->deleteFileAfterSend(true);
 
         } catch (\Exception $e) {
             // Bersihkan tmpDir jika error
