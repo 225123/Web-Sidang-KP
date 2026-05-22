@@ -210,9 +210,9 @@
                 bukaPeriode() {
                     this.triggerConfirm({
                         title: 'Buka Periode Baru',
-                        message: 'Buka periode {{ $nextPeriod["label"] }}? Periode aktif saat ini akan ditutup secara otomatis.',
+                        message: 'Apakah Anda Koordinator KP yang resmi ditunjuk untuk periode {{ $nextPeriod["label"] }}? Membuka periode ini akan mengaitkan akun Anda sebagai penanggung jawab (termasuk cetak tanda tangan dokumen PDF) dan otomatis menutup periode berjalan.',
                         type: 'info',
-                        confirmText: 'Buka Periode',
+                        confirmText: 'Ya, Saya Koordinator Resmi',
                         callback: () => {
                             document.getElementById('formBukaPeriode').submit();
                         }
