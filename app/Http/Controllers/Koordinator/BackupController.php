@@ -34,8 +34,8 @@ class BackupController extends Controller
         }
         
         // Hitung estimasi berkas di Storj
-        $storjFilesCount = PendaftaranKp::whereNotNull('file_laporan')->count() +
-                           PendaftaranKp::whereNotNull('file_logbook')->count() +
+        $storjFilesCount = PendaftaranSidang::whereNotNull('file_laporan')->count() +
+                           PendaftaranSidang::whereNotNull('file_log_bimbingan')->count() +
                            PendaftaranSidang::whereNotNull('file_revisi')->count();
         $storjMax = '25 GB'; // Storj Free Tier Limit
         $neonMax = '500 MB'; // Neon Free Tier Limit
@@ -74,18 +74,15 @@ class BackupController extends Controller
                 File::makeDirectory($tmpDir . '/' . $dir, 0755, true);
             }
 
-            foreach ($kps as $kp) {
-                if ($kp->file_laporan && Storage::disk('s3')->exists($kp->file_laporan)) {
-                    $content = Storage::disk('s3')->get($kp->file_laporan);
-                    File::put($tmpDir . '/File_Laporan_KP/' . basename($kp->file_laporan), $content);
-                }
-                if ($kp->file_logbook && Storage::disk('s3')->exists($kp->file_logbook)) {
-                    $content = Storage::disk('s3')->get($kp->file_logbook);
-                    File::put($tmpDir . '/File_Logbook/' . basename($kp->file_logbook), $content);
-                }
-            }
-
             foreach ($sidangs as $sidang) {
+                if ($sidang->file_laporan && Storage::disk('s3')->exists($sidang->file_laporan)) {
+                    $content = Storage::disk('s3')->get($sidang->file_laporan);
+                    File::put($tmpDir . '/File_Laporan_KP/' . basename($sidang->file_laporan), $content);
+                }
+                if ($sidang->file_log_bimbingan && Storage::disk('s3')->exists($sidang->file_log_bimbingan)) {
+                    $content = Storage::disk('s3')->get($sidang->file_log_bimbingan);
+                    File::put($tmpDir . '/File_Logbook/' . basename($sidang->file_log_bimbingan), $content);
+                }
                 if ($sidang->file_revisi && Storage::disk('s3')->exists($sidang->file_revisi)) {
                     $content = Storage::disk('s3')->get($sidang->file_revisi);
                     File::put($tmpDir . '/File_Revisi_Sidang/' . basename($sidang->file_revisi), $content);
@@ -137,11 +134,12 @@ class BackupController extends Controller
                 ->get();
 
             // 1. Hapus File dari S3
-            foreach ($kps as $kp) {
-                if ($kp->file_laporan) Storage::disk('s3')->delete($kp->file_laporan);
-                if ($kp->file_logbook) Storage::disk('s3')->delete($kp->file_logbook);
-            }
             foreach ($sidangs as $sidang) {
+                if ($sidang->file_laporan) Storage::disk('s3')->delete($sidang->file_laporan);
+                if ($sidang->file_log_bimbingan) Storage::disk('s3')->delete($sidang->file_log_bimbingan);
+                if ($sidang->file_persetujuan_pembimbing) Storage::disk('s3')->delete($sidang->file_persetujuan_pembimbing);
+                if ($sidang->file_nilai_supervisor) Storage::disk('s3')->delete($sidang->file_nilai_supervisor);
+                if ($sidang->file_berkas_lainnya) Storage::disk('s3')->delete($sidang->file_berkas_lainnya);
                 if ($sidang->file_revisi) Storage::disk('s3')->delete($sidang->file_revisi);
             }
 
