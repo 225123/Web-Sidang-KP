@@ -60,7 +60,7 @@
                             <span class="text-sm font-bold text-gray-700">1. Motivasi & Kedisiplinan (25%)</span>
                             <span class="text-xs text-gray-500">Kehadiran, ketepatan waktu, dan semangat kerja</span>
                         </label>
-                        <input type="number" name="nilai_motivasi" min="0" max="100" required value="{{ old('nilai_motivasi') }}" placeholder="Contoh: 85" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input type="number" name="nilai_motivasi" min="1" max="100" step="0.001" required value="{{ old('nilai_motivasi') }}" placeholder="Contoh: 85.500" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
 
                     <!-- Kualitas Pekerjaan -->
@@ -69,7 +69,7 @@
                             <span class="text-sm font-bold text-gray-700">2. Kualitas Hasil Pekerjaan (25%)</span>
                             <span class="text-xs text-gray-500">Ketelitian, pemahaman teknis, dan kesesuaian target</span>
                         </label>
-                        <input type="number" name="nilai_kualitas" min="0" max="100" required value="{{ old('nilai_kualitas') }}" placeholder="Contoh: 85" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input type="number" name="nilai_kualitas" min="1" max="100" step="0.001" required value="{{ old('nilai_kualitas') }}" placeholder="Contoh: 85.500" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
 
                     <!-- Inisiatif -->
@@ -78,7 +78,7 @@
                             <span class="text-sm font-bold text-gray-700">3. Inisiatif & Kreativitas (25%)</span>
                             <span class="text-xs text-gray-500">Kemampuan problem solving dan gagasan inovatif</span>
                         </label>
-                        <input type="number" name="nilai_inisiatif" min="0" max="100" required value="{{ old('nilai_inisiatif') }}" placeholder="Contoh: 85" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input type="number" name="nilai_inisiatif" min="1" max="100" step="0.001" required value="{{ old('nilai_inisiatif') }}" placeholder="Contoh: 85.500" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
 
                     <!-- Sikap -->
@@ -87,7 +87,7 @@
                             <span class="text-sm font-bold text-gray-700">4. Sikap & Kerjasama Tim (25%)</span>
                             <span class="text-xs text-gray-500">Komunikasi, etika profesi, dan kemampuan adaptasi</span>
                         </label>
-                        <input type="number" name="nilai_sikap" min="0" max="100" required value="{{ old('nilai_sikap') }}" placeholder="Contoh: 85" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input type="number" name="nilai_sikap" min="1" max="100" step="0.001" required value="{{ old('nilai_sikap') }}" placeholder="Contoh: 85.500" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                 </div>
 

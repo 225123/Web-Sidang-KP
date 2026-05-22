@@ -41,11 +41,15 @@ class ExternalSupervisorController extends Controller
         }
 
         $request->validate([
-            'nilai_motivasi' => 'required|numeric|min:0|max:100',
-            'nilai_kualitas' => 'required|numeric|min:0|max:100',
-            'nilai_inisiatif' => 'required|numeric|min:0|max:100',
-            'nilai_sikap' => 'required|numeric|min:0|max:100',
+            'nilai_motivasi' => 'required|numeric|min:1|max:100|regex:/^\d+(\.\d{1,3})?$/',
+            'nilai_kualitas' => 'required|numeric|min:1|max:100|regex:/^\d+(\.\d{1,3})?$/',
+            'nilai_inisiatif' => 'required|numeric|min:1|max:100|regex:/^\d+(\.\d{1,3})?$/',
+            'nilai_sikap' => 'required|numeric|min:1|max:100|regex:/^\d+(\.\d{1,3})?$/',
             'file_nilai_supervisor' => 'required|string', // Wajib base64 string tanda tangan
+        ], [
+            'regex' => 'Kolom :attribute maksimal memiliki 3 angka desimal.',
+            'min' => 'Kolom :attribute minimal bernilai 1.',
+            'max' => 'Kolom :attribute maksimal bernilai 100.'
         ]);
 
         // Calculate average grade (25% each as per standard grading criteria)
