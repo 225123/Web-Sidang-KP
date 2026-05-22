@@ -368,6 +368,20 @@ class PenugasanPembimbingController extends Controller
                         }
                         $kp->update(['pembimbing_id' => empty($dosenUserId) ? null : $dosenUserId]);
                         
+                        // Sinkronisasikan pembimbing_id ke seluruh anggota kelompok
+                        $mhsIdsToSync = [];
+                        if (!empty($kp->anggota_kelompok_ids)) {
+                            $decoded = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
+                            if (is_array($decoded)) {
+                                $mhsIdsToSync = $decoded;
+                            }
+                        }
+                        if (!empty($mhsIdsToSync)) {
+                            PendaftaranKp::whereIn('mahasiswa_id', $mhsIdsToSync)
+                                ->whereIn('status_kp', ['pending', 'approved', 'verified'])
+                                ->update(['pembimbing_id' => empty($dosenUserId) ? null : $dosenUserId]);
+                        }
+
                         if ($dosenUserId) {
                             $this->sendAssignmentNotification($kp, $dosenUserId);
                         }
@@ -394,6 +408,20 @@ class PenugasanPembimbingController extends Controller
                             throw new \Exception("Dosen pembimbing tidak boleh sama dengan supervisor internal untuk mahasiswa: " . ($mhsId));
                         }
                         $kp->update(['pembimbing_id' => empty($dosenUserId) ? null : $dosenUserId]);
+
+                        // Sinkronisasikan pembimbing_id ke seluruh anggota kelompok
+                        $mhsIdsToSync = [];
+                        if (!empty($kp->anggota_kelompok_ids)) {
+                            $decoded = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
+                            if (is_array($decoded)) {
+                                $mhsIdsToSync = $decoded;
+                            }
+                        }
+                        if (!empty($mhsIdsToSync)) {
+                            PendaftaranKp::whereIn('mahasiswa_id', $mhsIdsToSync)
+                                ->whereIn('status_kp', ['pending', 'approved', 'verified'])
+                                ->update(['pembimbing_id' => empty($dosenUserId) ? null : $dosenUserId]);
+                        }
 
                         if ($dosenUserId) {
                             $this->sendAssignmentNotification($kp, $dosenUserId);
