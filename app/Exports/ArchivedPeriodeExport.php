@@ -27,7 +27,7 @@ class ArchivedPeriodeExport implements FromCollection, WithHeadings, WithMapping
     public function collection()
     {
         // Ambil semua mahasiswa pada periode yang dipilih beserta relasinya
-        return Mahasiswa::with(['user', 'pendaftaranKp.pembimbing', 'pendaftaranKp.sidang'])
+        return Mahasiswa::with(['user', 'pendaftaranKps.pembimbing', 'pendaftaranKps.pendaftaranSidang'])
             ->where('tahun_ajaran_id', $this->periodeId)
             ->get();
     }
