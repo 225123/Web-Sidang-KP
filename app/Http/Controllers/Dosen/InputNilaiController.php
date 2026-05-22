@@ -51,6 +51,13 @@ class InputNilaiController extends Controller
 
                 // Set relasi agar view menggunakan data KP yang benar
                 if ($kp) {
+                    // Resolve student's own approved KP record to get their actual individual title
+                    $ownKp = PendaftaranKp::where('mahasiswa_id', $sidang->mahasiswa_id)
+                        ->where('status_kp', 'approved')
+                        ->first();
+                    if ($ownKp && $kp->id !== $ownKp->id) {
+                        $kp->judul_kp = $ownKp->judul_kp;
+                    }
                     $sidang->setRelation('pendaftaranKp', $kp);
                 }
 
@@ -104,6 +111,13 @@ class InputNilaiController extends Controller
 
         // Set relasi agar view menggunakan data KP yang benar
         if ($kp) {
+            // Resolve student's own approved KP record to get their actual individual title
+            $ownKp = PendaftaranKp::where('mahasiswa_id', $sidang->mahasiswa_id)
+                ->where('status_kp', 'approved')
+                ->first();
+            if ($ownKp && $kp->id !== $ownKp->id) {
+                $kp->judul_kp = $ownKp->judul_kp;
+            }
             $sidang->setRelation('pendaftaranKp', $kp);
         }
 
@@ -244,6 +258,18 @@ class InputNilaiController extends Controller
     public function downloadPdf($id, $role)
     {
         $sidang = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp.supervisorInternal'])->findOrFail($id);
+        
+        $kp = $sidang->pendaftaranKp;
+        if ($kp) {
+            // Resolve student's own approved KP record to get their actual individual title
+            $ownKp = PendaftaranKp::where('mahasiswa_id', $sidang->mahasiswa_id)
+                ->where('status_kp', 'approved')
+                ->first();
+            if ($ownKp && $kp->id !== $ownKp->id) {
+                $kp->judul_kp = $ownKp->judul_kp;
+            }
+        }
+        
         $pdf = Pdf::loadView('pdf.grading-summary', compact('sidang', 'role'));
 
         return $pdf->stream('Nilai_Sidang_' . $role . '_' . $sidang->mahasiswa->nim . '.pdf');
