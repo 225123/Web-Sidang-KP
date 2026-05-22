@@ -1,4 +1,4 @@
-<x-dashboard-layout header="Status Pendaftaran" userName="{{ auth()->user()->name ?? 'MAHASISWA' }}" roleName="{{ auth()->user()->mahasiswa->nim ?? 'Mahasiswa' }}">
+<x-dashboard-layout header="Status Pendaftaran" :userName="auth()->user()->name . ' - ' . (auth()->user()->mahasiswa->nim ?? '')" roleName="MAHASISWA">
     <x-slot:sidebar>
         @include('mahasiswa.components.sidebar', ['active' => 'status-pendaftaran'])
     </x-slot>
