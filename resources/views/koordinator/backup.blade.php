@@ -1,4 +1,7 @@
 <x-dashboard-layout title="Manajemen Penyimpanan & Arsip">
+    <x-slot name="sidebar">
+        @include('koordinator.sidebar')
+    </x-slot>
     <div class="sm:flex sm:items-center sm:justify-between mb-8">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">Manajemen Penyimpanan & Arsip</h1>
