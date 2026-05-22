@@ -265,13 +265,22 @@
                             <div x-show="isDosenDuplicate" class="text-red-600 text-[13px] md:ml-[230px] font-bold mt-1">ID ini sudah terdaftar sebagai Dosen/Koordinator. Duplikasi ditolak.</div>
                             <div x-show="isCheckingId" class="text-blue-500 text-[12px] md:ml-[230px] mt-1">Mengecek ID...</div>
 
-                            <!-- Banner: User ditemukan dari periode sebelumnya -->
-                            <div x-show="isExistingUser && !isDosenDuplicate" x-cloak
+                            <!-- Banner: User ditemukan dari periode sebelumnya (Layak) -->
+                            <div x-show="isExistingUser && !isDosenDuplicate && !isNotAllowed" x-cloak
                                  class="md:ml-[230px] flex items-start gap-2 bg-amber-50 border border-amber-300 rounded-lg px-3 py-2.5 text-[12.5px] text-amber-800">
                                 <svg class="w-4 h-4 text-amber-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0-6v2m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                                 </svg>
-                                <span><strong>User ditemukan dari periode sebelumnya.</strong> Data nama, email, dan role diisi otomatis dan <strong>tidak dapat diubah</strong> untuk menjaga konsistensi data.</span>
+                                <span><strong>User ditemukan dari periode sebelumnya (Mengulang).</strong> Data nama, email, dan role diisi otomatis. Status mahasiswa akan dialihkan menjadi "Lanjut".</span>
+                            </div>
+
+                            <!-- Banner: User Ditolak (Sudah Lulus) -->
+                            <div x-show="isExistingUser && !isDosenDuplicate && isNotAllowed" x-cloak
+                                 class="md:ml-[230px] flex items-start gap-2 bg-red-50 border border-red-300 rounded-lg px-3 py-2.5 text-[12.5px] text-red-800 mt-2">
+                                <svg class="w-4 h-4 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span><strong x-text="notAllowedMessage"></strong> Penambahan pengguna diblokir.</span>
                             </div>
 
                             <!-- Nama -->
@@ -358,7 +367,7 @@
                                 <button @click="showAddModal = false" type="button" class="flex-1 sm:flex-none w-full sm:w-[104px] h-[32px] bg-[#E32727] hover:bg-red-700 text-white font-medium text-[14px] rounded-[5px] transition-colors shadow-sm focus:outline-none">
                                     Keluar
                                 </button>
-                                <button type="button" @click="openAddConfirm()" class="flex-1 sm:flex-none w-full sm:w-[104px] h-[32px] bg-[#008000] hover:bg-green-700 text-white font-medium text-[14px] rounded-[5px] transition-colors shadow-sm focus:outline-none">
+                                <button type="button" @click="openAddConfirm()" :disabled="isNotAllowed || isDosenDuplicate" :class="(isNotAllowed || isDosenDuplicate) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-700'" class="flex-1 sm:flex-none w-full sm:w-[104px] h-[32px] bg-[#008000] text-white font-medium text-[14px] rounded-[5px] transition-colors shadow-sm focus:outline-none">
                                     Kirim
                                 </button>
                             </div>
@@ -394,7 +403,7 @@
                     <button @click="showConfirmModal = false" type="button" class="w-[100px] h-[34px] bg-[#E32727] hover:bg-red-700 text-white rounded-[5px] text-[14px] font-medium transition-colors shadow-sm">
                         Batal
                     </button>
-                    <button @click="executeConfirm()" :disabled="confirmType === 'add' && isDosenDuplicate" type="button" :class="confirmType === 'add' && isDosenDuplicate ? 'opacity-50 cursor-not-allowed bg-gray-400' : 'bg-[#456DA7] hover:bg-blue-700 shadow-sm'" class="w-[100px] h-[34px] text-white rounded-[5px] text-[14px] font-medium transition-colors">
+                    <button @click="executeConfirm()" :disabled="confirmType === 'add' && (isDosenDuplicate || isNotAllowed)" type="button" :class="confirmType === 'add' && (isDosenDuplicate || isNotAllowed) ? 'opacity-50 cursor-not-allowed bg-gray-400' : 'bg-[#456DA7] hover:bg-blue-700 shadow-sm'" class="w-[100px] h-[34px] text-white rounded-[5px] text-[14px] font-medium transition-colors">
                         Iya
                     </button>
                 </div>
@@ -438,11 +447,14 @@
                 isCheckingId: false,
                 isDosenDuplicate: false,
                 isExistingUser: false,
+                isNotAllowed: false,
+                notAllowedMessage: '',
 
                 async checkIdUser() {
                     if (!this.formData.id_user) {
                         this.isDosenDuplicate = false;
                         this.isExistingUser = false;
+                        this.isNotAllowed = false;
                         return;
                     }
                     
@@ -461,15 +473,20 @@
                                 // Dosen/Koordinator: duplikat ditolak, tapi field tetap bisa dibaca
                                 this.isDosenDuplicate = true;
                                 this.isExistingUser   = false;
+                                this.isNotAllowed     = false;
                             } else {
                                 // Mahasiswa dari periode sebelumnya: field dikunci
                                 this.isDosenDuplicate = false;
                                 this.isExistingUser   = true;
+                                this.isNotAllowed     = data.not_allowed || false;
+                                this.notAllowedMessage = data.not_allowed_message || '';
                             }
                         } else {
                             // ID tidak ditemukan: semua state direset, field bisa diisi bebas
                             this.isDosenDuplicate = false;
                             this.isExistingUser   = false;
+                            this.isNotAllowed     = false;
+                            this.notAllowedMessage = '';
                         }
                     } catch (error) {
                         console.error('Error checking ID:', error);

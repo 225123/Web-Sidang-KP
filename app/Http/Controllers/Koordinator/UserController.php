@@ -28,16 +28,42 @@ class UserController extends Controller
         $mhs = DB::table('mahasiswa')
             ->join('users', 'mahasiswa.user_id', '=', 'users.id')
             ->where('mahasiswa.nim', $id)
-            ->select('users.name', 'users.email', 'users.role')
+            ->select('users.id as user_id', 'users.name', 'users.email', 'users.role')
             ->first();
 
         if ($mhs) {
+            $isAllowed = false;
+            $latestKp = DB::table('pendaftaran_kp')
+                ->where('mahasiswa_id', $mhs->user_id)
+                ->orderBy('id', 'desc')
+                ->first();
+
+            if (!$latestKp) {
+                $isAllowed = true;
+            } else {
+                $latestSidang = DB::table('pendaftaran_sidang')
+                    ->where('pendaftaran_kp_id', $latestKp->id)
+                    ->first();
+
+                if (!$latestSidang) {
+                    $isAllowed = true;
+                } else {
+                    if (in_array($latestSidang->status_kelulusan, ['Lanjut', 'Tidak Lulus'])) {
+                        $isAllowed = true;
+                    } elseif (in_array($latestSidang->grade, ['D', 'E'])) {
+                        $isAllowed = true;
+                    }
+                }
+            }
+
             return response()->json([
                 'exists' => true,
                 'role_type' => 'mahasiswa',
                 'name' => $mhs->name,
                 'email' => $mhs->email,
-                'role' => $mhs->role == 'mahasiswa' ? 'Mahasiswa' : ucfirst($mhs->role)
+                'role' => $mhs->role == 'mahasiswa' ? 'Mahasiswa' : ucfirst($mhs->role),
+                'not_allowed' => !$isAllowed,
+                'not_allowed_message' => !$isAllowed ? 'Mahasiswa ini sudah dinyatakan Lulus di periode sebelumnya dan tidak bisa didaftarkan ulang.' : ''
             ]);
         }
 
