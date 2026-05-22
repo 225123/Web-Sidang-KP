@@ -119,17 +119,56 @@ class LaporanArsipController extends Controller
                     } else {
                         $mhs->nilai_akhir_display = '-';
                         $mhs->grade_display = '-';
-                        $mhs->status_kelulusan_display = 'Belum Finalisasi';
-                    }
-                }
-
-                return $mhs;
+        $sidangRows = PendaftaranSidang::withoutGlobalScope('periode')
+            ->with(['mahasiswa.user', 'pendaftaranKp'])
+            ->whereHas('pendaftaranKp', function($q) use ($periodeId) {
+                $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
             })
-            ->sortBy('nim')
-            ->values();
+            ->whereIn('status_kelulusan', ['Lulus', 'Lulus Dengan Revisi', 'Lanjut', 'Tidak Lulus'])
+            ->get();
+
+        $mahasiswaDenganSidang = $sidangRows->pluck('mahasiswa_id')->unique()->toArray();
+
+        $mahasiswaTanpaSidang = Mahasiswa::with('user')
+            ->where('tahun_ajaran_id', $periodeId)
+            ->whereNotIn('user_id', $mahasiswaDenganSidang)
+            ->get();
+
+        $hasil = collect();
+
+        foreach ($sidangRows as $sidang) {
+            $logic = $this->calculateFinalLogic($sidang);
+            $statusKelulusan = $sidang->status_kelulusan === 'Tidak Lulus' ? 'Lanjut' : $sidang->status_kelulusan;
+
+            $ownKp = PendaftaranKp::withoutGlobalScope('periode')
+                ->where('mahasiswa_id', $sidang->mahasiswa_id)
+                ->where('tahun_ajaran_id', $periodeId)
+                ->latest()->first();
+
+            $hasil->push([
+                'nim'                    => $sidang->mahasiswa->nim ?? '-',
+                'nama'                   => $sidang->mahasiswa->user->name ?? '-',
+                'judul_kp'               => $ownKp ? $ownKp->judul_kp : '-',
+                'nilai_akhir_display'    => $logic['nilai'],
+                'grade_display'          => $logic['grade'],
+                'status_kelulusan_display' => $statusKelulusan,
+            ]);
+        }
+
+        foreach ($mahasiswaTanpaSidang as $mhs) {
+            $hasil->push([
+                'nim'                    => $mhs->nim ?? '-',
+                'nama'                   => $mhs->user->name ?? '-',
+                'judul_kp'               => '-',
+                'nilai_akhir_display'    => 0,
+                'grade_display'          => 'E',
+                'status_kelulusan_display' => 'Lanjut',
+            ]);
+        }
+
+        $mahasiswas = $hasil->sortBy('nim')->values();
 
         $koordinator = User::with('dosen')->whereIn('role', [1, 'koordinator_kp'])->first();
-
         if (!$koordinator && auth()->user()->role == 'koordinator_kp') {
             $koordinator = auth()->user()->load('dosen');
         }
@@ -145,34 +184,26 @@ class LaporanArsipController extends Controller
         $status = $sidang->status_kelulusan;
 
         if ($status === 'Lanjut' || $status === 'Tidak Lulus') {
-            return [
-                'nilai' => 0,
-                'grade' => 'E',
-            ];
+            return ['nilai' => 0, 'grade' => 'E'];
         }
 
         $nilaiFinal = (float) $sidang->nilai_akhir;
 
         if ($nilaiFinal <= 0) {
-            $pembimbing = (float) ($sidang->nilai_pembimbing ?? 0) * 0.4;
-            $supervisor = (float) ($sidang->nilai_supervisor ?? 0) * 0.1;
-            $penguji1 = (float) ($sidang->nilai_penguji_1 ?? 0) * 0.25;
-            $penguji2 = (float) ($sidang->nilai_penguji_2 ?? 0) * 0.25;
-            $nilaiFinal = $pembimbing + $supervisor + $penguji1 + $penguji2;
+            $penguji1 = (float) ($sidang->nilai_penguji_1 ?? 0) * 0.5;
+            $penguji2 = (float) ($sidang->nilai_penguji_2 ?? 0) * 0.5;
+            $nilaiFinal = $penguji1 + $penguji2;
         }
 
         $revisiVerified = ($sidang->status_revisi === 'Disahkan' || $sidang->status_revisi === 'Diterima');
         $originalGrade = $this->getGradeFromScore($nilaiFinal);
         $finalGrade = $originalGrade;
 
-        if ($status === 'Lulus Dengan Revisi' && ! $revisiVerified) {
+        if ($status === 'Lulus Dengan Revisi' && !$revisiVerified) {
             $finalGrade = $this->getPenalizedGrade($originalGrade);
         }
 
-        return [
-            'nilai' => $nilaiFinal,
-            'grade' => $finalGrade,
-        ];
+        return ['nilai' => $nilaiFinal, 'grade' => $finalGrade];
     }
 
     private function getGradeFromScore($nilai)
@@ -192,7 +223,6 @@ class LaporanArsipController extends Controller
     {
         $grades = ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'D', 'E'];
         $index = array_search($grade, $grades);
-        $newIndex = min($index + 3, count($grades) - 1);
-        return $grades[$newIndex];
+        return $grades[min($index + 3, count($grades) - 1)];
     }
 }
