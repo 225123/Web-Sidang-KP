@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\PendaftaranSidang;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Mahasiswa;
+use App\Models\PendaftaranKp;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanArsipController extends Controller
@@ -14,111 +16,73 @@ class LaporanArsipController extends Controller
     {
         $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id;
 
-        // Cek apakah finalisasi sudah pernah dilakukan di periode ini
-        $isFinalized = PendaftaranSidang::whereHas('pendaftaranKp', function($q) use ($periodeId) {
-            $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
-        })->where('nilai_dipublikasi', true)->exists();
-
-        // Ambil semua mahasiswa di periode tersebut
-        $mahasiswas = \App\Models\Mahasiswa::with(['user'])
-            ->where('tahun_ajaran_id', $periodeId)
-            ->get()
-            ->map(function ($mhs) use ($isFinalized, $periodeId) {
-                // Cari pendaftaran Sidang untuk mahasiswa ini di periode tersebut (tanpa global scope)
-                $sidang = PendaftaranSidang::withoutGlobalScope('periode')
-                    ->whereHas('pendaftaranKp', function($q) use ($mhs, $periodeId) {
-                        $q->withoutGlobalScope('periode')
-                          ->where('mahasiswa_id', $mhs->user_id)
-                          ->where('tahun_ajaran_id', $periodeId);
-                    })
-                    ->latest()
-                    ->first();
-
-                // Cari pendaftaran KP yang terkait dengan sidang tersebut, atau KP terbaru jika tidak ada sidang
-                $kp = $sidang 
-                    ? \App\Models\PendaftaranKp::withoutGlobalScope('periode')->find($sidang->pendaftaran_kp_id)
-                    : \App\Models\PendaftaranKp::withoutGlobalScope('periode')
-                        ->where('mahasiswa_id', $mhs->user_id)
-                        ->where('tahun_ajaran_id', $periodeId)
-                        ->latest()
-                        ->first();
-
-                $mhs->judul_kp_display = $kp ? $kp->judul_kp : '-';
-                $mhs->instansi_display = $kp ? $kp->instansi_nama : '-';
-
-                // Jika sudah punya nilai yang dipublikasi
-                if ($sidang && $sidang->nilai_dipublikasi && $mhs->is_aktif) {
-                    $logic = $this->calculateFinalLogic($sidang);
-                    $mhs->nilai_akhir_display = $logic['nilai'];
-                    $mhs->grade_display = $logic['grade'];
-                    // Standarisasi Tidak Lulus menjadi Lanjut
-                    $mhs->status_kelulusan_display = $sidang->status_kelulusan === 'Tidak Lulus' ? 'Lanjut' : $sidang->status_kelulusan;
-                } else {
-                    // Jika belum punya nilai, atau sidang belum selesai, atau tidak aktif
-                    if ($isFinalized) {
-                        $mhs->nilai_akhir_display = 0;
-                        $mhs->grade_display = 'E';
-                        $mhs->status_kelulusan_display = 'Lanjut';
-                    } else {
-                        $mhs->nilai_akhir_display = '-';
-                        $mhs->grade_display = '-';
-                        $mhs->status_kelulusan_display = 'Belum Finalisasi';
-                    }
-                }
-
-                return $mhs;
+        // Ambil semua sidang di periode ini (persis seperti Finalisasi Nilai)
+        $sidangRows = PendaftaranSidang::withoutGlobalScope('periode')
+            ->with(['mahasiswa.user', 'pendaftaranKp'])
+            ->whereHas('pendaftaranKp', function($q) use ($periodeId) {
+                $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
             })
-            ->sortBy('nim')
-            ->values();
+            ->whereIn('status_kelulusan', ['Lulus', 'Lulus Dengan Revisi', 'Lanjut', 'Tidak Lulus'])
+            ->get();
 
-        return view('koordinator.laporan-arsip', compact('mahasiswas', 'isFinalized'));
+        // Kumpulkan user_id mahasiswa yang sudah ada data sidangnya
+        $mahasiswaDenganSidang = $sidangRows->pluck('mahasiswa_id')->unique()->toArray();
+
+        // Ambil Mahasiswa di periode ini yang TIDAK punya sidang
+        $mahasiswaTanpaSidang = Mahasiswa::with('user')
+            ->where('tahun_ajaran_id', $periodeId)
+            ->whereNotIn('user_id', $mahasiswaDenganSidang)
+            ->get();
+
+        $hasil = collect();
+
+        // Tambahkan baris dari data sidang
+        foreach ($sidangRows as $sidang) {
+            $logic = $this->calculateFinalLogic($sidang);
+            $statusKelulusan = $sidang->status_kelulusan === 'Tidak Lulus' ? 'Lanjut' : $sidang->status_kelulusan;
+
+            $ownKp = PendaftaranKp::withoutGlobalScope('periode')
+                ->where('mahasiswa_id', $sidang->mahasiswa_id)
+                ->where('tahun_ajaran_id', $periodeId)
+                ->latest()->first();
+
+            $hasil->push([
+                'nim'                    => $sidang->mahasiswa->nim ?? '-',
+                'nama'                   => $sidang->mahasiswa->user->name ?? '-',
+                'judul_kp'               => $ownKp ? $ownKp->judul_kp : '-',
+                'nilai_akhir_display'    => $logic['nilai'],
+                'grade_display'          => $logic['grade'],
+                'status_kelulusan_display' => $statusKelulusan,
+            ]);
+        }
+
+        // Tambahkan baris mahasiswa tanpa sidang -> otomatis Lanjut
+        foreach ($mahasiswaTanpaSidang as $mhs) {
+            $hasil->push([
+                'nim'                    => $mhs->nim ?? '-',
+                'nama'                   => $mhs->user->name ?? '-',
+                'judul_kp'               => '-',
+                'nilai_akhir_display'    => 0,
+                'grade_display'          => 'E',
+                'status_kelulusan_display' => 'Lanjut',
+            ]);
+        }
+
+        // Urutkan berdasarkan NIM
+        $mahasiswas = $hasil->sortBy('nim')->values();
+
+        // Pastikan variabel objek, bukan array assoc, karena di view dipanggil menggunakan panah ->
+        $mahasiswas = $mahasiswas->map(function($item) {
+            return (object) $item;
+        });
+
+        return view('koordinator.laporan-arsip', compact('mahasiswas'));
     }
 
     public function downloadPdf()
     {
         $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id;
 
-        $isFinalized = PendaftaranSidang::whereHas('pendaftaranKp', function($q) use ($periodeId) {
-            $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
-        })->where('nilai_dipublikasi', true)->exists();
-
-        $mahasiswas = \App\Models\Mahasiswa::with(['user'])
-            ->where('tahun_ajaran_id', $periodeId)
-            ->get()
-            ->map(function ($mhs) use ($isFinalized, $periodeId) {
-                $sidang = PendaftaranSidang::withoutGlobalScope('periode')
-                    ->whereHas('pendaftaranKp', function($q) use ($mhs, $periodeId) {
-                        $q->withoutGlobalScope('periode')
-                          ->where('mahasiswa_id', $mhs->user_id)
-                          ->where('tahun_ajaran_id', $periodeId);
-                    })
-                    ->latest()
-                    ->first();
-
-                $kp = $sidang 
-                    ? \App\Models\PendaftaranKp::withoutGlobalScope('periode')->find($sidang->pendaftaran_kp_id)
-                    : \App\Models\PendaftaranKp::withoutGlobalScope('periode')
-                        ->where('mahasiswa_id', $mhs->user_id)
-                        ->where('tahun_ajaran_id', $periodeId)
-                        ->latest()
-                        ->first();
-
-                $mhs->judul_kp_display = $kp ? $kp->judul_kp : '-';
-                $mhs->instansi_display = $kp ? $kp->instansi_nama : '-';
-
-                if ($sidang && $sidang->nilai_dipublikasi && $mhs->is_aktif) {
-                    $logic = $this->calculateFinalLogic($sidang);
-                    $mhs->nilai_akhir_display = $logic['nilai'];
-                    $mhs->grade_display = $logic['grade'];
-                    $mhs->status_kelulusan_display = $sidang->status_kelulusan === 'Tidak Lulus' ? 'Lanjut' : $sidang->status_kelulusan;
-                } else {
-                    if ($isFinalized) {
-                        $mhs->nilai_akhir_display = 0;
-                        $mhs->grade_display = 'E';
-                        $mhs->status_kelulusan_display = 'Lanjut';
-                    } else {
-                        $mhs->nilai_akhir_display = '-';
-                        $mhs->grade_display = '-';
         $sidangRows = PendaftaranSidang::withoutGlobalScope('periode')
             ->with(['mahasiswa.user', 'pendaftaranKp'])
             ->whereHas('pendaftaranKp', function($q) use ($periodeId) {
@@ -167,6 +131,9 @@ class LaporanArsipController extends Controller
         }
 
         $mahasiswas = $hasil->sortBy('nim')->values();
+        $mahasiswas = $mahasiswas->map(function($item) {
+            return (object) $item;
+        });
 
         $koordinator = User::with('dosen')->whereIn('role', [1, 'koordinator_kp'])->first();
         if (!$koordinator && auth()->user()->role == 'koordinator_kp') {
@@ -190,9 +157,11 @@ class LaporanArsipController extends Controller
         $nilaiFinal = (float) $sidang->nilai_akhir;
 
         if ($nilaiFinal <= 0) {
-            $penguji1 = (float) ($sidang->nilai_penguji_1 ?? 0) * 0.5;
-            $penguji2 = (float) ($sidang->nilai_penguji_2 ?? 0) * 0.5;
-            $nilaiFinal = $penguji1 + $penguji2;
+            $pembimbing = (float) ($sidang->nilai_pembimbing ?? 0) * 0.4;
+            $supervisor = (float) ($sidang->nilai_supervisor ?? 0) * 0.1;
+            $penguji1 = (float) ($sidang->nilai_penguji_1 ?? 0) * 0.25;
+            $penguji2 = (float) ($sidang->nilai_penguji_2 ?? 0) * 0.25;
+            $nilaiFinal = $pembimbing + $supervisor + $penguji1 + $penguji2;
         }
 
         $revisiVerified = ($sidang->status_revisi === 'Disahkan' || $sidang->status_revisi === 'Diterima');
