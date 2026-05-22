@@ -157,6 +157,20 @@ class BackupController extends Controller
             }
 
             // 2. Hapus Data dari Database
+            
+            // Rekam statistik secara abadi di wadah periode
+            $periode->total_mahasiswa = PendaftaranKp::withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId)->count();
+            $dosenIds = PendaftaranKp::withoutGlobalScope('periode')
+                ->where('tahun_ajaran_id', $periodeId)
+                ->whereNotNull('pembimbing_id')
+                ->pluck('pembimbing_id')
+                ->push($periode->koordinator_id)
+                ->unique()
+                ->filter();
+            $periode->total_dosen = $dosenIds->count();
+            $periode->save();
+
+            // Karena relasi on cascade delete tidak diset untuk semua tabel, kita harus hapus manual
             // Hapus Pendaftaran Sidang
             PendaftaranSidang::withoutGlobalScope('periode')->whereIn('pendaftaran_kp_id', $kps->pluck('id'))->delete();
             // Hapus Pendaftaran KP

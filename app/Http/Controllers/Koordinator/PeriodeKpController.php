@@ -12,15 +12,32 @@ class PeriodeKpController extends Controller
 {
     public function index()
     {
-        $periodes = TahunAjaran::terbaru()->get();
+        $periodes = TahunAjaran::withTrashed()->terbaru()->get();
 
-        $last = $periodes->first();
+        $last = $periodes->whereNull('deleted_at')->first();
         $nextPeriod = $this->generateNext($last);
 
         // Count pendaftaran per period
         $stats = [];
+        $dosenStats = [];
         foreach ($periodes as $periode) {
-            $stats[$periode->id] = PendaftaranKp::where('tahun_ajaran_id', $periode->id)->count();
+            if ($periode->trashed() || $periode->total_mahasiswa !== null) {
+                // Gunakan static history
+                $stats[$periode->id] = $periode->total_mahasiswa ?? 0;
+                $dosenStats[$periode->id] = $periode->total_dosen ?? 0;
+            } else {
+                // Hitung fresh dari database
+                $stats[$periode->id] = PendaftaranKp::where('tahun_ajaran_id', $periode->id)->count();
+                
+                $dIds = PendaftaranKp::where('tahun_ajaran_id', $periode->id)
+                            ->whereNotNull('pembimbing_id')
+                            ->distinct('pembimbing_id')
+                            ->pluck('pembimbing_id');
+                if ($periode->koordinator_id) {
+                    $dIds->push($periode->koordinator_id);
+                }
+                $dosenStats[$periode->id] = $dIds->unique()->filter()->count();
+            }
         }
 
         // Active period counts
@@ -31,14 +48,12 @@ class PeriodeKpController extends Controller
             $aktifStats['mahasiswa'] = PendaftaranKp::where('tahun_ajaran_id', $aktif->id)
                 ->distinct('mahasiswa_id')->count('mahasiswa_id');
 
-            $aktifStats['dosen'] = PendaftaranKp::where('tahun_ajaran_id', $aktif->id)
-                ->whereNotNull('pembimbing_id')
-                ->distinct('pembimbing_id')->count('pembimbing_id');
+            $aktifStats['dosen'] = $dosenStats[$aktif->id] ?? 0;
 
             $aktifStats['total'] = User::count();
         }
 
-        return view('koordinator.periode-kp', compact('periodes', 'nextPeriod', 'stats', 'aktif', 'aktifStats'));
+        return view('koordinator.periode-kp', compact('periodes', 'nextPeriod', 'stats', 'dosenStats', 'aktif', 'aktifStats'));
     }
 
     public function store(Request $request)

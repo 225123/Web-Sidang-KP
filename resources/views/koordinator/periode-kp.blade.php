@@ -93,8 +93,8 @@
                             <tr class="h-[45px] text-black text-center">
                                 <th class="border-b border-r border-gray-300 font-bold px-4 text-left">Periode</th>
                                 <th class="border-b border-r border-gray-300 font-bold px-4">Mahasiswa Terdaftar</th>
-                                <th class="border-b border-r border-gray-300 font-bold px-4">Status</th>
-                                <th class="border-b border-gray-300 font-bold px-4">Aksi</th>
+                                <th class="border-b border-r border-gray-300 font-bold px-4">Dosen Aktif</th>
+                                <th class="border-b border-gray-300 font-bold px-4">Status</th>
                             </tr>
                         </thead>
                         <tbody class="align-middle bg-white">
@@ -111,40 +111,19 @@
                                         <span class="text-gray-500"> mahasiswa</span>
                                     </td>
                                     <td class="px-4 py-3 border-r border-gray-200 text-center">
-                                        @if($periode->is_active)
+                                        <span class="font-bold text-black">{{ $dosenStats[$periode->id] ?? 0 }}</span>
+                                        <span class="text-gray-500"> dosen</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if($periode->trashed())
+                                            <span class="px-3 py-1 bg-red-50 text-red-600 rounded-[20px] text-[10px] font-bold uppercase shadow-sm border border-red-100">Diarsipkan</span>
+                                        @elseif($periode->is_active)
                                             <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#E6F0FA] text-[#4285F4] rounded-[20px] text-[10px] font-bold uppercase shadow-sm">
                                                 <span class="w-1.5 h-1.5 bg-[#4285F4] rounded-full animate-pulse"></span>
                                                 Aktif
                                             </span>
                                         @else
                                             <span class="px-3 py-1 bg-gray-100 text-gray-500 rounded-[20px] text-[10px] font-bold uppercase shadow-sm border border-gray-200">Selesai</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-3 text-center">
-                                        @if(!$periode->is_active)
-                                            <div class="flex items-center justify-center gap-2">
-                                                <button type="button" @click="konfirmasiAksi('aktif', '{{ $periode->id }}', 'Aktifkan kembali periode {{ $periode->label_tahun_ajaran }}?')"
-                                                    class="bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 text-[11px] font-bold px-3 py-1.5 rounded-[5px] transition-colors shadow-sm">
-                                                    Jadikan Aktif
-                                                </button>
-                                                
-                                                @if(($stats[$periode->id] ?? 0) === 0)
-                                                    <button type="button" @click="konfirmasiAksi('hapus', '{{ $periode->id }}', 'Hapus periode {{ $periode->label_tahun_ajaran }}? Tindakan ini tidak bisa dibatalkan.')"
-                                                        class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-[11px] font-bold px-3 py-1.5 rounded-[5px] transition-colors shadow-sm">
-                                                        Hapus
-                                                    </button>
-                                                @endif
-                                            </div>
-
-                                            <form :id="'form-aktif-' + '{{ $periode->id }}'" action="{{ route('koordinator.periode-kp.aktif', $periode->id) }}" method="POST" class="hidden">
-                                                @csrf @method('PUT')
-                                            </form>
-
-                                            <form :id="'form-hapus-' + '{{ $periode->id }}'" action="{{ route('koordinator.periode-kp.destroy', $periode->id) }}" method="POST" class="hidden">
-                                                @csrf @method('DELETE')
-                                            </form>
-                                        @else
-                                            <span class="text-[11px] text-gray-400 italic font-medium">Periode berjalan</span>
                                         @endif
                                     </td>
                                 </tr>
