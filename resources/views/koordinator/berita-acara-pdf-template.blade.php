@@ -26,8 +26,8 @@
         .mb-6 { margin-bottom: 24px; }
         .mt-4 { margin-top: 16px; }
         .mt-8 { margin-top: 32px; }
-        .signature-table { width: 100%; margin-top: 50px; text-align: left; }
-        .signature-table td { width: 50%; padding-bottom: 60px; }
+        .signature-table { width: 100%; margin-top: 20px; text-align: left; }
+        .signature-table td { width: 50%; padding-bottom: 20px; }
         .signature-line { border-bottom: 1px solid black; width: 80%; margin-top: 70px; margin-bottom: 5px; }
         .header-table { width: 100%; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px; }
         .header-table td { padding: 0; }
@@ -85,6 +85,14 @@
         $base64_penguji1 = getAbsoluteImagePath($sidang->penguji1?->signature_path ?? null) ?? $sidang->penguji1?->signature ?? null;
         $base64_penguji2 = getAbsoluteImagePath($sidang->penguji2?->signature_path ?? null) ?? $sidang->penguji2?->signature ?? null;
         $base64_koordinator = getAbsoluteImagePath($koordinator?->signature_path ?? null) ?? $koordinator?->signature ?? null;
+        $base64_pembimbing = getAbsoluteImagePath($sidang->pendaftaranKp->pembimbing?->signature_path ?? null) ?? $sidang->pendaftaranKp->pembimbing?->signature ?? null;
+        
+        $base64_supervisor = null;
+        if ($sidang->pendaftaranKp->jenis_instansi === 'Internal') {
+            $base64_supervisor = getAbsoluteImagePath($sidang->pendaftaranKp->supervisorInternal?->signature_path ?? null) ?? $sidang->pendaftaranKp->supervisorInternal?->signature ?? null;
+        } else {
+            $base64_supervisor = getAbsoluteImagePath($sidang->file_nilai_supervisor ?? null);
+        }
     @endphp
 
     <table class="header-table">
@@ -129,11 +137,44 @@
         <div class="mt-8">
             <p>Mengetahui,</p>
             <table class="signature-table">
+                <!-- Baris 1: Pembimbing & Supervisor -->
                 <tr>
                     <td>
+                        <p class="font-bold">Dosen Pembimbing</p>
+                        @if($base64_pembimbing)
+                            <img src="{{ $base64_pembimbing }}" style="width: 150px; height: 80px; margin: 10px 0; object-fit: contain;">
+                        @else
+                            <div style="height: 80px; color: red; font-style: italic; font-size: 10px; padding-top: 30px;">
+                                (Tanda tangan digital belum tersedia)
+                            </div>
+                        @endif
+                        <p class="font-bold underline">{{ $sidang->pendaftaranKp->pembimbing?->name ?? 'Belum Diplot' }}</p>
+                        <p>NIDK/NIDN : {{ $sidang->pendaftaranKp->pembimbing?->dosen?->nidn ?? '-' }}</p>
+                    </td>
+                    <td>
+                        <p class="font-bold">Supervisor Instansi</p>
+                        @if($base64_supervisor)
+                            <img src="{{ $base64_supervisor }}" style="width: 150px; height: 80px; margin: 10px 0; object-fit: contain;">
+                        @else
+                            <div style="height: 80px; color: red; font-style: italic; font-size: 10px; padding-top: 30px;">
+                                (Tanda tangan digital belum tersedia)
+                            </div>
+                        @endif
+                        @if($sidang->pendaftaranKp->jenis_instansi === 'Internal')
+                            <p class="font-bold underline">{{ $sidang->pendaftaranKp->supervisorInternal?->name ?? 'Belum Diplot' }}</p>
+                            <p>Universitas Kristen Krida Wacana</p>
+                        @else
+                            <p class="font-bold underline">{{ $sidang->pendaftaranKp->supervisorInstansi?->nama_supervisor ?? 'Supervisor Eksternal' }}</p>
+                            <p>{{ $sidang->pendaftaranKp->instansi_nama ?? '-' }}</p>
+                        @endif
+                    </td>
+                </tr>
+                <!-- Baris 2: Penguji 1 & Penguji 2 -->
+                <tr>
+                    <td style="padding-top: 15px;">
                         <p class="font-bold">Dosen Penguji 1</p>
                         @if($base64_penguji1)
-                            <img src="{{ $base64_penguji1 }}" style="width: 150px; height: 80px; margin: 10px 0;">
+                            <img src="{{ $base64_penguji1 }}" style="width: 150px; height: 80px; margin: 10px 0; object-fit: contain;">
                         @else
                             <div style="height: 80px; color: red; font-style: italic; font-size: 10px; padding-top: 30px;">
                                 (Tanda tangan digital belum tersedia)
@@ -142,10 +183,10 @@
                         <p class="font-bold underline">{{ $sidang->penguji1?->name ?? 'Belum Diplot' }}</p>
                         <p>NIDK/NIDN : {{ $sidang->penguji1?->dosen?->nidn ?? '-' }}</p>
                     </td>
-                    <td>
+                    <td style="padding-top: 15px;">
                         <p class="font-bold">Dosen Penguji 2</p>
                         @if($base64_penguji2)
-                            <img src="{{ $base64_penguji2 }}" style="width: 150px; height: 80px; margin: 10px 0;">
+                            <img src="{{ $base64_penguji2 }}" style="width: 150px; height: 80px; margin: 10px 0; object-fit: contain;">
                         @else
                             <div style="height: 80px; color: red; font-style: italic; font-size: 10px; padding-top: 30px;">
                                 (Tanda tangan digital belum tersedia)
@@ -155,11 +196,12 @@
                         <p>NIDK/NIDN : {{ $sidang->penguji2?->dosen?->nidn ?? '-' }}</p>
                     </td>
                 </tr>
+                <!-- Baris 3: Koordinator -->
                 <tr>
-                    <td>
-                        <p class="font-bold" style="margin-top: 40px;">Koordinator Kerja Praktek</p>
+                    <td style="padding-top: 15px;">
+                        <p class="font-bold">Koordinator Kerja Praktek</p>
                         @if($base64_koordinator)
-                            <img src="{{ $base64_koordinator }}" style="width: 150px; height: 80px; margin: 10px 0;">
+                            <img src="{{ $base64_koordinator }}" style="width: 150px; height: 80px; margin: 10px 0; object-fit: contain;">
                         @else
                             <div style="height: 80px; color: red; font-style: italic; font-size: 10px; padding-top: 30px;">
                                 (Tanda tangan digital belum tersedia)

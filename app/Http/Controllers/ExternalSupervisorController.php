@@ -45,7 +45,7 @@ class ExternalSupervisorController extends Controller
             'nilai_kualitas' => 'required|numeric|min:0|max:100',
             'nilai_inisiatif' => 'required|numeric|min:0|max:100',
             'nilai_sikap' => 'required|numeric|min:0|max:100',
-            'file_nilai_supervisor' => 'required|mimes:pdf|max:5120', // Wajib upload form PDF ber-cap
+            'file_nilai_supervisor' => 'required|string', // Wajib base64 string tanda tangan
         ]);
 
         // Calculate average grade (25% each as per standard grading criteria)
@@ -54,10 +54,23 @@ class ExternalSupervisorController extends Controller
                            ($request->nilai_inisiatif * 0.25) +
                            ($request->nilai_sikap * 0.25);
 
-        // Upload PDF
+        // Konversi Base64 Tanda Tangan ke file gambar dan simpan ke Storj/Lokal
         $filePath = null;
-        if ($request->hasFile('file_nilai_supervisor')) {
-            $filePath = $request->file('file_nilai_supervisor')->store('sidang_berkas', upload_disk());
+        if ($request->filled('file_nilai_supervisor')) {
+            $base64Data = $request->file_nilai_supervisor;
+            if (preg_match('/^data:image\/(\w+);base64,/', $base64Data, $type)) {
+                $base64Data = substr($base64Data, strpos($base64Data, ',') + 1);
+                $type = strtolower($type[1]);
+                
+                if (in_array($type, ['png', 'jpg', 'jpeg', 'webp'])) {
+                    $base64Data = base64_decode($base64Data);
+                    if ($base64Data !== false) {
+                        $fileName = 'sidang_berkas/supervisor_sig_' . uniqid() . '_' . time() . '.' . $type;
+                        \Illuminate\Support\Facades\Storage::disk(upload_disk())->put($fileName, $base64Data);
+                        $filePath = $fileName;
+                    }
+                }
+            }
         }
 
         $sidang->update([

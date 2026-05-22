@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Penilaian Kerja Praktek - UKRIDA</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-800">
 
@@ -47,7 +48,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('supervisor.penilaian.submit', $token) }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('supervisor.penilaian.submit', $token) }}" method="POST" id="penilaian-form">
                 @csrf
 
                 <h3 class="font-bold text-gray-800 mb-4 text-lg border-b pb-2">Komponen Penilaian (Skala 0 - 100)</h3>
@@ -90,18 +91,44 @@
                     </div>
                 </div>
 
-                <h3 class="font-bold text-gray-800 mb-4 text-lg border-b pb-2">Dokumen Validasi</h3>
-                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-5 mb-8">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Unggah PDF Form Penilaian (Ber-Cap Perusahaan) <span class="text-red-500">*</span></label>
-                    <p class="text-xs text-yellow-800 mb-4 leading-relaxed">Untuk mencegah manipulasi data, Bapak/Ibu diwajibkan untuk tetap mengunggah dokumen Lembar Penilaian yang telah dicetak, ditandatangani, dan diberikan **Cap Basah Perusahaan / Stempel Digital Resmi**.</p>
+                <h3 class="font-bold text-gray-800 mb-4 text-lg border-b pb-2">Dokumen Validasi (Tanda Tangan)</h3>
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-5 mb-8" x-data="signaturePad()">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Tanda Tangan Digital <span class="text-red-500">*</span></label>
+                    <p class="text-xs text-yellow-800 mb-4 leading-relaxed">Goreskan tanda tangan Anda pada area di bawah ini. Tanda tangan ini akan dicantumkan secara resmi pada lembar Berita Acara Sidang.</p>
                     
-                    <input type="file" name="file_nilai_supervisor" accept=".pdf" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 focus:outline-none cursor-pointer">
-                    <p class="mt-2 text-[11px] text-gray-500">Format: PDF, Maksimal: 5MB</p>
+                    <div class="w-full flex items-center justify-between mb-3 bg-white p-2 rounded border border-gray-200 shadow-sm">
+                        <label class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                            Tebal Garis:
+                        </label>
+                        <input type="range" id="lineWidth" min="1" max="10" value="3" class="w-[60%] cursor-pointer accent-blue-600">
+                    </div>
+
+                    <div class="border-2 border-gray-300 rounded-lg bg-white w-full overflow-hidden mb-3" style="cursor: crosshair; user-select: none;">
+                        <canvas id="signaturePadCanvas" width="600" height="300" class="w-full h-[250px] touch-none"
+                            @mousedown="startDraw($event)"
+                            @mousemove="draw($event)"
+                            @mouseup.window="stopDraw($event)"
+                            @touchstart.prevent="startDraw($event)"
+                            @touchmove.prevent="draw($event)"
+                            @touchend.window="stopDraw($event)"
+                            @touchcancel.window="stopDraw($event)">
+                        </canvas>
+                    </div>
+
+                    <div class="flex justify-between items-center w-full">
+                        <button type="button" @click="clearCanvas()" class="text-red-600 hover:text-red-800 font-semibold text-sm">Hapus / Ulang</button>
+                        <div x-show="sigErrorMsg" x-transition style="display: none;" class="text-red-600 text-xs font-medium">
+                            <span x-text="sigErrorMsg"></span>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="file_nilai_supervisor" id="signature_base64">
                 </div>
 
                 <!-- Submit -->
                 <div class="flex items-center justify-end border-t pt-6">
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-colors w-full md:w-auto text-center">
+                    <button type="button" onclick="submitForm()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-colors w-full md:w-auto text-center">
                         Kirim Penilaian Final
                     </button>
                 </div>
@@ -115,4 +142,109 @@
 </div>
 
 </body>
+
+<script>
+    function submitForm() {
+        const canvas = document.getElementById('signaturePadCanvas');
+        if(!canvas) return;
+
+        const dataURL = canvas.toDataURL('image/png');
+        
+        const blank = document.createElement('canvas');
+        blank.width = canvas.width;
+        blank.height = canvas.height;
+        
+        if(dataURL === blank.toDataURL('image/png')) {
+            alert('Tanda tangan masih kosong! Silakan berikan tanda tangan Anda terlebih dahulu.');
+            return;
+        }
+        
+        document.getElementById('signature_base64').value = dataURL;
+        document.getElementById('penilaian-form').submit();
+    }
+
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('signaturePad', () => ({
+            sigErrorMsg: '',
+            isDrawing: false,
+            lastX: 0,
+            lastY: 0,
+            ctx: null,
+
+            init() {
+                setTimeout(() => {
+                    this.setupCanvas();
+                }, 50);
+            },
+
+            setupCanvas() {
+                const canvas = document.getElementById('signaturePadCanvas');
+                if(!canvas) return;
+                this.ctx = canvas.getContext('2d');
+            },
+
+            getCursorPos(e) {
+                const canvas = document.getElementById('signaturePadCanvas');
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                
+                let clientX = e.clientX;
+                let clientY = e.clientY;
+
+                if (e.touches && e.touches.length > 0) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else if(e.changedTouches && e.changedTouches.length > 0) {
+                    clientX = e.changedTouches[0].clientX;
+                    clientY = e.changedTouches[0].clientY;
+                }
+
+                return {
+                    x: (clientX - rect.left) * scaleX,
+                    y: (clientY - rect.top) * scaleY
+                };
+            },
+
+            startDraw(e) {
+                if(!this.ctx) this.setupCanvas();
+                this.isDrawing = true;
+                this.ctx.lineCap = 'round';
+                this.ctx.lineJoin = 'round';
+                this.ctx.strokeStyle = '#000000';
+                const lwInput = document.getElementById('lineWidth');
+                this.ctx.lineWidth = lwInput ? parseInt(lwInput.value) : 3;
+
+                const pos = this.getCursorPos(e);
+                this.lastX = pos.x;
+                this.lastY = pos.y;
+            },
+
+            draw(e) {
+                if (!this.isDrawing || !this.ctx) return;
+                const pos = this.getCursorPos(e);
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.lastX, this.lastY);
+                this.ctx.lineTo(pos.x, pos.y);
+                this.ctx.stroke();
+                
+                this.lastX = pos.x;
+                this.lastY = pos.y;
+            },
+
+            stopDraw(e) {
+                this.isDrawing = false;
+            },
+
+            clearCanvas() {
+                const canvas = document.getElementById('signaturePadCanvas');
+                if(canvas && this.ctx) {
+                    this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+        }));
+    });
+</script>
+
 </html>
