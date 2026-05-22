@@ -34,8 +34,19 @@ class DaftarBimbinganController extends Controller
         $processedUserIds = [];
 
         foreach ($kps as $kp) {
-            // Dapatkan HANYA mahasiswa pemilik pendaftaran ini (jangan tarik otomatis teman kelompoknya)
+            // Dapatkan semua user_id yang terlibat (Ketua + Anggota)
             $userIds = [$kp->mahasiswa_id];
+            if (in_array(strtolower($kp->pengerjaan_kp ?? ''), ['kelompok', 'berkelompok']) && ! empty($kp->anggota_kelompok_ids)) {
+                $decoded = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
+                if (is_array($decoded)) {
+                    foreach ($decoded as $id) {
+                        if (! empty($id)) {
+                            $userIds[] = $id;
+                        }
+                    }
+                }
+            }
+            $userIds = array_unique($userIds);
 
             foreach ($userIds as $uid) {
                 if (in_array($uid, $processedUserIds)) continue;
@@ -109,8 +120,12 @@ class DaftarBimbinganController extends Controller
         // Ambil data mahasiswa
         $mhs = Mahasiswa::with('user')->where('user_id', $mhsId)->firstOrFail();
 
-        // Cari pendaftaran KP individu ini
-        $query = PendaftaranKp::where('mahasiswa_id', $mhsId);
+        // Cari pendaftaran KP kelompok ini
+        $query = PendaftaranKp::where(function($q) use ($mhsId) {
+                $q->where('mahasiswa_id', $mhsId)
+                  ->orWhere('anggota_kelompok_ids', 'LIKE', '%"'.$mhsId.'"%')
+                  ->orWhere('anggota_kelompok_ids', 'LIKE', '%'.$mhsId.'%');
+            });
 
         // Cek authorization
         $isAuthorized = false;

@@ -50,8 +50,19 @@ class DashboardController extends Controller
         $processedUserIds = [];
 
         foreach ($kps as $kp) {
-            // Dapatkan HANYA mahasiswa pemilik pendaftaran ini (jangan tarik otomatis teman kelompoknya)
+            // Dapatkan semua user_id yang terlibat (Ketua + Anggota)
             $userIds = [$kp->mahasiswa_id];
+            if (in_array(strtolower($kp->pengerjaan_kp ?? ''), ['kelompok', 'berkelompok']) && ! empty($kp->anggota_kelompok_ids)) {
+                $decoded = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
+                if (is_array($decoded)) {
+                    foreach ($decoded as $id) {
+                        if (! empty($id)) {
+                            $userIds[] = $id;
+                        }
+                    }
+                }
+            }
+            $userIds = array_unique($userIds);
 
             foreach ($userIds as $uid) {
                 if (in_array($uid, $processedUserIds)) continue;
