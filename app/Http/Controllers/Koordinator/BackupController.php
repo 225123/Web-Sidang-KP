@@ -32,8 +32,15 @@ class BackupController extends Controller
         } catch (\Exception $e) {
             // Abaikan jika query tidak kompatibel
         }
+        
+        // Hitung estimasi berkas di Storj
+        $storjFilesCount = PendaftaranKp::whereNotNull('file_laporan')->count() +
+                           PendaftaranKp::whereNotNull('file_logbook')->count() +
+                           PendaftaranSidang::whereNotNull('file_revisi')->count();
+        $storjMax = '25 GB'; // Storj Free Tier Limit
+        $neonMax = '500 MB'; // Neon Free Tier Limit
 
-        return view('koordinator.backup', compact('periodes', 'dbSize'));
+        return view('koordinator.backup', compact('periodes', 'dbSize', 'neonMax', 'storjFilesCount', 'storjMax'));
     }
 
     public function downloadZip(Request $request)
@@ -42,7 +49,7 @@ class BackupController extends Controller
         $periodeId = $request->periode_id;
         $periode = TahunAjaran::findOrFail($periodeId);
 
-        $periodeNameSafe = str_replace('/', '_', $periode->nama_tahun_ajaran);
+        $periodeNameSafe = str_replace('/', '_', $periode->label_tahun_ajaran);
         $zipFileName = "Backup_KP_Periode_{$periodeNameSafe}.zip";
         
         // Buat folder temporary
@@ -53,7 +60,7 @@ class BackupController extends Controller
             // 1. Generate Excel Data
             $excelFileName = "Data_Lengkap_Periode_{$periodeNameSafe}.xlsx";
             $excelPath = $tmpDir . '/' . $excelFileName;
-            Excel::store(new ArchivedPeriodeExport($periodeId, $periode->nama_tahun_ajaran), $excelFileName, 'local');
+            Excel::store(new ArchivedPeriodeExport($periodeId, $periode->label_tahun_ajaran), $excelFileName, 'local');
             File::move(storage_path('app/' . $excelFileName), $excelPath);
 
             // 2. Kumpulkan file dari Storj (S3)
@@ -148,7 +155,7 @@ class BackupController extends Controller
 
             DB::commit();
 
-            return back()->with('success', 'Semua data dan file dari periode ' . $periode->nama_tahun_ajaran . ' berhasil dihapus permanen.');
+            return back()->with('success', 'Semua data dan file dari periode ' . $periode->label_tahun_ajaran . ' berhasil dihapus permanen.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal membersihkan data: ' . $e->getMessage());

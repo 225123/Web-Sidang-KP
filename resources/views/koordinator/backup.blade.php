@@ -3,12 +3,7 @@
         @include('koordinator.components.sidebar', ['active' => 'backup'])
     </x-slot>
     <div class="sm:flex sm:items-center sm:justify-between mb-8">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">Manajemen Penyimpanan & Arsip</h1>
-            <p class="mt-2 text-sm text-gray-600">
-                Kelola kapasitas penyimpanan Cloud Database (PostgreSQL) dan arsipkan data periode akademik yang sudah lampau.
-            </p>
-        </div>
+        <!-- Title has been handled by layout header -->
     </div>
 
     @if(session('success'))
@@ -50,11 +45,25 @@
                     Kapasitas Database
                 </h2>
                 
-                <div class="mb-6">
+                <div class="mb-4">
                     <div class="flex justify-between text-sm mb-1">
                         <span class="text-gray-500 font-medium">PostgreSQL (Neon)</span>
-                        <span class="text-gray-900 font-bold">{{ $dbSize }}</span>
+                        <span class="text-gray-900 font-bold">{{ $dbSize }} / {{ $neonMax }}</span>
                     </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-blue-600 h-2 rounded-full" style="width: 2%"></div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-500 font-medium">S3 Storage (Storj)</span>
+                        <span class="text-gray-900 font-bold">~{{ $storjFilesCount }} Berkas Terunggah</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-emerald-500 h-2 rounded-full" style="width: {{ min(100, max(1, ($storjFilesCount / 1000) * 100)) }}%"></div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">Batas Kuota Gratis: {{ $storjMax }}</p>
                 </div>
 
                 <div class="bg-blue-50 rounded-lg p-4 text-sm text-blue-800">
@@ -90,7 +99,7 @@
                     <select x-model="selectedPeriode" class="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm mb-6">
                         <option value="">-- Pilih Periode Akademik --</option>
                         @foreach($periodes as $p)
-                            <option value="{{ $p->id }}">{{ $p->nama_tahun_ajaran }}</option>
+                            <option value="{{ $p->id }}">{{ $p->label_tahun_ajaran }}</option>
                         @endforeach
                     </select>
 
