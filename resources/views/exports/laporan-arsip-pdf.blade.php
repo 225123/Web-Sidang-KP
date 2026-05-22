@@ -78,8 +78,8 @@
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td class="text-center">{{ $mhs->nim }}</td>
-                    <td class="uppercase">{{ $mhs->user->name }}</td>
-                    <td class="text-center font-bold">{{ $mhs->nilai_akhir_display === '-' ? '-' : number_format($mhs->nilai_akhir_display, 2) }}</td>
+                    <td class="uppercase">{{ $mhs->nama }}</td>
+                    <td class="text-center font-bold">{{ $mhs->nilai_akhir_display === '-' ? '-' : number_format((float) $mhs->nilai_akhir_display, 2) }}</td>
                     <td class="text-center font-bold">{{ $mhs->grade_display }}</td>
                     <td class="text-center">{{ $mhs->status_kelulusan_display }}</td>
                 </tr>

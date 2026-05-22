@@ -101,7 +101,7 @@
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="py-3 px-4 text-center text-black/60 border-r border-gray-200" x-text="((currentPage - 1) * itemsPerPage) + index + 1"></td>
                                 <td class="py-3 px-4 text-left font-mono text-black border-r border-gray-200" x-text="mhs.nim"></td>
-                                <td class="py-3 px-4 text-left font-bold text-black uppercase border-r border-gray-200" x-text="mhs.user.name"></td>
+                                <td class="py-3 px-4 text-left font-bold text-black uppercase border-r border-gray-200" x-text="mhs.nama"></td>
                                 <td class="py-3 px-4 text-center border-r border-gray-200 font-bold" x-text="mhs.nilai_akhir_display === '-' ? '-' : Number(mhs.nilai_akhir_display).toFixed(2)"></td>
                                 <td class="py-3 px-4 text-center border-r border-gray-200 font-bold" x-text="mhs.grade_display"></td>
                                 <td class="py-3 px-4 text-center">
