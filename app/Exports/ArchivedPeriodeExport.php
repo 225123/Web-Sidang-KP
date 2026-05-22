@@ -26,10 +26,67 @@ class ArchivedPeriodeExport implements FromCollection, WithHeadings, WithMapping
 
     public function collection()
     {
-        // Ambil semua mahasiswa pada periode yang dipilih beserta relasinya
-        return Mahasiswa::with(['user', 'pendaftaranKps.pembimbing', 'pendaftaranKps.pendaftaranSidang'])
-            ->where('tahun_ajaran_id', $this->periodeId)
+        $sidangRows = PendaftaranSidang::withoutGlobalScope('periode')
+            ->with(['mahasiswa.user', 'pendaftaranKp.pembimbing'])
+            ->whereHas('pendaftaranKp', function($q) {
+                $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $this->periodeId);
+            })
+            ->whereIn('status_kelulusan', ['Lulus', 'Lulus Dengan Revisi', 'Lanjut', 'Tidak Lulus'])
             ->get();
+
+        $mahasiswaDenganSidang = $sidangRows->pluck('mahasiswa_id')->unique()->toArray();
+
+        $mahasiswaTanpaSidang = Mahasiswa::with(['user', 'pendaftaranKps' => function($q) {
+            $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $this->periodeId)->latest();
+        }])
+            ->where('tahun_ajaran_id', $this->periodeId)
+            ->whereNotIn('user_id', $mahasiswaDenganSidang)
+            ->get();
+
+        $hasil = collect();
+
+        foreach ($sidangRows as $sidang) {
+            $logic = $this->calculateFinalLogic($sidang);
+            $statusKelulusan = $sidang->status_kelulusan === 'Tidak Lulus' ? 'Lanjut' : $sidang->status_kelulusan;
+
+            $kp = $sidang->pendaftaranKp;
+
+            $hasil->push((object)[
+                'nim' => $sidang->mahasiswa->nim ?? '-',
+                'nama' => $sidang->mahasiswa->user->name ?? '-',
+                'email' => $sidang->mahasiswa->user->email ?? '-',
+                'is_aktif' => $sidang->mahasiswa->is_aktif ? 'Aktif' : 'Tidak Aktif',
+                'judul_kp' => $kp->judul_kp ?? '-',
+                'instansi_nama' => $kp->instansi_nama ?? '-',
+                'dosen_pembimbing' => $kp->pembimbing->name ?? '-',
+                'status_kp' => $kp->status_kp ?? '-',
+                'tanggal_sidang' => $sidang->tanggal_sidang ? \Carbon\Carbon::parse($sidang->tanggal_sidang)->format('d M Y') : '-',
+                'nilai_akhir' => $logic['nilai'],
+                'grade' => $logic['grade'],
+                'status_kelulusan' => $statusKelulusan,
+            ]);
+        }
+
+        foreach ($mahasiswaTanpaSidang as $mhs) {
+            $kp = $mhs->pendaftaranKps->first();
+            
+            $hasil->push((object)[
+                'nim' => $mhs->nim ?? '-',
+                'nama' => $mhs->user->name ?? '-',
+                'email' => $mhs->user->email ?? '-',
+                'is_aktif' => $mhs->is_aktif ? 'Aktif' : 'Tidak Aktif',
+                'judul_kp' => $kp->judul_kp ?? '-',
+                'instansi_nama' => $kp->instansi_nama ?? '-',
+                'dosen_pembimbing' => $kp->pembimbing->name ?? '-',
+                'status_kp' => $kp->status_kp ?? '-',
+                'tanggal_sidang' => '-',
+                'nilai_akhir' => 0,
+                'grade' => 'E',
+                'status_kelulusan' => 'Lanjut',
+            ]);
+        }
+
+        return $hasil->sortBy('nim')->values();
     }
 
     public function headings(): array
@@ -51,56 +108,23 @@ class ArchivedPeriodeExport implements FromCollection, WithHeadings, WithMapping
         ];
     }
 
-    public function map($mhs): array
+    public function map($row): array
     {
         static $no = 1;
-
-        // Ambil KP terbaru milik mahasiswa ini (tanpa global scope periode agar terambil walau beda filter jika ada anomali)
-        $kp = PendaftaranKp::withoutGlobalScope('periode')
-            ->where('mahasiswa_id', $mhs->user_id)
-            ->where('tahun_ajaran_id', $this->periodeId)
-            ->latest()
-            ->first();
-
-        // Ambil sidang terbaru dari KP tersebut
-        $sidang = null;
-        if ($kp) {
-            $sidang = PendaftaranSidang::withoutGlobalScope('periode')
-                ->where('pendaftaran_kp_id', $kp->id)
-                ->latest()
-                ->first();
-        }
-
-        $statusKelulusan = '-';
-        $nilaiDisplay = '-';
-        $gradeDisplay = '-';
-
-        if ($sidang && in_array($sidang->status_kelulusan, ['Lulus', 'Lulus Dengan Revisi', 'Lanjut', 'Tidak Lulus'])) {
-            $logic = $this->calculateFinalLogic($sidang);
-            $statusKelulusan = $sidang->status_kelulusan === 'Tidak Lulus' ? 'Lanjut' : $sidang->status_kelulusan;
-            $nilaiDisplay = $logic['nilai'];
-            $gradeDisplay = $logic['grade'];
-        } else {
-            // Mahasiswa tanpa sidang atau yang belum finalisasi otomatis dianggap Lanjut
-            $statusKelulusan = 'Lanjut';
-            $nilaiDisplay = 0;
-            $gradeDisplay = 'E';
-        }
-
         return [
             $no++,
-            $mhs->nim,
-            $mhs->user->name ?? '-',
-            $mhs->user->email ?? '-',
-            $mhs->is_aktif ? 'Aktif' : 'Tidak Aktif',
-            $kp->judul_kp ?? '-',
-            $kp->instansi_nama ?? '-',
-            $kp->pembimbing->name ?? '-',
-            $kp->status_kp ?? '-',
-            $sidang && $sidang->tanggal_sidang ? \Carbon\Carbon::parse($sidang->tanggal_sidang)->format('d M Y') : '-',
-            $nilaiDisplay,
-            $gradeDisplay,
-            $statusKelulusan,
+            $row->nim,
+            $row->nama,
+            $row->email,
+            $row->is_aktif,
+            $row->judul_kp,
+            $row->instansi_nama,
+            $row->dosen_pembimbing,
+            $row->status_kp,
+            $row->tanggal_sidang,
+            $row->nilai_akhir,
+            $row->grade,
+            $row->status_kelulusan,
         ];
     }
 
