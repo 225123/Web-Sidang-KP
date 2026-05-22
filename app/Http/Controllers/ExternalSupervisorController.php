@@ -78,6 +78,10 @@ class ExternalSupervisorController extends Controller
         }
 
         $sidang->update([
+            'ns_motivasi' => $request->nilai_motivasi,
+            'ns_kualitas' => $request->nilai_kualitas,
+            'ns_inisiatif' => $request->nilai_inisiatif,
+            'ns_sikap' => $request->nilai_sikap,
             'nilai_supervisor' => $nilaiSupervisor,
             'file_nilai_supervisor' => $filePath,
             'is_penilaian_supervisor_submitted' => true,

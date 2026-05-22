@@ -219,7 +219,7 @@
                                                                         <span
                                                                             class="text-[11px] font-bold text-gray-700">Supervisor</span>
                                                                         <span class="text-[14px] font-black text-black"
-                                                                            x-text="sidang.nilai_supervisor || '-'"></span>
+                                                                            x-text="(sidang.nilai_supervisor !== null && sidang.nilai_supervisor !== '') ? sidang.nilai_supervisor : '-'"></span>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -232,7 +232,7 @@
                                                                         <span
                                                                             class="text-[11px] font-bold text-gray-700">Pembimbing</span>
                                                                         <span class="text-[14px] font-black text-black"
-                                                                            x-text="sidang.nilai_pembimbing || '-'"></span>
+                                                                            x-text="(sidang.nilai_pembimbing !== null && sidang.nilai_pembimbing !== '') ? sidang.nilai_pembimbing : '-'"></span>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -246,7 +246,7 @@
                                                                             class="text-[11px] font-bold text-gray-700">Penguji
                                                                             1</span>
                                                                         <span class="text-[14px] font-black text-black"
-                                                                            x-text="sidang.nilai_penguji_1 || '-'"></span>
+                                                                            x-text="(sidang.nilai_penguji_1 !== null && sidang.nilai_penguji_1 !== '') ? sidang.nilai_penguji_1 : '-'"></span>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -260,7 +260,7 @@
                                                                             class="text-[11px] font-bold text-gray-700">Penguji
                                                                             2</span>
                                                                         <span class="text-[14px] font-black text-black"
-                                                                            x-text="sidang.nilai_penguji_2 || '-'"></span>
+                                                                            x-text="(sidang.nilai_penguji_2 !== null && sidang.nilai_penguji_2 !== '') ? sidang.nilai_penguji_2 : '-'"></span>
                                                                     </div>
                                                                 </div>
                                                             </div>
