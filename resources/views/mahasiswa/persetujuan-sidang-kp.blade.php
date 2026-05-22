@@ -28,6 +28,22 @@
                 </div>
             @endif
 
+            @if ($errors->any())
+                <div class="mb-6 bg-[#FFEAEA] border border-red-400 rounded-[10px] p-4 shadow-sm">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="bg-red-500 w-6 h-6 rounded-full flex items-center justify-center text-white shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </div>
+                        <h4 class="font-bold text-red-800 text-[14px]">Terjadi Kesalahan:</h4>
+                    </div>
+                    <ul class="list-disc pl-11 text-[13px] text-red-700 font-medium">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             @if($persetujuan && $persetujuan->status_verifikasi == 'rejected')
                 <div class="mb-6 bg-[#FFEAEA] border border-red-400 rounded-[10px] p-4 flex gap-4 shadow-sm items-start">
                     <div class="bg-red-500 w-6 h-6 rounded-full flex items-center justify-center text-white shrink-0 mt-0.5">
