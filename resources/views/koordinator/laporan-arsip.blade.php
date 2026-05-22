@@ -97,7 +97,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-white">
-                        <template x-for="(mhs, index) in paginatedSidangs" :key="mhs.id">
+                        <template x-for="(mhs, index) in paginatedSidangs" :key="mhs.nim">
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="py-3 px-4 text-center text-black/60 border-r border-gray-200" x-text="((currentPage - 1) * itemsPerPage) + index + 1"></td>
                                 <td class="py-3 px-4 text-left font-mono text-black border-r border-gray-200" x-text="mhs.nim"></td>
