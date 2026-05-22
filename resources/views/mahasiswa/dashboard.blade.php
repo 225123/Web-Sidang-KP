@@ -44,7 +44,7 @@
                         @if($kp['is_lanjutan'])
                         <div class="flex items-center">
                             <div class="w-[180px]">Status KP</div>
-                            <div class="flex-1">: <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-black text-white border border-black">Lanjut</span> <span class="text-[11px] text-black/50 italic">(melanjutkan dari periode sebelumnya)</span></div>
+                            <div class="flex-1">: Lanjut <span class="text-[11px] text-black/50 italic">(melanjutkan dari periode sebelumnya)</span></div>
                         </div>
                         @endif
                         <div class="flex">
