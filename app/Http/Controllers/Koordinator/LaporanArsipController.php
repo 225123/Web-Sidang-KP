@@ -135,9 +135,16 @@ class LaporanArsipController extends Controller
             return (object) $item;
         });
 
-        $koordinator = User::with('dosen')->whereIn('role', [1, 'koordinator_kp'])->first();
+        $periode = \App\Models\TahunAjaran::aktif();
+        $koordinator = null;
+        if ($periode && $periode->koordinator_id) {
+            $koordinator = \App\Models\User::with('dosen')->find($periode->koordinator_id);
+        }
+        
         if (!$koordinator && auth()->user()->role == 'koordinator_kp') {
             $koordinator = auth()->user()->load('dosen');
+        } elseif (!$koordinator) {
+            $koordinator = \App\Models\User::with('dosen')->whereIn('role', [1, 'koordinator_kp'])->first();
         }
 
         $pdf = Pdf::loadView('exports.laporan-arsip-pdf', compact('mahasiswas', 'koordinator'))

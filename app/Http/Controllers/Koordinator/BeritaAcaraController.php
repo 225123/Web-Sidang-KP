@@ -78,7 +78,14 @@ class BeritaAcaraController extends Controller
             ]);
         }
 
-        $koordinator = \App\Models\User::with('dosen')->where('role', 'koordinator_kp')->first();
+        $periode = \App\Models\TahunAjaran::aktif();
+        $koordinator = null;
+        if ($periode && $periode->koordinator_id) {
+            $koordinator = \App\Models\User::with('dosen')->find($periode->koordinator_id);
+        }
+        if (!$koordinator) {
+            $koordinator = \App\Models\User::with('dosen')->where('role', 'koordinator_kp')->first();
+        }
 
         // Load the view into dompdf and stream it directly
         $pdf = Pdf::loadView('koordinator.berita-acara-pdf-template', compact('sidang', 'koordinator'));

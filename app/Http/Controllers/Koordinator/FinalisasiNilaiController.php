@@ -140,7 +140,14 @@ class FinalisasiNilaiController extends Controller
         $sidang->judul_kp_display = $ownKp ? $ownKp->judul_kp : ($sidang->pendaftaranKp->judul_kp ?? '-');
 
         // Get Koordinator (Official role)
-        $koordinator = \App\Models\User::where('role', 'koordinator_kp')->with('dosen')->first();
+        $periode = \App\Models\TahunAjaran::aktif();
+        $koordinator = null;
+        if ($periode && $periode->koordinator_id) {
+            $koordinator = \App\Models\User::with('dosen')->find($periode->koordinator_id);
+        }
+        if (!$koordinator) {
+            $koordinator = \App\Models\User::where('role', 'koordinator_kp')->with('dosen')->first();
+        }
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('koordinator.berita-acara-pdf-template', compact('sidang', 'koordinator'));
         return $pdf->download('Berita_Acara_' . ($sidang->mahasiswa->nim ?? 'Mahasiswa') . '.pdf');
