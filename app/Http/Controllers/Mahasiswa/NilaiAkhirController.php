@@ -104,6 +104,13 @@ class NilaiAkhirController extends Controller
         $sidang->original_grade = $logic['original_grade'];
         $sidang->is_penalized = $logic['is_penalized'];
 
+        $ownKp = \App\Models\PendaftaranKp::withoutGlobalScope('periode')
+            ->where('mahasiswa_id', $sidang->mahasiswa_id)
+            ->whereIn('status_kp', ['pending', 'approved'])
+            ->latest()
+            ->first();
+        $sidang->judul_kp_display = $ownKp ? $ownKp->judul_kp : ($sidang->pendaftaranKp->judul_kp ?? '-');
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.nilai-akhir-pdf', compact('sidang'));
         return $pdf->download('Nilai_Akhir_' . ($sidang->mahasiswa->nim ?? 'Mahasiswa') . '.pdf');
     }
@@ -129,6 +136,13 @@ class NilaiAkhirController extends Controller
         if (!$sidang->nilai_dipublikasi || $sidang->pelaksanaan !== 'Selesai') {
             abort(403, 'Berita acara belum tersedia. Pastikan sidang telah selesai dan nilai telah dipublikasi oleh koordinator.');
         }
+
+        $ownKp = \App\Models\PendaftaranKp::withoutGlobalScope('periode')
+            ->where('mahasiswa_id', $sidang->mahasiswa_id)
+            ->whereIn('status_kp', ['pending', 'approved'])
+            ->latest()
+            ->first();
+        $sidang->judul_kp_display = $ownKp ? $ownKp->judul_kp : ($sidang->pendaftaranKp->judul_kp ?? '-');
 
         // Get Koordinator
         $koordinator = \App\Models\User::where('role', 'koordinator_kp')->with('dosen')->first();

@@ -111,8 +111,9 @@ class FinalisasiNilaiController extends Controller
         $sidang->is_penalized = $logic['is_penalized'];
 
         // Dapatkan Judul KP spesifik milik mahasiswa
-        $ownKp = \App\Models\PendaftaranKp::where('mahasiswa_id', $sidang->mahasiswa_id)
-            ->where('status_kp', 'approved')
+        $ownKp = \App\Models\PendaftaranKp::withoutGlobalScope('periode')
+            ->where('mahasiswa_id', $sidang->mahasiswa_id)
+            ->whereIn('status_kp', ['pending', 'approved'])
             ->latest()
             ->first();
         $sidang->judul_kp_display = $ownKp ? $ownKp->judul_kp : ($sidang->pendaftaranKp->judul_kp ?? '-');
@@ -131,8 +132,9 @@ class FinalisasiNilaiController extends Controller
         }
 
         // Dapatkan Judul KP spesifik milik mahasiswa
-        $ownKp = \App\Models\PendaftaranKp::where('mahasiswa_id', $sidang->mahasiswa_id)
-            ->where('status_kp', 'approved')
+        $ownKp = \App\Models\PendaftaranKp::withoutGlobalScope('periode')
+            ->where('mahasiswa_id', $sidang->mahasiswa_id)
+            ->whereIn('status_kp', ['pending', 'approved'])
             ->latest()
             ->first();
         $sidang->judul_kp_display = $ownKp ? $ownKp->judul_kp : ($sidang->pendaftaranKp->judul_kp ?? '-');
