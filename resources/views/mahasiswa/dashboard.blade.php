@@ -32,9 +32,6 @@
                 <div class="bg-[#ECECEC] rounded-[30px] p-8 shadow-sm min-h-[436px]">
                     <div class="flex items-center gap-2 mb-6">
                         <h3 class="font-bold text-black text-[17px]">Status Kerja Praktik</h3>
-                        @if($kp['is_lanjutan'])
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-black text-white border border-black">Lanjut</span>
-                        @endif
                         <span class="font-medium text-black text-[17px] ml-1">:
                             <span
                                 class="{{ $kp['status_raw'] === 'approved' ? 'text-green-600' : ($kp['status_raw'] === 'pending' ? 'text-[#BFA512]' : 'text-red-600') }}">
