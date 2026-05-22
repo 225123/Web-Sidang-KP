@@ -97,22 +97,25 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-white">
-                        <template x-for="(sidang, index) in paginatedSidangs" :key="sidang.id">
+                        <template x-for="(mhs, index) in paginatedSidangs" :key="mhs.id">
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="py-3 px-4 text-center text-black/60 border-r border-gray-200" x-text="((currentPage - 1) * itemsPerPage) + index + 1"></td>
-                                <td class="py-3 px-4 text-left font-mono text-black border-r border-gray-200" x-text="sidang.mahasiswa.nim"></td>
-                                <td class="py-3 px-4 text-left font-bold text-black uppercase border-r border-gray-200" x-text="sidang.mahasiswa.user.name"></td>
-                                <td class="py-3 px-4 text-center border-r border-gray-200 font-bold" x-text="Number(sidang.nilai_akhir_display).toFixed(2)"></td>
-                                <td class="py-3 px-4 text-center border-r border-gray-200 font-bold" x-text="sidang.grade_display"></td>
+                                <td class="py-3 px-4 text-left font-mono text-black border-r border-gray-200" x-text="mhs.nim"></td>
+                                <td class="py-3 px-4 text-left font-bold text-black uppercase border-r border-gray-200" x-text="mhs.user.name"></td>
+                                <td class="py-3 px-4 text-center border-r border-gray-200 font-bold" x-text="mhs.nilai_akhir_display === '-' ? '-' : Number(mhs.nilai_akhir_display).toFixed(2)"></td>
+                                <td class="py-3 px-4 text-center border-r border-gray-200 font-bold" x-text="mhs.grade_display"></td>
                                 <td class="py-3 px-4 text-center">
-                                    <template x-if="sidang.status_kelulusan === 'Lulus'">
+                                    <template x-if="mhs.status_kelulusan_display === 'Lulus'">
                                         <span class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold text-[11px] uppercase shadow-sm border border-green-200">Lulus</span>
                                     </template>
-                                    <template x-if="sidang.status_kelulusan === 'Lulus Dengan Revisi'">
+                                    <template x-if="mhs.status_kelulusan_display === 'Lulus Dengan Revisi'">
                                         <span class="inline-flex items-center gap-1.5 bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-bold text-[11px] uppercase shadow-sm border border-blue-200">Lulus Dengan Revisi</span>
                                     </template>
-                                    <template x-if="sidang.status_kelulusan === 'Lanjut' || sidang.status_kelulusan === 'Tidak Lulus'">
+                                    <template x-if="mhs.status_kelulusan_display === 'Lanjut'">
                                         <span class="inline-flex items-center gap-1.5 bg-red-100 text-red-700 px-3 py-1 rounded-full font-bold text-[11px] uppercase shadow-sm border border-red-200">Lanjut (Tidak Lulus)</span>
+                                    </template>
+                                    <template x-if="mhs.status_kelulusan_display === 'Belum Finalisasi'">
+                                        <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-500 px-3 py-1 rounded-full font-bold text-[11px] uppercase shadow-sm border border-gray-200">Belum Finalisasi</span>
                                     </template>
                                 </td>
                             </tr>
@@ -145,7 +148,7 @@
     <script>
         window.laporanPage = function() {
             return {
-                sidangs: @json($sidangs),
+                sidangs: @json($mahasiswas),
                 search: '',
                 filterStatus: 'all',
                 currentPage: 1,
@@ -165,9 +168,9 @@
                 get stats() {
                     return {
                         total: this.sidangs.length,
-                        lulus: this.sidangs.filter(s => s.status_kelulusan === 'Lulus').length,
-                        revisi: this.sidangs.filter(s => s.status_kelulusan === 'Lulus Dengan Revisi').length,
-                        lanjut: this.sidangs.filter(s => s.status_kelulusan === 'Lanjut' || s.status_kelulusan === 'Tidak Lulus').length,
+                        lulus: this.sidangs.filter(s => s.status_kelulusan_display === 'Lulus').length,
+                        revisi: this.sidangs.filter(s => s.status_kelulusan_display === 'Lulus Dengan Revisi').length,
+                        lanjut: this.sidangs.filter(s => s.status_kelulusan_display === 'Lanjut' || s.status_kelulusan_display === 'Tidak Lulus').length,
                     }
                 },
 
@@ -175,12 +178,12 @@
                     let res = [...this.sidangs];
                     if (this.search) {
                         const q = this.search.toLowerCase();
-                        res = res.filter(s => s.mahasiswa.nim.toLowerCase().includes(q) || s.mahasiswa.user.name.toLowerCase().includes(q));
+                        res = res.filter(s => s.nim.toLowerCase().includes(q) || s.user.name.toLowerCase().includes(q));
                     }
                     if (this.filterStatus !== 'all') {
                         res = res.filter(s => {
-                            if (this.filterStatus === 'Lanjut') return s.status_kelulusan === 'Lanjut' || s.status_kelulusan === 'Tidak Lulus';
-                            return s.status_kelulusan === this.filterStatus;
+                            if (this.filterStatus === 'Lanjut') return s.status_kelulusan_display === 'Lanjut' || s.status_kelulusan_display === 'Tidak Lulus';
+                            return s.status_kelulusan_display === this.filterStatus;
                         });
                     }
                     return res;

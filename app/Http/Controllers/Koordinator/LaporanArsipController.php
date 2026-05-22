@@ -12,42 +12,113 @@ class LaporanArsipController extends Controller
 {
     public function index()
     {
-        // Ambil data mahasiswa yang sudah dipublikasi nilainya (Hasil Finalisasi)
-        $sidangs = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp.pembimbing', 'pendaftaranKp.supervisorInstansi'])
-            ->where('nilai_dipublikasi', true)
-            ->orderBy('id', 'desc')
-            ->get()
-            ->map(function ($sidang) {
-                $logic = $this->calculateFinalLogic($sidang);
-                $sidang->nilai_akhir_display = $logic['nilai'];
-                $sidang->grade_display = $logic['grade'];
-                return $sidang;
-            });
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id;
 
-        return view('koordinator.laporan-arsip', compact('sidangs'));
+        // Cek apakah finalisasi sudah pernah dilakukan di periode ini
+        $isFinalized = PendaftaranSidang::whereHas('pendaftaranKp', function($q) use ($periodeId) {
+            $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+        })->where('nilai_dipublikasi', true)->exists();
+
+        // Ambil semua mahasiswa di periode tersebut
+        $mahasiswas = \App\Models\Mahasiswa::with(['user'])
+            ->where('tahun_ajaran_id', $periodeId)
+            ->get()
+            ->map(function ($mhs) use ($isFinalized, $periodeId) {
+                // Cari pendaftaran KP terakhir milik mahasiswa di periode ini
+                $kp = \App\Models\PendaftaranKp::withoutGlobalScope('periode')
+                    ->with(['pembimbing', 'supervisorInstansi'])
+                    ->where('mahasiswa_id', $mhs->user_id)
+                    ->where('tahun_ajaran_id', $periodeId)
+                    ->latest()
+                    ->first();
+
+                // Cari pendaftaran Sidang terakhir dari KP tersebut
+                $sidang = $kp ? PendaftaranSidang::where('pendaftaran_kp_id', $kp->id)->latest()->first() : null;
+
+                $mhs->judul_kp_display = $kp ? $kp->judul_kp : '-';
+                $mhs->instansi_display = $kp ? $kp->instansi_nama : '-';
+
+                // Jika sudah punya nilai yang dipublikasi
+                if ($sidang && $sidang->nilai_dipublikasi && $mhs->is_aktif) {
+                    $logic = $this->calculateFinalLogic($sidang);
+                    $mhs->nilai_akhir_display = $logic['nilai'];
+                    $mhs->grade_display = $logic['grade'];
+                    // Standarisasi Tidak Lulus menjadi Lanjut
+                    $mhs->status_kelulusan_display = $sidang->status_kelulusan === 'Tidak Lulus' ? 'Lanjut' : $sidang->status_kelulusan;
+                } else {
+                    // Jika belum punya nilai, atau sidang belum selesai, atau tidak aktif
+                    if ($isFinalized) {
+                        $mhs->nilai_akhir_display = 0;
+                        $mhs->grade_display = 'E';
+                        $mhs->status_kelulusan_display = 'Lanjut';
+                    } else {
+                        $mhs->nilai_akhir_display = '-';
+                        $mhs->grade_display = '-';
+                        $mhs->status_kelulusan_display = 'Belum Finalisasi';
+                    }
+                }
+
+                return $mhs;
+            })
+            ->sortBy('nim')
+            ->values();
+
+        return view('koordinator.laporan-arsip', compact('mahasiswas', 'isFinalized'));
     }
 
     public function downloadPdf()
     {
-        $sidangs = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp.pembimbing', 'pendaftaranKp.supervisorInstansi'])
-            ->where('nilai_dipublikasi', true)
-            ->orderBy('id', 'desc')
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id;
+
+        $isFinalized = PendaftaranSidang::whereHas('pendaftaranKp', function($q) use ($periodeId) {
+            $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+        })->where('nilai_dipublikasi', true)->exists();
+
+        $mahasiswas = \App\Models\Mahasiswa::with(['user'])
+            ->where('tahun_ajaran_id', $periodeId)
             ->get()
-            ->map(function ($sidang) {
-                $logic = $this->calculateFinalLogic($sidang);
-                $sidang->nilai_akhir_display = $logic['nilai'];
-                $sidang->grade_display = $logic['grade'];
-                return $sidang;
-            });
+            ->map(function ($mhs) use ($isFinalized, $periodeId) {
+                $kp = \App\Models\PendaftaranKp::withoutGlobalScope('periode')
+                    ->with(['pembimbing', 'supervisorInstansi'])
+                    ->where('mahasiswa_id', $mhs->user_id)
+                    ->where('tahun_ajaran_id', $periodeId)
+                    ->latest()
+                    ->first();
+
+                $sidang = $kp ? PendaftaranSidang::where('pendaftaran_kp_id', $kp->id)->latest()->first() : null;
+
+                $mhs->judul_kp_display = $kp ? $kp->judul_kp : '-';
+                $mhs->instansi_display = $kp ? $kp->instansi_nama : '-';
+
+                if ($sidang && $sidang->nilai_dipublikasi && $mhs->is_aktif) {
+                    $logic = $this->calculateFinalLogic($sidang);
+                    $mhs->nilai_akhir_display = $logic['nilai'];
+                    $mhs->grade_display = $logic['grade'];
+                    $mhs->status_kelulusan_display = $sidang->status_kelulusan === 'Tidak Lulus' ? 'Lanjut' : $sidang->status_kelulusan;
+                } else {
+                    if ($isFinalized) {
+                        $mhs->nilai_akhir_display = 0;
+                        $mhs->grade_display = 'E';
+                        $mhs->status_kelulusan_display = 'Lanjut';
+                    } else {
+                        $mhs->nilai_akhir_display = '-';
+                        $mhs->grade_display = '-';
+                        $mhs->status_kelulusan_display = 'Belum Finalisasi';
+                    }
+                }
+
+                return $mhs;
+            })
+            ->sortBy('nim')
+            ->values();
 
         $koordinator = User::with('dosen')->whereIn('role', [1, 'koordinator_kp'])->first();
 
-        // Fallback if not found by role (use current user if they are koordinator)
         if (!$koordinator && auth()->user()->role == 'koordinator_kp') {
             $koordinator = auth()->user()->load('dosen');
         }
 
-        $pdf = Pdf::loadView('exports.laporan-arsip-pdf', compact('sidangs', 'koordinator'))
+        $pdf = Pdf::loadView('exports.laporan-arsip-pdf', compact('mahasiswas', 'koordinator'))
             ->setPaper('a4', 'portrait');
 
         return $pdf->download('Laporan_Kelulusan_Mahasiswa.pdf');
