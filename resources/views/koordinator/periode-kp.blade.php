@@ -51,22 +51,54 @@
             {{-- Open New Period --}}
             <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm p-6 flex flex-col justify-between">
                 <div>
-                    <h3 class="font-bold text-gray-800 text-[16px] mb-1 tracking-tight">Buka Periode Baru</h3>
-                    <p class="text-[12px] text-gray-500 mb-4 font-medium">
-                        Periode berikutnya: <span class="font-bold text-[#4285F4]">{{ $nextPeriod['label'] }}</span>
+                    <h3 class="font-bold text-gray-800 text-[16px] mb-3 tracking-tight flex items-center justify-between">
+                        Buka Periode Baru
+                        <div class="flex bg-gray-100 p-1 rounded-lg">
+                            <button @click="mode = 'auto'" :class="mode === 'auto' ? 'bg-white shadow text-[#4285F4]' : 'text-gray-500 hover:text-gray-700'" class="px-3 py-1 text-xs font-bold rounded-md transition-all">Otomatis</button>
+                            <button @click="mode = 'manual'" :class="mode === 'manual' ? 'bg-white shadow text-[#4285F4]' : 'text-gray-500 hover:text-gray-700'" class="px-3 py-1 text-xs font-bold rounded-md transition-all">Manual</button>
+                        </div>
+                    </h3>
+                    
+                    <p x-show="mode === 'auto'" class="text-[12px] text-gray-500 italic mb-5 leading-relaxed">
+                        Sistem mendeteksi periode berikutnya secara berurutan. Membuka periode baru akan otomatis menutup periode yang sedang aktif.
                     </p>
-                    <p class="text-[12px] text-gray-500 italic mb-5 leading-relaxed">
-                        Membuka periode baru akan otomatis menutup periode yang sedang aktif.
+                    <p x-show="mode === 'manual'" style="display: none;" class="text-[12px] text-gray-500 italic mb-5 leading-relaxed">
+                        Gunakan mode manual jika terjadi kesalahan input di masa lalu. Masukkan tahun awal dan sistem akan membentuknya.
                     </p>
                 </div>
-                <form action="{{ route('koordinator.periode-kp.store') }}" method="POST" id="formBukaPeriode" class="space-y-3">
+
+                <form action="{{ route('koordinator.periode-kp.store') }}" method="POST" id="formBukaPeriode" class="space-y-4">
                     @csrf
-                    <input type="hidden" name="semester" value="{{ $nextPeriod['semester'] }}">
-                    <input type="hidden" name="tahun" value="{{ $nextPeriod['tahun'] }}">
-                    <div class="bg-gray-50 border border-gray-200 rounded-[10px] px-4 py-3 text-center">
+                    <input type="hidden" name="semester" :value="mode === 'auto' ? '{{ $nextPeriod['semester'] }}' : manualSemester">
+                    <input type="hidden" name="tahun" :value="mode === 'auto' ? '{{ $nextPeriod['tahun'] }}' : (manualTahun ? manualTahun + '/' + (parseInt(manualTahun) + 1) : '')">
+                    
+                    <!-- Mode Otomatis -->
+                    <div x-show="mode === 'auto'" class="bg-gray-50 border border-gray-200 rounded-[10px] px-4 py-4 text-center">
                         <p class="text-[12px] text-gray-500 font-medium mb-1">Periode yang akan dibuka</p>
                         <p class="text-[18px] font-black text-gray-800">{{ $nextPeriod['label'] }}</p>
                     </div>
+
+                    <!-- Mode Manual -->
+                    <div x-show="mode === 'manual'" style="display: none;" class="space-y-3">
+                        <div class="flex gap-3">
+                            <div class="flex-1">
+                                <label class="block text-[11px] font-bold text-gray-600 mb-1 uppercase tracking-wider">Semester</label>
+                                <select x-model="manualSemester" class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg focus:ring-[#4285F4] focus:border-[#4285F4] block px-3 py-2">
+                                    <option value="Ganjil">Ganjil</option>
+                                    <option value="Genap">Genap</option>
+                                </select>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-[11px] font-bold text-gray-600 mb-1 uppercase tracking-wider">Tahun Awal</label>
+                                <input type="number" x-model="manualTahun" placeholder="Cth: 2023" class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg focus:ring-[#4285F4] focus:border-[#4285F4] block px-3 py-2">
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 border border-blue-100 rounded-[10px] px-4 py-3 text-center">
+                            <p class="text-[11px] text-blue-600 font-medium mb-1">Pratinjau Periode</p>
+                            <p class="text-[16px] font-black text-[#4285F4]" x-text="manualLabel"></p>
+                        </div>
+                    </div>
+
                     <button type="button" @click="bukaPeriode()"
                         class="w-full bg-[#4285F4] hover:bg-blue-600 text-white font-bold text-[13px] py-2.5 rounded-[10px] transition-colors shadow-sm flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -187,7 +219,15 @@
     <script>
         function periodeController() {
             return {
+                mode: 'auto',
+                manualSemester: 'Ganjil',
+                manualTahun: new Date().getFullYear(),
                 confirmDialog: { show: false, title: '', message: '', type: 'info', confirmText: 'Iya, Lanjutkan', callback: null },
+                
+                get manualLabel() {
+                    if (!this.manualTahun) return '-';
+                    return this.manualSemester + ' ' + this.manualTahun + '/' + (parseInt(this.manualTahun) + 1);
+                },
 
                 triggerConfirm(options) {
                     this.confirmDialog = {
@@ -208,9 +248,16 @@
                 },
 
                 bukaPeriode() {
+                    let label = this.mode === 'auto' ? '{{ $nextPeriod["label"] }}' : this.manualLabel;
+                    
+                    if (this.mode === 'manual' && (!this.manualTahun || this.manualTahun.toString().length !== 4)) {
+                        alert('Silakan masukkan tahun awal yang valid (misal: 2023).');
+                        return;
+                    }
+
                     this.triggerConfirm({
                         title: 'Buka Periode Baru',
-                        message: 'Apakah Anda Koordinator KP yang resmi ditunjuk untuk periode {{ $nextPeriod["label"] }}? Membuka periode ini akan mengaitkan akun Anda sebagai penanggung jawab (termasuk cetak tanda tangan dokumen PDF) dan otomatis menutup periode berjalan.',
+                        message: `Apakah Anda Koordinator KP yang resmi ditunjuk untuk periode ${label}? Membuka periode ini akan mengaitkan akun Anda sebagai penanggung jawab (termasuk cetak tanda tangan dokumen PDF) dan otomatis menutup periode berjalan.`,
                         type: 'info',
                         confirmText: 'Ya, Saya Koordinator Resmi',
                         callback: () => {
