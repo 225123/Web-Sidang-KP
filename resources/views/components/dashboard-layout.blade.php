@@ -343,7 +343,7 @@ class="font-inter antialiased bg-[#F5F6F8] text-gray-900 flex flex-col h-screen 
     </footer>
     <!-- Global Custom Alert Modal (PURE VANILLA JS) -->
     <div id="native-global-alert" style="display: none;" class="fixed inset-0 z-[100000] items-center justify-center bg-black/40 backdrop-blur-sm p-4 transition-opacity">
-        <div id="native-global-alert-backdrop" class="absolute inset-0"></div>
+        <div id="native-global-alert-backdrop" onclick="window.hideGlobalAlert()" class="absolute inset-0"></div>
         <div class="bg-white rounded-[15px] w-full max-w-[420px] p-8 shadow-2xl flex flex-col items-center text-center relative overflow-hidden border border-gray-100 z-10 transform transition-transform">
             
             <!-- Icon Header -->
@@ -357,7 +357,7 @@ class="font-inter antialiased bg-[#F5F6F8] text-gray-900 flex flex-col h-screen 
             <h3 id="native-alert-title" class="text-[18px] font-bold text-gray-900 mb-3">Peringatan</h3>
             <p id="native-alert-message" class="text-[14px] text-gray-500 mb-8 leading-relaxed px-2"></p>
 
-            <button id="native-alert-close-btn" type="button" class="w-full h-[45px] text-white rounded-[10px] text-[14px] font-bold transition-all shadow-md active:transform active:scale-95 bg-[#E53935] hover:bg-red-700">
+            <button id="native-alert-close-btn" onclick="window.hideGlobalAlert()" type="button" class="w-full h-[45px] text-white rounded-[10px] text-[14px] font-bold transition-all shadow-md active:transform active:scale-95 bg-[#E53935] hover:bg-red-700">
                 Mengerti
             </button>
         </div>
