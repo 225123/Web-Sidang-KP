@@ -55,6 +55,38 @@
     </style>
 </head>
 <body>
+    @php
+        if (!function_exists('getAbsoluteImagePath')) {
+            function getAbsoluteImagePath($pathAsset) {
+                if(!$pathAsset) return null;
+                
+                if(str_starts_with($pathAsset, 'data:image')) return $pathAsset;
+
+                if (!extension_loaded('gd') && !str_ends_with(strtolower($pathAsset), '.jpg') && !str_ends_with(strtolower($pathAsset), '.jpeg')) {
+                    return null;
+                }
+
+                $disk = upload_disk();
+                try {
+                    if (\Illuminate\Support\Facades\Storage::disk($disk)->exists($pathAsset)) {
+                        $type = pathinfo($pathAsset, PATHINFO_EXTENSION);
+                        if (!$type) $type = 'png';
+                        $data = \Illuminate\Support\Facades\Storage::disk($disk)->get($pathAsset);
+                        return 'data:image/' . $type . ';base64,' . base64_encode($data);
+                    }
+                } catch (\Exception $e) {
+                    // ignore error
+                }
+                
+                return null;
+            }
+        }
+
+        $base64_penguji1 = getAbsoluteImagePath($sidang->penguji1?->signature_path ?? null) ?? $sidang->penguji1?->signature ?? null;
+        $base64_penguji2 = getAbsoluteImagePath($sidang->penguji2?->signature_path ?? null) ?? $sidang->penguji2?->signature ?? null;
+        $base64_koordinator = getAbsoluteImagePath($koordinator?->signature_path ?? null) ?? $koordinator?->signature ?? null;
+    @endphp
+
     <table class="header-table">
         <tr>
             <td style="width: 120px; text-align: center;">
@@ -100,10 +132,8 @@
                 <tr>
                     <td>
                         <p class="font-bold">Dosen Penguji 1</p>
-                        @if($sidang->penguji1?->signature_path)
-                            <img src="{{ public_path('storage/' . $sidang->penguji1->signature_path) }}" style="width: 150px; height: 80px; margin: 10px 0;">
-                        @elseif($sidang->penguji1?->signature)
-                            <img src="{{ $sidang->penguji1->signature }}" style="width: 150px; height: 80px; margin: 10px 0;">
+                        @if($base64_penguji1)
+                            <img src="{{ $base64_penguji1 }}" style="width: 150px; height: 80px; margin: 10px 0;">
                         @else
                             <div style="height: 80px; color: red; font-style: italic; font-size: 10px; padding-top: 30px;">
                                 (Tanda tangan digital belum tersedia)
@@ -114,10 +144,8 @@
                     </td>
                     <td>
                         <p class="font-bold">Dosen Penguji 2</p>
-                        @if($sidang->penguji2?->signature_path)
-                            <img src="{{ public_path('storage/' . $sidang->penguji2->signature_path) }}" style="width: 150px; height: 80px; margin: 10px 0;">
-                        @elseif($sidang->penguji2?->signature)
-                            <img src="{{ $sidang->penguji2->signature }}" style="width: 150px; height: 80px; margin: 10px 0;">
+                        @if($base64_penguji2)
+                            <img src="{{ $base64_penguji2 }}" style="width: 150px; height: 80px; margin: 10px 0;">
                         @else
                             <div style="height: 80px; color: red; font-style: italic; font-size: 10px; padding-top: 30px;">
                                 (Tanda tangan digital belum tersedia)
@@ -130,10 +158,8 @@
                 <tr>
                     <td>
                         <p class="font-bold" style="margin-top: 40px;">Koordinator Kerja Praktek</p>
-                        @if($koordinator?->signature_path)
-                            <img src="{{ public_path('storage/' . $koordinator->signature_path) }}" style="width: 150px; height: 80px; margin: 10px 0;">
-                        @elseif($koordinator?->signature)
-                            <img src="{{ $koordinator->signature }}" style="width: 150px; height: 80px; margin: 10px 0;">
+                        @if($base64_koordinator)
+                            <img src="{{ $base64_koordinator }}" style="width: 150px; height: 80px; margin: 10px 0;">
                         @else
                             <div style="height: 80px; color: red; font-style: italic; font-size: 10px; padding-top: 30px;">
                                 (Tanda tangan digital belum tersedia)
