@@ -24,8 +24,9 @@ class LaporanArsipController extends Controller
             ->where('tahun_ajaran_id', $periodeId)
             ->get()
             ->map(function ($mhs) use ($isFinalized, $periodeId) {
-                // Cari pendaftaran Sidang yang nilainya sudah dipublikasi untuk mahasiswa ini di periode tersebut
-                $sidang = PendaftaranSidang::whereHas('pendaftaranKp', function($q) use ($mhs, $periodeId) {
+                // Cari pendaftaran Sidang untuk mahasiswa ini di periode tersebut (tanpa global scope)
+                $sidang = PendaftaranSidang::withoutGlobalScope('periode')
+                    ->whereHas('pendaftaranKp', function($q) use ($mhs, $periodeId) {
                         $q->withoutGlobalScope('periode')
                           ->where('mahasiswa_id', $mhs->user_id)
                           ->where('tahun_ajaran_id', $periodeId);
@@ -85,7 +86,8 @@ class LaporanArsipController extends Controller
             ->where('tahun_ajaran_id', $periodeId)
             ->get()
             ->map(function ($mhs) use ($isFinalized, $periodeId) {
-                $sidang = PendaftaranSidang::whereHas('pendaftaranKp', function($q) use ($mhs, $periodeId) {
+                $sidang = PendaftaranSidang::withoutGlobalScope('periode')
+                    ->whereHas('pendaftaranKp', function($q) use ($mhs, $periodeId) {
                         $q->withoutGlobalScope('periode')
                           ->where('mahasiswa_id', $mhs->user_id)
                           ->where('tahun_ajaran_id', $periodeId);
