@@ -24,16 +24,23 @@ class LaporanArsipController extends Controller
             ->where('tahun_ajaran_id', $periodeId)
             ->get()
             ->map(function ($mhs) use ($isFinalized, $periodeId) {
-                // Cari pendaftaran KP terakhir milik mahasiswa di periode ini
-                $kp = \App\Models\PendaftaranKp::withoutGlobalScope('periode')
-                    ->with(['pembimbing', 'supervisorInstansi'])
-                    ->where('mahasiswa_id', $mhs->user_id)
-                    ->where('tahun_ajaran_id', $periodeId)
+                // Cari pendaftaran Sidang yang nilainya sudah dipublikasi untuk mahasiswa ini di periode tersebut
+                $sidang = PendaftaranSidang::whereHas('pendaftaranKp', function($q) use ($mhs, $periodeId) {
+                        $q->withoutGlobalScope('periode')
+                          ->where('mahasiswa_id', $mhs->user_id)
+                          ->where('tahun_ajaran_id', $periodeId);
+                    })
                     ->latest()
                     ->first();
 
-                // Cari pendaftaran Sidang terakhir dari KP tersebut
-                $sidang = $kp ? PendaftaranSidang::where('pendaftaran_kp_id', $kp->id)->latest()->first() : null;
+                // Cari pendaftaran KP yang terkait dengan sidang tersebut, atau KP terbaru jika tidak ada sidang
+                $kp = $sidang 
+                    ? \App\Models\PendaftaranKp::withoutGlobalScope('periode')->find($sidang->pendaftaran_kp_id)
+                    : \App\Models\PendaftaranKp::withoutGlobalScope('periode')
+                        ->where('mahasiswa_id', $mhs->user_id)
+                        ->where('tahun_ajaran_id', $periodeId)
+                        ->latest()
+                        ->first();
 
                 $mhs->judul_kp_display = $kp ? $kp->judul_kp : '-';
                 $mhs->instansi_display = $kp ? $kp->instansi_nama : '-';
@@ -78,14 +85,21 @@ class LaporanArsipController extends Controller
             ->where('tahun_ajaran_id', $periodeId)
             ->get()
             ->map(function ($mhs) use ($isFinalized, $periodeId) {
-                $kp = \App\Models\PendaftaranKp::withoutGlobalScope('periode')
-                    ->with(['pembimbing', 'supervisorInstansi'])
-                    ->where('mahasiswa_id', $mhs->user_id)
-                    ->where('tahun_ajaran_id', $periodeId)
+                $sidang = PendaftaranSidang::whereHas('pendaftaranKp', function($q) use ($mhs, $periodeId) {
+                        $q->withoutGlobalScope('periode')
+                          ->where('mahasiswa_id', $mhs->user_id)
+                          ->where('tahun_ajaran_id', $periodeId);
+                    })
                     ->latest()
                     ->first();
 
-                $sidang = $kp ? PendaftaranSidang::where('pendaftaran_kp_id', $kp->id)->latest()->first() : null;
+                $kp = $sidang 
+                    ? \App\Models\PendaftaranKp::withoutGlobalScope('periode')->find($sidang->pendaftaran_kp_id)
+                    : \App\Models\PendaftaranKp::withoutGlobalScope('periode')
+                        ->where('mahasiswa_id', $mhs->user_id)
+                        ->where('tahun_ajaran_id', $periodeId)
+                        ->latest()
+                        ->first();
 
                 $mhs->judul_kp_display = $kp ? $kp->judul_kp : '-';
                 $mhs->instansi_display = $kp ? $kp->instansi_nama : '-';
