@@ -253,6 +253,21 @@ class="font-inter antialiased bg-[#F5F6F8] text-gray-900 flex flex-col h-screen 
                                 </div>
                             </div>
                         </div>
+                    @elseif(auth()->check() && auth()->user()->role === 'mahasiswa' && auth()->user()->mahasiswa && !auth()->user()->mahasiswa->is_aktif)
+                        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded shadow-sm">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-[13px] text-red-700 font-medium">
+                                        <strong>Mode Lihat Saja:</strong> Status Mahasiswa Anda telah diatur menjadi Tidak Aktif. Semua fitur pengajuan dan perubahan data telah dikunci, Anda hanya dapat melihat data historis.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                         <script>
                             document.addEventListener('DOMContentLoaded', () => {
                                 const actionKeywords = ['simpan', 'tambah', 'update', 'sahkan', 'hapus', 'terima', 'tolak', 'setujui', 'generate', 'auto', 'reset', 'cancel', 'kirim', 'upload', 'buka', 'tutup'];
