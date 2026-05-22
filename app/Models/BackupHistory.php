@@ -12,6 +12,7 @@ class BackupHistory extends Model
     protected $fillable = [
         'koordinator_id',
         'tahun_ajaran_id',
+        'periode_name',
         'file_name',
     ];
 

@@ -206,7 +206,7 @@
                                 {{ $history->created_at->translatedFormat('d F Y, H:i') }} WIB
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                                {{ $history->tahunAjaran->label_tahun_ajaran ?? 'Tidak diketahui' }}
+                                {{ $history->periode_name ?? ($history->tahunAjaran->label_tahun_ajaran ?? 'Tidak diketahui') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
                                 {{ $history->file_name }}

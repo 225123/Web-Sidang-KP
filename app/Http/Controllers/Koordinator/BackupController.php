@@ -116,6 +116,7 @@ class BackupController extends Controller
             BackupHistory::create([
                 'koordinator_id' => auth()->id(),
                 'tahun_ajaran_id' => $periodeId,
+                'periode_name' => $periode->label_tahun_ajaran,
                 'file_name' => $zipFileName,
             ]);
 
@@ -160,8 +161,11 @@ class BackupController extends Controller
             PendaftaranSidang::withoutGlobalScope('periode')->whereIn('pendaftaran_kp_id', $kps->pluck('id'))->delete();
             // Hapus Pendaftaran KP
             PendaftaranKp::withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId)->delete();
-            // Hapus Mahasiswa
+            // Hapus Mahasiswa yang terkait periode ini
             Mahasiswa::where('tahun_ajaran_id', $periodeId)->delete();
+
+            // Hapus Tahun Ajaran (Periode) agar tidak muncul lagi di dropdown user lain
+            $periode->delete();
 
             DB::commit();
 
