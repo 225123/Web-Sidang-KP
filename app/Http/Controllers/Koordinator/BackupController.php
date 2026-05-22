@@ -76,17 +76,18 @@ class BackupController extends Controller
                 File::makeDirectory($tmpDir . '/' . $dir, 0755, true);
             }
 
+            $diskName = env('FILESYSTEM_DISK', 'public');
             foreach ($sidangs as $sidang) {
-                if ($sidang->file_laporan && Storage::disk('s3')->exists($sidang->file_laporan)) {
-                    $content = Storage::disk('s3')->get($sidang->file_laporan);
+                if ($sidang->file_laporan && Storage::disk($diskName)->exists($sidang->file_laporan)) {
+                    $content = Storage::disk($diskName)->get($sidang->file_laporan);
                     File::put($tmpDir . '/File_Laporan_KP/' . basename($sidang->file_laporan), $content);
                 }
-                if ($sidang->file_log_bimbingan && Storage::disk('s3')->exists($sidang->file_log_bimbingan)) {
-                    $content = Storage::disk('s3')->get($sidang->file_log_bimbingan);
+                if ($sidang->file_log_bimbingan && Storage::disk($diskName)->exists($sidang->file_log_bimbingan)) {
+                    $content = Storage::disk($diskName)->get($sidang->file_log_bimbingan);
                     File::put($tmpDir . '/File_Logbook/' . basename($sidang->file_log_bimbingan), $content);
                 }
-                if ($sidang->file_revisi && Storage::disk('s3')->exists($sidang->file_revisi)) {
-                    $content = Storage::disk('s3')->get($sidang->file_revisi);
+                if ($sidang->file_revisi && Storage::disk($diskName)->exists($sidang->file_revisi)) {
+                    $content = Storage::disk($diskName)->get($sidang->file_revisi);
                     File::put($tmpDir . '/File_Revisi_Sidang/' . basename($sidang->file_revisi), $content);
                 }
             }
@@ -135,14 +136,15 @@ class BackupController extends Controller
                 ->whereIn('pendaftaran_kp_id', $kps->pluck('id'))
                 ->get();
 
-            // 1. Hapus File dari S3
+            // 1. Hapus File dari Cloud
+            $diskName = env('FILESYSTEM_DISK', 'public');
             foreach ($sidangs as $sidang) {
-                if ($sidang->file_laporan) Storage::disk('s3')->delete($sidang->file_laporan);
-                if ($sidang->file_log_bimbingan) Storage::disk('s3')->delete($sidang->file_log_bimbingan);
-                if ($sidang->file_persetujuan_pembimbing) Storage::disk('s3')->delete($sidang->file_persetujuan_pembimbing);
-                if ($sidang->file_nilai_supervisor) Storage::disk('s3')->delete($sidang->file_nilai_supervisor);
-                if ($sidang->file_berkas_lainnya) Storage::disk('s3')->delete($sidang->file_berkas_lainnya);
-                if ($sidang->file_revisi) Storage::disk('s3')->delete($sidang->file_revisi);
+                if ($sidang->file_laporan) Storage::disk($diskName)->delete($sidang->file_laporan);
+                if ($sidang->file_log_bimbingan) Storage::disk($diskName)->delete($sidang->file_log_bimbingan);
+                if ($sidang->file_persetujuan_pembimbing) Storage::disk($diskName)->delete($sidang->file_persetujuan_pembimbing);
+                if ($sidang->file_nilai_supervisor) Storage::disk($diskName)->delete($sidang->file_nilai_supervisor);
+                if ($sidang->file_berkas_lainnya) Storage::disk($diskName)->delete($sidang->file_berkas_lainnya);
+                if ($sidang->file_revisi) Storage::disk($diskName)->delete($sidang->file_revisi);
             }
 
             // 2. Hapus Data dari Database
