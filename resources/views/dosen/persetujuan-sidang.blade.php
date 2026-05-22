@@ -16,7 +16,7 @@
                 'nim' => $p->mahasiswa->nim ?? '-',
                 'judul' => $p->pendaftaranKp->judul_kp ?? '-',
                 'file_laporan' => $p->file_laporan ? storage_url($p->file_laporan) : null,
-                'link_github' => $p->link_github ?? null,
+                'link_drive' => $p->link_drive ?? null,
                 'total_bimbingan' => $p->total_bimbingan_count ?? 0,
                 'status' => $p->status_verifikasi,
                 'feedback' => $p->dosen_feedback ?? 'Tidak ada catatan.',
@@ -140,8 +140,8 @@
                                         <template x-if="p.file_laporan">
                                             <a :href="p.file_laporan" target="_blank" class="text-blue-600 hover:underline font-bold italic">Lihat Laporan</a>
                                         </template>
-                                        <template x-if="p.link_github && !p.file_laporan">
-                                            <a :href="p.link_github" target="_blank" class="text-blue-600 hover:underline font-bold italic">Link GDrive</a>
+                                        <template x-if="p.link_drive && !p.file_laporan">
+                                            <a :href="p.link_drive" target="_blank" class="text-blue-600 hover:underline font-bold italic">Link GDrive</a>
                                         </template>
                                     </td>
                                     <td class="py-4 px-4 text-center text-black font-bold">
