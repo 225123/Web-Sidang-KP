@@ -132,10 +132,16 @@
 
             @if(!$sidang->status_revisi || !in_array(strtolower($sidang->status_revisi), ['menunggu', 'disahkan', 'diterima']))
                 <p class="text-[14px] text-gray-700 font-medium mb-8">Klik 'Submit Revisi' untuk mengirimkan berkas revisi Anda ke Dosen Penguji 1.</p>
+                @if(auth()->user()->mahasiswa->is_aktif)
                 <button type="button" onclick="document.getElementById('formAjukan').submit()" class="bg-[#008000] hover:bg-green-700 text-white font-bold text-[14px] px-8 py-2.5 rounded-full shadow-md flex items-center justify-center gap-2 mx-auto transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     SUBMIT REVISI
                 </button>
+                @else
+                <div class="bg-red-100 text-red-600 font-bold text-[14px] px-8 py-2.5 rounded-full shadow-sm flex items-center justify-center mx-auto w-max">
+                    Status Anda Tidak Aktif (Mode Pelihat)
+                </div>
+                @endif
             @elseif($sidang->status_revisi === 'Menunggu')
                 <div class="inline-flex flex-col items-center justify-center p-8 border-2 border-yellow-400 bg-yellow-50 rounded-lg">
                     <svg class="w-12 h-12 text-yellow-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>

@@ -197,15 +197,21 @@
 
                     <div class="mt-8 flex justify-end">
                         @if(!$sidang || !in_array($sidang->status_koordinator, ['pending', 'verified']))
-                            <a href="{{ route('mahasiswa.pendaftaran-sidang.index') }}"
-                                class="bg-[#FFFF1A] hover:bg-yellow-400 text-black font-bold text-[13px] w-[184px] h-[36px] rounded-[20px] flex items-center justify-center gap-2 transform hover:-translate-y-0.5 transition-all shadow-md">
-                                <svg class="w-3.5 h-3.5 transform -rotate-45" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                                </svg>
-                                Mendaftar Sidang
-                            </a>
+                            @if(auth()->user()->mahasiswa->is_aktif)
+                                <a href="{{ route('mahasiswa.pendaftaran-sidang.index') }}"
+                                    class="bg-[#FFFF1A] hover:bg-yellow-400 text-black font-bold text-[13px] w-[184px] h-[36px] rounded-[20px] flex items-center justify-center gap-2 transform hover:-translate-y-0.5 transition-all shadow-md">
+                                    <svg class="w-3.5 h-3.5 transform -rotate-45" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                    </svg>
+                                    Mendaftar Sidang
+                                </a>
+                            @else
+                                <button disabled class="bg-gray-200 text-gray-500 font-bold text-[13px] px-6 h-[36px] rounded-[20px] flex items-center justify-center gap-2 cursor-not-allowed">
+                                    Mode Pelihat
+                                </button>
+                            @endif
                         @else
                             <button disabled
                                 class="bg-gray-200 text-gray-500 font-bold text-[13px] w-[184px] h-[36px] rounded-[20px] flex items-center justify-center gap-2 cursor-not-allowed">
