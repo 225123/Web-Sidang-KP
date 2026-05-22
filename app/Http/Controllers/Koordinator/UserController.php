@@ -532,10 +532,36 @@ class UserController extends Controller
         DB::transaction(function () use ($user) {
             if (in_array($user->role, ['dosen', 'koordinator_kp'])) {
                 DB::table('dosen')->where('user_id', $user->id)->delete();
+                $user->delete();
             } elseif ($user->role === 'mahasiswa') {
-                DB::table('mahasiswa')->where('user_id', $user->id)->delete();
+                $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id;
+
+                // Cek apakah punya riwayat KP di periode selain periode saat ini
+                $pastKps = DB::table('pendaftaran_kp')
+                    ->where('mahasiswa_id', $user->id)
+                    ->where('tahun_ajaran_id', '!=', $activePeriodId)
+                    ->whereNotNull('tahun_ajaran_id')
+                    ->orderBy('tahun_ajaran_id', 'desc')
+                    ->get();
+
+                if ($pastKps->count() > 0) {
+                    // Hanya "keluarkan" dari periode saat ini, rollback ke periode KP terakhirnya
+                    $lastPeriod = $pastKps->first()->tahun_ajaran_id;
+                    DB::table('mahasiswa')->where('user_id', $user->id)->update([
+                        'tahun_ajaran_id' => $lastPeriod,
+                    ]);
+                    
+                    // Hapus draft pendaftaran KP milik dia di periode saat ini (jika ada) agar tidak tertinggal
+                    DB::table('pendaftaran_kp')
+                        ->where('mahasiswa_id', $user->id)
+                        ->where('tahun_ajaran_id', $activePeriodId)
+                        ->delete();
+                } else {
+                    // Jika memang tidak ada riwayat KP di periode lain, hapus permanen ke akarnya
+                    DB::table('mahasiswa')->where('user_id', $user->id)->delete();
+                    $user->delete();
+                }
             }
-            $user->delete();
         });
 
         if (request()->ajax()) {
