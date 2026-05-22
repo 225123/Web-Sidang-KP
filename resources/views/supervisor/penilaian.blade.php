@@ -145,6 +145,13 @@
 
 <script>
     function submitForm() {
+        const form = document.getElementById('penilaian-form');
+        
+        // Pengecekan validasi bawaan browser (min, max, required, step)
+        if (!form.reportValidity()) {
+            return;
+        }
+
         const canvas = document.getElementById('signaturePadCanvas');
         if(!canvas) return;
 
@@ -160,7 +167,7 @@
         }
         
         document.getElementById('signature_base64').value = dataURL;
-        document.getElementById('penilaian-form').submit();
+        form.submit();
     }
 
     document.addEventListener('alpine:init', () => {
