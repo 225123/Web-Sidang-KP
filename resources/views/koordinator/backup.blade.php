@@ -105,7 +105,7 @@
 
                     <div class="flex flex-col sm:flex-row gap-4">
                         <!-- Form Download ZIP -->
-                        <form action="{{ route('koordinator.backup.download') }}" method="POST" @submit="submitDownload" class="flex-1">
+                        <form action="{{ route('koordinator.backup.download') }}" method="POST" @submit="submitDownload" data-turbo="false" class="flex-1">
                             @csrf
                             <input type="hidden" name="periode_id" x-bind:value="selectedPeriode">
                             <button type="submit" x-bind:disabled="!selectedPeriode || isDownloading" class="w-full flex justify-center items-center px-4 py-2 bg-emerald-600 border border-transparent rounded-md font-semibold text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
