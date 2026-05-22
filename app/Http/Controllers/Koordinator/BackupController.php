@@ -133,7 +133,16 @@ class BackupController extends Controller
 
     public function purgePeriode(Request $request)
     {
-        $request->validate(['periode_id' => 'required', 'konfirmasi' => 'required|in:HAPUS']);
+        $request->validate([
+            'periode_id' => 'required|exists:tahun_ajaran,id',
+            'konfirmasi' => 'required|in:HAPUS'
+        ]);
+
+        $activePeriodsCount = TahunAjaran::count();
+        if ($activePeriodsCount <= 1) {
+            return back()->with('error', 'Pemusnahan dibatalkan: Anda tidak dapat menghapus satu-satunya periode yang tersisa. Sistem mewajibkan setidaknya ada 1 periode agar dapat beroperasi.');
+        }
+
         $periodeId = $request->periode_id;
         $periode = TahunAjaran::findOrFail($periodeId);
 

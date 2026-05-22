@@ -1,4 +1,4 @@
-<x-dashboard-layout header="Manajemen Penyimpanan & Arsip" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR KP">
+<x-dashboard-layout header="Manajemen Penyimpanan & Arsip" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR KP" :hidePeriodSelector="true">
     <x-slot:sidebar>
         @include('koordinator.components.sidebar', ['active' => 'backup'])
     </x-slot>
@@ -15,7 +15,7 @@
                     </svg>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+                    <p class="text-[12px] font-medium text-green-800">{{ session('success') }}</p>
                 </div>
             </div>
         </div>
@@ -30,7 +30,7 @@
                     </svg>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
+                    <p class="text-[12px] font-medium text-red-800">{{ session('error') }}</p>
                 </div>
             </div>
         </div>
@@ -46,7 +46,7 @@
                 </h2>
                 
                 <div class="mb-4">
-                    <div class="flex justify-between text-sm mb-1">
+                    <div class="flex justify-between text-[12px] mb-1">
                         <span class="text-gray-500 font-medium">PostgreSQL (Neon)</span>
                         <span class="text-gray-900 font-bold">{{ $dbSize }} / {{ $neonMax }}</span>
                     </div>
@@ -56,17 +56,17 @@
                 </div>
 
                 <div class="mb-6">
-                    <div class="flex justify-between text-sm mb-1">
+                    <div class="flex justify-between text-[12px] mb-1">
                         <span class="text-gray-500 font-medium">S3 Storage (Storj)</span>
                         <span class="text-gray-900 font-bold">~{{ $storjFilesCount }} Berkas Terunggah</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2">
                         <div class="bg-emerald-500 h-2 rounded-full" style="width: {{ min(100, max(1, ($storjFilesCount / 1000) * 100)) }}%"></div>
                     </div>
-                    <p class="text-xs text-gray-400 mt-1">Batas Kuota Gratis: {{ $storjMax }}</p>
+                    <p class="text-[12px] text-gray-400 mt-1">Batas Kuota Gratis: {{ $storjMax }}</p>
                 </div>
 
-                <div class="bg-blue-50 rounded-lg p-4 text-sm text-blue-800">
+                <div class="bg-blue-50 rounded-lg p-4 text-[12px] text-blue-800">
                     <p class="font-bold mb-1">Pencadangan Otomatis</p>
                     <p>Infrastruktur Cloud Neon mencadangkan database Anda secara otomatis melalui sistem <em>Point-in-Time Recovery</em> (PITR). Anda tidak perlu mengunduh file .sql secara manual lagi.</p>
                 </div>
@@ -92,10 +92,10 @@
                     <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
                     Pengarsipan & Pembersihan Data
                 </h2>
-                <p class="text-sm text-gray-600 mb-6">Pilih periode akademik untuk mengunduh seluruh data (Teks & Lampiran PDF) menjadi satu file ZIP, lalu bersihkan datanya untuk melegakan kapasitas penyimpanan.</p>
+                <p class="text-[12px] text-gray-600 mb-6">Pilih periode akademik untuk mengunduh seluruh data (Teks & Lampiran PDF) menjadi satu file ZIP, lalu bersihkan datanya untuk melegakan kapasitas penyimpanan.</p>
 
                 <div class="bg-gray-50 border border-gray-200 rounded-lg p-5">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Tahun Ajaran (Periode)</label>
+                    <label class="block text-[12px] font-medium text-gray-700 mb-2">Pilih Tahun Ajaran (Periode)</label>
                     <select x-model="selectedPeriode" class="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm mb-6">
                         <option value="">-- Pilih Periode Akademik --</option>
                         @foreach($periodes as $p)
@@ -153,7 +153,7 @@
                                         </div>
                                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                                             <h3 class="text-lg leading-6 font-bold text-gray-900">Hapus Permanen Data & File Storj</h3>
-                                            <div class="mt-2 text-sm text-gray-500">
+                                            <div class="mt-2 text-[12px] text-gray-500">
                                                 <p class="mb-2">Tindakan ini akan memusnahkan <strong>SELURUH</strong> data mahasiswa, pendaftaran KP, nilai, dan juga menghapus semua file PDF lampirannya dari Cloud Storj untuk periode ini.</p>
                                                 <p class="font-bold text-red-600 mb-4">Pastikan Anda telah sukses mengunduh Backup (.ZIP) terlebih dahulu!</p>
                                                 
@@ -164,10 +164,10 @@
                                     </div>
                                 </div>
                                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                                    <button type="submit" x-bind:disabled="konfirmasiText !== 'HAPUS'" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <button type="submit" x-bind:disabled="konfirmasiText !== 'HAPUS'" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-[12px] disabled:opacity-50 disabled:cursor-not-allowed">
                                         Musnahkan Data
                                     </button>
-                                    <button type="button" @click="showPurgeModal = false; konfirmasiText = ''" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                    <button type="button" @click="showPurgeModal = false; konfirmasiText = ''" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-[12px]">
                                         Batal
                                     </button>
                                 </div>
@@ -193,26 +193,26 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal & Waktu</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Periode Akademik</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama File Output</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Diunduh Oleh</th>
+                        <th scope="col" class="px-6 py-3 text-left text-[12px] font-medium text-gray-500 uppercase tracking-wider">Tanggal & Waktu</th>
+                        <th scope="col" class="px-6 py-3 text-left text-[12px] font-medium text-gray-500 uppercase tracking-wider">Periode Akademik</th>
+                        <th scope="col" class="px-6 py-3 text-left text-[12px] font-medium text-gray-500 uppercase tracking-wider">Nama File Output</th>
+                        <th scope="col" class="px-6 py-3 text-left text-[12px] font-medium text-gray-500 uppercase tracking-wider">Diunduh Oleh</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($histories as $history)
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td class="px-6 py-4 whitespace-nowrap text-[12px] text-gray-500">
                                 {{ $history->created_at->translatedFormat('d F Y, H:i') }} WIB
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                            <td class="px-6 py-4 whitespace-nowrap text-[12px] text-gray-900 font-medium">
                                 {{ $history->periode_name ?? ($history->tahunAjaran->label_tahun_ajaran ?? 'Tidak diketahui') }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
+                            <td class="px-6 py-4 whitespace-nowrap text-[12px] font-mono text-gray-600">
                                 {{ $history->file_name }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">
+                            <td class="px-6 py-4 whitespace-nowrap text-[12px] text-gray-500 flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-[12px]">
                                     {{ substr($history->koordinator->name ?? 'A', 0, 1) }}
                                 </div>
                                 {{ $history->koordinator->name ?? 'Sistem' }}
@@ -220,7 +220,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-12 text-center text-gray-500 text-sm">
+                            <td colspan="4" class="px-6 py-12 text-center text-gray-500 text-[12px]">
                                 <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                                 </svg>
