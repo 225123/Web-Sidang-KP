@@ -44,7 +44,6 @@
                         <input type="text" name="name" value="{{ $user->name }}" required class="w-[300px] h-[34px] bg-white border border-gray-300 px-3 text-[14px] text-gray-900 outline-none rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all">
                     </div>
 
-                    @if(in_array($user->role, ['dosen', 'koordinator_kp']))
                     <div class="flex items-center">
                         <div class="w-[150px] text-[14px] text-gray-600 font-medium">Status</div>
                         <div class="w-[20px] text-[14px] text-gray-600">:</div>
@@ -58,7 +57,6 @@
                             </div>
                         </div>
                     </div>
-                    @endif
 
                     <div class="flex items-center">
                         <div class="w-[150px] text-[14px] text-gray-600 font-medium">Email</div>
@@ -66,6 +64,7 @@
                         <input type="email" name="email" value="{{ $user->email }}" required class="w-[300px] h-[34px] bg-white border border-gray-300 px-3 text-[14px] text-gray-900 outline-none rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all">
                     </div>
 
+                    @if(in_array($user->role, ['dosen', 'koordinator_kp']))
                     <div class="flex items-start pb-4">
                         <div class="w-[150px] text-[14px] text-gray-600 font-medium mt-1.5">Role</div>
                         <div class="w-[20px] text-[14px] text-gray-600 mt-1.5">:</div>
@@ -78,11 +77,13 @@
                             <div x-show="openRole" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded shadow-lg overflow-hidden" style="display: none;" x-transition>
                                 <div @click="selectedRole = 'Dosen'; openRole = false" class="px-3 py-2 text-[13px] cursor-pointer hover:bg-blue-50 hover:text-blue-700 transition-colors">Dosen</div>
                                 <div @click="selectedRole = 'Koordinator KP'; openRole = false" class="px-3 py-2 text-[13px] cursor-pointer hover:bg-blue-50 hover:text-blue-700 transition-colors">Koordinator KP</div>
-                                <div @click="selectedRole = 'Mahasiswa'; openRole = false" class="px-3 py-2 text-[13px] cursor-pointer hover:bg-blue-50 hover:text-blue-700 transition-colors">Mahasiswa</div>
                             </div>
                             <input type="hidden" name="role" :value="selectedRole === 'Koordinator KP' ? 'koordinator_kp' : selectedRole.toLowerCase()">
                         </div>
                     </div>
+                    @else
+                    <input type="hidden" name="role" value="mahasiswa">
+                    @endif
                 </div>
 
                 <div class="absolute bottom-6 right-6 flex items-center gap-4">

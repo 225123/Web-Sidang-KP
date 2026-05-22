@@ -253,7 +253,7 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'role:ko
 // ==========================================
 // SIMULASI UI DASHBOARD MAHASISWA
 // ==========================================
-Route::prefix('mahasiswa')->name('mahasiswa.')->middleware(['auth', 'role:mahasiswa'])->group(function () {
+Route::prefix('mahasiswa')->name('mahasiswa.')->middleware(['auth', 'role:mahasiswa', 'mahasiswa.aktif'])->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Mahasiswa\DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/pendaftaran-kp', [MahasiswaPendaftaranKpController::class, 'create'])->name('pendaftaran-kp.create');

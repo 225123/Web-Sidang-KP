@@ -116,13 +116,18 @@
                                     <th class="border-b border-r border-gray-300 font-bold px-4 text-center w-[50px]">No</th>
                                     <th class="border-b border-r border-gray-300 font-bold px-4">Nama</th>
                                     <th class="border-b border-r border-gray-300 font-bold px-4">ID</th>
-                                    <th class="border-b border-r border-gray-300 font-bold px-4">Role</th>
+                                    <template x-if="tab === 'dosen'">
+                                        <th class="border-b border-r border-gray-300 font-bold px-4">Role</th>
+                                    </template>
                                     <th class="border-b border-r border-gray-300 font-bold px-4 text-left">Email</th>
                                     <template x-if="tab === 'dosen'">
                                         <th class="border-b border-r border-gray-300 font-bold px-4 text-center w-[120px]">Status</th>
                                     </template>
                                     <template x-if="tab === 'mahasiswa'">
-                                        <th class="border-b border-r border-gray-300 font-bold px-4 text-center w-[100px]">Status</th>
+                                        <th class="border-b border-r border-gray-300 font-bold px-4 text-center w-[120px]">Status</th>
+                                    </template>
+                                    <template x-if="tab === 'mahasiswa'">
+                                        <th class="border-b border-r border-gray-300 font-bold px-4 text-center w-[100px]">Keterangan</th>
                                     </template>
                                     <th class="border-b border-gray-300 font-bold px-4 text-center w-[100px]">Aksi</th>
                                 </tr>
@@ -133,10 +138,23 @@
                                         <td class="border-r border-gray-200 text-center text-gray-500" x-text="pagination.from + index"></td>
                                         <td class="border-r border-gray-200 text-left px-4 font-bold" x-text="user.name"></td>
                                         <td class="border-r border-gray-200 px-4" x-text="user.identifier_id || '-'"></td>
-                                        <td class="border-r border-gray-200 px-4" x-text="formatRole(user.role)"></td>
+                                        <template x-if="tab === 'dosen'">
+                                            <td class="border-r border-gray-200 px-4" x-text="formatRole(user.role)"></td>
+                                        </template>
                                         <td class="border-r border-gray-200 px-4 text-left break-all text-gray-600" x-text="user.email"></td>
                                         
                                         <template x-if="tab === 'dosen'">
+                                            <td class="border-r border-gray-200 px-4 text-center">
+                                                <select @change="updateStatus(user.id, $event.target.value)" 
+                                                    class="w-full bg-transparent border-none outline-none cursor-pointer text-center focus:ring-0 font-bold text-[11px] uppercase tracking-wide"
+                                                    :class="(user.is_aktif == 1 || user.is_aktif === true) ? 'text-green-600' : 'text-red-500'">
+                                                    <option class="text-green-600 font-normal" value="Aktif" :selected="user.is_aktif == 1 || user.is_aktif === true">Aktif</option>
+                                                    <option class="text-red-500 font-normal" value="Nonaktif" :selected="user.is_aktif == 0 || user.is_aktif === false">Tidak Aktif</option>
+                                                </select>
+                                            </td>
+                                        </template>
+
+                                        <template x-if="tab === 'mahasiswa'">
                                             <td class="border-r border-gray-200 px-4 text-center">
                                                 <select @change="updateStatus(user.id, $event.target.value)" 
                                                     class="w-full bg-transparent border-none outline-none cursor-pointer text-center focus:ring-0 font-bold text-[11px] uppercase tracking-wide"
@@ -161,7 +179,7 @@
                                                 <a :href="'/koordinator/manajemen-akses/' + user.id + '/edit'" class="text-gray-500 hover:text-[#4285F4] hover:bg-blue-50 p-1.5 rounded transition-colors" title="Edit Data">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                                 </a>
-                                                <button @click="openDeleteConfirm(user.id)" class="text-gray-500 hover:text-[#EA3323] hover:bg-red-50 p-1.5 rounded transition-colors" title="Hapus Data">
+                                                <button x-show="tab === 'dosen'" @click="openDeleteConfirm(user.id)" class="text-gray-500 hover:text-[#EA3323] hover:bg-red-50 p-1.5 rounded transition-colors" title="Hapus Data">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                 </button>
                                             </div>

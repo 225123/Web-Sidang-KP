@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'mahasiswa.aktif' => \App\Http\Middleware\EnsureMahasiswaAktif::class,
         ]);
         $middleware->web(append: [
             EnsureTtdExists::class,

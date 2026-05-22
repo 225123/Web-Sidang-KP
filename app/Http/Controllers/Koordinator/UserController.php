@@ -82,11 +82,17 @@ class UserController extends Controller
             });
         }
 
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('mahasiswa', 'is_aktif')) {
+            \Illuminate\Support\Facades\Schema::table('mahasiswa', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->boolean('is_aktif')->default(true);
+            });
+        }
+
         $tab = $request->input('tab', 'dosen');
 
         $query = User::leftJoin('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
             ->leftJoin('dosen', 'users.id', '=', 'dosen.user_id')
-            ->select('users.*', DB::raw('COALESCE(mahasiswa.nim, dosen.nidn) as identifier_id'), 'dosen.is_aktif', 'mahasiswa.status_mahasiswa');
+            ->select('users.*', DB::raw('COALESCE(mahasiswa.nim, dosen.nidn) as identifier_id'), DB::raw('COALESCE(dosen.is_aktif, mahasiswa.is_aktif) as is_aktif'), 'mahasiswa.status_mahasiswa');
 
         if ($tab === 'dosen') {
             $query->whereIn('users.role', ['dosen', 'koordinator_kp']);
@@ -316,6 +322,10 @@ class UserController extends Controller
             DB::table('dosen')->where('user_id', $id)->update([
                 'is_aktif' => $request->status === 'Aktif',
             ]);
+        } elseif ($user->role === 'mahasiswa') {
+            DB::table('mahasiswa')->where('user_id', $id)->update([
+                'is_aktif' => $request->status === 'Aktif',
+            ]);
         }
 
         return redirect()->route('koordinator.manajemen-akses')->with('success', 'Data akses berhasil diperbarui.');
@@ -331,6 +341,10 @@ class UserController extends Controller
 
         if (in_array($user->role, ['dosen', 'koordinator_kp'])) {
             $success = (bool) DB::table('dosen')->where('user_id', $id)->update([
+                'is_aktif' => $request->status === 'Aktif',
+            ]);
+        } elseif ($user->role === 'mahasiswa') {
+            $success = (bool) DB::table('mahasiswa')->where('user_id', $id)->update([
                 'is_aktif' => $request->status === 'Aktif',
             ]);
         }
