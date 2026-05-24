@@ -20,14 +20,17 @@ class PeriodeKpController extends Controller
         // Count pendaftaran per period
         $stats = [];
         $dosenStats = [];
+        $userStats = [];
         foreach ($periodes as $periode) {
-            if ($periode->trashed() || $periode->total_mahasiswa !== null) {
-                // Gunakan static history
+            if (!$periode->is_active || $periode->trashed() || $periode->total_mahasiswa !== null) {
+                // Gunakan static history (baku/frozen)
                 $stats[$periode->id] = $periode->total_mahasiswa ?? 0;
                 $dosenStats[$periode->id] = $periode->total_dosen ?? 0;
+                $userStats[$periode->id] = $periode->total_user ?? 0;
             } else {
-                // Hitung fresh dari database
-                $stats[$periode->id] = PendaftaranKp::where('tahun_ajaran_id', $periode->id)->count();
+                // Hitung fresh dari database untuk periode aktif
+                $stats[$periode->id] = PendaftaranKp::where('tahun_ajaran_id', $periode->id)
+                                        ->distinct('mahasiswa_id')->count('mahasiswa_id');
                 
                 $dIds = PendaftaranKp::where('tahun_ajaran_id', $periode->id)
                             ->whereNotNull('pembimbing_id')
@@ -37,6 +40,7 @@ class PeriodeKpController extends Controller
                     $dIds->push($periode->koordinator_id);
                 }
                 $dosenStats[$periode->id] = $dIds->unique()->filter()->count();
+                $userStats[$periode->id] = $stats[$periode->id] + $dosenStats[$periode->id];
             }
         }
 
@@ -45,15 +49,12 @@ class PeriodeKpController extends Controller
         $aktifStats = ['mahasiswa' => 0, 'dosen' => 0, 'total' => 0];
 
         if ($aktif) {
-            $aktifStats['mahasiswa'] = PendaftaranKp::where('tahun_ajaran_id', $aktif->id)
-                ->distinct('mahasiswa_id')->count('mahasiswa_id');
-
+            $aktifStats['mahasiswa'] = $stats[$aktif->id] ?? 0;
             $aktifStats['dosen'] = $dosenStats[$aktif->id] ?? 0;
-
-            $aktifStats['total'] = User::count();
+            $aktifStats['total'] = $userStats[$aktif->id] ?? 0;
         }
 
-        return view('koordinator.periode-kp', compact('periodes', 'nextPeriod', 'stats', 'dosenStats', 'aktif', 'aktifStats'));
+        return view('koordinator.periode-kp', compact('periodes', 'nextPeriod', 'stats', 'dosenStats', 'userStats', 'aktif', 'aktifStats'));
     }
 
     public function store(Request $request)
@@ -69,10 +70,27 @@ class PeriodeKpController extends Controller
             return back()->with('error', "Periode \"$label\" sudah ada.");
         }
 
-        // Auto-close current active period
+        // Auto-close current active period and freeze its stats
         $oldActive = TahunAjaran::where('is_active', true)->first();
         if ($oldActive) {
-            $oldActive->update(['is_active' => false]);
+            $mhsCount = PendaftaranKp::where('tahun_ajaran_id', $oldActive->id)
+                ->distinct('mahasiswa_id')->count('mahasiswa_id');
+
+            $dIds = PendaftaranKp::where('tahun_ajaran_id', $oldActive->id)
+                        ->whereNotNull('pembimbing_id')
+                        ->distinct('pembimbing_id')
+                        ->pluck('pembimbing_id');
+            if ($oldActive->koordinator_id) {
+                $dIds->push($oldActive->koordinator_id);
+            }
+            $dsnCount = $dIds->unique()->filter()->count();
+
+            $oldActive->update([
+                'is_active' => false,
+                'total_mahasiswa' => $mhsCount,
+                'total_dosen' => $dsnCount,
+                'total_user' => $mhsCount + $dsnCount
+            ]);
         }
 
         $newPeriod = TahunAjaran::create([
@@ -154,7 +172,30 @@ class PeriodeKpController extends Controller
     public function setActive(Request $request, $id)
     {
         $periode = TahunAjaran::findOrFail($id);
-        TahunAjaran::where('is_active', true)->update(['is_active' => false]);
+        
+        // Auto-close current active period and freeze its stats
+        $oldActive = TahunAjaran::where('is_active', true)->first();
+        if ($oldActive && $oldActive->id !== $periode->id) {
+            $mhsCount = PendaftaranKp::where('tahun_ajaran_id', $oldActive->id)
+                ->distinct('mahasiswa_id')->count('mahasiswa_id');
+
+            $dIds = PendaftaranKp::where('tahun_ajaran_id', $oldActive->id)
+                        ->whereNotNull('pembimbing_id')
+                        ->distinct('pembimbing_id')
+                        ->pluck('pembimbing_id');
+            if ($oldActive->koordinator_id) {
+                $dIds->push($oldActive->koordinator_id);
+            }
+            $dsnCount = $dIds->unique()->filter()->count();
+
+            $oldActive->update([
+                'is_active' => false,
+                'total_mahasiswa' => $mhsCount,
+                'total_dosen' => $dsnCount,
+                'total_user' => $mhsCount + $dsnCount
+            ]);
+        }
+
         $periode->update(['is_active' => true]);
 
         // Berpusat di periode yang dipilih

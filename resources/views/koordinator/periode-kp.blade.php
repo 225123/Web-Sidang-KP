@@ -39,7 +39,7 @@
                     </div>
                     <div class="border-x border-white/20">
                         <p class="text-2xl font-black">{{ $aktifStats['dosen'] }}</p>
-                        <p class="text-white/70 text-xs mt-1 uppercase tracking-wide">Dosen Pembimbing</p>
+                        <p class="text-white/70 text-xs mt-1 uppercase tracking-wide">Dosen</p>
                     </div>
                     <div>
                         <p class="text-2xl font-black">{{ $aktifStats['total'] }}</p>
@@ -125,7 +125,7 @@
                             <tr class="h-[45px] text-black text-center">
                                 <th class="border-b border-r border-gray-300 font-bold px-4 text-left">Periode</th>
                                 <th class="border-b border-r border-gray-300 font-bold px-4">Mahasiswa Terdaftar</th>
-                                <th class="border-b border-r border-gray-300 font-bold px-4">Dosen Aktif</th>
+                                <th class="border-b border-r border-gray-300 font-bold px-4">Dosen</th>
                                 <th class="border-b border-gray-300 font-bold px-4">Status</th>
                             </tr>
                         </thead>
