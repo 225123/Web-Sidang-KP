@@ -110,7 +110,7 @@
                                 Mode Pelihat
                             </button>
                         @elseif($kp['status_raw'] === 'none' || $kp['status_raw'] === 'rejected')
-                            <a href="{{ route('mahasiswa.pendaftaran-kp.index') }}"
+                            <a href="{{ route('mahasiswa.pendaftaran-kp.create') }}"
                                 class="bg-[#FFFF1A] hover:bg-yellow-400 text-black font-bold text-[13px] w-[184px] h-[36px] rounded-[20px] flex items-center justify-center gap-2 transform hover:-translate-y-0.5 transition-all shadow-md shrink-0">
                                 <svg class="w-3.5 h-3.5 transform -rotate-45" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
