@@ -20,6 +20,9 @@ class TahunAjaran extends Model
         'tanggal_selesai',
         'keterangan',
         'koordinator_id',
+        'total_mahasiswa',
+        'total_dosen',
+        'total_user',
     ];
 
     protected $casts = [
