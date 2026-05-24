@@ -108,7 +108,7 @@
                                     <template x-if="sidang.tanggal_revisi">
                                         <div>
                                             <div class="font-bold text-blue-600" x-text="formatDate(sidang.tanggal_revisi)"></div>
-                                            <div class="text-[12px] text-gray-400 font-medium uppercase mt-0.5" x-text="formatTime(sidang.tanggal_revisi.split(' ')[1] || '') + ' WIB'"></div>
+                                            <div class="text-[12px] text-gray-400 font-medium uppercase mt-0.5" x-text="formatTime(sidang.tanggal_revisi) + ' WIB'"></div>
                                         </div>
                                     </template>
                                     <template x-if="!sidang.tanggal_revisi">
@@ -217,6 +217,10 @@
 
                 formatTime(timeString) {
                     if (!timeString) return '-';
+                    if (timeString.includes('T')) {
+                        const d = new Date(timeString);
+                        return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+                    }
                     return timeString.substring(0, 5);
                 },
 
