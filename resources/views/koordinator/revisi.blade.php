@@ -59,7 +59,6 @@
                         <div x-show="openFilter" x-transition x-cloak
                             class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
                             <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="all" x-model="filterStatus" class="hidden" @change="openFilter = false">Semua</label>
-                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Belum mengumpulkan" x-model="filterStatus" class="hidden" @change="openFilter = false">Belum Kumpul</label>
                             <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Menunggu" x-model="filterStatus" class="hidden" @change="openFilter = false">Menunggu</label>
                             <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Disahkan" x-model="filterStatus" class="hidden" @change="openFilter = false">Disetujui</label>
                             <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Ditolak" x-model="filterStatus" class="hidden" @change="openFilter = false">Ditolak</label>
@@ -330,8 +329,9 @@
                 },
 
                 get stats() {
+                    const submittedSidangs = this.sidangs.filter(s => s.status_revisi !== 'Belum mengumpulkan');
                     return {
-                        total: this.sidangs.length,
+                        total: submittedSidangs.length,
                         belum: this.sidangs.filter(s => s.status_revisi === 'Belum mengumpulkan').length,
                         menunggu: this.sidangs.filter(s => s.status_revisi === 'Menunggu').length,
                         disahkan: this.sidangs.filter(s => s.status_revisi === 'Disahkan' || s.status_revisi === 'Diterima').length,
@@ -340,7 +340,7 @@
                 },
 
                 get filteredSidangs() {
-                    let res = [...this.sidangs];
+                    let res = this.sidangs.filter(s => s.status_revisi !== 'Belum mengumpulkan');
                     if (this.search) {
                         const q = this.search.toLowerCase();
                         res = res.filter(s => s.mahasiswa.nim.toLowerCase().includes(q) || s.mahasiswa.user.name.toLowerCase().includes(q));

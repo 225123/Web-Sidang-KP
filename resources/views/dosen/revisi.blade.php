@@ -73,10 +73,6 @@
                                         @change="openFilter = false">Semua</label>
                                 <label
                                     class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input
-                                        type="radio" value="Belum mengumpulkan" x-model="filterStatus" class="hidden"
-                                        @change="openFilter = false">Belum Kumpul</label>
-                                <label
-                                    class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input
                                         type="radio" value="Menunggu" x-model="filterStatus" class="hidden"
                                         @change="openFilter = false">Menunggu</label>
                                 <label
@@ -374,7 +370,10 @@
         <script>
             window.revisiPage = function() {
                 return {
-                    sidangs: @json($mappedSidangs),
+                    sidangs: @json($mappedSidangs).map(s => {
+                        if (!s.status_revisi) s.status_revisi = 'Belum mengumpulkan';
+                        return s;
+                    }),
                     search: '',
                     filterStatus: 'all',
                     currentPage: 1,
@@ -400,8 +399,9 @@
                     },
 
                     get stats() {
+                        const submittedSidangs = this.sidangs.filter(s => s.status_revisi !== 'Belum mengumpulkan');
                         return {
-                            total: this.sidangs.length,
+                            total: submittedSidangs.length,
                             belum: this.sidangs.filter(s => s.status_revisi === 'Belum mengumpulkan').length,
                             menunggu: this.sidangs.filter(s => s.status_revisi === 'Menunggu').length,
                             disahkan: this.sidangs.filter(s => s.status_revisi === 'Disahkan' || s.status_revisi === 'Diterima').length,
@@ -410,7 +410,7 @@
                     },
 
                     get filteredSidangs() {
-                        let res = [...this.sidangs];
+                        let res = this.sidangs.filter(s => s.status_revisi !== 'Belum mengumpulkan');
                         if (this.search) {
                             const q = this.search.toLowerCase();
                             res = res.filter(s => s.mahasiswa.nim.toLowerCase().includes(q) || s.mahasiswa.user.name.toLowerCase().includes(q));
