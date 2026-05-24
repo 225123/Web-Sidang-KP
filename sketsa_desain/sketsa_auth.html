@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sketsa - Autentikasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body, html { min-height: 100%; margin: 0; background-color: #e5e7eb; }
+        .sketch-box { border: 2px dashed #666; background-color: #fff; }
+        .sketch-input { border: 2px solid #ccc; background-color: #f9f9f9; border-radius: 4px; }
+        .sketch-btn { border: 2px solid #444; background-color: #555; border-radius: 4px; }
+        .sketch-text { background-color: #ccc; color: transparent; border-radius: 4px; display: inline-block; }
+    </style>
+</head>
+<body class="p-8 text-gray-800 font-sans">
+    
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold mb-2">Halaman Autentikasi</h1>
+        <p class="text-gray-600">Sketsa layout Login, Lupa Password, dan Reset Password</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Login -->
+        <div class="flex flex-col items-center">
+            <div class="sketch-text w-32 h-6 mb-4"></div>
+            <div class="sketch-box w-full max-w-sm rounded-lg p-8 shadow-lg">
+                <div class="flex justify-center mb-6">
+                    <div class="w-16 h-16 rounded-full sketch-box"></div>
+                </div>
+                <div class="flex justify-center mb-8">
+                    <div class="sketch-text w-48 h-8"></div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="sketch-text w-24 h-4 mb-2"></div>
+                    <div class="sketch-input w-full h-10"></div>
+                </div>
+                
+                <div class="mb-6">
+                    <div class="sketch-text w-24 h-4 mb-2"></div>
+                    <div class="sketch-input w-full h-10"></div>
+                </div>
+                
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 sketch-input"></div>
+                        <div class="sketch-text w-20 h-3"></div>
+                    </div>
+                    <div class="sketch-text w-24 h-3 bg-gray-400"></div>
+                </div>
+                
+                <div class="sketch-btn w-full h-10 mb-4 flex items-center justify-center">
+                    <div class="sketch-text w-16 h-4 bg-gray-300"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lupa Password -->
+        <div class="flex flex-col items-center">
+            <div class="sketch-text w-40 h-6 mb-4"></div>
+            <div class="sketch-box w-full max-w-sm rounded-lg p-8 shadow-lg">
+                <div class="flex justify-center mb-6">
+                    <div class="w-16 h-16 rounded-full sketch-box"></div>
+                </div>
+                <div class="flex justify-center mb-4">
+                    <div class="sketch-text w-48 h-8"></div>
+                </div>
+                <div class="mb-6 text-center">
+                    <div class="sketch-text w-full h-3 mb-1"></div>
+                    <div class="sketch-text w-5/6 h-3"></div>
+                </div>
+                
+                <div class="mb-6">
+                    <div class="sketch-text w-24 h-4 mb-2"></div>
+                    <div class="sketch-input w-full h-10"></div>
+                </div>
+                
+                <div class="sketch-btn w-full h-10 flex items-center justify-center mb-6">
+                    <div class="sketch-text w-32 h-4 bg-gray-300"></div>
+                </div>
+
+                <div class="text-center mt-4 border-t-2 border-gray-200 pt-4">
+                    <div class="sketch-text w-32 h-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reset Password -->
+        <div class="flex flex-col items-center">
+            <div class="sketch-text w-40 h-6 mb-4"></div>
+            <div class="sketch-box w-full max-w-sm rounded-lg p-8 shadow-lg">
+                <div class="flex justify-center mb-6">
+                    <div class="w-16 h-16 rounded-full sketch-box"></div>
+                </div>
+                <div class="flex justify-center mb-8">
+                    <div class="sketch-text w-48 h-8"></div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="sketch-text w-24 h-4 mb-2"></div>
+                    <div class="sketch-input w-full h-10"></div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="sketch-text w-32 h-4 mb-2"></div>
+                    <div class="sketch-input w-full h-10"></div>
+                </div>
+
+                <div class="mb-6">
+                    <div class="sketch-text w-40 h-4 mb-2"></div>
+                    <div class="sketch-input w-full h-10"></div>
+                </div>
+                
+                <div class="sketch-btn w-full h-10 flex items-center justify-center mb-2">
+                    <div class="sketch-text w-32 h-4 bg-gray-300"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

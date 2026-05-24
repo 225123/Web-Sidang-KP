@@ -63,6 +63,7 @@ class DashboardController extends Controller
 
             // 3. Chart Data: Weekly Sidang count per day (Carbon-based, DB-agnostic)
             $sidangsThisWeek = PendaftaranSidang::whereNotNull('tanggal_sidang')
+                ->where('status_jadwal', 'submitted')
                 ->whereBetween('tanggal_sidang', [now()->startOfWeek(), now()->endOfWeek()])
                 ->pluck('tanggal_sidang');
 

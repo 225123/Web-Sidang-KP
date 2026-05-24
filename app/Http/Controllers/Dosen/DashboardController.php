@@ -108,7 +108,7 @@ class DashboardController extends Controller
                 $q->where('penguji_1_id', $dosenId)
                   ->orWhere('penguji_2_id', $dosenId);
             })
-            ->where('status_jadwal', 'Dijadwalkan')
+            ->where('status_jadwal', 'submitted')
             ->where('pelaksanaan', '!=', 'Selesai')
             ->count();
 
@@ -168,7 +168,7 @@ class DashboardController extends Controller
                 $q->where('penguji_1_id', $dosenId)
                   ->orWhere('penguji_2_id', $dosenId);
             })
-            ->where('status_jadwal', 'Dijadwalkan')
+            ->where('status_jadwal', 'submitted')
             ->where('pelaksanaan', '!=', 'Selesai')
             ->whereDate('tanggal_sidang', '>=', now())
             ->orderBy('tanggal_sidang', 'asc')

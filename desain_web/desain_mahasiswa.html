@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Desain Web - Mahasiswa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #F5F6F8; color: #1A1A1A; font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="p-8 max-w-6xl mx-auto flex flex-col gap-16">
+
+    <!-- DASHBOARD -->
+    <section>
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold uppercase">DASHBOARD</h2>
+            <div class="bg-white border border-gray-300 rounded-[5px] px-3 py-1.5 shadow-sm text-[13px] font-medium w-[212px] flex justify-between items-center">
+                <span>Pilih Periode...</span>
+                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+            <!-- Left Column -->
+            <div class="flex flex-col gap-8 w-full">
+                <!-- Status Kerja Praktik Card -->
+                <div class="bg-[#ECECEC] rounded-[30px] p-8 shadow-sm min-h-[436px] flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-6">
+                            <h3 class="font-bold text-[17px]">Status Kerja Praktik : <span class="text-green-600">Disetujui</span></h3>
+                        </div>
+                        <div class="flex flex-col gap-3.5 text-[13px] font-medium">
+                            <div class="flex"><div class="w-[180px]">Judul Projek KP</div><div class="flex-1">: [Judul]</div></div>
+                            <div class="flex"><div class="w-[180px]">Sumber Instansi</div><div class="flex-1">: [Instansi]</div></div>
+                            <div class="flex"><div class="w-[180px]">Supervisor</div><div class="flex-1">: [Nama Supervisor]</div></div>
+                            <div class="flex"><div class="w-[180px]">Dosen Pembimbing</div><div class="flex-1">: [Nama Dosen]</div></div>
+                            <div class="flex"><div class="w-[180px]">Jumlah Bimbingan</div><div>: [X] / [Y]</div></div>
+                            <div class="flex"><div class="w-[180px]">Progress KP</div><div>: [Z] %</div></div>
+                        </div>
+                    </div>
+                    <div class="mt-8 flex items-end justify-between">
+                        <div class="w-[125px] h-[125px] rounded-full bg-gray-300 flex items-center justify-center font-bold text-lg">Chart</div>
+                        <button class="bg-[#FFFF1A] text-black font-bold text-[13px] w-[184px] h-[36px] rounded-[20px] shadow-md">Mendaftar Projek</button>
+                    </div>
+                </div>
+
+                <!-- Notifikasi -->
+                <div class="bg-[#ECECEC] rounded-[10px] p-6 shadow-sm border border-[#D9D9D9] h-[252px]">
+                    <h3 class="font-semibold text-[18px] mb-4 uppercase tracking-tight">Notifikasi</h3>
+                    <div class="space-y-3">
+                        <div class="border-b border-gray-300 pb-2">
+                            <h4 class="font-bold text-[14px]">[Judul Notifikasi]</h4>
+                            <p class="text-[11px] text-gray-500">[Isi pesan...]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="flex flex-col gap-8 w-full">
+                <!-- Timeline Terdekat -->
+                <div class="bg-[#ECECEC] rounded-[10px] p-6 shadow-sm border border-[#D9D9D9] h-[132px] flex flex-col justify-center">
+                    <h3 class="font-bold text-[15px] mb-3 uppercase tracking-tight">Timeline Terdekat</h3>
+                    <p class="font-semibold text-[14px]">[Kegiatan] : <span class="font-normal">[Tanggal]</span></p>
+                </div>
+
+                <!-- Status Sidang Kerja Praktik -->
+                <div class="bg-[#ECECEC] rounded-[30px] p-8 shadow-sm h-[487px] border border-[#D9D9D9] flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-[17px] mb-8">Status Sidang Kerja Praktik : <span class="font-medium text-black">Belum Mendaftar</span></h3>
+                        <div class="flex flex-col gap-5 text-[13px] font-medium">
+                            <div class="flex"><div class="w-[140px]">Hari / Tanggal</div><div class="flex-1">: -</div></div>
+                            <div class="flex"><div class="w-[140px]">Waktu</div><div class="flex-1">: -</div></div>
+                            <div class="flex"><div class="w-[140px]">Ruangan</div><div class="flex-1">: -</div></div>
+                            <div class="flex mt-3"><div class="w-[140px]">Dosen Penguji 1</div><div class="flex-1">: -</div></div>
+                            <div class="flex"><div class="w-[140px]">Dosen Penguji 2</div><div class="flex-1">: -</div></div>
+                        </div>
+                    </div>
+                    <div class="mt-8 flex justify-end">
+                        <button class="bg-[#FFFF1A] text-black font-bold text-[13px] w-[184px] h-[36px] rounded-[20px] shadow-md">Mendaftar Sidang</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="border-gray-300">
+
+    <!-- PENDAFTARAN KP -->
+    <section>
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold uppercase">PENDAFTARAN KP</h2>
+        </div>
+        <div class="bg-[#E6F0FA] border border-[#D0E3F5] rounded-[10px] p-5 mb-8">
+            <h3 class="font-bold text-blue-800">Status Pendaftaran KP Anda</h3>
+            <p class="text-sm text-blue-700">Saat ini Anda dapat mengisi form pendaftaran KP.</p>
+        </div>
+        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm p-8">
+            <h3 class="font-bold text-lg mb-6 border-b pb-2">Formulir Pendaftaran</h3>
+            <div class="space-y-4">
+                <div class="bg-gray-100 p-3 rounded text-sm text-gray-500">[Field Judul Projek]</div>
+                <div class="bg-gray-100 p-3 rounded text-sm text-gray-500">[Field Instansi]</div>
+                <div class="bg-gray-100 p-3 rounded text-sm text-gray-500">[Field Anggota Kelompok]</div>
+                <button class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold">Simpan Pendaftaran</button>
+            </div>
+        </div>
+    </section>
+
+    <hr class="border-gray-300">
+
+    <!-- BIMBINGAN DOSEN -->
+    <section>
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold uppercase">BIMBINGAN DOSEN</h2>
+        </div>
+        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm p-6 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold">Log Bimbingan</h3>
+                <button class="bg-[#FFFF1A] text-black font-bold px-4 py-2 rounded-lg text-sm shadow-sm">+ Tambah Bimbingan</button>
+            </div>
+            <div class="border rounded-lg overflow-hidden text-sm">
+                <div class="bg-gray-100 p-3 font-bold border-b">Tabel Riwayat Bimbingan</div>
+                <div class="p-3 text-center text-gray-500">Belum ada data bimbingan</div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="border-gray-300">
+
+    <!-- HASIL SIDANG -->
+    <section>
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold uppercase">HASIL SIDANG</h2>
+        </div>
+        <div class="bg-[#EBEBEB] rounded-[10px] p-8 shadow-sm border border-[#CAC0C0]">
+            <h3 class="font-bold text-lg mb-4 text-center">Status Kelulusan Sidang</h3>
+            <div class="bg-white p-6 rounded text-center border">
+                <p class="text-xl font-bold text-green-600">LULUS</p>
+                <p class="text-sm mt-2">Nilai Akhir: A</p>
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Desain Web - Dosen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #F5F6F8; color: #1A1A1A; font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="p-8 max-w-6xl mx-auto flex flex-col gap-16">
+
+    <!-- DASHBOARD DOSEN -->
+    <section>
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold uppercase">DASHBOARD</h2>
+            <div class="bg-white border border-gray-300 rounded-[5px] px-3 py-1.5 shadow-sm text-[13px] font-medium w-[212px] flex justify-between items-center">
+                <span>Pilih Periode...</span>
+                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-6 w-full">
+            <!-- 4 Statistik Atas -->
+            <div class="flex flex-wrap gap-4 w-full">
+                <div class="w-full sm:w-[calc(50%-0.5rem)] xl:w-[188px] h-[71px] bg-[#3B82F6] rounded-[5px] flex flex-col justify-center items-center shadow-sm">
+                    <span class="text-[#E8F5E9] text-[28px] font-bold leading-none">12</span>
+                    <span class="text-[#E8F5E9] text-[12px] font-medium mt-1">Mahasiswa Bimbingan</span>
+                </div>
+                <div class="w-full sm:w-[calc(50%-0.5rem)] xl:w-[188px] h-[71px] bg-[#E57835] rounded-[5px] flex flex-col justify-center items-center shadow-sm">
+                    <span class="text-[#E8F5E9] text-[28px] font-bold leading-none">5</span>
+                    <span class="text-[#E8F5E9] text-[12px] font-medium mt-1">Belum Sidang</span>
+                </div>
+                <div class="w-full sm:w-[calc(50%-0.5rem)] xl:w-[188px] h-[71px] bg-[#4CAF50] rounded-[5px] flex flex-col justify-center items-center shadow-sm">
+                    <span class="text-[#E8F5E9] text-[28px] font-bold leading-none">3</span>
+                    <span class="text-[#E8F5E9] text-[12px] font-medium mt-1">Telah Sidang</span>
+                </div>
+                <div class="w-full sm:w-[calc(50%-0.5rem)] xl:w-[188px] h-[71px] bg-[#F4B400] rounded-[5px] flex flex-col justify-center items-center shadow-sm">
+                    <span class="text-black text-[28px] font-bold leading-none">2</span>
+                    <span class="text-black text-[12px] font-medium mt-1">Sidang Terjadwal</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+                <!-- Left Column (Progress & Persetujuan) -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Progress Bimbingan -->
+                    <div class="bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm min-h-[302px]">
+                        <h3 class="font-semibold text-[18px] mb-6">Progress Bimbingan</h3>
+                        <div class="flex items-center gap-8">
+                            <div class="w-40 h-40 rounded-full border-8 border-blue-500 flex items-center justify-center">
+                                <div class="text-center">
+                                    <span class="text-[28px] font-bold">75%</span><br>
+                                    <span class="text-[11px] text-gray-500">SELESAI</span>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="bg-gray-50 p-3 mb-2 flex justify-between items-center rounded border">
+                                    <div><span class="font-bold text-[13px]">[Nama Mahasiswa 1]</span><br><span class="text-[11px] text-gray-500">123456</span></div>
+                                    <div class="font-bold text-green-600">12/12</div>
+                                </div>
+                                <div class="bg-gray-50 p-3 mb-2 flex justify-between items-center rounded border">
+                                    <div><span class="font-bold text-[13px]">[Nama Mahasiswa 2]</span><br><span class="text-[11px] text-gray-500">654321</span></div>
+                                    <div class="font-bold text-blue-600">5/12</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Persetujuan Menunggu -->
+                    <div class="bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm">
+                        <h3 class="font-semibold text-[18px] mb-4">Persetujuan Menunggu</h3>
+                        <table class="w-full text-left text-[13px]">
+                            <thead class="bg-gray-100 text-gray-500">
+                                <tr>
+                                    <th class="p-2">No</th>
+                                    <th class="p-2">Mahasiswa</th>
+                                    <th class="p-2 text-center">Jenis Berkas</th>
+                                    <th class="p-2 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="border-t divide-y">
+                                <tr>
+                                    <td class="p-2">1</td>
+                                    <td class="p-2">[Nama Mahasiswa]</td>
+                                    <td class="p-2 text-center"><span class="border px-2 py-1 rounded">Log Bimbingan</span></td>
+                                    <td class="p-2 text-center"><button class="bg-blue-500 text-white px-3 py-1 rounded">Review</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Right Column (Timeline, Jadwal, Notif) -->
+                <div class="flex flex-col gap-6">
+                    <div class="bg-[#ECECEC] rounded-[10px] p-6 shadow-sm border border-[#D9D9D9] h-[132px]">
+                        <h3 class="font-bold text-[15px] mb-3">Timeline Terdekat</h3>
+                        <p class="font-semibold text-[14px]">[Nama Kegiatan] : <span class="font-normal">[Tanggal]</span></p>
+                    </div>
+
+                    <div class="bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm h-[302px]">
+                        <h3 class="font-semibold text-[18px] mb-4">Jadwal Sidang Terdekat</h3>
+                        <div class="border-l-4 border-blue-500 pl-3 py-1 bg-gray-50 mb-3">
+                            <p class="text-[11px] font-bold text-gray-500">20 Mei 2026 • 10:00 - 11:00</p>
+                            <p class="text-[14px] font-bold">[Nama Mahasiswa]</p>
+                            <p class="text-[11px] text-gray-500">[NIM] • Ruang 101</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm h-[252px]">
+                        <h3 class="font-bold text-[15px] mb-4">Notifikasi</h3>
+                        <div class="border-b pb-2">
+                            <h4 class="text-[14px] font-bold">[Judul Notifikasi]</h4>
+                            <p class="text-[11px] text-gray-500">[Isi Notifikasi]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="border-gray-300">
+
+    <!-- BIMBINGAN DOSEN -->
+    <section>
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold uppercase">DAFTAR BIMBINGAN MAHASISWA</h2>
+        </div>
+        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm p-6 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold">Log Bimbingan Mahasiswa</h3>
+            </div>
+            <table class="w-full text-left text-sm border">
+                <thead class="bg-gray-100 text-gray-600">
+                    <tr>
+                        <th class="p-3 border-b">Mahasiswa</th>
+                        <th class="p-3 border-b">Jumlah Bimbingan</th>
+                        <th class="p-3 border-b text-center">Status</th>
+                        <th class="p-3 border-b text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="p-3 border-b font-bold">[Nama Mahasiswa]</td>
+                        <td class="p-3 border-b text-blue-600 font-bold">5 / 12</td>
+                        <td class="p-3 border-b text-center"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Menunggu Verifikasi</span></td>
+                        <td class="p-3 border-b text-center"><button class="bg-blue-600 text-white px-3 py-1 rounded">Detail</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <hr class="border-gray-300">
+
+    <!-- INPUT NILAI -->
+    <section>
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold uppercase">INPUT NILAI SIDANG</h2>
+        </div>
+        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm p-6 mb-8">
+            <h3 class="font-bold mb-4">Daftar Mahasiswa yang Diuji</h3>
+            <div class="grid grid-cols-1 gap-4">
+                <div class="border p-4 rounded bg-gray-50 flex justify-between items-center">
+                    <div>
+                        <p class="font-bold">[Nama Mahasiswa]</p>
+                        <p class="text-sm text-gray-500">[Judul KP]</p>
+                    </div>
+                    <button class="bg-green-600 text-white px-4 py-2 rounded font-bold">Input Nilai</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>

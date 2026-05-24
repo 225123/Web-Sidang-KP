@@ -428,7 +428,7 @@
                 },
 
                 get finishedCount() {
-                    return this.allSessions.filter(s => s.status === 'Selesai').length;
+                    return this.allSessions.filter(s => s.pelaksanaan === 'Selesai').length;
                 },
 
                 get percentage() {
@@ -548,7 +548,18 @@
 
                         const roomMatch = this.filters.ruangan ? s.ruangan === this.filters.ruangan : true;
                         const pengujiMatch = this.filters.penguji ? s.penguji.includes(this.filters.penguji) : true;
-                        const statusMatch = this.filters.status ? s.status === this.filters.status : true;
+                        
+                        let statusMatch = true;
+                        if (this.filters.status) {
+                            if (this.filters.status === 'Selesai') {
+                                statusMatch = s.pelaksanaan === 'Selesai';
+                            } else if (this.filters.status === 'Terjadwal') {
+                                const execStatus = this.getExecutionStatus(s);
+                                statusMatch = execStatus === 'Menunggu' || execStatus === 'Berjalan';
+                            } else {
+                                statusMatch = this.getExecutionStatus(s) === this.filters.status;
+                            }
+                        }
 
                         return dateMatch && timeMatch && roomMatch && pengujiMatch && statusMatch;
                     });

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Desain Web - Koordinator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #F5F6F8; color: #1A1A1A; font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="p-8 max-w-6xl mx-auto flex flex-col gap-16">
+
+    <!-- DASHBOARD KOORDINATOR -->
+    <section>
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold uppercase">DASHBOARD</h2>
+            <div class="bg-white border border-gray-300 rounded-[5px] px-3 py-1.5 shadow-sm text-[13px] font-medium w-[212px] flex justify-between items-center">
+                <span>Pilih Periode...</span>
+                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-6 w-full">
+            <!-- 4 Statistik Atas -->
+            <div class="flex flex-wrap gap-4 w-full">
+                <div class="w-full sm:w-[calc(50%-0.5rem)] xl:w-[188px] h-[71px] bg-indigo-600 rounded-[5px] flex flex-col justify-center items-center shadow-sm">
+                    <span class="text-[#E8F5E9] text-[28px] font-bold leading-none">120</span>
+                    <span class="text-[#E8F5E9] text-[12px] font-medium mt-1">Total Mahasiswa</span>
+                </div>
+                <div class="w-full sm:w-[calc(50%-0.5rem)] xl:w-[188px] h-[71px] bg-blue-500 rounded-[5px] flex flex-col justify-center items-center shadow-sm">
+                    <span class="text-[#E8F5E9] text-[28px] font-bold leading-none">45</span>
+                    <span class="text-[#E8F5E9] text-[12px] font-medium mt-1">Pendaftaran Aktif</span>
+                </div>
+                <div class="w-full sm:w-[calc(50%-0.5rem)] xl:w-[188px] h-[71px] bg-orange-500 rounded-[5px] flex flex-col justify-center items-center shadow-sm">
+                    <span class="text-[#E8F5E9] text-[28px] font-bold leading-none">12</span>
+                    <span class="text-[#E8F5E9] text-[12px] font-medium mt-1">Menunggu Jadwal</span>
+                </div>
+                <div class="w-full sm:w-[calc(50%-0.5rem)] xl:w-[188px] h-[71px] bg-green-500 rounded-[5px] flex flex-col justify-center items-center shadow-sm">
+                    <span class="text-white text-[28px] font-bold leading-none">30</span>
+                    <span class="text-white text-[12px] font-medium mt-1">Selesai Sidang</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                <!-- Grafik Progress KP -->
+                <div class="bg-white rounded-[10px] border border-gray-300 p-6 shadow-sm min-h-[302px]">
+                    <h3 class="font-semibold text-[18px] mb-6">Progress Mahasiswa KP</h3>
+                    <div class="w-full h-48 bg-gray-100 border rounded flex items-end justify-around px-4 pb-2 pt-8">
+                        <div class="w-12 bg-blue-500 h-full rounded-t relative"><span class="absolute -top-6 left-2 text-xs font-bold text-gray-600">45</span></div>
+                        <div class="w-12 bg-orange-500 h-2/3 rounded-t relative"><span class="absolute -top-6 left-2 text-xs font-bold text-gray-600">12</span></div>
+                        <div class="w-12 bg-yellow-500 h-1/2 rounded-t relative"><span class="absolute -top-6 left-2 text-xs font-bold text-gray-600">8</span></div>
+                        <div class="w-12 bg-green-500 h-4/5 rounded-t relative"><span class="absolute -top-6 left-2 text-xs font-bold text-gray-600">30</span></div>
+                    </div>
+                    <div class="flex justify-around text-xs font-bold text-gray-600 mt-2">
+                        <span>Daftar KP</span>
+                        <span>Sidang</span>
+                        <span>Revisi</span>
+                        <span>Lulus</span>
+                    </div>
+                </div>
+
+                <!-- Notifikasi & Aktivitas Terbaru -->
+                <div class="bg-white rounded-[10px] border border-gray-300 p-6 shadow-sm h-[302px]">
+                    <h3 class="font-semibold text-[18px] mb-4">Notifikasi & Aktivitas</h3>
+                    <div class="space-y-4 overflow-y-auto h-52 custom-scrollbar pr-2">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs shrink-0">KP</div>
+                            <div>
+                                <p class="text-[13px] font-bold">[Nama Mahasiswa] mendaftar KP</p>
+                                <p class="text-[11px] text-gray-500">2 jam yang lalu</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-xs shrink-0">SDG</div>
+                            <div>
+                                <p class="text-[13px] font-bold">[Nama Mahasiswa] mengajukan sidang</p>
+                                <p class="text-[11px] text-gray-500">5 jam yang lalu</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="border-gray-300">
+
+    <!-- MANAJEMEN USER -->
+    <section>
+        <div class="mb-8 flex justify-between items-center">
+            <h2 class="text-2xl font-bold uppercase">MANAJEMEN USER</h2>
+            <button class="bg-green-600 text-white font-bold px-4 py-2 rounded shadow">+ Tambah User</button>
+        </div>
+        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm p-6 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <input type="text" placeholder="Cari user..." class="border rounded px-4 py-2 w-64 text-sm">
+                <select class="border rounded px-4 py-2 text-sm"><option>Semua Role</option><option>Mahasiswa</option><option>Dosen</option></select>
+            </div>
+            <table class="w-full text-left text-sm border">
+                <thead class="bg-gray-100 text-gray-600">
+                    <tr>
+                        <th class="p-3 border-b">Nama / Email</th>
+                        <th class="p-3 border-b">Role</th>
+                        <th class="p-3 border-b">Status</th>
+                        <th class="p-3 border-b text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="p-3 border-b font-bold">[Nama User]<br><span class="text-xs text-gray-500 font-normal">email@example.com</span></td>
+                        <td class="p-3 border-b"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-bold">Mahasiswa</span></td>
+                        <td class="p-3 border-b"><span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-bold">Aktif</span></td>
+                        <td class="p-3 border-b text-center"><button class="text-blue-600 underline text-xs font-bold">Edit</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <hr class="border-gray-300">
+
+    <!-- PENJADWALAN SIDANG -->
+    <section>
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold uppercase">PENJADWALAN SIDANG</h2>
+        </div>
+        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm p-6 mb-8">
+            <h3 class="font-bold mb-4 border-b pb-2">Daftar Pengajuan Menunggu Jadwal</h3>
+            <div class="grid grid-cols-1 gap-4">
+                <div class="border p-4 rounded bg-gray-50 flex justify-between items-center">
+                    <div>
+                        <p class="font-bold">[Nama Mahasiswa]</p>
+                        <p class="text-sm text-gray-500">[Judul KP]</p>
+                    </div>
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded font-bold text-sm">Atur Jadwal</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="border-gray-300">
+
+    <!-- FINALISASI NILAI -->
+    <section>
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold uppercase">FINALISASI NILAI</h2>
+        </div>
+        <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm p-6 mb-8">
+            <h3 class="font-bold mb-4 border-b pb-2">Nilai Sidang Menunggu Finalisasi</h3>
+            <div class="grid grid-cols-1 gap-4">
+                <div class="border p-4 rounded bg-gray-50 flex justify-between items-center">
+                    <div>
+                        <p class="font-bold">[Nama Mahasiswa]</p>
+                        <p class="text-sm text-gray-500">Nilai Dosen 1: 85 | Nilai Dosen 2: 90</p>
+                    </div>
+                    <button class="bg-green-600 text-white px-4 py-2 rounded font-bold text-sm">Finalisasi</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>
