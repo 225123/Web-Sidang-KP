@@ -190,7 +190,6 @@
             }) + ' WIB';
         }
 
-    <script>
         window.handleFileSelection = function(event, maxSize, callback) {
             const files = event.target.files;
             if (files && files.length > 0) {
