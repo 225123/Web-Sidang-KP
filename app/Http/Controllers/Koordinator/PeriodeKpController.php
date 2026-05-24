@@ -32,14 +32,8 @@ class PeriodeKpController extends Controller
                 $stats[$periode->id] = PendaftaranKp::where('tahun_ajaran_id', $periode->id)
                                         ->distinct('mahasiswa_id')->count('mahasiswa_id');
                 
-                $dIds = PendaftaranKp::where('tahun_ajaran_id', $periode->id)
-                            ->whereNotNull('pembimbing_id')
-                            ->distinct('pembimbing_id')
-                            ->pluck('pembimbing_id');
-                if ($periode->koordinator_id) {
-                    $dIds->push($periode->koordinator_id);
-                }
-                $dosenStats[$periode->id] = $dIds->unique()->filter()->count();
+                // Dosen aktif (semua dosen & koordinator)
+                $dosenStats[$periode->id] = User::whereIn('role', ['dosen', 'koordinator_kp'])->count();
                 $userStats[$periode->id] = $stats[$periode->id] + $dosenStats[$periode->id];
             }
         }
@@ -76,14 +70,7 @@ class PeriodeKpController extends Controller
             $mhsCount = PendaftaranKp::where('tahun_ajaran_id', $oldActive->id)
                 ->distinct('mahasiswa_id')->count('mahasiswa_id');
 
-            $dIds = PendaftaranKp::where('tahun_ajaran_id', $oldActive->id)
-                        ->whereNotNull('pembimbing_id')
-                        ->distinct('pembimbing_id')
-                        ->pluck('pembimbing_id');
-            if ($oldActive->koordinator_id) {
-                $dIds->push($oldActive->koordinator_id);
-            }
-            $dsnCount = $dIds->unique()->filter()->count();
+            $dsnCount = User::whereIn('role', ['dosen', 'koordinator_kp'])->count();
 
             $oldActive->update([
                 'is_active' => false,
@@ -179,14 +166,7 @@ class PeriodeKpController extends Controller
             $mhsCount = PendaftaranKp::where('tahun_ajaran_id', $oldActive->id)
                 ->distinct('mahasiswa_id')->count('mahasiswa_id');
 
-            $dIds = PendaftaranKp::where('tahun_ajaran_id', $oldActive->id)
-                        ->whereNotNull('pembimbing_id')
-                        ->distinct('pembimbing_id')
-                        ->pluck('pembimbing_id');
-            if ($oldActive->koordinator_id) {
-                $dIds->push($oldActive->koordinator_id);
-            }
-            $dsnCount = $dIds->unique()->filter()->count();
+            $dsnCount = User::whereIn('role', ['dosen', 'koordinator_kp'])->count();
 
             $oldActive->update([
                 'is_active' => false,
