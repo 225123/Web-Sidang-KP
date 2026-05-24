@@ -16,12 +16,7 @@ class ProgressUmumController extends Controller
         $mahasiswaQuery = Mahasiswa::with('user');
         if (session()->has('selected_periode_id')) {
             $periodeId = session('selected_periode_id');
-            $mahasiswaQuery->where(function($q) use ($periodeId) {
-                $q->where('tahun_ajaran_id', $periodeId)
-                  ->orWhereIn('user_id', function($sub) use ($periodeId) {
-                      $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
-                  });
-            });
+            $mahasiswaQuery->where('tahun_ajaran_id', $periodeId);
         }
         $mahasiswas = $mahasiswaQuery->get();
 

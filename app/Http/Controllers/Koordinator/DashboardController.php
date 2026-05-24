@@ -20,9 +20,7 @@ class DashboardController extends Controller
             if (session()->has('selected_periode_id')) {
                 $periodeId = session('selected_periode_id');
                 $totalMahasiswaQuery->whereHas('mahasiswa', function($sq) use ($periodeId) {
-                    $sq->whereHas('pendaftaranKps', function($q2) use ($periodeId) {
-                        $q2->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
-                    });
+                    $sq->where('tahun_ajaran_id', $periodeId);
                 });
             }
             $totalMahasiswa = $totalMahasiswaQuery->count();

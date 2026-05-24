@@ -19,6 +19,9 @@ class LaporanArsipController extends Controller
         // Ambil semua sidang di periode ini (persis seperti Finalisasi Nilai)
         $sidangRows = PendaftaranSidang::withoutGlobalScope('periode')
             ->with(['mahasiswa.user', 'pendaftaranKp'])
+            ->whereHas('mahasiswa', function($q) use ($periodeId) {
+                $q->where('tahun_ajaran_id', $periodeId);
+            })
             ->whereHas('pendaftaranKp', function($q) use ($periodeId) {
                 $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
             })
@@ -85,6 +88,9 @@ class LaporanArsipController extends Controller
 
         $sidangRows = PendaftaranSidang::withoutGlobalScope('periode')
             ->with(['mahasiswa.user', 'pendaftaranKp'])
+            ->whereHas('mahasiswa', function($q) use ($periodeId) {
+                $q->where('tahun_ajaran_id', $periodeId);
+            })
             ->whereHas('pendaftaranKp', function($q) use ($periodeId) {
                 $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
             })

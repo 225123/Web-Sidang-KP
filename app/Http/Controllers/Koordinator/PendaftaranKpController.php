@@ -45,12 +45,8 @@ class PendaftaranKpController extends Controller
         $usersMahasiswaQuery = User::where('role', 'mahasiswa');
         if (session()->has('selected_periode_id')) {
             $periodeId = session('selected_periode_id');
-            $usersMahasiswaQuery->where(function ($q) use ($periodeId) {
-                $q->whereHas('mahasiswa', function ($sq) use ($periodeId) {
-                    $sq->where('tahun_ajaran_id', $periodeId);
-                })->orWhereIn('id', function ($sub) use ($periodeId) {
-                    $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
-                });
+            $usersMahasiswaQuery->whereHas('mahasiswa', function ($sq) use ($periodeId) {
+                $sq->where('tahun_ajaran_id', $periodeId);
             });
         }
         $usersMahasiswa = $usersMahasiswaQuery->get();

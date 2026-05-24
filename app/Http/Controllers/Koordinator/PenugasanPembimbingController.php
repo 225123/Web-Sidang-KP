@@ -54,8 +54,11 @@ class PenugasanPembimbingController extends Controller
 
         if (! $activeId) return; // Tidak ada periode aktif, skip
 
-        // Ambil SEMUA mahasiswas — tidak difilter periode.
-        $mahasiswas = User::where('role', 'mahasiswa')->get();
+        // Ambil mahasiswas yang aktif di periode ini
+        $mahasiswas = User::where('role', 'mahasiswa')
+            ->whereHas('mahasiswa', function($q) use ($activeId) {
+                $q->where('tahun_ajaran_id', $activeId);
+            })->get();
 
         foreach ($mahasiswas as $mhs) {
             // Cek apakah mahasiswa sudah punya record untuk PERIODE INI khususnya
@@ -101,8 +104,8 @@ class PenugasanPembimbingController extends Controller
         $query = User::with(['mahasiswa'])->where('role', 'mahasiswa');
         if (session()->has('selected_periode_id')) {
             $periodeId = session('selected_periode_id');
-            $query->whereIn('id', function($sub) use ($periodeId) {
-                $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
+            $query->whereHas('mahasiswa', function($sq) use ($periodeId) {
+                $sq->where('tahun_ajaran_id', $periodeId);
             });
         }
 
@@ -170,8 +173,8 @@ class PenugasanPembimbingController extends Controller
         $totalQuery = User::where('role', 'mahasiswa')->has('mahasiswa');
         if (session()->has('selected_periode_id')) {
             $periodeId = session('selected_periode_id');
-            $totalQuery->whereIn('id', function($sub) use ($periodeId) {
-                $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
+            $totalQuery->whereHas('mahasiswa', function($sq) use ($periodeId) {
+                $sq->where('tahun_ajaran_id', $periodeId);
             });
         }
         $totalAllMahasiswa = $totalQuery->count();
@@ -463,8 +466,8 @@ class PenugasanPembimbingController extends Controller
             $allMhsQuery = User::with('mahasiswa')->where('role', 'mahasiswa');
             if (session()->has('selected_periode_id')) {
                 $periodeId = session('selected_periode_id');
-                $allMhsQuery->whereIn('id', function($sub) use ($periodeId) {
-                    $sub->select('mahasiswa_id')->from('pendaftaran_kp')->where('tahun_ajaran_id', $periodeId);
+                $allMhsQuery->whereHas('mahasiswa', function($sq) use ($periodeId) {
+                    $sq->where('tahun_ajaran_id', $periodeId);
                 });
             }
             $allMahasiswas = $allMhsQuery->get();
