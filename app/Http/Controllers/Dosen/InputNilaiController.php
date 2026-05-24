@@ -27,7 +27,7 @@ class InputNilaiController extends Controller
                     $q->where('tahun_ajaran_id', $activePeriodId);
                 }
             })
-            ->where('status_jadwal', 'Sudah Dijadwalkan')
+            ->where('status_jadwal', 'submitted')
             ->where(function ($query) use ($currentUserId, $currentUserName) {
                 // Peran sebagai Penguji
                 $query->where('penguji_1_id', $currentUserId)
