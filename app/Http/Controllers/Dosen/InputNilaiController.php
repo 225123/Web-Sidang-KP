@@ -18,8 +18,16 @@ class InputNilaiController extends Controller
         $currentUserId = Auth::id();
         $currentUserName = Auth::user()->name;
 
+        $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id;
+
         // Ambil mahasiswa di mana dosen ini memiliki peran apapun (Penguji, Pembimbing, atau Supervisior)
         $sidangs = PendaftaranSidang::with(['mahasiswa.user'])
+            ->whereHas('pendaftaranKp', function($q) use ($activePeriodId) {
+                if ($activePeriodId) {
+                    $q->where('tahun_ajaran_id', $activePeriodId);
+                }
+            })
+            ->where('status_jadwal', 'Sudah Dijadwalkan')
             ->where(function ($query) use ($currentUserId, $currentUserName) {
                 // Peran sebagai Penguji
                 $query->where('penguji_1_id', $currentUserId)

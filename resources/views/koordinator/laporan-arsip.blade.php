@@ -93,7 +93,7 @@
                         </svg>
                         <h4 class="text-lg font-bold text-gray-900 mb-2">Data Terkunci</h4>
                         <p class="text-sm text-gray-600 mb-4">Anda harus melakukan finalisasi nilai pada periode ini sebelum dapat melihat dan mengunduh laporan kelulusan.</p>
-                        <a href="{{ route('koordinator.finalisasi-nilai') }}" class="inline-flex items-center justify-center px-4 py-2 bg-[#4285F4] text-white rounded-[5px] text-[12px] font-bold shadow-sm hover:bg-blue-600 transition-colors">
+                        <a href="{{ route('koordinator.finalisasi-nilai.index') }}" class="inline-flex items-center justify-center px-4 py-2 bg-[#4285F4] text-white rounded-[5px] text-[12px] font-bold shadow-sm hover:bg-blue-600 transition-colors">
                             Menuju Finalisasi Nilai
                         </a>
                     </div>

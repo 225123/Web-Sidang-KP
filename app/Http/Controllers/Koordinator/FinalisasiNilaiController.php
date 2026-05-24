@@ -10,8 +10,15 @@ class FinalisasiNilaiController extends Controller
 {
     public function index()
     {
+        $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id;
+
         // Mendukung status Lulus, Lulus Dengan Revisi, dan Lanjut (pengganti Tidak Lulus)
         $sidangs = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp.pembimbing', 'pendaftaranKp.supervisorInstansi'])
+            ->whereHas('pendaftaranKp', function($q) use ($activePeriodId) {
+                if ($activePeriodId) {
+                    $q->where('tahun_ajaran_id', $activePeriodId);
+                }
+            })
             ->whereIn('status_kelulusan', ['Lulus', 'Lulus Dengan Revisi', 'Lanjut', 'Tidak Lulus'])
             ->get()
             ->sortBy(function ($sidang) {
@@ -53,7 +60,14 @@ class FinalisasiNilaiController extends Controller
 
     public function sahkan()
     {
-        $sidangs = PendaftaranSidang::whereIn('status_kelulusan', ['Lulus', 'Lulus Dengan Revisi', 'Lanjut', 'Tidak Lulus'])
+        $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id;
+
+        $sidangs = PendaftaranSidang::whereHas('pendaftaranKp', function($q) use ($activePeriodId) {
+                if ($activePeriodId) {
+                    $q->where('tahun_ajaran_id', $activePeriodId);
+                }
+            })
+            ->whereIn('status_kelulusan', ['Lulus', 'Lulus Dengan Revisi', 'Lanjut', 'Tidak Lulus'])
             ->where('nilai_dipublikasi', false)
             ->get();
 

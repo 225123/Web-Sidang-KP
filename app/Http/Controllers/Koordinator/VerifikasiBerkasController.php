@@ -18,9 +18,6 @@ class VerifikasiBerkasController extends Controller
         // Dan hanya ambil yang status_verifikasi (Dosen) = 'verified' karena itu prasyarat
         // Serta filter berdasarkan periode aktif
         $semuaPengajuan = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp'])
-            ->whereHas('mahasiswa', function($query) use ($activePeriodId) {
-                $query->where('tahun_ajaran_id', $activePeriodId);
-            })
             ->whereHas('pendaftaranKp', function($query) use ($activePeriodId) {
                 $query->where('tahun_ajaran_id', $activePeriodId);
             })
@@ -37,9 +34,6 @@ class VerifikasiBerkasController extends Controller
 
         // 2. Riwayat Penolakan (semua history penolakan) - Filter by period
         $ditolaks = RiwayatPenolakanSidang::with(['pendaftaranSidang.mahasiswa.user'])
-            ->whereHas('pendaftaranSidang.mahasiswa', function($query) use ($activePeriodId) {
-                $query->where('tahun_ajaran_id', $activePeriodId);
-            })
             ->whereHas('pendaftaranSidang.pendaftaranKp', function($query) use ($activePeriodId) {
                 $query->where('tahun_ajaran_id', $activePeriodId);
             })
@@ -49,9 +43,6 @@ class VerifikasiBerkasController extends Controller
         // 3. Yang belum submit sama sekali (Tapi sudah ACC dosen) - Filter by period
         // Juga tangkap status_koordinator = NULL (data legacy yang tidak ter-set dengan benar)
         $belumKumpuls = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp'])
-            ->whereHas('mahasiswa', function($query) use ($activePeriodId) {
-                $query->where('tahun_ajaran_id', $activePeriodId);
-            })
             ->whereHas('pendaftaranKp', function($query) use ($activePeriodId) {
                 $query->where('tahun_ajaran_id', $activePeriodId);
             })
@@ -164,10 +155,7 @@ class VerifikasiBerkasController extends Controller
             // Re-calculate stats for real-time update
             $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id;
             
-            $semua = PendaftaranSidang::whereHas('mahasiswa', function($query) use ($activePeriodId) {
-                    $query->where('tahun_ajaran_id', $activePeriodId);
-                })
-                ->whereHas('pendaftaranKp', function($query) use ($activePeriodId) {
+            $semua = PendaftaranSidang::whereHas('pendaftaranKp', function($query) use ($activePeriodId) {
                     $query->where('tahun_ajaran_id', $activePeriodId);
                 })
                 ->where('status_verifikasi', 'verified')

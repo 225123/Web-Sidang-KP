@@ -18,8 +18,16 @@ class InputNilaiController extends Controller
         $currentUserId = Auth::id();
         $currentUserName = Auth::user()->name;
 
+        $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id;
+
         // Kita menggunakan pencocokan berbasis Mahasiswa ID untuk mengatasi data pendaftaran sidang yang mungkin link ke KP ID yang salah (lama/rejected)
         $sidangs = PendaftaranSidang::with(['mahasiswa.user', 'pendaftaranKp.supervisorInternal', 'pendaftaranKp.supervisorInstansi'])
+            ->whereHas('pendaftaranKp', function($q) use ($activePeriodId) {
+                if ($activePeriodId) {
+                    $q->where('tahun_ajaran_id', $activePeriodId);
+                }
+            })
+            ->where('status_jadwal', 'Sudah Dijadwalkan')
             ->where(function ($query) use ($currentUserId, $currentUserName) {
                 $query->where('penguji_1_id', $currentUserId)
                     ->orWhere('penguji_2_id', $currentUserId)
