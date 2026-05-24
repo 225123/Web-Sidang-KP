@@ -88,20 +88,30 @@
                         </form>
                     </div>
                 @else
-                    <div class="pt-6">Berkas Revisi</div>
-                    <div class="pt-6 flex items-center gap-2">
-                        <span class="mr-2">:</span>
-                        @if($sidang->file_revisi)
-                            <a href="{{ Storage::url($sidang->file_revisi) }}" target="_blank" class="text-blue-600 hover:underline flex items-center gap-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
-                                Lihat Berkas PDF
-                            </a>
-                        @elseif($sidang->link_revisi)
-                            <a href="{{ $sidang->link_revisi }}" target="_blank" class="text-blue-600 hover:underline flex items-center gap-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                                Lihat Link Drive
-                            </a>
-                        @endif
+                    <div class="pt-6">Upload Berkas Revisi</div>
+                    <div class="pt-6 flex flex-col gap-3">
+                        <div class="flex items-center gap-2">
+                            <span class="mr-2">:</span>
+                            <div class="bg-[#F0F0F0] border border-gray-300 text-gray-500 text-[13px] px-4 py-1.5 rounded-[20px] inline-flex items-center gap-2 opacity-70 cursor-not-allowed w-max">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                                Terkunci (Sedang/Telah Diproses)
+                            </div>
+                        </div>
+                        <div class="ml-[22px] flex items-center gap-2">
+                            @if($sidang->file_revisi)
+                                <a href="{{ Storage::url($sidang->file_revisi) }}" target="_blank" class="text-blue-600 hover:underline flex items-center gap-1 text-[13px] font-bold">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                                    Lihat Berkas PDF
+                                </a>
+                            @elseif($sidang->link_revisi)
+                                <a href="{{ $sidang->link_revisi }}" target="_blank" class="text-blue-600 hover:underline flex items-center gap-1 text-[13px] font-bold">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                    Lihat Link Drive
+                                </a>
+                            @endif
+                        </div>
                     </div>
 
                     @if($sidang->tanggal_revisi)
