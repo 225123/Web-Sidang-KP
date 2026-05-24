@@ -302,7 +302,9 @@
             $logoData = 'https://upload.wikimedia.org/wikipedia/id/8/80/Logo_UKRIDA.png';
         }
         
-        $koordinator = auth()->user();
+        $periodeId = session('selected_periode_id');
+        $tahunAjaran = \App\Models\TahunAjaran::with('koordinator.dosen')->find($periodeId);
+        $koordinator = $tahunAjaran && $tahunAjaran->koordinator ? $tahunAjaran->koordinator : auth()->user();
         $sigData = '';
         if ($koordinator && $koordinator->signature_path) {
             $sp = public_path('storage/' . $koordinator->signature_path);

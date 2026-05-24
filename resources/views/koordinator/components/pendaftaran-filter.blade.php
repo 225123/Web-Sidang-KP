@@ -72,7 +72,7 @@
                 <ul class="py-1 text-[13px]">
                     <li><label class="block px-3 py-1.5 hover:bg-gray-100 cursor-pointer"><input type="radio" name="{{ $prefix }}[status_baru_lanjut]" value="All" class="hidden" x-model="selectedBaruLanjut" @change="$dispatch('update-barulanjut-' + '{{ $prefix }}', selectedBaruLanjut)">All</label></li>
                     <li><label class="block px-3 py-1.5 hover:bg-gray-100 cursor-pointer"><input type="radio" name="{{ $prefix }}[status_baru_lanjut]" value="Baru" class="hidden" x-model="selectedBaruLanjut" @change="$dispatch('update-barulanjut-' + '{{ $prefix }}', selectedBaruLanjut)">Baru</label></li>
-                    <li><label class="block px-3 py-1.5 hover:bg-gray-100 cursor-pointer"><input type="radio" name="{{ $prefix }}[status_baru_lanjut]" value="Lanjut" class="hidden" x-model="selectedBaruLanjut" @change="$el.closest('form').submit()">Lanjut</label></li>
+                    <li><label class="block px-3 py-1.5 hover:bg-gray-100 cursor-pointer"><input type="radio" name="{{ $prefix }}[status_baru_lanjut]" value="Lanjut" class="hidden" x-model="selectedBaruLanjut" @change="$dispatch('update-barulanjut-' + '{{ $prefix }}', selectedBaruLanjut)">Lanjut</label></li>
                 </ul>
             </div>
         </div>
