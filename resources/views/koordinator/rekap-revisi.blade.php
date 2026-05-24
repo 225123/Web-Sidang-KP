@@ -217,6 +217,9 @@
 
                 formatTime(timeString) {
                     if (!timeString) return '-';
+                    if (timeString.includes(' ')) {
+                        return timeString.split(' ')[1].substring(0, 5);
+                    }
                     if (timeString.includes('T')) {
                         const d = new Date(timeString);
                         return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
