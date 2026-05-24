@@ -301,7 +301,10 @@
     <script>
         window.revisiPage = function() {
             return {
-                sidangs: @json($mappedSidangs),
+                sidangs: @json($mappedSidangs).map(s => {
+                    if (!s.status_revisi) s.status_revisi = 'Belum mengumpulkan';
+                    return s;
+                }),
                 search: '',
                 filterStatus: 'all',
                 currentPage: 1,
