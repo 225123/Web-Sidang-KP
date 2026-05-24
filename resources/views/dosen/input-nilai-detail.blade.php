@@ -147,7 +147,7 @@
                     @if($role === 'penguji1' || $role === 'penguji2')
                         <div class="pt-6 border-t border-dashed border-gray-400">
                             <label class="block text-[14px] font-bold text-black mb-2 uppercase">Catatan Sidang</label>
-                            <textarea name="catatan" rows="3" :disabled="isLocked" class="w-full border border-gray-300 rounded-[5px] p-3 text-[13px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500" placeholder="Masukkan catatan atau masukan untuk mahasiswa..."></textarea>
+                            <textarea name="catatan" rows="3" :disabled="isLocked" class="w-full border border-gray-300 rounded-[5px] p-3 text-[13px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500" placeholder="Masukkan catatan atau masukan untuk mahasiswa...">{{ $sidang->catatan_sidang ?? '' }}</textarea>
                         </div>
                     @endif
 

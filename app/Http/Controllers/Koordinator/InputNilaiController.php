@@ -184,11 +184,8 @@ class InputNilaiController extends Controller
 
         $sidang->save();
 
-        if ($request->filled('catatan')) {
-            $timestamp = now()->format('d/m/Y H:i');
-            $roleLabel = strtoupper($role);
-            $newNote = "[{$timestamp} - {$roleLabel}]: {$request->catatan}";
-            $sidang->catatan_sidang = $sidang->catatan_sidang ? $sidang->catatan_sidang . "\n" . $newNote : $newNote;
+        if ($request->has('catatan')) {
+            $sidang->catatan_sidang = $request->catatan;
             $sidang->save();
         }
 

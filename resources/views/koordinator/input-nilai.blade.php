@@ -21,19 +21,19 @@
                :class="activeTab === 'penguji' ? 'bg-white border border-gray-200 border-b-white h-[36px] z-10 font-bold text-black' : 'bg-gray-100 border border-gray-200 text-gray-500 h-[34px] hover:bg-gray-50 border-b-gray-200'"
                class="px-5 text-[12px] rounded-t-[10px] relative flex items-center justify-center transition-all gap-2">
                Penguji Sidang
-               <span class="bg-[#4285F4]/10 text-[#4285F4] py-0.5 px-2 rounded-full text-[10px]" x-text="pengujiTotal"></span>
+               <span class="bg-[#4285F4]/10 text-[#4285F4] py-0.5 px-2 rounded-full text-[10px]" x-text="pengujiMenunggu"></span>
             </button>
             <button @click="activeTab = 'pembimbing'" 
                :class="activeTab === 'pembimbing' ? 'bg-white border border-gray-200 border-b-white h-[36px] z-10 font-bold text-black' : 'bg-gray-100 border border-gray-200 text-gray-500 h-[34px] hover:bg-gray-50 border-b-gray-200'"
                class="px-5 text-[12px] rounded-t-[10px] relative left-[-1px] flex items-center justify-center transition-all gap-2">
                Pembimbing KP
-               <span class="bg-[#4285F4]/10 text-[#4285F4] py-0.5 px-2 rounded-full text-[10px]" x-text="pembimbingTotal"></span>
+               <span class="bg-[#4285F4]/10 text-[#4285F4] py-0.5 px-2 rounded-full text-[10px]" x-text="pembimbingMenunggu"></span>
             </button>
             <button @click="activeTab = 'supervisor'" 
                :class="activeTab === 'supervisor' ? 'bg-white border border-gray-200 border-b-white h-[36px] z-10 font-bold text-black' : 'bg-gray-100 border border-gray-200 text-gray-500 h-[34px] hover:bg-gray-50 border-b-gray-200'"
                class="px-5 text-[12px] rounded-t-[10px] relative left-[-2px] flex items-center justify-center transition-all gap-2">
                Supervisor Lapangan
-               <span class="bg-[#4285F4]/10 text-[#4285F4] py-0.5 px-2 rounded-full text-[10px]" x-text="supervisorTotal"></span>
+               <span class="bg-[#4285F4]/10 text-[#4285F4] py-0.5 px-2 rounded-full text-[10px]" x-text="supervisorMenunggu"></span>
             </button>
         </div>
 
