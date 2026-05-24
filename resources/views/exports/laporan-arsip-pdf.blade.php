@@ -95,12 +95,16 @@
         <p>Jakarta, {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}</p>
         <p class="font-bold">Koordinator Kerja Praktek,</p>
         <div style="margin: 10px 0;">
-            @if($koordinator?->signature_path && file_exists(storage_path('app/public/' . $koordinator->signature_path)))
-                <img src="{{ storage_path('app/public/' . $koordinator->signature_path) }}" style="width: 150px; height: 80px;">
-            @elseif($koordinator?->signature_path && file_exists(public_path('storage/' . $koordinator->signature_path)))
-                <img src="{{ public_path('storage/' . $koordinator->signature_path) }}" style="width: 150px; height: 80px;">
-            @elseif($koordinator?->signature && (strpos($koordinator->signature, 'data:image') === 0))
-                <img src="{{ $koordinator->signature }}" style="width: 150px; height: 80px;">
+            @php
+                $signatureSrc = null;
+                if ($koordinator?->signature_path) {
+                    $signatureSrc = storage_url($koordinator->signature_path);
+                } elseif ($koordinator?->signature && strpos($koordinator->signature, 'data:image') === 0) {
+                    $signatureSrc = $koordinator->signature;
+                }
+            @endphp
+            @if($signatureSrc)
+                <img src="{{ $signatureSrc }}" style="width: 150px; height: 80px;">
             @else
                 <div style="height: 80px; color: #ccc; font-style: italic; font-size: 10px; padding-top: 30px;">
                     (Tanda tangan tidak ditemukan)

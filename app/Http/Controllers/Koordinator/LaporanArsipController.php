@@ -151,7 +151,8 @@ class LaporanArsipController extends Controller
             $koordinator = \App\Models\User::with('dosen')->whereIn('role', [1, 'koordinator_kp'])->first();
         }
 
-        $pdf = Pdf::loadView('exports.laporan-arsip-pdf', compact('mahasiswas', 'koordinator'))
+        $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
+            ->loadView('exports.laporan-arsip-pdf', compact('mahasiswas', 'koordinator'))
             ->setPaper('a4', 'portrait');
 
         return $pdf->download('Laporan_Kelulusan_Mahasiswa.pdf');
