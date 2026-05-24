@@ -48,8 +48,26 @@
                     <h3 class="text-[17px] font-bold text-black mb-2">
                         {{ $pengajuan->status_koordinator === 'verified' ? 'Pendaftaran Sidang Disetujui' : 'Kamu Telah Berhasil Mendaftar' }}
                     </h3>
-                    <p class="text-[14px] text-[#1A1A1A] font-medium">Informasi selanjutnya akan diumumkan oleh koordinator
-                        KP melalui Email atau Notifikasi</p>
+                    @if($pengajuan->status_koordinator === 'verified')
+                        @if($pengajuan->status_jadwal === 'Sudah Dijadwalkan')
+                            <p class="text-[14px] text-[#1A1A1A] font-medium mb-6">
+                                Jadwal sidang telah diatur. Silakan cek detail jadwal sidang Anda.
+                            </p>
+                            <a href="{{ route('mahasiswa.jadwal-sidang.index') }}"
+                                class="bg-[#FFFF1A] hover:bg-yellow-400 text-black font-bold text-[13px] px-8 h-[36px] rounded-[20px] flex items-center justify-center gap-2 transform hover:-translate-y-0.5 transition-all shadow-md shrink-0 w-max mx-auto">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                Menuju Jadwal Sidang
+                            </a>
+                        @else
+                            <p class="text-[14px] text-[#1A1A1A] font-medium">
+                                Informasi jadwal sidang akan diberikan jika telah dibuat oleh koordinator.
+                            </p>
+                        @endif
+                    @else
+                        <p class="text-[14px] text-[#1A1A1A] font-medium">Informasi selanjutnya akan diumumkan oleh koordinator KP melalui Email atau Notifikasi</p>
+                    @endif
                 </div>
 
             @else
