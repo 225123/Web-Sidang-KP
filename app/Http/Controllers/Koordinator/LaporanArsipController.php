@@ -165,10 +165,13 @@ class LaporanArsipController extends Controller
                 $signatureSrc = $koordinator->signature;
             } elseif ($koordinator->signature_path) {
                 try {
-                    $imgData = file_get_contents(storage_url($koordinator->signature_path));
-                    $base64 = base64_encode($imgData);
-                    $ext = pathinfo($koordinator->signature_path, PATHINFO_EXTENSION) ?: 'png';
-                    $signatureSrc = 'data:image/' . $ext . ';base64,' . $base64;
+                    $disk = upload_disk();
+                    if (\Illuminate\Support\Facades\Storage::disk($disk)->exists($koordinator->signature_path)) {
+                        $imgData = \Illuminate\Support\Facades\Storage::disk($disk)->get($koordinator->signature_path);
+                        $base64 = base64_encode($imgData);
+                        $ext = pathinfo($koordinator->signature_path, PATHINFO_EXTENSION) ?: 'png';
+                        $signatureSrc = 'data:image/' . $ext . ';base64,' . $base64;
+                    }
                 } catch (\Exception $e) {
                     $signatureSrc = null;
                 }

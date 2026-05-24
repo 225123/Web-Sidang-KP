@@ -185,10 +185,13 @@ class FinalisasiNilaiController extends Controller
                 $signatureSrc = $koordinator->signature;
             } elseif ($koordinator->signature_path) {
                 try {
-                    $imgData = file_get_contents(storage_url($koordinator->signature_path));
-                    $base64 = base64_encode($imgData);
-                    $ext = pathinfo($koordinator->signature_path, PATHINFO_EXTENSION) ?: 'png';
-                    $signatureSrc = 'data:image/' . $ext . ';base64,' . $base64;
+                    $disk = upload_disk();
+                    if (\Illuminate\Support\Facades\Storage::disk($disk)->exists($koordinator->signature_path)) {
+                        $imgData = \Illuminate\Support\Facades\Storage::disk($disk)->get($koordinator->signature_path);
+                        $base64 = base64_encode($imgData);
+                        $ext = pathinfo($koordinator->signature_path, PATHINFO_EXTENSION) ?: 'png';
+                        $signatureSrc = 'data:image/' . $ext . ';base64,' . $base64;
+                    }
                 } catch (\Exception $e) {
                     $signatureSrc = null;
                 }
@@ -202,10 +205,13 @@ class FinalisasiNilaiController extends Controller
                 $penguji1SignatureSrc = $sidang->penguji1->signature;
             } elseif ($sidang->penguji1->signature_path) {
                 try {
-                    $imgData = file_get_contents(storage_url($sidang->penguji1->signature_path));
-                    $base64 = base64_encode($imgData);
-                    $ext = pathinfo($sidang->penguji1->signature_path, PATHINFO_EXTENSION) ?: 'png';
-                    $penguji1SignatureSrc = 'data:image/' . $ext . ';base64,' . $base64;
+                    $disk = upload_disk();
+                    if (\Illuminate\Support\Facades\Storage::disk($disk)->exists($sidang->penguji1->signature_path)) {
+                        $imgData = \Illuminate\Support\Facades\Storage::disk($disk)->get($sidang->penguji1->signature_path);
+                        $base64 = base64_encode($imgData);
+                        $ext = pathinfo($sidang->penguji1->signature_path, PATHINFO_EXTENSION) ?: 'png';
+                        $penguji1SignatureSrc = 'data:image/' . $ext . ';base64,' . $base64;
+                    }
                 } catch (\Exception $e) {
                     $penguji1SignatureSrc = null;
                 }
@@ -218,10 +224,13 @@ class FinalisasiNilaiController extends Controller
                 $penguji2SignatureSrc = $sidang->penguji2->signature;
             } elseif ($sidang->penguji2->signature_path) {
                 try {
-                    $imgData = file_get_contents(storage_url($sidang->penguji2->signature_path));
-                    $base64 = base64_encode($imgData);
-                    $ext = pathinfo($sidang->penguji2->signature_path, PATHINFO_EXTENSION) ?: 'png';
-                    $penguji2SignatureSrc = 'data:image/' . $ext . ';base64,' . $base64;
+                    $disk = upload_disk();
+                    if (\Illuminate\Support\Facades\Storage::disk($disk)->exists($sidang->penguji2->signature_path)) {
+                        $imgData = \Illuminate\Support\Facades\Storage::disk($disk)->get($sidang->penguji2->signature_path);
+                        $base64 = base64_encode($imgData);
+                        $ext = pathinfo($sidang->penguji2->signature_path, PATHINFO_EXTENSION) ?: 'png';
+                        $penguji2SignatureSrc = 'data:image/' . $ext . ';base64,' . $base64;
+                    }
                 } catch (\Exception $e) {
                     $penguji2SignatureSrc = null;
                 }
