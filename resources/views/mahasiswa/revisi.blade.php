@@ -51,62 +51,83 @@
 
                 @if(!$sidang->status_revisi || !in_array(strtolower($sidang->status_revisi), ['menunggu', 'disahkan', 'diterima']))
                     <div class="pt-6">Upload Berkas Revisi</div>
-                    <div class="pt-6 flex items-center gap-2">
-                        <span class="mr-2">:</span>
-                        <form id="formAjukan" action="{{ route('mahasiswa.revisi.store') }}" method="POST" enctype="multipart/form-data" class="flex-1 flex items-center gap-4">
-                            @csrf
-
-                            <div class="relative flex items-center gap-2" x-show="uploadType === 'file' || uploadType === ''">
-                                <input type="file" name="file_revisi" id="file_revisi" accept=".pdf" class="hidden" 
-                                    @change="window.handleFileSelection($event, 5242880, (isValid, name) => { 
-                                        if(isValid && name) { 
-                                            fileName = name; 
-                                            uploadType = 'file'; 
-                                        } else { 
-                                            fileName = ''; 
-                                            uploadType = ''; 
-                                        } 
-                                    })" 
-                                    x-ref="fileInput">
-                                <button type="button" @click="$refs.fileInput.click()" class="bg-[#F0F0F0] border border-gray-300 text-gray-600 text-[13px] px-4 py-1.5 rounded-[20px] flex items-center gap-2 hover:bg-gray-200 transition-colors">
-                                    <svg class="w-4 h-4 text-[#8A9CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                                    </svg>
-                                    <span x-text="fileName === '' ? 'Pilih file (Max 5MB)' : fileName"></span>
-                                </button>
-                                <button type="button" x-cloak x-show="fileName !== ''" @click="fileName = ''; uploadType = ''; $refs.fileInput.value = ''" 
-                                    class="shrink-0 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Hapus File">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                </button>
-                            </div>
-
-                            <span class="text-sm font-medium" x-show="uploadType === ''">atau</span>
-
-                            <div class="flex-1" x-show="uploadType === 'link' || uploadType === ''">
-                                <input type="url" name="link_revisi" x-model="linkDrive" @input="uploadType = (linkDrive.trim() !== '') ? 'link' : ''; fileName = ''" placeholder="Link GDrive jika > 5MB..." class="w-full bg-white border border-gray-300 text-[13px] px-3 py-1.5 rounded-[5px] focus:ring-1 focus:ring-blue-500 outline-none">
-                            </div>
-                        </form>
+                    <div class="pt-6 flex flex-col gap-1.5">
+                        <div class="flex items-center gap-2">
+                            <span class="mr-2">:</span>
+                            <form id="formAjukan" action="{{ route('mahasiswa.revisi.store') }}" method="POST" enctype="multipart/form-data" class="flex-1 flex items-center gap-4">
+                                @csrf
+    
+                                <div class="relative flex items-center gap-2" x-show="uploadType === 'file' || uploadType === ''">
+                                    <input type="file" name="file_revisi" id="file_revisi" accept=".pdf" class="hidden" 
+                                        @change="window.handleFileSelection($event, 5242880, (isValid, name) => { 
+                                            if(isValid && name) { 
+                                                fileName = name; 
+                                                uploadType = 'file'; 
+                                            } else { 
+                                                fileName = ''; 
+                                                uploadType = ''; 
+                                            } 
+                                        })" 
+                                        x-ref="fileInput">
+                                    <button type="button" @click="$refs.fileInput.click()" class="bg-[#F0F0F0] border border-gray-300 text-gray-600 text-[13px] px-4 py-1.5 rounded-[20px] flex items-center gap-2 hover:bg-gray-200 transition-colors">
+                                        <svg class="w-4 h-4 text-[#8A9CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                        </svg>
+                                        <span x-text="fileName === '' ? 'Pilih file (Max 5MB)' : fileName"></span>
+                                    </button>
+                                    <button type="button" x-cloak x-show="fileName !== ''" @click="fileName = ''; uploadType = ''; $refs.fileInput.value = ''" 
+                                        class="shrink-0 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Hapus File">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                </div>
+    
+                                <span class="text-sm font-medium" x-show="uploadType === ''">atau</span>
+    
+                                <div class="flex-1" x-show="uploadType === 'link' || uploadType === ''">
+                                    <input type="url" name="link_revisi" x-model="linkDrive" @input="uploadType = (linkDrive.trim() !== '') ? 'link' : ''; fileName = ''" placeholder="Link GDrive jika > 5MB..." class="w-full bg-white border border-gray-300 text-[13px] px-3 py-1.5 rounded-[5px] focus:ring-1 focus:ring-blue-500 outline-none">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="ml-[22px]">
+                            <span class="text-[12px] text-red-500 italic font-medium">*Batas akhir: {{ \Carbon\Carbon::parse($sidang->tanggal_sidang)->addDays(5)->locale('id')->isoFormat('D MMMM Y') }}</span>
+                        </div>
                     </div>
                 @else
                     <div class="pt-6">Upload Berkas Revisi</div>
-                    <div class="pt-6 flex flex-col gap-3">
+                    <div class="pt-6 flex flex-col gap-1.5">
                         <div class="flex items-center gap-2">
                             <span class="mr-2">:</span>
-                            <div class="bg-[#F0F0F0] border border-gray-300 text-gray-500 text-[13px] px-4 py-1.5 rounded-[20px] inline-flex items-center gap-2 opacity-70 cursor-not-allowed w-max">
-                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                                </svg>
-                                Terkunci (Sedang/Telah Diproses)
+                            <div class="bg-white border border-gray-300 text-gray-700 text-[13px] pl-3 pr-2 py-1.5 rounded-[20px] inline-flex items-center gap-2 shadow-sm w-max max-w-full">
+                                @if($sidang->file_revisi)
+                                    <svg class="w-4 h-4 text-red-500 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M11.362 2c4.156 0 2.638 6 2.638 6s6-1.65 6 2.457v11.543h-16v-20h7.362zm.827-2h-10.189v24h20v-14.386c0-2.391-6.648-9.614-9.811-9.614zm4.811 13h-10v-1h10v1zm0 2h-10v1h10v-1zm0 3h-10v1h10v-1z"/></svg>
+                                    <a href="{{ Storage::url($sidang->file_revisi) }}" target="_blank" class="hover:underline hover:text-blue-600 font-medium truncate max-w-[200px]" title="{{ basename($sidang->file_revisi) }}">
+                                        {{ basename($sidang->file_revisi) }}
+                                    </a>
+                                @elseif($sidang->link_revisi)
+                                    <svg class="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                    <a href="{{ $sidang->link_revisi }}" target="_blank" class="hover:underline hover:text-blue-600 font-medium truncate max-w-[200px]" title="{{ $sidang->link_revisi }}">
+                                        Link Google Drive
+                                    </a>
+                                @endif
+                                
+                                @if(!in_array(strtolower($sidang->status_revisi), ['disetujui', 'verified', 'disahkan', 'diterima']))
+                                    <div class="h-4 border-l border-gray-300 mx-1 shrink-0"></div>
+                                    <form action="{{ route('mahasiswa.revisi.destroy', $sidang->id) }}" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus berkas revisi ini dan mengunggah ulang?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-1 rounded-full transition-colors flex items-center justify-center shrink-0" title="Hapus dan unggah ulang">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
+                        </div>
+                        <div class="ml-[22px]">
+                            <span class="text-[12px] text-gray-500 italic">Tanggal unggah: <span x-text="formatFullDate('{{ $sidang->tanggal_revisi }}')"></span></span>
                         </div>
                     </div>
 
-                    @if($sidang->tanggal_revisi)
-                        <div class="pt-2 italic text-black/50 text-[13px]">Tanggal Upload</div>
-                        <div class="pt-2 italic text-black/50 text-[13px]">
-                            : <span x-text="formatFullDate('{{ $sidang->tanggal_revisi }}')"></span>
-                        </div>
-                    @endif
+
                 @endif
             </div>
 

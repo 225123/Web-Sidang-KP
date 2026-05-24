@@ -115,4 +115,33 @@ class RevisiController extends Controller
 
         return back()->with('success', 'Berkas revisi berhasil diunggah. Menunggu pemeriksaan.');
     }
+
+    public function destroy($id)
+    {
+        $mahasiswaId = Auth::user()->id;
+        $sidang = PendaftaranSidang::where('id', $id)
+            ->where('mahasiswa_id', $mahasiswaId)
+            ->first();
+
+        if (! $sidang) {
+            return back()->with('error', 'Data revisi tidak ditemukan atau tidak valid.');
+        }
+
+        if (in_array(strtolower($sidang->status_revisi), ['disetujui', 'verified', 'disahkan', 'diterima'])) {
+            return back()->with('error', 'Anda tidak dapat menghapus revisi karena berkas telah disahkan.');
+        }
+
+        if ($sidang->file_revisi) {
+            \Illuminate\Support\Facades\Storage::disk(upload_disk())->delete($sidang->file_revisi);
+            $sidang->file_revisi = null;
+        }
+
+        $sidang->link_revisi = null;
+        $sidang->status_revisi = 'Belum mengumpulkan';
+        $sidang->tanggal_revisi = null;
+        $sidang->save();
+
+        // Optional: Notifikasi ke Dosen bahwa dihapus bisa ditambah jika perlu, tapi karena akan upload ulang mungkin tidak perlu.
+        return back()->with('success', 'Berkas revisi berhasil dihapus. Silakan unggah kembali berkas yang baru.');
+    }
 }

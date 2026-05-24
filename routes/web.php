@@ -282,6 +282,7 @@ Route::prefix('mahasiswa')->name('mahasiswa.')->middleware(['auth', 'role:mahasi
     // Revisi (Mahasiswa)
     Route::get('/revisi', [App\Http\Controllers\Mahasiswa\RevisiController::class, 'index'])->name('revisi.index');
     Route::post('/revisi', [App\Http\Controllers\Mahasiswa\RevisiController::class, 'store'])->name('revisi.store');
+    Route::delete('/revisi/{id}', [App\Http\Controllers\Mahasiswa\RevisiController::class, 'destroy'])->name('revisi.destroy');
 
     // Notifikasi Mahasiswa
     Route::get('/notifikasi', [\App\Http\Controllers\Mahasiswa\NotifikasiController::class, 'index'])->name('notifikasi');
