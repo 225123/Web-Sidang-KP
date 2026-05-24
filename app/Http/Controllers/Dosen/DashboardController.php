@@ -196,7 +196,7 @@ class DashboardController extends Controller
             })
             ->where('is_read', false)
             ->orderBy('created_at', 'desc')
-            ->take(3)
+            ->take(5)
             ->get();
             
         $notifikasiCount = NotifikasiLog::where(function ($query) use ($dosenId) {
