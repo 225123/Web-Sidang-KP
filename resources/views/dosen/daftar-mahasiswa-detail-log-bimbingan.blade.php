@@ -6,9 +6,10 @@
     <x-slot:header>
         <div class="flex items-center gap-4">
             <a href="{{ route('dosen.daftar-mahasiswa') }}" class="p-2 hover:bg-gray-100 rounded-full transition-all group shadow-sm border border-gray-200 bg-white">
-                <svg class="w-5 h-5 text-black group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
-                </svg>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7">
+                            </path>
+                        </svg>
             </a>
             <h2 class="text-2xl font-bold text-black tracking-tight uppercase">Log Bimbingan</h2>
         </div>
