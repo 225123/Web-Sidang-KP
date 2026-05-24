@@ -39,7 +39,8 @@
         data-dosen="{{ json_encode($dosenDataArray ?? []) }}" 
         data-assignments="{{ json_encode($assignmentsInit ?? []) }}" 
         data-group-sizes="{{ json_encode($allGroupSizes ?? []) }}" 
-        x-data="penugasanController()">
+        x-data="penugasanController()"
+        @scroll.window="openDropdown = null">
         <form id="form-assignment" action="{{ route('koordinator.penugasan-pembimbing.store') }}" method="POST">
             @csrf
         </form>
@@ -224,7 +225,7 @@
 
                 <turbo-frame id="table-data">
                 <div class="border border-gray-200 rounded-[10px] shadow-sm">
-                    <div class="overflow-x-auto custom-scrollbar min-h-[500px]">
+                    <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full min-w-[1000px] border-collapse text-[12px] text-center bg-white">
                             <thead class="bg-[#EBEBEB] font-bold text-black h-[45px]">
                                 <tr>
@@ -292,7 +293,7 @@
                                                 <div class="relative w-full max-w-[200px] mx-auto" @click.outside="openDropdown === '{{ $p['id'] }}' ? closeDropdown('{{ $p['id'] }}') : null">
                                                     <input type="hidden" name="assignments[{{ $p['id'] }}]" :value="assignments['{{ $p['id'] }}']" form="form-assignment">
                                                     
-                                                    <button type="button" @click.stop="triggerDropdown('{{ $p['id'] }}')" 
+                                                    <button type="button" @click.stop="triggerDropdown('{{ $p['id'] }}', $event)" 
                                                             class="w-full py-2 px-3 border rounded-[5px] text-[12px] flex items-center justify-between transition-all shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white hover:border-gray-400"
                                                             :class="assignments['{{ $p['id'] }}'] !== '' ? 'text-black font-bold border-gray-300' : 'text-gray-500 font-medium border-gray-300 border-dashed'">
                                                         <span class="truncate pr-2 text-left flex-1" x-text="getDosenName(assignments['{{ $p['id'] }}'])"></span>
@@ -301,8 +302,8 @@
 
                                                     <!-- Dropdown Menu -->
                                                     <div x-show="openDropdown === '{{ $p['id'] }}'" x-transition 
-                                                         style="{{ $loop->remaining < 3 ? 'bottom: 100%; margin-bottom: 8px;' : 'top: 100%; margin-top: 4px;' }}"
-                                                         class="absolute z-[9999] right-0 min-w-[320px] bg-white border border-gray-400 rounded-lg shadow-[0_10px_40px_rgba(0,0,0,0.25)] ring-1 ring-black/5 overflow-hidden text-left" style="display: none;">
+                                                         :style="openDropdown === '{{ $p['id'] }}' ? dropdownStyle : ''"
+                                                         class="fixed z-[9999] bg-white border border-gray-400 rounded-lg shadow-[0_10px_40px_rgba(0,0,0,0.25)] ring-1 ring-black/5 overflow-hidden text-left" style="display: none;">
                                                         
                                                         <div class="px-2.5 py-2 border-b border-gray-200 bg-gray-50 flex items-center gap-2">
                                                             <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
@@ -705,12 +706,28 @@
                     return this.baseDosenData[dosenId] ? this.baseDosenData[dosenId].nama : 'Unknown';
                 },
 
-                triggerDropdown(pId) {
+                dropdownStyle: '',
+                triggerDropdown(pId, event) {
                     if(this.openDropdown === pId) {
                         this.openDropdown = null;
                     } else {
                         this.openDropdown = pId;
                         this.searchDosen = ''; 
+                        if (event) {
+                            const btn = event.currentTarget;
+                            const rect = btn.getBoundingClientRect();
+                            const spaceBelow = window.innerHeight - rect.bottom;
+                            const spaceAbove = rect.top;
+                            const dropdownHeight = 280;
+                            
+                            if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
+                                const bottom = window.innerHeight - rect.top + 4;
+                                this.dropdownStyle = `bottom: ${bottom}px; left: ${rect.right - 320}px; width: 320px;`;
+                            } else {
+                                const top = rect.bottom + 4;
+                                this.dropdownStyle = `top: ${top}px; left: ${rect.right - 320}px; width: 320px;`;
+                            }
+                        }
                     }
                 },
 
