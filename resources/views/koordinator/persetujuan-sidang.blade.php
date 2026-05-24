@@ -22,6 +22,18 @@
                 'feedback' => $p->dosen_feedback ?? 'Tidak ada catatan.',
                 'detail_url' => '#' 
             ])) }},
+            rejectedList: {{ \Illuminate\Support\Js::from($riwayatPenolakan->map(fn($r) => [
+                'id' => $r->id,
+                'nama' => $r->pendaftaranSidang->mahasiswa->user->name ?? 'User',
+                'nim' => $r->pendaftaranSidang->mahasiswa->nim ?? '-',
+                'judul' => $r->pendaftaranSidang->pendaftaranKp->display_judul_kp ?? '-',
+                'file_laporan' => $r->pendaftaranSidang->file_laporan ? storage_url($r->pendaftaranSidang->file_laporan) : null,
+                'link_github' => $r->pendaftaranSidang->link_github ?? null,
+                'total_bimbingan' => $r->pendaftaranSidang->pendaftaranKp->logBimbingans->where('mahasiswa_id', $r->pendaftaranSidang->mahasiswa_id)->where('status_approval', 'approved')->count(),
+                'status' => 'rejected',
+                'feedback' => $r->alasan_penolakan ?? 'Tidak ada catatan.',
+                'ditolak_oleh' => $r->ditolak_oleh
+            ])) }},
             get filteredList() {
                 return this.pengajuans.filter(p => {
                     if (p.status === 'rejected') return false;
@@ -35,9 +47,6 @@
                         
                     return matchesSearch && matchesStatus;
                 });
-            },
-            get rejectedList() {
-                return this.pengajuans.filter(p => p.status === 'rejected');
             }
         }">
             <!-- Unified Table Container -->
@@ -243,6 +252,7 @@
                                             <div class="flex flex-col items-center gap-1">
                                                 <span class="bg-red-100 text-red-700 font-bold px-4 py-1.5 rounded-full text-[11px] uppercase shadow-sm">Ditolak</span>
                                                 <span class="text-[10px] text-red-500 italic max-w-[200px] text-center" x-text="'Feedback: ' + p.feedback"></span>
+                                                <span class="text-[9px] text-gray-500 max-w-[200px] text-center mt-1" x-text="'Oleh: ' + p.ditolak_oleh"></span>
                                             </div>
                                         </td>
                                     </tr>

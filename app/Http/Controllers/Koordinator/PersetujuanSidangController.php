@@ -25,6 +25,16 @@ class PersetujuanSidangController extends Controller
             ->with(['mahasiswa.user', 'pendaftaranKp.logBimbingans'])
             ->get();
 
+        $riwayatPenolakan = \App\Models\RiwayatPenolakanSidang::whereHas('pendaftaranSidang.pendaftaranKp', function ($q) use ($dosenId, $periodeId) {
+            $q->where('pembimbing_id', $dosenId);
+            if ($periodeId) {
+                $q->where('tahun_ajaran_id', $periodeId);
+            }
+        })
+        ->with(['pendaftaranSidang.mahasiswa.user', 'pendaftaranSidang.pendaftaranKp'])
+        ->orderBy('created_at', 'desc')
+        ->get();
+
         // 3. Filter Manual untuk menghitung Total Bimbingan (Agar tidak bocor antar anggota kelompok)
         foreach ($pengajuans as $pengajuan) {
             $ownerId = $pengajuan->mahasiswa_id;
@@ -41,7 +51,7 @@ class PersetujuanSidangController extends Controller
         $jumlahBelum = $pengajuans->where('status_verifikasi', 'pending')->count();
         $jumlahDitolak = $pengajuans->where('status_verifikasi', 'rejected')->count();
 
-        return view('koordinator.persetujuan-sidang', compact('pengajuans', 'jumlahDisetujui', 'jumlahBelum', 'jumlahDitolak'));
+        return view('koordinator.persetujuan-sidang', compact('pengajuans', 'riwayatPenolakan', 'jumlahDisetujui', 'jumlahBelum', 'jumlahDitolak'));
     }
 
     // Mengesahkan / Menyetujui Pengajuan Sidang
@@ -77,6 +87,12 @@ class PersetujuanSidangController extends Controller
         $pengajuan->update([
             'status_verifikasi' => 'rejected',
             'dosen_feedback' => $request->feedback,
+        ]);
+
+        \App\Models\RiwayatPenolakanSidang::create([
+            'pendaftaran_sidang_id' => $pengajuan->id,
+            'alasan_penolakan' => $request->feedback,
+            'ditolak_oleh' => 'Koordinator',
         ]);
 
         // --- Kirim Notifikasi Sistem ---
