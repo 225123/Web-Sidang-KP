@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\TahunAjaran;
 use App\Models\PendaftaranKp;
 use App\Models\User;
+use App\Models\Mahasiswa;
+use App\Models\Dosen;
 use Illuminate\Http\Request;
 
 class PeriodeKpController extends Controller
@@ -29,11 +31,10 @@ class PeriodeKpController extends Controller
                 $userStats[$periode->id] = $periode->total_user ?? 0;
             } else {
                 // Hitung fresh dari database untuk periode aktif
-                $stats[$periode->id] = PendaftaranKp::where('tahun_ajaran_id', $periode->id)
-                                        ->distinct('mahasiswa_id')->count('mahasiswa_id');
+                $stats[$periode->id] = Mahasiswa::where('tahun_ajaran_id', $periode->id)->count();
                 
-                // Dosen aktif (semua dosen & koordinator)
-                $dosenStats[$periode->id] = User::whereIn('role', ['dosen', 'koordinator_kp'])->count();
+                // Dosen aktif (hanya yang is_aktif = true di tabel dosen)
+                $dosenStats[$periode->id] = Dosen::where('is_aktif', true)->count();
                 $userStats[$periode->id] = $stats[$periode->id] + $dosenStats[$periode->id];
             }
         }
@@ -67,10 +68,9 @@ class PeriodeKpController extends Controller
         // Auto-close current active period and freeze its stats
         $oldActive = TahunAjaran::where('is_active', true)->first();
         if ($oldActive) {
-            $mhsCount = PendaftaranKp::where('tahun_ajaran_id', $oldActive->id)
-                ->distinct('mahasiswa_id')->count('mahasiswa_id');
+            $mhsCount = Mahasiswa::where('tahun_ajaran_id', $oldActive->id)->count();
 
-            $dsnCount = User::whereIn('role', ['dosen', 'koordinator_kp'])->count();
+            $dsnCount = Dosen::where('is_aktif', true)->count();
 
             $oldActive->update([
                 'is_active' => false,
@@ -163,10 +163,9 @@ class PeriodeKpController extends Controller
         // Auto-close current active period and freeze its stats
         $oldActive = TahunAjaran::where('is_active', true)->first();
         if ($oldActive && $oldActive->id !== $periode->id) {
-            $mhsCount = PendaftaranKp::where('tahun_ajaran_id', $oldActive->id)
-                ->distinct('mahasiswa_id')->count('mahasiswa_id');
+            $mhsCount = Mahasiswa::where('tahun_ajaran_id', $oldActive->id)->count();
 
-            $dsnCount = User::whereIn('role', ['dosen', 'koordinator_kp'])->count();
+            $dsnCount = Dosen::where('is_aktif', true)->count();
 
             $oldActive->update([
                 'is_active' => false,
