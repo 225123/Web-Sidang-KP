@@ -6,6 +6,14 @@
     
 
     <div x-data="revisiPage()" class="max-w-[1200px] mx-auto">
+        <!-- Info Box -->
+        <div class="bg-[#EAEFFF] border border-[#BACDFB] rounded-[10px] p-4 flex items-center gap-4 shadow-sm mb-6">
+            <div class="bg-[#7896F8] w-6 h-6 rounded-full flex items-center justify-center text-white shrink-0 shadow-sm font-serif italic text-sm">i</div>
+            <p class="text-[14px] text-black font-medium leading-relaxed">
+                Tinjau dan Sahkan Berkas Revisi Laporan Yang Dikirimkan Mahasiswa Pasca Sidang KP.
+            </p>
+        </div>
+
         <!-- Main Container -->
         <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
             <!-- Header Section -->
