@@ -205,7 +205,8 @@
     <script>
         function formatFullDate(dateString) {
             if (!dateString) return '-';
-            const date = new Date(dateString);
+            const safeDateString = dateString.includes(' ') ? dateString.replace(' ', 'T') : dateString;
+            const date = new Date(safeDateString);
             return date.toLocaleDateString('id-ID', { 
                 weekday: 'long', 
                 day: 'numeric', 

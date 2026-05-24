@@ -147,11 +147,11 @@
                                     </td>
                                     <td class="py-3 px-4 text-center border-r border-gray-200">
                                         <template x-if="sidang.tanggal_revisi">
-                                            <div>
-                                                <div class="font-bold text-blue-600" x-text="formatDate(sidang.tanggal_revisi)"></div>
-                                                <div class="text-[12px] text-gray-400 font-medium uppercase mt-0.5" x-text="formatTime(sidang.tanggal_revisi.split(' ')[1] || '') + ' WIB'"></div>
-                                            </div>
-                                        </template>
+                                        <div>
+                                            <div class="font-bold text-blue-600" x-text="formatDate(sidang.tanggal_revisi)"></div>
+                                            <div class="text-[12px] text-gray-400 font-medium uppercase mt-0.5" x-text="formatTime(sidang.tanggal_revisi) + ' WIB'"></div>
+                                        </div>
+                                    </template>
                                         <template x-if="!sidang.tanggal_revisi">
                                             <span class="text-gray-300 italic font-medium">-</span>
                                         </template>
@@ -469,11 +469,18 @@
 
                     formatDate(dateString) {
                         if (!dateString) return '-';
-                        return new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                        return new Date(dateString.includes(' ') ? dateString.replace(' ', 'T') : dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
                     },
 
                     formatTime(timeString) {
                         if (!timeString) return '-';
+                        if (timeString.includes(' ')) {
+                            return timeString.split(' ')[1].substring(0, 5);
+                        }
+                        if (timeString.includes('T')) {
+                            const d = new Date(timeString);
+                            return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+                        }
                         return timeString.substring(0, 5);
                     },
 

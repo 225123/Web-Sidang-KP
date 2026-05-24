@@ -212,7 +212,7 @@
 
                 formatDate(dateString) {
                     if (!dateString) return '-';
-                    return new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                    return new Date(dateString.includes(' ') ? dateString.replace(' ', 'T') : dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
                 },
 
                 formatTime(timeString) {
