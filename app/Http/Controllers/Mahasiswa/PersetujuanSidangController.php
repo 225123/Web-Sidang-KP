@@ -143,4 +143,33 @@ class PersetujuanSidangController extends Controller
         // Stream untuk menampilkan preview di dalam iframe (Gambar 3)
         return $pdf->stream('Surat_Persetujuan_Sidang.pdf');
     }
+
+    // 4. Menghapus / Membatalkan Laporan yang Telah Diajukan
+    public function destroy($id)
+    {
+        $mahasiswaId = Auth::user()->id;
+        $persetujuan = PendaftaranSidang::where('id', $id)
+            ->where('mahasiswa_id', $mahasiswaId)
+            ->first();
+
+        if (! $persetujuan) {
+            return back()->with('error', 'Data tidak ditemukan atau tidak valid.');
+        }
+
+        // Hanya bisa menghapus jika status masih pending/Menunggu
+        if (in_array(strtolower($persetujuan->status_verifikasi), ['verified', 'disetujui'])) {
+            return back()->with('error', 'Anda tidak dapat membatalkan pengajuan karena telah disetujui oleh Dosen Pembimbing.');
+        }
+
+        if ($persetujuan->file_laporan) {
+            \Illuminate\Support\Facades\Storage::disk(upload_disk())->delete($persetujuan->file_laporan);
+            $persetujuan->file_laporan = null;
+        }
+
+        $persetujuan->link_drive = null;
+        $persetujuan->status_verifikasi = null; 
+        $persetujuan->save();
+
+        return back()->with('success', 'Pengajuan berhasil dibatalkan. Silakan unggah kembali berkas yang baru.');
+    }
 }

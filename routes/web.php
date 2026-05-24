@@ -268,6 +268,7 @@ Route::prefix('mahasiswa')->name('mahasiswa.')->middleware(['auth', 'role:mahasi
     // Persetujuan Sidang (Mahasiswa)
     Route::get('/persetujuan-sidang', [PersetujuanSidangController::class, 'index'])->name('persetujuan-sidang.index');
     Route::post('/persetujuan-sidang', [PersetujuanSidangController::class, 'store'])->name('persetujuan-sidang.store');
+    Route::delete('/persetujuan-sidang/{id}', [PersetujuanSidangController::class, 'destroy'])->name('persetujuan-sidang.destroy');
     Route::get('/persetujuan-sidang/{id}/cetak', [PersetujuanSidangController::class, 'cetakPersetujuan'])->name('persetujuan-sidang.cetak');
 
     // Pendaftaran Sidang (Mahasiswa)

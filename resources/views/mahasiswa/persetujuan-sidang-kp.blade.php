@@ -81,7 +81,7 @@
 
 
 
-                    @if(!$persetujuan || in_array($persetujuan->status_verifikasi, ['Ditolak', 'rejected']))
+                    @if(!$persetujuan || in_array($persetujuan->status_verifikasi, ['Ditolak', 'rejected']) || empty($persetujuan->status_verifikasi))
                         <div class="pt-2">Upload Laporan KP</div>
                         <div class="pt-2 flex items-center gap-2">
                             <span class="mr-2">:</span>
@@ -130,14 +130,29 @@
                         <div class="pt-2">Upload Laporan KP</div>
                         <div class="pt-2 flex items-center gap-2">
                             <span class="mr-2">:</span>
-                            <div
-                                class="bg-[#F0F0F0] border border-gray-300 text-gray-500 text-[13px] px-4 py-1.5 rounded-[20px] flex items-center gap-2 opacity-70 cursor-not-allowed">
-                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
-                                    </path>
-                                </svg>
-                                Terkunci (Sedang/Telah Diproses)
+                            <div class="bg-white border border-gray-300 text-gray-700 text-[13px] pl-3 pr-2 py-1.5 rounded-[20px] inline-flex items-center gap-2 shadow-sm w-max max-w-full">
+                                @if($persetujuan->file_laporan)
+                                    <svg class="w-4 h-4 text-red-500 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M11.362 2c4.156 0 2.638 6 2.638 6s6-1.65 6 2.457v11.543h-16v-20h7.362zm.827-2h-10.189v24h20v-14.386c0-2.391-6.648-9.614-9.811-9.614zm4.811 13h-10v-1h10v1zm0 2h-10v1h10v-1zm0 3h-10v1h10v-1z"/></svg>
+                                    <a href="{{ storage_url($persetujuan->file_laporan) }}" target="_blank" class="hover:underline hover:text-blue-600 font-medium truncate max-w-[200px]" title="{{ basename($persetujuan->file_laporan) }}">
+                                        {{ basename($persetujuan->file_laporan) }}
+                                    </a>
+                                @elseif($persetujuan->link_drive)
+                                    <svg class="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                    <a href="{{ $persetujuan->link_drive }}" target="_blank" class="hover:underline hover:text-blue-600 font-medium truncate max-w-[200px]" title="{{ $persetujuan->link_drive }}">
+                                        Link Google Drive
+                                    </a>
+                                @endif
+                                
+                                @if(!in_array(strtolower($persetujuan->status_verifikasi), ['verified', 'disetujui']))
+                                    <div class="h-4 border-l border-gray-300 mx-1 shrink-0"></div>
+                                    <form action="{{ route('mahasiswa.persetujuan-sidang.destroy', $persetujuan->id) }}" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pengajuan ini dan mengunggah ulang?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-1 rounded-full transition-colors flex items-center justify-center shrink-0" title="Hapus dan unggah ulang">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </div>
                     @endif
@@ -147,7 +162,7 @@
             <hr class="border-t-2 border-[#D9D9D9] mb-12">
 
             <div class="text-center pb-12">
-                @if(!$persetujuan || in_array($persetujuan->status_verifikasi, ['Ditolak', 'rejected']))
+                @if(!$persetujuan || in_array($persetujuan->status_verifikasi, ['Ditolak', 'rejected']) || empty($persetujuan->status_verifikasi))
                     <h2 class="text-[18px] font-bold text-black mb-4">Ajukan Sidang KP</h2>
                     <p class="text-[14px] text-black font-medium mb-8">Klik 'Ajukan' untuk mendapatkan Surat Persetujuan
                         Dosen Pembimbing sebagai syarat pendaftaran sidang KP</p>
