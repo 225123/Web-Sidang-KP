@@ -79,17 +79,17 @@
                                 @endphp
                                 
                                 @if($isImage)
-                                    <img src="{{ asset('storage/'.$notifikasi->file_path) }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                    <img src="{{ storage_url($notifikasi->file_path) }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                 @else
                                     <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                                 @endif
 
                                 <!-- Hover Overlay -->
                                 <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-6 transition-opacity duration-300">
-                                    <a href="{{ asset('storage/'.$notifikasi->file_path) }}" target="_blank" class="p-3 bg-white/20 hover:bg-white/40 rounded-full text-white transition-all transform hover:scale-110" title="Lihat">
+                                    <a href="{{ storage_url($notifikasi->file_path) }}" target="_blank" class="p-3 bg-white/20 hover:bg-white/40 rounded-full text-white transition-all transform hover:scale-110" title="Lihat">
                                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                     </a>
-                                    <a href="{{ asset('storage/'.$notifikasi->file_path) }}" download class="p-3 bg-white/20 hover:bg-white/40 rounded-full text-white transition-all transform hover:scale-110" title="Download">
+                                    <a href="{{ storage_url($notifikasi->file_path) }}" download class="p-3 bg-white/20 hover:bg-white/40 rounded-full text-white transition-all transform hover:scale-110" title="Download">
                                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                     </a>
                                 </div>

@@ -25,7 +25,7 @@
             'pesan' => $n->pesan,
             'pesan_preview' => strlen($n->pesan) > 100 ? substr($n->pesan, 0, 100) . '...' : $n->pesan,
             'is_read' => $n->is_read,
-            'file_path' => $n->file_path ? asset('storage/'.$n->file_path) : null,
+            'file_path' => $n->file_path ? storage_url($n->file_path) : null,
             'hari' => $n->created_at->isoFormat('dddd,'),
             'tanggal' => $n->created_at->isoFormat('DD MMMM YYYY'),
             'timestamp' => $n->created_at->timestamp,

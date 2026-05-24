@@ -67,7 +67,7 @@
                         <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
                         Lampiran
                     </div>
-                    <a href="{{ asset('storage/' . $notifikasi->file_path) }}" target="_blank" class="inline-flex items-center p-3 border border-gray-200 rounded-[5px] hover:bg-gray-50 transition-colors group max-w-sm">
+                    <a href="{{ storage_url($notifikasi->file_path) }}" target="_blank" class="inline-flex items-center p-3 border border-gray-200 rounded-[5px] hover:bg-gray-50 transition-colors group max-w-sm">
                         <div class="w-8 h-8 bg-red-50 flex items-center justify-center text-red-600 rounded mr-3">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" /></svg>
                         </div>
