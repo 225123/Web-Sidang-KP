@@ -24,6 +24,16 @@
                 <span class="block sm:inline">{{ session('error') }}</span>
             </div>
         @endif
+        @if($errors->any())
+            <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                <strong class="font-bold">Terjadi Kesalahan:</strong>
+                <ul class="mt-1 list-disc list-inside text-sm">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
         <div class="bg-[#D9D9D9] rounded-[10px] p-8 shadow-sm mb-12">
             <h3 class="text-[18px] font-bold text-black mb-6">Informasi Mahasiswa & Pengumpulan Berkas</h3>
@@ -151,7 +161,7 @@
             @if(!$sidang->status_revisi || !in_array(strtolower($sidang->status_revisi), ['menunggu', 'disahkan', 'diterima']))
                 <p class="text-[14px] text-gray-700 font-medium mb-8">Klik 'Submit Revisi' untuk mengirimkan berkas revisi Anda ke Dosen Penguji 1.</p>
                 @if(auth()->user()->mahasiswa->is_aktif)
-                <button type="button" onclick="document.getElementById('formAjukan').submit()" class="bg-[#008000] hover:bg-green-700 text-white font-bold text-[14px] px-8 py-2.5 rounded-full shadow-md flex items-center justify-center gap-2 mx-auto transition-colors">
+                <button type="submit" form="formAjukan" class="bg-[#008000] hover:bg-green-700 text-white font-bold text-[14px] px-8 py-2.5 rounded-full shadow-md flex items-center justify-center gap-2 mx-auto transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     SUBMIT REVISI
                 </button>

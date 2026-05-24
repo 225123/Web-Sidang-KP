@@ -166,7 +166,7 @@
                     <h2 class="text-[18px] font-bold text-black mb-4">Ajukan Sidang KP</h2>
                     <p class="text-[14px] text-black font-medium mb-8">Klik 'Ajukan' untuk mendapatkan Surat Persetujuan
                         Dosen Pembimbing sebagai syarat pendaftaran sidang KP</p>
-                    <button type="button" onclick="document.getElementById('formAjukan').submit()"
+                    <button type="submit" form="formAjukan"
                         class="bg-[#008000] hover:bg-green-700 text-white font-bold text-[14px] px-8 py-2.5 rounded-full shadow-md flex items-center justify-center gap-2 mx-auto transition-colors">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path
