@@ -14,7 +14,7 @@
                 'id' => $p->id,
                 'nama' => $p->mahasiswa->user->name ?? 'User',
                 'nim' => $p->mahasiswa->nim ?? '-',
-                'judul' => $p->pendaftaranKp->judul_kp ?? '-',
+                'judul' => $p->pendaftaranKp->display_judul_kp ?? '-',
                 'file_laporan' => $p->file_laporan ? storage_url($p->file_laporan) : null,
                 'link_drive' => $p->link_drive ?? null,
                 'total_bimbingan' => $p->total_bimbingan_count ?? 0,
