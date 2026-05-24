@@ -132,7 +132,15 @@ class FinalisasiNilaiController extends Controller
             ->first();
         $sidang->judul_kp_display = $ownKp ? $ownKp->judul_kp : ($sidang->pendaftaranKp->judul_kp ?? '-');
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.nilai-akhir-pdf', compact('sidang'));
+        // Encode logo as base64
+        $logoSrc = '';
+        if (file_exists(public_path('images/logo.png'))) {
+            $logoData = base64_encode(file_get_contents(public_path('images/logo.png')));
+            $logoSrc = 'data:image/png;base64,' . $logoData;
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::setOptions(['isRemoteEnabled' => true])
+            ->loadView('exports.nilai-akhir-pdf', compact('sidang', 'logoSrc'));
         return $pdf->download('Nilai_Akhir_' . ($sidang->mahasiswa->nim ?? 'Mahasiswa') . '.pdf');
     }
 
@@ -163,7 +171,65 @@ class FinalisasiNilaiController extends Controller
             $koordinator = \App\Models\User::where('role', 'koordinator_kp')->with('dosen')->first();
         }
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('koordinator.berita-acara-pdf-template', compact('sidang', 'koordinator'));
+        // Encode logo as base64
+        $logoSrc = '';
+        if (file_exists(public_path('images/logo.png'))) {
+            $logoData = base64_encode(file_get_contents(public_path('images/logo.png')));
+            $logoSrc = 'data:image/png;base64,' . $logoData;
+        }
+
+        // Encode koordinator signature
+        $signatureSrc = null;
+        if ($koordinator) {
+            if ($koordinator->signature && strpos($koordinator->signature, 'data:image') === 0) {
+                $signatureSrc = $koordinator->signature;
+            } elseif ($koordinator->signature_path) {
+                try {
+                    $imgData = file_get_contents(storage_url($koordinator->signature_path));
+                    $base64 = base64_encode($imgData);
+                    $ext = pathinfo($koordinator->signature_path, PATHINFO_EXTENSION) ?: 'png';
+                    $signatureSrc = 'data:image/' . $ext . ';base64,' . $base64;
+                } catch (\Exception $e) {
+                    $signatureSrc = null;
+                }
+            }
+        }
+
+        // Encode penguji signatures
+        $penguji1SignatureSrc = null;
+        if ($sidang->penguji1) {
+            if ($sidang->penguji1->signature && strpos($sidang->penguji1->signature, 'data:image') === 0) {
+                $penguji1SignatureSrc = $sidang->penguji1->signature;
+            } elseif ($sidang->penguji1->signature_path) {
+                try {
+                    $imgData = file_get_contents(storage_url($sidang->penguji1->signature_path));
+                    $base64 = base64_encode($imgData);
+                    $ext = pathinfo($sidang->penguji1->signature_path, PATHINFO_EXTENSION) ?: 'png';
+                    $penguji1SignatureSrc = 'data:image/' . $ext . ';base64,' . $base64;
+                } catch (\Exception $e) {
+                    $penguji1SignatureSrc = null;
+                }
+            }
+        }
+
+        $penguji2SignatureSrc = null;
+        if ($sidang->penguji2) {
+            if ($sidang->penguji2->signature && strpos($sidang->penguji2->signature, 'data:image') === 0) {
+                $penguji2SignatureSrc = $sidang->penguji2->signature;
+            } elseif ($sidang->penguji2->signature_path) {
+                try {
+                    $imgData = file_get_contents(storage_url($sidang->penguji2->signature_path));
+                    $base64 = base64_encode($imgData);
+                    $ext = pathinfo($sidang->penguji2->signature_path, PATHINFO_EXTENSION) ?: 'png';
+                    $penguji2SignatureSrc = 'data:image/' . $ext . ';base64,' . $base64;
+                } catch (\Exception $e) {
+                    $penguji2SignatureSrc = null;
+                }
+            }
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::setOptions(['isRemoteEnabled' => true])
+            ->loadView('koordinator.berita-acara-pdf-template', compact('sidang', 'koordinator', 'logoSrc', 'signatureSrc', 'penguji1SignatureSrc', 'penguji2SignatureSrc'));
         return $pdf->download('Berita_Acara_' . ($sidang->mahasiswa->nim ?? 'Mahasiswa') . '.pdf');
     }
 

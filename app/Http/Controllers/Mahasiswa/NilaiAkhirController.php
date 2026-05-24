@@ -111,7 +111,15 @@ class NilaiAkhirController extends Controller
             ->first();
         $sidang->judul_kp_display = $ownKp ? $ownKp->judul_kp : ($sidang->pendaftaranKp->judul_kp ?? '-');
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.nilai-akhir-pdf', compact('sidang'));
+        // Encode logo as base64 to ensure it loads in DomPDF on Vercel
+        $logoSrc = '';
+        if (file_exists(public_path('images/logo.png'))) {
+            $logoData = base64_encode(file_get_contents(public_path('images/logo.png')));
+            $logoSrc = 'data:image/png;base64,' . $logoData;
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::setOptions(['isRemoteEnabled' => true])
+            ->loadView('exports.nilai-akhir-pdf', compact('sidang', 'logoSrc'));
         return $pdf->download('Nilai_Akhir_' . ($sidang->mahasiswa->nim ?? 'Mahasiswa') . '.pdf');
     }
 

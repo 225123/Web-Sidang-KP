@@ -151,8 +151,32 @@ class LaporanArsipController extends Controller
             $koordinator = \App\Models\User::with('dosen')->whereIn('role', [1, 'koordinator_kp'])->first();
         }
 
+        // Encode logo as base64 to ensure it loads in DomPDF on Vercel
+        $logoSrc = '';
+        if (file_exists(public_path('images/logo.png'))) {
+            $logoData = base64_encode(file_get_contents(public_path('images/logo.png')));
+            $logoSrc = 'data:image/png;base64,' . $logoData;
+        }
+
+        // Encode signature as base64
+        $signatureSrc = null;
+        if ($koordinator) {
+            if ($koordinator->signature && strpos($koordinator->signature, 'data:image') === 0) {
+                $signatureSrc = $koordinator->signature;
+            } elseif ($koordinator->signature_path) {
+                try {
+                    $imgData = file_get_contents(storage_url($koordinator->signature_path));
+                    $base64 = base64_encode($imgData);
+                    $ext = pathinfo($koordinator->signature_path, PATHINFO_EXTENSION) ?: 'png';
+                    $signatureSrc = 'data:image/' . $ext . ';base64,' . $base64;
+                } catch (\Exception $e) {
+                    $signatureSrc = null;
+                }
+            }
+        }
+
         $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
-            ->loadView('exports.laporan-arsip-pdf', compact('mahasiswas', 'koordinator'))
+            ->loadView('exports.laporan-arsip-pdf', compact('mahasiswas', 'koordinator', 'logoSrc', 'signatureSrc'))
             ->setPaper('a4', 'portrait');
 
         return $pdf->download('Laporan_Kelulusan_Mahasiswa.pdf');

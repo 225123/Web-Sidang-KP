@@ -98,7 +98,9 @@
     <table class="header-table">
         <tr>
             <td style="width: 120px; text-align: center;">
-                <img src="{{ public_path('images/logo.png') }}" class="logo">
+                @if(!empty($logoSrc))
+                    <img src="{{ $logoSrc }}" class="logo">
+                @endif
             </td>
             <td class="text-center header-text" style="padding-right: 80px;">
                 <h1 class="uppercase">Universitas Kristen Krida Wacana</h1>

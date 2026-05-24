@@ -49,7 +49,9 @@
     <table class="header-table">
         <tr>
             <td style="width: 100px; text-align: center;">
-                <img src="{{ public_path('images/logo.png') }}" class="logo">
+                @if(!empty($logoSrc))
+                    <img src="{{ $logoSrc }}" class="logo">
+                @endif
             </td>
             <td class="text-center header-text" style="padding-right: 50px;">
                 <h1 class="uppercase">Universitas Kristen Krida Wacana</h1>
@@ -95,14 +97,7 @@
         <p>Jakarta, {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}</p>
         <p class="font-bold">Koordinator Kerja Praktek,</p>
         <div style="margin: 10px 0;">
-            @php
-                $signatureSrc = null;
-                if ($koordinator?->signature_path) {
-                    $signatureSrc = storage_url($koordinator->signature_path);
-                } elseif ($koordinator?->signature && strpos($koordinator->signature, 'data:image') === 0) {
-                    $signatureSrc = $koordinator->signature;
-                }
-            @endphp
+
             @if($signatureSrc)
                 <img src="{{ $signatureSrc }}" style="width: 150px; height: 80px;">
             @else
