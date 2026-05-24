@@ -100,7 +100,7 @@
                             <div class="bg-white border border-gray-300 text-gray-700 text-[13px] pl-3 pr-2 py-1.5 rounded-[20px] inline-flex items-center gap-2 shadow-sm w-max max-w-full">
                                 @if($sidang->file_revisi)
                                     <svg class="w-4 h-4 text-red-500 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M11.362 2c4.156 0 2.638 6 2.638 6s6-1.65 6 2.457v11.543h-16v-20h7.362zm.827-2h-10.189v24h20v-14.386c0-2.391-6.648-9.614-9.811-9.614zm4.811 13h-10v-1h10v1zm0 2h-10v1h10v-1zm0 3h-10v1h10v-1z"/></svg>
-                                    <a href="{{ Storage::url($sidang->file_revisi) }}" target="_blank" class="hover:underline hover:text-blue-600 font-medium truncate max-w-[200px]" title="{{ basename($sidang->file_revisi) }}">
+                                    <a href="{{ storage_url($sidang->file_revisi) }}" target="_blank" class="hover:underline hover:text-blue-600 font-medium truncate max-w-[200px]" title="{{ basename($sidang->file_revisi) }}">
                                         {{ basename($sidang->file_revisi) }}
                                     </a>
                                 @elseif($sidang->link_revisi)
