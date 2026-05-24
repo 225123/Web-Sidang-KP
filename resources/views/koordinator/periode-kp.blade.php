@@ -126,6 +126,7 @@
                                 <th class="border-b border-r border-gray-300 font-bold px-4 text-left">Periode</th>
                                 <th class="border-b border-r border-gray-300 font-bold px-4">Mahasiswa Terdaftar</th>
                                 <th class="border-b border-r border-gray-300 font-bold px-4">Dosen</th>
+                                <th class="border-b border-r border-gray-300 font-bold px-4">Total User</th>
                                 <th class="border-b border-gray-300 font-bold px-4">Status</th>
                             </tr>
                         </thead>
@@ -145,6 +146,10 @@
                                     <td class="px-4 py-3 border-r border-gray-200 text-center">
                                         <span class="font-bold text-black">{{ $dosenStats[$periode->id] ?? 0 }}</span>
                                         <span class="text-gray-500"> dosen</span>
+                                    </td>
+                                    <td class="px-4 py-3 border-r border-gray-200 text-center">
+                                        <span class="font-bold text-black">{{ $userStats[$periode->id] ?? 0 }}</span>
+                                        <span class="text-gray-500"> user</span>
                                     </td>
                                     <td class="px-4 py-3 text-center">
                                         @if($periode->trashed())
