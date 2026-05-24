@@ -15,9 +15,12 @@ class PersetujuanSidangController extends Controller
     {
         $dosenId = Auth::user()->id;
 
-        // 1. Ambil data Persetujuan Sidang berdasarkan pendaftaran_kp yang dibimbing dosen ini
-        $pengajuans = PendaftaranSidang::whereHas('pendaftaranKp', function ($q) use ($dosenId) {
+        $periodeId = session('selected_periode_id');
+        $pengajuans = PendaftaranSidang::whereHas('pendaftaranKp', function ($q) use ($dosenId, $periodeId) {
             $q->where('pembimbing_id', $dosenId);
+            if ($periodeId) {
+                $q->where('tahun_ajaran_id', $periodeId);
+            }
         })
             ->with(['mahasiswa.user', 'pendaftaranKp.logBimbingans'])
             ->get();

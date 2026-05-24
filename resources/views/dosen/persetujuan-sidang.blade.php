@@ -24,6 +24,8 @@
             ])) }},
             get filteredList() {
                 return this.pengajuans.filter(p => {
+                    if (p.status === 'rejected') return false;
+                    
                     const matchesSearch = !this.searchQuery || 
                         p.nama.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
                         p.nim.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
@@ -33,6 +35,9 @@
                         
                     return matchesSearch && matchesStatus;
                 });
+            },
+            get rejectedList() {
+                return this.pengajuans.filter(p => p.status === 'rejected');
             }
         }">
             <!-- Unified Table Container -->
@@ -78,7 +83,7 @@
                             <div x-data="{ openStatus: false, selectedStatus: 'all' }" class="relative w-full sm:w-[220px]" @click.outside="openStatus = false" @clear-filters.window="selectedStatus = 'all'">
                                 <input type="hidden" name="status_filter" :value="selectedStatus">
                                 <button type="button" @click="openStatus = !openStatus" class="w-full h-[36px] flex items-center justify-between border border-[#CAC0C0] bg-white rounded-[5px] px-3 text-[13px] text-black hover:bg-gray-50 transition-colors shadow-sm focus:outline-none focus:border-gray-400 focus:ring-0">
-                                    <span class="font-medium truncate" x-text="selectedStatus === 'all' ? 'Status Approval' : (selectedStatus === 'pending' ? 'Belum Disetujui' : (selectedStatus === 'verified' ? 'Selesai/Disetujui' : 'Ditolak'))"></span>
+                                    <span class="font-medium truncate" x-text="selectedStatus === 'all' ? 'Status Approval' : (selectedStatus === 'pending' ? 'Belum Disetujui' : 'Selesai/Disetujui')"></span>
                                     <svg :class="openStatus ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200 shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </button>
                                 <div x-show="openStatus" x-transition.opacity.duration.200ms style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-[#CAC0C0] rounded-[5px] shadow-lg py-1">
@@ -90,9 +95,6 @@
                                     </label>
                                     <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black">
                                         <input type="radio" value="verified" x-model="statusFilter" @change="selectedStatus = 'verified'; openStatus = false" class="hidden">Selesai/Disetujui
-                                    </label>
-                                    <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black">
-                                        <input type="radio" value="rejected" x-model="statusFilter" @change="selectedStatus = 'rejected'; openStatus = false" class="hidden">Ditolak
                                     </label>
                                 </div>
                             </div>
@@ -156,12 +158,6 @@
                                                 <div class="w-2 h-2 rounded-full bg-green-600"></div> Selesai
                                             </span>
                                         </template>
-                                        <template x-if="p.status === 'rejected'">
-                                            <div class="flex flex-col items-center gap-1">
-                                                <span class="bg-red-100 text-red-700 font-bold px-4 py-1.5 rounded-full text-[11px] uppercase shadow-sm">Ditolak</span>
-                                                <span class="text-[10px] text-red-500 italic max-w-[150px] truncate" :title="p.feedback" x-text="'Feedback: ' + p.feedback"></span>
-                                            </div>
-                                        </template>
                                     </td>
                                     <td class="py-4 px-4 text-center">
                                         <template x-if="p.status === 'pending'">
@@ -194,7 +190,74 @@
                     </table>
                 </div>
             </div>
-        </div>
+            </div>
+
+            <!-- Tabel Riwayat Penolakan -->
+            <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
+                <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
+                    <div>
+                        <h3 class="text-[18px] font-bold text-black tracking-tight uppercase">Riwayat Penolakan</h3>
+                        <p class="text-[12px] text-black/60 font-medium mt-1">Daftar pengajuan persetujuan sidang yang telah ditolak dan dikembalikan ke mahasiswa untuk direvisi.</p>
+                    </div>
+                </div>
+
+                <div class="border border-gray-200 rounded-[10px] overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse text-[13px]">
+                            <thead>
+                                <tr class="bg-[#EBEBEB] text-black">
+                                    <th class="py-3.5 px-4 font-bold text-center w-[5%]">No</th>
+                                    <th class="py-3.5 px-4 font-bold text-left">Mahasiswa</th>
+                                    <th class="py-3.5 px-4 font-bold text-center">Judul KP</th>
+                                    <th class="py-3.5 px-4 font-bold text-center">Laporan KP</th>
+                                    <th class="py-3.5 px-4 font-bold text-center whitespace-nowrap">Total Bimbingan</th>
+                                    <th class="py-3.5 px-4 font-bold text-center">Status & Feedback</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <template x-for="(p, index) in rejectedList" :key="'rej'+p.id">
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="py-4 px-4 text-center text-black font-normal" x-text="index+1"></td>
+                                        <td class="py-4 px-4 text-left">
+                                            <div class="font-bold text-black" x-text="p.nama"></div>
+                                            <div class="text-black/60 text-[11px]" x-text="p.nim"></div>
+                                        </td>
+                                        <td class="py-4 px-4 text-center text-black font-normal" x-text="p.judul"></td>
+                                        <td class="py-4 px-4 text-center">
+                                            <template x-if="p.file_laporan">
+                                                <a :href="p.file_laporan" target="_blank" class="text-blue-600 hover:underline font-bold italic">Lihat Laporan</a>
+                                            </template>
+                                            <template x-if="p.link_drive && !p.file_laporan">
+                                                <a :href="p.link_drive" target="_blank" class="text-blue-600 hover:underline font-bold italic">Link GDrive</a>
+                                            </template>
+                                            <template x-if="!p.file_laporan && !p.link_drive">
+                                                <span class="text-gray-400 italic">Dihapus</span>
+                                            </template>
+                                        </td>
+                                        <td class="py-4 px-4 text-center text-black font-bold">
+                                            <span x-text="p.total_bimbingan"></span>/12
+                                        </td>
+                                        <td class="py-4 px-4 text-center">
+                                            <div class="flex flex-col items-center gap-1">
+                                                <span class="bg-red-100 text-red-700 font-bold px-4 py-1.5 rounded-full text-[11px] uppercase shadow-sm">Ditolak</span>
+                                                <span class="text-[10px] text-red-500 italic max-w-[200px] text-center" x-text="'Feedback: ' + p.feedback"></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <template x-if="rejectedList.length === 0">
+                                    <tr>
+                                        <td colspan="6" class="text-center py-12 text-gray-500 italic bg-gray-50 font-medium">
+                                            Belum ada riwayat penolakan persetujuan sidang.
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
 
             <!-- Rejection Modal -->
             <template x-teleport="body">
