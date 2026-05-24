@@ -145,10 +145,10 @@
                                 
                                 @if(!in_array(strtolower($persetujuan->status_verifikasi), ['verified', 'disetujui']))
                                     <div class="h-4 border-l border-gray-300 mx-1 shrink-0"></div>
-                                    <form action="{{ route('mahasiswa.persetujuan-sidang.destroy', $persetujuan->id) }}" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pengajuan ini dan mengunggah ulang?');">
+                                    <form id="form-delete-persetujuan-{{ $persetujuan->id }}" action="{{ route('mahasiswa.persetujuan-sidang.destroy', $persetujuan->id) }}" method="POST" class="inline m-0 p-0">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-1 rounded-full transition-colors flex items-center justify-center shrink-0" title="Hapus dan unggah ulang">
+                                        <button type="button" onclick="window.showGlobalConfirm('Batalkan Pengajuan', 'Apakah Anda yakin ingin membatalkan pengajuan ini dan mengunggah ulang?', () => document.getElementById('form-delete-persetujuan-{{ $persetujuan->id }}').submit())" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-1 rounded-full transition-colors flex items-center justify-center shrink-0" title="Hapus dan unggah ulang">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                         </button>
                                     </form>

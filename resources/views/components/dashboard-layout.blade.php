@@ -380,6 +380,29 @@ class="font-inter antialiased bg-[#F5F6F8] text-gray-900 flex flex-col h-screen 
         </div>
     </div>
 
+    <!-- Global Custom Confirm Modal -->
+    <div id="native-global-confirm" style="display: none;" class="fixed inset-0 z-[100000] items-center justify-center bg-black/40 backdrop-blur-sm p-4 transition-opacity">
+        <div id="native-global-confirm-backdrop" class="absolute inset-0"></div>
+        <div class="bg-white rounded-[15px] w-full max-w-[420px] p-8 shadow-2xl flex flex-col items-center text-center relative overflow-hidden border border-gray-100 z-10 transform transition-transform">
+            
+            <div class="mb-6 w-20 h-20 rounded-full flex items-center justify-center bg-yellow-50">
+                <svg class="w-12 h-12 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+
+            <h3 id="native-confirm-title" class="text-[18px] font-bold text-gray-900 mb-3">Konfirmasi</h3>
+            <p id="native-confirm-message" class="text-[14px] text-gray-500 mb-8 leading-relaxed px-2"></p>
+
+            <div class="flex gap-4 w-full">
+                <button id="native-confirm-cancel-btn" type="button" class="flex-1 h-[45px] bg-white border border-gray-300 text-gray-700 rounded-[10px] text-[14px] font-bold transition-all shadow-sm active:transform active:scale-95 hover:bg-gray-50">
+                    Batal
+                </button>
+                <button id="native-confirm-ok-btn" type="button" class="flex-1 h-[45px] text-white rounded-[10px] text-[14px] font-bold transition-all shadow-md active:transform active:scale-95 bg-[#E53935] hover:bg-red-700">
+                    Yakin
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         window.showGlobalAlert = function(title, message, type = 'danger') {
             const modal = document.getElementById('native-global-alert');
@@ -413,6 +436,25 @@ class="font-inter antialiased bg-[#F5F6F8] text-gray-900 flex flex-col h-screen 
         window.hideGlobalAlert = function() {
             const modal = document.getElementById('native-global-alert');
             if (modal) modal.style.display = 'none';
+        };
+
+        window.showGlobalConfirm = function(title, message, onConfirm) {
+            const modal = document.getElementById('native-global-confirm');
+            if (!modal) return;
+            
+            document.getElementById('native-confirm-title').textContent = title;
+            document.getElementById('native-confirm-message').textContent = message;
+            
+            const close = () => { modal.style.display = 'none'; };
+            
+            document.getElementById('native-confirm-cancel-btn').onclick = close;
+            document.getElementById('native-global-confirm-backdrop').onclick = close;
+            document.getElementById('native-confirm-ok-btn').onclick = () => {
+                close();
+                if(onConfirm) onConfirm();
+            };
+            
+            modal.style.display = 'flex';
         };
 
         // Attach listeners
