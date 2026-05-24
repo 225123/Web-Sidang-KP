@@ -35,8 +35,7 @@ class ViewComposerServiceProvider extends ServiceProvider
                 } elseif ($roleStr === 'mahasiswa') {
                     $mhs = $user->mahasiswa;
                     $available_periods = TahunAjaran::with('koordinator')->where(function($q) use ($user, $mhs) {
-                        $q->where('is_active', true)
-                          ->orWhere('id', optional($mhs)->tahun_ajaran_id)
+                        $q->where('id', optional($mhs)->tahun_ajaran_id)
                           ->orWhereHas('pendaftaranKps', function($q2) use ($user) {
                               $q2->withoutGlobalScope('periode')->where('mahasiswa_id', $user->id);
                           });
