@@ -29,77 +29,97 @@
             <!-- Left Column -->
             <div class="flex flex-col gap-8 lg:gap-10 w-full">
                 <!-- Status Kerja Praktik Card -->
-                <div class="bg-[#ECECEC] rounded-[30px] p-8 shadow-sm min-h-[436px]">
-                    <div class="flex items-center gap-2 mb-6">
-                        <h3 class="font-bold text-black text-[17px]">Status Kerja Praktik</h3>
-                        <span class="font-medium text-black text-[17px] ml-1">:
-                            <span
-                                class="{{ $kp['status_raw'] === 'approved' ? 'text-green-600' : ($kp['status_raw'] === 'pending' ? 'text-[#BFA512]' : 'text-red-600') }}">
-                                {{ $kp['status_teks'] }}
+                <div class="bg-[#ECECEC] rounded-[30px] p-8 shadow-sm min-h-[436px] flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-6">
+                            <h3 class="font-bold text-black text-[17px]">Status Kerja Praktik</h3>
+                            <span class="font-medium text-black text-[17px] ml-1">:
+                                <span
+                                    class="{{ $kp['status_raw'] === 'approved' ? 'text-green-600' : ($kp['status_raw'] === 'pending' ? 'text-[#BFA512]' : 'text-red-600') }}">
+                                    {{ $kp['status_teks'] }}
+                                </span>
                             </span>
-                        </span>
+                        </div>
+
+                        <div class="flex flex-col gap-3.5 text-[13px] font-medium text-black">
+                            @if($kp['is_lanjutan'])
+                            <div class="flex items-center">
+                                <div class="w-[180px]">Status KP</div>
+                                <div class="flex-1">: Lanjut <span class="text-[11px] text-black/50 italic">(melanjutkan dari periode sebelumnya)</span></div>
+                            </div>
+                            @endif
+                            <div class="flex">
+                                <div class="w-[180px]">Judul Projek KP</div>
+                                <div class="flex-1">: {{ $kp['judul'] }}</div>
+                            </div>
+                            <div class="flex">
+                                <div class="w-[180px]">Sumber Instansi</div>
+                                <div class="flex-1">: {{ $kp['instansi'] }} ({{ $kp['jenis_instansi'] }})</div>
+                            </div>
+                            <div class="flex">
+                                <div class="w-[180px]">Supervisor</div>
+                                <div class="flex-1">: {{ $kp['supervisor'] }}</div>
+                            </div>
+                            <div class="flex">
+                                <div class="w-[180px]">Dosen Pembimbing</div>
+                                <div class="flex-1">: {{ $kp['pembimbing'] }}</div>
+                            </div>
+                            <div class="flex">
+                                <div class="w-[180px]">Jumlah Bimbingan</div>
+                                <div>: {{ $bimbinganDosen['current'] }} / {{ $bimbinganDosen['target'] }}</div>
+                            </div>
+
+                            <div class="flex">
+                                <div class="w-[180px]">Progress KP</div>
+                                <div>: {{ $progress }} %</div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="flex flex-col gap-3.5 text-[13px] font-medium text-black">
-                        @if($kp['is_lanjutan'])
-                        <div class="flex items-center">
-                            <div class="w-[180px]">Status KP</div>
-                            <div class="flex-1">: Lanjut <span class="text-[11px] text-black/50 italic">(melanjutkan dari periode sebelumnya)</span></div>
+                    <div class="mt-8 flex items-end justify-between">
+                        <div class="flex gap-12 items-center justify-center relative left-[-20px]">
+                            <!-- Dynamic Progress Chart -->
+                            <div class="relative rounded-full overflow-hidden flex-shrink-0"
+                                :style="'width: 125px; height: 125px; background: conic-gradient(black 0% ' + currentProgress + '%, #D1C6C6 ' + currentProgress + '% 100%); transition: background 1.5s ease-out;'">
+                                <div class="absolute inset-0 z-20 flex flex-col justify-center items-center">
+                                    <span class="text-[16px] text-white font-bold" x-show="currentProgress > 50"
+                                        x-text="currentProgress + '%'"></span>
+                                    <span class="text-[16px] text-black font-bold" x-show="currentProgress <= 50"
+                                        x-text="currentProgress + '%'"></span>
+                                </div>
+                                <div class="absolute inset-0 m-auto bg-[#ECECEC] rounded-full"
+                                    style="width: 80px; height: 80px;"></div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-3 group">
+                                    <div class="w-[14px] h-[14px] bg-black group-hover:scale-110 transition-transform">
+                                    </div>
+                                    <span class="text-[13px] text-black font-medium">Tuntas</span>
+                                </div>
+                                <div class="flex items-center gap-3 group">
+                                    <div class="w-[14px] h-[14px] bg-[#D1C6C6] group-hover:scale-110 transition-transform">
+                                    </div>
+                                    <span class="text-[13px] text-black font-medium">Belum Tuntas</span>
+                                </div>
+                            </div>
                         </div>
+
+                        @if(!auth()->user()->mahasiswa->is_aktif || (isset($is_locked) && $is_locked))
+                            <button disabled class="bg-gray-200 text-gray-500 font-bold text-[13px] px-6 h-[36px] rounded-[20px] flex items-center justify-center gap-2 cursor-not-allowed shrink-0">
+                                Mode Pelihat
+                            </button>
+                        @elseif($kp['status_raw'] === 'none' || $kp['status_raw'] === 'rejected')
+                            <a href="{{ route('mahasiswa.pendaftaran-kp.index') }}"
+                                class="bg-[#FFFF1A] hover:bg-yellow-400 text-black font-bold text-[13px] w-[184px] h-[36px] rounded-[20px] flex items-center justify-center gap-2 transform hover:-translate-y-0.5 transition-all shadow-md shrink-0">
+                                <svg class="w-3.5 h-3.5 transform -rotate-45" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                </svg>
+                                Mendaftar Projek
+                            </a>
                         @endif
-                        <div class="flex">
-                            <div class="w-[180px]">Judul Projek KP</div>
-                            <div class="flex-1">: {{ $kp['judul'] }}</div>
-                        </div>
-                        <div class="flex">
-                            <div class="w-[180px]">Sumber Instansi</div>
-                            <div class="flex-1">: {{ $kp['instansi'] }} ({{ $kp['jenis_instansi'] }})</div>
-                        </div>
-                        <div class="flex">
-                            <div class="w-[180px]">Supervisor</div>
-                            <div class="flex-1">: {{ $kp['supervisor'] }}</div>
-                        </div>
-                        <div class="flex">
-                            <div class="w-[180px]">Dosen Pembimbing</div>
-                            <div class="flex-1">: {{ $kp['pembimbing'] }}</div>
-                        </div>
-                        <div class="flex">
-                            <div class="w-[180px]">Jumlah Bimbingan</div>
-                            <div>: {{ $bimbinganDosen['current'] }} / {{ $bimbinganDosen['target'] }}</div>
-                        </div>
-
-                        <div class="flex">
-                            <div class="w-[180px]">Progress KP</div>
-                            <div>: {{ $progress }} %</div>
-                        </div>
-                    </div>
-
-                    <div class="mt-8 flex gap-12 items-center justify-center relative left-[-20px]">
-                        <!-- Dynamic Progress Chart -->
-                        <div class="relative rounded-full overflow-hidden flex-shrink-0"
-                            :style="'width: 125px; height: 125px; background: conic-gradient(black 0% ' + currentProgress + '%, #D1C6C6 ' + currentProgress + '% 100%); transition: background 1.5s ease-out;'">
-                            <div class="absolute inset-0 z-20 flex flex-col justify-center items-center">
-                                <span class="text-[16px] text-white font-bold" x-show="currentProgress > 50"
-                                    x-text="currentProgress + '%'"></span>
-                                <span class="text-[16px] text-black font-bold" x-show="currentProgress <= 50"
-                                    x-text="currentProgress + '%'"></span>
-                            </div>
-                            <div class="absolute inset-0 m-auto bg-[#ECECEC] rounded-full"
-                                style="width: 80px; height: 80px;"></div>
-                        </div>
-
-                        <div class="space-y-4">
-                            <div class="flex items-center gap-3 group">
-                                <div class="w-[14px] h-[14px] bg-black group-hover:scale-110 transition-transform">
-                                </div>
-                                <span class="text-[13px] text-black font-medium">Tuntas</span>
-                            </div>
-                            <div class="flex items-center gap-3 group">
-                                <div class="w-[14px] h-[14px] bg-[#D1C6C6] group-hover:scale-110 transition-transform">
-                                </div>
-                                <span class="text-[13px] text-black font-medium">Belum Tuntas</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -193,7 +213,7 @@
                     </div>
 
                     <div class="mt-8 flex justify-end">
-                        @if(!auth()->user()->mahasiswa->is_aktif)
+                        @if(!auth()->user()->mahasiswa->is_aktif || (isset($is_locked) && $is_locked))
                             <button disabled class="bg-gray-200 text-gray-500 font-bold text-[13px] px-6 h-[36px] rounded-[20px] flex items-center justify-center gap-2 cursor-not-allowed">
                                 Mode Pelihat
                             </button>

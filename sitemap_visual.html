@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sitemap Sidang KP</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { padding: 40px; background: #ffffff; overflow-x: auto; min-width: max-content; }
+        
+        h1 { 
+            text-align: left; padding-left: 10px; margin-bottom: 20px; 
+            color: #1e293b; font-size: 24px; text-transform: uppercase; 
+            letter-spacing: 1px; border-bottom: 3px solid #f99b28; display: inline-block; 
+        }
+        
+        .tree-container { display: flex; justify-content: flex-start; margin-bottom: 80px; padding-left: 20px; }
+        
+        /* ----------------------------------------------------
+           LEFT-TO-RIGHT TREE (VERTIKAL KIRI KE KANAN)
+           ---------------------------------------------------- */
+        .tree-lr { display: flex; justify-content: flex-start; }
+        
+        .tree-lr ul {
+            padding-left: 40px; list-style: none; display: flex;
+            flex-direction: column; justify-content: center; position: relative;
+        }
+        .tree-lr > ul { padding-left: 0; }
+        
+        .tree-lr li {
+            display: flex; align-items: center; position: relative;
+            padding: 10px 0 10px 40px;
+        }
+        .tree-lr > ul > li { padding: 0; }
+        
+        /* Horizontal line connecting to the box */
+        .tree-lr li::before {
+            content: ''; position: absolute; top: 50%; left: 0;
+            width: 40px; border-top: 1.5px solid #000;
+        }
+        .tree-lr > ul > li::before { display: none; }
+        
+        /* Vertical backbone line */
+        .tree-lr li::after {
+            content: ''; position: absolute; left: 0;
+            border-left: 1.5px solid #000; top: 0; bottom: 0;
+        }
+        .tree-lr li:first-child::after { top: 50%; }
+        .tree-lr li:last-child::after { bottom: 50%; }
+        .tree-lr li:only-child::after { display: none; }
+        .tree-lr > ul > li::after { display: none; }
+        
+        /* Horizontal line exiting the box to the right */
+        .tree-lr .node-box::after {
+            content: ''; position: absolute; top: 50%; right: -40px;
+            width: 40px; border-top: 1.5px solid #000;
+        }
+        .tree-lr .node-box:only-child::after { display: none; }
+        
+        /* ----------------------------------------------------
+           COMPONENTS (KOTAK & WARNA)
+           ---------------------------------------------------- */
+        .node-box {
+            border: 1px solid #000; padding: 10px 15px; text-decoration: none;
+            display: inline-block; border-radius: 4px; font-size: 14px;
+            position: relative; z-index: 10; white-space: nowrap; color: #000;
+        }
+        
+        /* Coloring matching user's image */
+        .level-1 > .node-box { background: #f99b28; padding: 12px 40px; font-size: 18px; font-weight: bold; }
+        .level-2 > .node-box { background: #fcd34d; }
+        .level-3 > .node-box { background: #fcd34d; }
+        
+        .detail-box {
+            background: #ccfbf1; border: 1px solid #0d9488; padding: 12px;
+            margin-top: 0; text-align: left; font-size: 11.5px; color: #000;
+            width: max-content; max-width: 250px; white-space: pre-wrap; line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+<!-- MAHASISWA -->
+<h1>1. Sitemap: MAHASISWA</h1>
+<div class="tree-container">
+    <div class="tree-lr">
+        <ul>
+            <li class="level-1">
+                <div class="node-box">Mahasiswa</div>
+                <ul>
+                    <li class="level-2">
+                        <div class="node-box">Dashboard</div>
+                        <ul><li><div class="detail-box">- Status Utama Pendaftaran KP<br>- Linimasa Agenda Akademik<br>- Pengumuman Koordinator</div></li></ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">KP</div>
+                        <ul>
+                            <li class="level-3">
+                                <div class="node-box">Mendaftar KP</div>
+                                <ul><li><div class="detail-box">- Formulir Ajuan Proyek KP<br>- Unggah Proposal & Surat Pengantar</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Status Pendaftaran</div>
+                                <ul><li><div class="detail-box">- Riwayat Proses Verifikasi KP<br>- Unduh Berkas Persetujuan</div></li></ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Log Bimbingan</div>
+                        <ul>
+                            <li class="level-3">
+                                <div class="node-box">Bimbingan Dosen</div>
+                                <ul><li><div class="detail-box">- Penambahan Logbook Harian<br>- Pantauan Status Validasi Dosen</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Persetujuan Sidang KP</div>
+                                <ul><li><div class="detail-box">- Syarat Minimal Bimbingan<br>- Unduh Surat Persetujuan Maju Sidang</div></li></ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Sidang</div>
+                        <ul>
+                            <li class="level-3">
+                                <div class="node-box">Pendaftaran Sidang</div>
+                                <ul><li><div class="detail-box">- Formulir Pengajuan Sidang Akhir<br>- Unggah Draf Laporan & Berkas</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Jadwal Sidang</div>
+                                <ul><li><div class="detail-box">- Waktu, Tanggal, & Ruangan Ujian<br>- Nama Dosen Penguji 1 & 2</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Hasil Sidang</div>
+                                <ul><li><div class="detail-box">- Status Kelulusan (Lulus/Revisi/Tolak)<br>- Catatan Perbaikan Penguji</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Revisi</div>
+                                <ul><li><div class="detail-box">- Unggah Berkas Laporan Perbaikan<br>- Bukti Persetujuan Selesai Revisi</div></li></ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Nilai Akhir KP</div>
+                        <ul><li><div class="detail-box">- Transkrip Nilai Mutu Akhir (A/B/C/D)<br>- Unduh Dokumen Berita Acara</div></li></ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Notifikasi</div>
+                        <ul><li><div class="detail-box">- Kotak Masuk Pemberitahuan Sistem</div></li></ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Profil</div>
+                        <ul><li><div class="detail-box">- Edit Biodata Mahasiswa<br>- Unggah Tanda Tangan Digital & Sandi</div></li></ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Panduan Website</div>
+                        <ul><li><div class="detail-box">- Dokumentasi Tata Cara Fitur Mahasiswa</div></li></ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<hr style="border: 0; border-top: 2px dashed #ccc; margin: 60px 0;">
+
+<!-- DOSEN -->
+<h1>2. Sitemap: DOSEN</h1>
+<div class="tree-container">
+    <div class="tree-lr">
+        <ul>
+            <li class="level-1">
+                <div class="node-box">Dosen</div>
+                <ul>
+                    <li class="level-2">
+                        <div class="node-box">Dashboard</div>
+                        <ul><li><div class="detail-box">- Rekap Statistik Bimbingan & Sidang<br>- Tabel Jadwal Ujian Terdekat</div></li></ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Bimbingan</div>
+                        <ul>
+                            <li class="level-3">
+                                <div class="node-box">Daftar Mahasiswa</div>
+                                <ul><li><div class="detail-box">- Daftar Anak Bimbingan Pribadi<br>- Pantauan Riwayat Logbook<br>- Tombol Validasi (Setujui/Tolak)</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Persetujuan Sidang</div>
+                                <ul><li><div class="detail-box">- Cek Syarat Maju Sidang Bimbingan<br>- Cetak Surat Persetujuan Sidang</div></li></ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Jadwal Sidang</div>
+                        <ul><li><div class="detail-box">- Daftar Ujian (Sebagai Penguji 1/2)<br>- Waktu dan Ruangan Sidang<br>- Unduh Laporan Ujian Mahasiswa</div></li></ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Input Nilai</div>
+                        <ul><li><div class="detail-box">- Formulir 4 Komponen Nilai Mutu<br>- Pemberian Catatan Sidang Khusus</div></li></ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Revisi</div>
+                        <ul><li><div class="detail-box">- Validasi Laporan Revisi Final<br>- Persetujuan Selesai Revisi Akhir</div></li></ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Notifikasi</div>
+                        <ul><li><div class="detail-box">- Kotak Masuk Pemberitahuan Sistem</div></li></ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Profil</div>
+                        <ul><li><div class="detail-box">- Pembaruan Identitas Dosen<br>- Unggah Path Tanda Tangan Digital</div></li></ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Panduan Website</div>
+                        <ul><li><div class="detail-box">- Dokumentasi Tata Cara Fitur<br>- Aturan Penggunaan Website Sidang</div></li></ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<hr style="border: 0; border-top: 2px dashed #ccc; margin: 60px 0;">
+
+<!-- KOORDINATOR -->
+<h1>3. Sitemap: KOORDINATOR KP</h1>
+<div class="tree-container">
+    <div class="tree-lr">
+        <ul>
+            <li class="level-1">
+                <div class="node-box">Koordinator KP</div>
+                <ul>
+                    <li class="level-2">
+                        <div class="node-box">Dashboard</div>
+                        <ul><li><div class="detail-box">- Rekap Statistik Mahasiswa & Dosen<br>- Tinjauan Timeline Terdekat</div></li></ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Timeline KP</div>
+                        <ul><li><div class="detail-box">- Manajemen Agenda Akademik<br>- Pengaturan Batas Waktu (Deadline)</div></li></ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Manajemen KP</div>
+                        <ul>
+                            <li class="level-3">
+                                <div class="node-box">Pendaftaran KP</div>
+                                <ul><li><div class="detail-box">- Tabel Ajuan Pendaftaran Mahasiswa<br>- Persetujuan / Tolak Registrasi</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Data Mahasiswa KP</div>
+                                <ul><li><div class="detail-box">- Direktori Lengkap Mahasiswa Aktif<br>- Status Akademik Tiap Anak</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Penugasan Pembimbing</div>
+                                <ul><li><div class="detail-box">- Penetapan Dosen Pembimbing<br>- Monitoring Sisa Kuota Dosen</div></li></ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Bimbingan</div>
+                        <ul>
+                            <li class="level-3">
+                                <div class="node-box">Progress Umum</div>
+                                <ul><li><div class="detail-box">- Pantauan Logbook Seluruh Mahasiswa</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Bimbingan Saya</div>
+                                <ul><li><div class="detail-box">- Daftar Anak Bimbingan Pribadi<br>- Validasi Logbook (Sebagai Dosen)</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Persetujuan Sidang</div>
+                                <ul><li><div class="detail-box">- Lembar Persetujuan Maju Sidang<br>- Cek Berkas Anak Bimbingan</div></li></ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Manajemen Sidang</div>
+                        <ul>
+                            <li class="level-3">
+                                <div class="node-box">Verifikasi Berkas</div>
+                                <ul><li><div class="detail-box">- Pemeriksaan Syarat Administrasi<br>- Approval Pendaftaran Sidang Akhir</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Penjadwalan Sidang</div>
+                                <ul><li><div class="detail-box">- Alokasi Tanggal, Waktu, & Ruangan</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Penugasan Penguji</div>
+                                <ul><li><div class="detail-box">- Pemasangan Penguji 1 & Penguji 2<br>- Cek Peringatan Bentrok Jadwal</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Kalender Sidang</div>
+                                <ul><li><div class="detail-box">- Kalender Visual Jadwal Ujian</div></li></ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Sidang</div>
+                        <ul>
+                            <li class="level-3">
+                                <div class="node-box">Jadwal Menguji</div>
+                                <ul><li><div class="detail-box">- Jadwal Ujian (Sebagai Penguji)</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Input Nilai</div>
+                                <ul><li><div class="detail-box">- Formulir 4 Komponen Penilaian<br>- Pemberian Catatan Sidang Khusus</div></li></ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Pasca Sidang</div>
+                        <ul>
+                            <li class="level-3">
+                                <div class="node-box">Rekap Revisi</div>
+                                <ul><li><div class="detail-box">- Pantauan Sisa Revisi Seluruh Mahasiswa</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Revisi Sidang</div>
+                                <ul><li><div class="detail-box">- Validasi Berkas Revisi Final</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Finalisasi Nilai</div>
+                                <ul><li><div class="detail-box">- Publikasi Nilai Mutu (A/B/C) Ke Mhs<br>- Unduh Berita Acara Sidang</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Laporan & Arsip</div>
+                                <ul><li><div class="detail-box">- Rekapitulasi Data Kelulusan (Excel)</div></li></ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Sistem</div>
+                        <ul>
+                            <li class="level-3">
+                                <div class="node-box">Periode KP</div>
+                                <ul><li><div class="detail-box">- Buka / Aktivasi Tahun Ajaran Baru<br>- Menutup / Mengunci Periode Lama</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Manajemen User</div>
+                                <ul><li><div class="detail-box">- Tambah, Edit, Hapus Mahasiswa/Dosen<br>- Mengatur Status Aktif & Reset Sandi</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Pengumuman</div>
+                                <ul><li><div class="detail-box">- Publikasi Informasi Beranda Sistem</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Audit Log</div>
+                                <ul><li><div class="detail-box">- Rekam Jejak Manipulasi Data (*Security*)</div></li></ul>
+                            </li>
+                            <li class="level-3">
+                                <div class="node-box">Backup Database</div>
+                                <ul><li><div class="detail-box">- Unduh Massal Seluruh File Laporan (ZIP)<br>- Penghapusan Data Permanen Periode</div></li></ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Notifikasi</div>
+                        <ul><li><div class="detail-box">- Daftar Pemberitahuan Transaksi Sistem</div></li></ul>
+                    </li>
+                    <li class="level-2">
+                        <div class="node-box">Profil</div>
+                        <ul><li><div class="detail-box">- Pembaruan Biodata Koordinator<br>- Unggah Path Tanda Tangan Digital</div></li></ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>
