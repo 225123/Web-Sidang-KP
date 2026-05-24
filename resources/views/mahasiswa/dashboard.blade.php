@@ -202,13 +202,7 @@
                                     {{ ($sidang && $sidang->penguji2) ? $sidang->penguji2->name : '-' }}
                                 </div>
                             </div>
-                            <div class="flex">
-                                <div class="w-[140px]">Nilai Akhir / Grade</div>
-                                <div class="flex-1">:
-                                    {{ ($sidang && $sidang->nilai_akhir) ? $sidang->nilai_akhir : '-' }} /
-                                    {{ ($sidang && $sidang->grade) ? $sidang->grade : '-' }}
-                                </div>
-                            </div>
+
                         </div>
                     </div>
 
