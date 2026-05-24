@@ -54,7 +54,8 @@
             ->whereIn('user_id', function($query) use ($activePeriodId) {
                 $query->select('mahasiswa_id')
                       ->from('pendaftaran_kp')
-                      ->where('tahun_ajaran_id', $activePeriodId);
+                      ->where('tahun_ajaran_id', $activePeriodId)
+                      ->where('status_kp', 'approved');
             })->get();
 
         $allStatusRows = $semuaMahasiswa->map(function($mhs) use ($pengajuans) {
