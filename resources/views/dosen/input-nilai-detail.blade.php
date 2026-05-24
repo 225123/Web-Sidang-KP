@@ -164,7 +164,7 @@
                         <div class="flex items-center gap-4">
                             <label class="w-[240px] text-[16px] font-bold text-black uppercase">Status Kelulusan</label>
                             <span class="text-black font-bold">:</span>
-                            <select name="status_kelulusan" x-model="statusKelulusan" :disabled="isLocked" class="w-[250px] h-[35px] border border-gray-300 rounded-[5px] px-2 text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500 font-medium">
+                            <select name="status_kelulusan" x-model="statusKelulusan" :disabled="isLocked" class="w-[250px] py-1.5 border border-gray-300 rounded-[5px] px-2 text-[14px] focus:outline-none focus:border-[#4CC098] disabled:bg-gray-100 disabled:text-gray-500 font-medium">
                                 <option value="" disabled selected>Pilih Status Kelulusan...</option>
                                 <option value="Lulus">Lulus</option>
                                 <option value="Lulus Dengan Revisi">Lulus Dengan Revisi</option>
