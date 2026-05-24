@@ -60,7 +60,7 @@
                     <div
                         class="bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm overflow-hidden flex flex-col min-h-[302px]">
                         <div class="flex justify-between items-start mb-6">
-                            <h3 class="font-semibold text-[#1A1A1A] text-[18px] font-inter tracking-tight">Statistik Progress Bimbingan</h3>
+                            <h3 class="font-semibold text-[#1A1A1A] text-[18px] font-inter tracking-tight"> Progress Bimbingan</h3>
                         </div>
                         
                         <div class="flex flex-col md:flex-row items-center gap-8 flex-1">
