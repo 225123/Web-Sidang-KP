@@ -79,7 +79,11 @@ class LaporanArsipController extends Controller
             return (object) $item;
         });
 
-        return view('koordinator.laporan-arsip', compact('mahasiswas'));
+        $hasSidangToSah = $sidangRows->where('nilai_dipublikasi', false)->count() > 0;
+        $hasValidSidangs = $sidangRows->count() > 0;
+        $isAllNilaiDisahkan = !$hasSidangToSah && $hasValidSidangs;
+
+        return view('koordinator.laporan-arsip', compact('mahasiswas', 'isAllNilaiDisahkan'));
     }
 
     public function downloadPdf()

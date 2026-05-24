@@ -57,6 +57,21 @@ class ViewComposerServiceProvider extends ServiceProvider
             $latest_all = TahunAjaran::terbaru()->first();
             $is_locked = $selected_period_id && $latest_all && ($selected_period_id != $latest_all->id);
 
+            if ($is_locked && request()->route()) {
+                $excludedRoutes = [
+                    'koordinator.periode-kp.*',
+                    'koordinator.pengumuman.*',
+                    'koordinator.audit-log.*',
+                    'koordinator.backup.*',
+                ];
+                foreach ($excludedRoutes as $excluded) {
+                    if (request()->routeIs($excluded)) {
+                        $is_locked = false;
+                        break;
+                    }
+                }
+            }
+
             View::share('is_locked', $is_locked);
 
             $view->with(compact('available_periods', 'selected_period_id', 'selected_period_label', 'is_locked'));

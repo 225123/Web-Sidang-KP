@@ -84,8 +84,22 @@
             </div>
 
             <!-- Table Section -->
-            <div class="border border-gray-200 rounded-[10px] overflow-hidden">
-                <table class="w-full border-collapse text-[12px]">
+            <div class="border border-gray-200 rounded-[10px] overflow-hidden relative">
+                @if(!$isAllNilaiDisahkan)
+                <div class="absolute inset-0 z-10 bg-white/60 backdrop-blur-[2px] flex flex-col items-center justify-center">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 text-center max-w-md">
+                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        <h4 class="text-lg font-bold text-gray-900 mb-2">Data Terkunci</h4>
+                        <p class="text-sm text-gray-600 mb-4">Anda harus melakukan finalisasi nilai pada periode ini sebelum dapat melihat dan mengunduh laporan kelulusan.</p>
+                        <a href="{{ route('koordinator.finalisasi-nilai') }}" class="inline-flex items-center justify-center px-4 py-2 bg-[#4285F4] text-white rounded-[5px] text-[12px] font-bold shadow-sm hover:bg-blue-600 transition-colors">
+                            Menuju Finalisasi Nilai
+                        </a>
+                    </div>
+                </div>
+                @endif
+                <table class="w-full border-collapse text-[12px] {{ !$isAllNilaiDisahkan ? 'opacity-30 pointer-events-none' : '' }}">
                     <thead class="bg-[#EBEBEB] text-black">
                         <tr>
                             <th class="py-3 px-4 font-bold text-center w-[60px] border-b border-r border-gray-300">No</th>

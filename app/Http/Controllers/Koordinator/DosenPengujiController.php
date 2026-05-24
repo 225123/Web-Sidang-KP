@@ -61,16 +61,23 @@ class DosenPengujiController extends Controller
 
     private function calculateLoads()
     {
-        return DB::table('pendaftaran_sidang')
-            ->select('penguji_1_id as user_id', DB::raw('count(*) as total'))
-            ->whereNotNull('penguji_1_id')
-            ->groupBy('penguji_1_id')
-            ->unionAll(
-                DB::table('pendaftaran_sidang')
-                    ->select('penguji_2_id as user_id', DB::raw('count(*) as total'))
-                    ->whereNotNull('penguji_2_id')
-                    ->groupBy('penguji_2_id')
-            )
+        $periodeId = session('selected_periode_id') ?? \App\Models\TahunAjaran::where('is_active', true)->value('id');
+
+        $query1 = DB::table('pendaftaran_sidang')
+            ->join('pendaftaran_kp', 'pendaftaran_sidang.pendaftaran_kp_id', '=', 'pendaftaran_kp.id')
+            ->select('pendaftaran_sidang.penguji_1_id as user_id', DB::raw('count(pendaftaran_sidang.id) as total'))
+            ->whereNotNull('pendaftaran_sidang.penguji_1_id')
+            ->where('pendaftaran_kp.tahun_ajaran_id', $periodeId)
+            ->groupBy('pendaftaran_sidang.penguji_1_id');
+
+        $query2 = DB::table('pendaftaran_sidang')
+            ->join('pendaftaran_kp', 'pendaftaran_sidang.pendaftaran_kp_id', '=', 'pendaftaran_kp.id')
+            ->select('pendaftaran_sidang.penguji_2_id as user_id', DB::raw('count(pendaftaran_sidang.id) as total'))
+            ->whereNotNull('pendaftaran_sidang.penguji_2_id')
+            ->where('pendaftaran_kp.tahun_ajaran_id', $periodeId)
+            ->groupBy('pendaftaran_sidang.penguji_2_id');
+
+        return $query1->unionAll($query2)
             ->get()
             ->groupBy('user_id')
             ->map(function ($group) {

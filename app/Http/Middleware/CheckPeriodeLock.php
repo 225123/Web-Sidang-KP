@@ -29,6 +29,10 @@ class CheckPeriodeLock
                     'profil.*',
                     'profile.*',
                     'backup.*', // Backup mungkin masih boleh didownload
+                    'koordinator.periode-kp.*',
+                    'koordinator.pengumuman.*',
+                    'koordinator.audit-log.*',
+                    'koordinator.backup.*',
                 ];
 
                 if ($request->route()) {
