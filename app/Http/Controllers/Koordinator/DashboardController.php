@@ -220,9 +220,30 @@ class DashboardController extends Controller
             foreach ($sidangMenunggu as $sidang) {
                 $menungguPersetujuan->push((object)[
                     'mahasiswa' => $sidang->mahasiswa->user->name ?? 'Unknown',
-                    'jenis' => 'Verifikasi Sidang',
+                    'jenis' => 'Persetujuan Sidang',
                     'route' => route('dosen.persetujuan-sidang.index'),
                     'color' => 'bg-[#C8E6C9] text-[#1B5E20] border-[#4CAF50]',
+                ]);
+            }
+
+            // 4. Verifikasi Berkas Sidang (Role: Koordinator)
+            $berkasMenungguQuery = PendaftaranSidang::with(['mahasiswa.user'])
+                ->where('status_verifikasi', 'verified')
+                ->where('status_koordinator', 'pending')
+                ->latest('id');
+            if ($periodeId) {
+                $berkasMenungguQuery->whereHas('pendaftaranKp', function($q) use ($periodeId) {
+                    $q->where('tahun_ajaran_id', $periodeId);
+                });
+            }
+            $berkasMenunggu = $berkasMenungguQuery->take(2)->get();
+
+            foreach ($berkasMenunggu as $berkas) {
+                $menungguPersetujuan->push((object)[
+                    'mahasiswa' => $berkas->mahasiswa->user->name ?? 'Unknown',
+                    'jenis' => 'Verifikasi Berkas',
+                    'route' => route('koordinator.verifikasi-berkas'),
+                    'color' => 'bg-[#E1BEE7] text-[#4A148C] border-[#9C27B0]',
                 ]);
             }
 
