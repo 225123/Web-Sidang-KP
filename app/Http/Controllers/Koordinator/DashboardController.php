@@ -264,6 +264,20 @@ class DashboardController extends Controller
                 ->where('is_read', false)
                 ->count();
 
+            // 6. Jadwal Sidang Terdekat (sebagai penguji)
+            $jadwalTerdekat = PendaftaranSidang::with(['mahasiswa.user', 'mahasiswa'])
+                ->where(function ($q) use ($userId) {
+                    $q->where('penguji_1_id', $userId)
+                      ->orWhere('penguji_2_id', $userId);
+                })
+                ->where('status_jadwal', 'submitted')
+                ->where('pelaksanaan', '!=', 'Selesai')
+                ->whereDate('tanggal_sidang', '>=', now())
+                ->orderBy('tanggal_sidang', 'asc')
+                ->orderBy('waktu_mulai_sidang', 'asc')
+                ->take(2)
+                ->get();
+
             return view('koordinator.dashboard', [
                 'active'          => 'dashboard',
                 'stats'           => $stats,
@@ -277,6 +291,7 @@ class DashboardController extends Controller
                 'progressBimbinganKoordinator' => $progressBimbinganKoordinator,
                 'listBimbinganMahasiswa' => $listBimbinganMahasiswa,
                 'menungguPersetujuan' => $menungguPersetujuan,
+                'jadwalTerdekat' => $jadwalTerdekat,
             ]);
 
         } catch (\Throwable $e) {

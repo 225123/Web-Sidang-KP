@@ -53,8 +53,8 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-            <!-- Weekly Chart -->
-            <div class="lg:col-span-2 bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 h-[320px] relative shadow-sm flex flex-col">
+            <div class="lg:col-span-2 space-y-6">
+<div class="bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 h-[320px] relative shadow-sm flex flex-col">
                 <div class="flex justify-between items-start mb-6 w-full">
                     <h3 class="font-bold text-[#1A1A1A] text-[15px] font-inter uppercase tracking-tight">Statistik Jadwal Sidang</h3>
                     <div class="flex items-center gap-2" x-show="chartWeeks.length > 0" style="display: none;" x-cloak>
@@ -121,24 +121,8 @@
                     <div class="w-full text-center">Sat</div>
                 </div>
             </div>
-
-            <!-- Timeline Card -->
-            <div class="bg-[#9F9F9F] rounded-[10px] border border-[#D9D9D9] p-6 h-[135px] shadow-sm flex flex-col justify-center transition-all duration-300 hover:shadow-md">
-                <h3 class="font-bold text-[#1A1A1A] text-[15px] mb-4 uppercase tracking-tight">Timeline Terdekat</h3>
-                @if($timeline)
-                    <div class="grid grid-cols-[1fr_auto] gap-2 items-center">
-                        <span class="text-[14px] font-bold text-[#1A1A1A] truncate">{{ $timeline->nama_kegiatan }}</span>
-                        <span class="text-[14px] font-normal text-[#1A1A1A] whitespace-nowrap">: {{ \Carbon\Carbon::parse($timeline->tanggal)->format('d/m/Y') }}</span>
-                    </div>
-                @else
-                    <p class="text-[11px] text-black/60 italic font-medium">Belum ada agenda terdekat...</p>
-                @endif
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 min-h-[302px]">
-            <!-- Progress Chart -->
-            <div class="lg:col-span-2 bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-8 shadow-sm flex flex-col justify-center">
+<!-- Progress Chart -->
+            <div class="bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-8 shadow-sm flex flex-col justify-center">
                 <h3 class="font-bold text-[#1A1A1A] text-[15px] mb-8 uppercase tracking-tight">Progress Pelaksanaan Sidang</h3>
                 <div class="flex items-center gap-12 w-full h-[180px]">
                     <!-- Animated Circular Progress -->
@@ -159,50 +143,51 @@
 
                     <div class="flex flex-col gap-6 ml-8 w-full relative">
                         <div class="flex items-center gap-4 group">
-                            <span class="text-[16px] font-bold font-inter text-black w-[45px]" x-text="progressSidang.sudah + '%'"></span>
-                            <span class="text-[11px] font-semibold text-[#666666]">Mahasiswa sudah melakukan Sidang (<span x-text="sudahSidangCount"></span>)</span>
-                        </div>
-                        <div class="flex items-center gap-4 group">
-                            <span class="text-[16px] font-bold font-inter text-black w-[45px]" x-text="progressSidang.belum + '%'"></span>
-                            <span class="text-[11px] font-semibold text-[#666666]">Mahasiswa belum melakukan Sidang (<span x-text="belumSidangCount"></span>)</span>
-                        </div>
-                        <div class="flex gap-8 mt-4 ml-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-2.5 h-2.5 bg-[#3B82F6]"></div>
-                                <span class="text-[11px] text-[#666666]">Sudah Sidang</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-2.5 h-2.5 bg-[#E7DDDD]"></div>
-                                <span class="text-[11px] text-[#666666]">Belum Sidang</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                            <span class="text-[16px] font-bold font-inter text-black w-[45px]" x-text="progressSidang.s
+
+
             </div>
 
-            <!-- Notifications (Dynamic) -->
-            <div class="bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm flex flex-col h-full max-h-[302px]">
-                <h3 class="font-bold text-[#1A1A1A] text-[15px] mb-4 uppercase tracking-tight">Notifikasi ({{ $notifikasiCount }})</h3>
-                <div class="overflow-y-auto flex-1 pr-2 custom-scrollbar">
-                    <div class="flex flex-col divide-y divide-[#D9D9D9]">
-                        @forelse($notifikasi as $notif)
-                            <a href="{{ route('koordinator.notifikasi.show', $notif->id) }}" class="py-3 transform hover:translate-x-1 transition-transform cursor-pointer block">
-                                <h4 class="text-[14px] font-bold text-[#1A1A1A]">{{ $notif->judul }}</h4>
-                                <p class="text-[11px] text-[#666666] mt-1 line-clamp-1">{{ $notif->pesan }}</p>
-                            </a>
-                        @empty
-                            <div class="flex flex-col items-center justify-center h-full text-gray-400 italic text-[13px]">
-                                Tidak ada notifikasi baru.
+            <div class="flex flex-col gap-6">
+                <!-- Timeline Terdekat (New) -->
+                <div class="bg-[#ECECEC] rounded-[10px] p-6 shadow-sm border border-[#D9D9D9] h-[132px] flex flex-col justify-center transition-all hover:shadow-md">
+                    <h3 class="font-bold text-[#1A1A1A] text-[15px] mb-3 tracking-tight">Timeline Terdekat</h3>
+                    @if($timeline)
+                        <p class="font-semibold text-[#1A1A1A] text-[14px]">
+                            {{$timeline->nama_kegiatan}} : <span class="font-normal">{{ \Carbon\Carbon::parse($timeline->tanggal)->format('d/m/Y') }}</span>
+                        </p>
+                    @else
+                        <p class="text-[13px] text-black/60 italic font-medium">Belum ada agenda terdekat...</p>
+                    @endif
+                </div>
+
+                <!-- Jadwal Sidang Terdekat -->
+                <div class="bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm flex flex-col h-[302px]">
+                    <h3 class="font-semibold text-[#1A1A1A] text-[18px] mb-4 font-inter tracking-tight">Jadwal Sidang Terdekat</h3>
+
+                    <div class="flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-2">
+                        @forelse($jadwalTerdekat as $jadwal)
+                        <div class="flex flex-col border-l-4 border-[#3B82F6] pl-3 py-1 bg-gray-50/50 rounded-r-md">
+                            <span class="text-[11px] font-bold text-gray-500 mb-0.5 font-inter">
+                                {{ \Carbon\Carbon::parse($jadwal->tanggal_sidang)->format('d M Y') }} • 
+                                {{ \Carbon\Carbon::parse($jadwal->waktu_mulai_sidang)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->waktu_selesai_sidang)->format('H:i') }}
+                            </span>
+                            <span class="text-[14px] font-bold text-[#1A1A1A] font-inter">{{ $jadwal->mahasiswa->user->name }}</span>
+                            <div class="flex justify-between items-end mt-1 font-inter">
+                                <span class="text-[11px] text-[#666666] font-medium">{{ $jadwal->mahasiswa->nim }}</span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 bg-[#E8F5E9] text-[#1B5E20] rounded border border-[#4CAF50]">
+                                    {{ $jadwal->ruang_sidang }}
+                                </span>
                             </div>
+                        </div>
+                        @empty
+                        <div class="flex flex-col items-center justify-center h-full text-gray-400 italic text-[13px]">
+                            Belum ada jadwal sidang menguji...
+                        </div>
                         @endforelse
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- NEW ROW 3: Progress Bimbingan (col-1) & Persetujuan Menunggu (col-2) -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-            <!-- Progress Bimbingan -->
+<!-- Progress Bimbingan -->
             <div class="bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm overflow-hidden flex flex-col min-h-[302px]">
                 <div class="flex justify-between items-start mb-6">
                     <h3 class="font-semibold text-[#1A1A1A] text-[18px] font-inter tracking-tight"> Progress Bimbingan</h3>
@@ -253,49 +238,9 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Persetujuan Menunggu -->
-            <div class="lg:col-span-2 bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm overflow-hidden min-h-[302px]">
-                <div class="mb-6">
-                    <h3 class="font-semibold text-[#1A1A1A] text-[18px] font-inter tracking-tight">Persetujuan Menunggu</h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full min-w-[500px] text-left">
-                        <thead class="bg-[#F9F9F9] text-[13px] text-gray-500 font-bold border-b border-[#D9D9D9]">
-                        <tr>
-                            <th class="px-4 py-2 w-[40px]">No</th>
-                            <th class="px-4 py-2">Mahasiswa</th>
-                            <th class="px-4 py-2 text-center">Jenis Berkas</th>
-                            <th class="px-4 py-2 text-center w-[100px]">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-[#D9D9D9] text-[13px] font-medium text-black">
-                        @forelse($menungguPersetujuan as $index => $item)
-                        <tr class="hover:bg-gray-50 transition-colors h-[48px]">
-                            <td class="px-4 py-2">{{ $index + 1 }}</td>
-                            <td class="px-4 py-2">{{ $item->mahasiswa }}</td>
-                            <td class="px-4 py-2 text-center">
-                                <span class="px-3 py-1 rounded-[5px] text-[11px] font-bold border {{ $item->color }}">
-                                    {{ $item->jenis }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-2 text-center">
-                                <a href="{{ $item->route }}"
-                                    class="text-white bg-[#4285F4] hover:bg-blue-600 px-3 py-1.5 font-bold text-[11px] rounded-[5px] shadow-sm transition-colors inline-block">Review</a>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="4" class="px-4 py-8 text-center text-gray-400 italic">Tidak ada persetujuan tertunda.</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-                </div>
             </div>
         </div>
     </div>
-
     <script>
         function dashboardData() {
             return {
