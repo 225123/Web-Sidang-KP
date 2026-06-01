@@ -61,7 +61,7 @@ class DashboardController extends Controller
                 ->take(1)
                 ->first();
 
-            // 3. Chart Data: Sidang count per day of week (Carbon-based, for the selected period)
+            // 3. Chart Data: Group sidangs by week
             $sidangQuery = PendaftaranSidang::whereNotNull('tanggal_sidang');
             
             if ($periodeId) {
@@ -70,17 +70,53 @@ class DashboardController extends Controller
                 });
             }
             
-            $sidangsThisPeriod = $sidangQuery->pluck('tanggal_sidang');
+            $sidangsThisPeriod = $sidangQuery->orderBy('tanggal_sidang', 'asc')->pluck('tanggal_sidang');
 
-            $dayOfWeekSidangs = [];
+            $weeksData = [];
             foreach ($sidangsThisPeriod as $tanggal) {
-                $day = (int) \Carbon\Carbon::parse($tanggal)->dayOfWeek;
-                $dayOfWeekSidangs[$day] = ($dayOfWeekSidangs[$day] ?? 0) + 1;
+                $date = \Carbon\Carbon::parse($tanggal);
+                $startOfWeek = $date->copy()->startOfWeek(\Carbon\Carbon::SUNDAY);
+                $endOfWeek = $date->copy()->endOfWeek(\Carbon\Carbon::SATURDAY);
+                
+                $weekKey = $startOfWeek->format('Y-m-d');
+                
+                if (!isset($weeksData[$weekKey])) {
+                    $startFormat = $startOfWeek->format('d');
+                    if ($startOfWeek->month !== $endOfWeek->month) {
+                        $startFormat = $startOfWeek->translatedFormat('d M');
+                    }
+                    $endFormat = $endOfWeek->translatedFormat('d M Y');
+                    $label = $startFormat . ' - ' . $endFormat;
+                    
+                    $weeksData[$weekKey] = [
+                        'label' => $label,
+                        'start' => $startOfWeek->format('Y-m-d'),
+                        'stats' => array_fill(0, 7, 0)
+                    ];
+                }
+                
+                $dayOfWeek = $date->dayOfWeek; // 0 to 6
+                $weeksData[$weekKey]['stats'][$dayOfWeek]++;
             }
 
-            $weeklySidangStats = [];
-            for ($i = 0; $i < 7; $i++) {
-                $weeklySidangStats[] = $dayOfWeekSidangs[$i] ?? 0;
+            $chartWeeks = array_values($weeksData);
+            
+            // Fallback if empty
+            if (empty($chartWeeks)) {
+                $startOfWeek = now()->startOfWeek(\Carbon\Carbon::SUNDAY);
+                $endOfWeek = now()->endOfWeek(\Carbon\Carbon::SATURDAY);
+                
+                $startFormat = $startOfWeek->format('d');
+                if ($startOfWeek->month !== $endOfWeek->month) {
+                    $startFormat = $startOfWeek->translatedFormat('d M');
+                }
+                $endFormat = $endOfWeek->translatedFormat('d M Y');
+                
+                $chartWeeks[] = [
+                    'label' => $startFormat . ' - ' . $endFormat,
+                    'start' => $startOfWeek->format('Y-m-d'),
+                    'stats' => array_fill(0, 7, 0)
+                ];
             }
 
             // 4. Progress Sidang
@@ -115,7 +151,7 @@ class DashboardController extends Controller
                 'active'          => 'dashboard',
                 'stats'           => $stats,
                 'timeline'        => $timelineDosen,
-                'weeklySidangStats' => $weeklySidangStats,
+                'chartWeeks'      => $chartWeeks,
                 'progressSidang'  => $progressSidang,
                 'sudahSidangCount' => $sudahSidang,
                 'belumSidangCount' => $belumSidang,

@@ -57,8 +57,16 @@
             <div class="lg:col-span-2 bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 h-[320px] relative shadow-sm flex flex-col">
                 <div class="flex justify-between items-start mb-6 w-full">
                     <h3 class="font-bold text-[#1A1A1A] text-[15px] font-inter uppercase tracking-tight">Statistik Jadwal Sidang</h3>
-                    <div class="bg-[#EDEBEB] border border-[#CAC0C0] rounded-[5px] px-3 py-1">
-                        <span class="text-[12px] text-[#1A1A1A] font-medium">Periode Ini</span>
+                    <div class="flex items-center gap-2">
+                        <button @click="prevWeek()" :disabled="currentWeekIndex === 0" class="p-1 rounded bg-[#EDEBEB] border border-[#CAC0C0] hover:bg-gray-200 disabled:opacity-50 transition-colors">
+                            <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        </button>
+                        <div class="bg-[#EDEBEB] border border-[#CAC0C0] rounded-[5px] px-3 py-1 text-center min-w-[120px]">
+                            <span class="text-[12px] text-[#1A1A1A] font-medium" x-text="currentWeekLabel"></span>
+                        </div>
+                        <button @click="nextWeek()" :disabled="currentWeekIndex === chartWeeks.length - 1" class="p-1 rounded bg-[#EDEBEB] border border-[#CAC0C0] hover:bg-gray-200 disabled:opacity-50 transition-colors">
+                            <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
                     </div>
                 </div>
 
@@ -72,7 +80,7 @@
 
                     <!-- Bars -->
                     <div class="w-full h-full flex justify-around items-end px-4">
-                        <template x-for="(count, index) in weeklySidangStats">
+                        <template x-for="(count, index) in currentWeeklyStats">
                             <div class="flex flex-col items-center w-full group relative">
                                 <div class="w-6 bg-gradient-to-t from-[#3B82F6] to-[#60A5FA] rounded-t-sm transition-all duration-1000 ease-out shadow-sm"
                                      :style="'height: ' + (maxWeeklyValue > 0 ? (count / maxWeeklyValue * 100) : 0) + '%'">
@@ -174,22 +182,41 @@
         function dashboardData() {
             return {
                 stats: @json($stats),
-                weeklySidangStats: @json($weeklySidangStats),
+                chartWeeks: @json($chartWeeks),
+                currentWeekIndex: 0,
                 progressSidang: { sudah: 0, belum: 0 },
                 targetProgress: @json($progressSidang),
                 sudahSidangCount: @json($sudahSidangCount),
                 belumSidangCount: @json($belumSidangCount),
-                maxWeeklyValue: 0,
+                
+                get currentWeeklyStats() {
+                    return this.chartWeeks[this.currentWeekIndex].stats;
+                },
+                get currentWeekLabel() {
+                    return this.chartWeeks[this.currentWeekIndex].label;
+                },
+                get maxWeeklyValue() {
+                    return Math.max(...this.currentWeeklyStats, 5);
+                },
                 
                 init() {
-                    // Set max value for chart scale
-                    this.maxWeeklyValue = Math.max(...this.weeklySidangStats, 5); // Default min scale 5
-                    
                     // Trigger animations
                     setTimeout(() => {
                         this.progressSidang.sudah = this.targetProgress.sudah;
                         this.progressSidang.belum = this.targetProgress.belum;
                     }, 500);
+                },
+                
+                nextWeek() {
+                    if (this.currentWeekIndex < this.chartWeeks.length - 1) {
+                        this.currentWeekIndex++;
+                    }
+                },
+                
+                prevWeek() {
+                    if (this.currentWeekIndex > 0) {
+                        this.currentWeekIndex--;
+                    }
                 },
 
                 animateValue(val) {
