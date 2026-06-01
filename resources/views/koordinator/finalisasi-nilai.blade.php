@@ -398,6 +398,11 @@
                         NILAI TELAH DISAHKAN & DITERBITKAN
                     </button>
                     <p class="text-[11px] font-bold text-green-600 mt-2 text-right w-full">Seluruh Finalisasi Nilai telah berhasil dikunci dan diterbitkan.</p>
+                @elseif(isset($isReadOnly) && $isReadOnly)
+                    <button type="button" disabled class="bg-gray-400 border-2 border-gray-500 text-white font-bold py-3 px-8 rounded-[10px] shadow-md flex items-center gap-2 text-[14px] uppercase tracking-wide cursor-not-allowed opacity-90">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        MODE READ-ONLY
+                    </button>
                 @else
                     <form id="sahkan-form" action="{{ route('koordinator.finalisasi-nilai.sahkan') }}" method="POST">
                         @csrf

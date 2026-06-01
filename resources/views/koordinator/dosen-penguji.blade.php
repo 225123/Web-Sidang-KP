@@ -344,11 +344,13 @@
                 </div>
             </div>
             <div class="flex gap-3">
+                @if(!isset($isReadOnly) || !$isReadOnly)
                 <button @click="autoPlot()" :disabled="isLoadingAuto" class="bg-[#4285F4] hover:bg-blue-700 text-white px-6 py-3 rounded-[5px] text-[13px] font-bold flex items-center gap-2 shadow-md transition-all whitespace-nowrap disabled:opacity-50">
                     <svg x-show="!isLoadingAuto" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                     <div x-show="isLoadingAuto" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     <span x-text="isLoadingAuto ? 'Memproses...' : 'Auto'"></span>
                 </button>
+                @endif
             </div>
         </div>
 
@@ -554,6 +556,7 @@
                         </div>
 
                         <!-- Form Actions -->
+                        @if(!isset($isReadOnly) || !$isReadOnly)
                         <div class="flex justify-center gap-4 mt-auto pt-6 border-t border-gray-100">
                             <button type="button" @click="resetForm()" class="bg-gray-100 border border-[#CAC0C0] hover:bg-gray-200 text-black px-10 py-2 rounded-[25px] text-[13px] font-bold flex items-center justify-center gap-2 transition-all shadow-sm">
                                 Batal
@@ -563,6 +566,11 @@
                                 Tambahkan
                             </button>
                         </div>
+                        @else
+                        <div class="flex justify-center gap-4 mt-auto pt-6 border-t border-gray-100">
+                            <span class="text-[12px] text-red-500 font-bold uppercase">Read Only</span>
+                        </div>
+                        @endif
                     </form>
                 </div>
             </div>
@@ -575,6 +583,7 @@
                     <p class="text-[12px] text-black/60 font-medium mt-1">Daftar mahasiswa yang telah mendapatkan plot dosen penguji.</p>
                 </div>
                 <div class="flex items-center gap-3 shrink-0">
+                    @if(!isset($isReadOnly) || !$isReadOnly)
                     <form action="{{ route('koordinator.dosen-penguji.submit') }}" method="POST">
                         @csrf
                         <button type="submit"
@@ -588,6 +597,7 @@
                                 x-text="hasDraftChanges ? (hasOnlySubmitted ? 'Submit Pembaruan' : 'Submit') : (hasOnlySubmitted ? 'Telah Disubmit' : 'Kosong')"></span>
                         </button>
                     </form>
+                    @endif
                 </div>
             </div>
 
@@ -626,6 +636,7 @@
                         </div>
                     </div>
 
+                    @if(!isset($isReadOnly) || !$isReadOnly)
                     <button x-show="isSelectingMode" x-cloak @click="bulkDestroy()" type="button"
                         class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-[5px] text-[12px] font-bold shadow-sm transition-colors disabled:opacity-50 h-[35px]"
                         :disabled="selectedIds.length === 0">
@@ -642,6 +653,7 @@
                         :class="isSelectingMode ? 'bg-[#1A1A1A] text-white hover:bg-black' : 'bg-white border border-gray-300 text-black hover:bg-gray-100'">
                         <span x-text="isSelectingMode ? 'Batal Pilih' : 'Pilih'"></span>
                     </button>
+                    @endif
                 </div>
                 
                 <div class="flex gap-2 w-full sm:w-auto">
@@ -662,7 +674,9 @@
                         <th class="border-r border-[#CAC0C0] px-4 py-2 w-[160px]">Jadwal sidang</th>
                         <th class="border-r border-[#CAC0C0] px-4 py-2 w-[180px]">Penguji 1</th>
                         <th class="border-r border-[#CAC0C0] px-4 py-2 w-[180px]">Penguji 2</th>
+                        @if(!isset($isReadOnly) || !$isReadOnly)
                         <th class="px-4 py-2 w-[100px]" x-show="!isSelectingMode">Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody class="align-middle bg-white">
@@ -696,6 +710,7 @@
                             <td class="border-r border-[#CAC0C0] px-4 py-4 font-normal text-black text-center" @click="isSelectingMode ? toggleSelect(mhs.id) : null" :class="isSelectingMode ? 'cursor-pointer' : ''">
                                 <span class="sentence-case" x-text="getDosenName(mhs.penguji_2_id)"></span>
                             </td>
+                            @if(!isset($isReadOnly) || !$isReadOnly)
                             <td class="px-4 py-4" x-show="!isSelectingMode">
                                 <div class="flex justify-center gap-2">
                                     <button @click="selectStudent(mhs, true)" class="p-1.5 bg-blue-50 border border-blue-200 rounded-md text-blue-600 hover:bg-blue-100 transition-colors shadow-sm">
@@ -706,6 +721,7 @@
                                     </button>
                                 </div>
                             </td>
+                            @endif
                         </tr>
                     </template>
                     <template x-if="paginatedTerjadwal.length === 0">

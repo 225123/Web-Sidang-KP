@@ -211,6 +211,11 @@
                 <div class="flex items-center gap-4">
                     <div class="font-bold text-[15px] md:text-[14px] min-w-[10px]" x-text="getDosenName(selectedDosen)"></div>
                     <div class="relative w-[220px]" @click.outside="openDropdown = false">
+                        @if($isReadOnly)
+                        <div class="w-full py-1.5 px-3 border border-gray-200 bg-gray-50 rounded-[5px] text-[13px] font-semibold flex items-center text-gray-500 cursor-not-allowed h-[34px]">
+                            <span class="truncate pr-2" x-text="selectedDosen !== '' ? getDosenName(selectedDosen) : 'Belum Ditugaskan'"></span>
+                        </div>
+                        @else
                         <button type="button" @click="$event.stopPropagation(); openDropdown = !openDropdown; searchDosen = ''" 
                                 class="w-full py-1.5 px-3 border bg-white rounded-[5px] text-[13px] font-semibold flex items-center justify-between transition-colors shadow-sm focus:outline-none h-[34px]"
                                 :class="selectedDosen !== '' ? 'text-[#4285F4] border-[#4285F4] hover:bg-blue-50' : 'text-gray-600 border-gray-400 hover:bg-gray-50'">
@@ -252,11 +257,13 @@
                                 </template>
                             </ul>
                         </div>
+                        @endif
                     </div>
                 </div>
 
             </div>
 
+            @if(!$isReadOnly)
             <div class="flex justify-end mt-8 border-t border-[#D9D9D9] pt-6">
                 <button type="submit" form="form-assignment" 
                         class="bg-[#4285F4] hover:bg-blue-600 transition-colors text-white px-8 py-2.5 rounded-[5px] text-[13px] font-bold shadow-sm flex items-center justify-center gap-2 w-[140px] disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
@@ -265,6 +272,13 @@
                     Selesai
                 </button>
             </div>
+            @else
+            <div class="mt-8 border-t border-[#D9D9D9] pt-6">
+                <div class="bg-red-50 text-red-600 p-3 rounded-[5px] text-[13px] font-bold border border-red-200 text-center">
+                    Mode Read-Only. Anda sedang melihat data penugasan pada periode lampau dan tidak dapat melakukan perubahan.
+                </div>
+            </div>
+            @endif
         </div>
 
         <!-- Custom Global Confirm Modal -->

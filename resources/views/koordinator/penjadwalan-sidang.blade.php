@@ -539,6 +539,7 @@
                     </p>
                 </div>
 
+                @if(!$isReadOnly)
                 <div class="flex items-center shrink-0 ml-auto w-full lg:w-auto">
                     <button type="button"
                         @click="autoPlotModal.show = true; initCalendar()"
@@ -551,6 +552,7 @@
                         Auto
                     </button>
                 </div>
+                @endif
             </div>
 
             <!-- Enhanced Auto Plotting (Top-Aligned Integration) -->
@@ -792,6 +794,7 @@
                         </div>
 
                         <div class="flex justify-end gap-3 mt-auto pt-4 border-t border-gray-200">
+                            @if(!$isReadOnly)
                             <button type="button" @click="resetForm()"
                                 class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-5 py-2 rounded-[5px] text-[12px] font-bold flex items-center gap-2 transition-colors shadow-sm focus:outline-none">
                                 Batal
@@ -803,6 +806,9 @@
                                 </svg>
                                 <span x-text="form.mode === 'edit' ? 'Update & Simpan' : 'Tambahkan'"></span>
                             </button>
+                            @else
+                            <div class="bg-red-50 text-red-600 p-2 w-full rounded-[5px] text-[12px] font-bold border border-red-200 text-center">Mode Read-Only.</div>
+                            @endif
                         </div>
                     </form>
                 </div>
@@ -834,11 +840,13 @@
                             <span x-text="selectedIds.length === filteredTerjadwal().length && filteredTerjadwal().length > 0 ? 'Batal Pilih Semua' : 'Pilih Semua'"></span>
                         </button>
 
+                        @if(!$isReadOnly)
                         <button x-show="isSelectingMode" x-cloak @click="promptBulkDelete()" type="button"
                             class="bg-[#EA3323] hover:bg-red-700 text-white px-3 py-2 rounded-[5px] text-[12px] font-bold transition-colors shadow-sm disabled:opacity-50 whitespace-nowrap"
                             :disabled="selectedIds.length === 0">
                             Hapus Terpilih (<span x-text="selectedIds.length"></span>)
                         </button>
+                        @endif
 
                         <button @click="toggleSelectingMode()" type="button"
                             class="px-3 py-2 rounded-[5px] text-[12px] font-medium transition-colors shadow-sm border whitespace-nowrap"
@@ -968,6 +976,7 @@
                                     </div>
                                 </td>
                                 <td class="px-4 py-3 text-center" x-show="!isSelectingMode">
+                                    @if(!$isReadOnly)
                                     <div class="flex justify-center gap-2">
                                         <button type="button" @click="editSchedule(row.id)" title="Edit"
                                             class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 p-1.5 rounded shrink-0 transition-colors">
@@ -987,6 +996,7 @@
                                             </svg>
                                         </button>
                                     </div>
+                                    @endif
                                 </td>
                             </tr>
                         </template>

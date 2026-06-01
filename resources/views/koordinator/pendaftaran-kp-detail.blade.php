@@ -122,7 +122,7 @@
 
             <!-- Buttons at the bottom right inside the gray box -->
             <div class="flex justify-end gap-3 mt-10" x-data="{ editMode: false }">
-                @if($kp->status_kp === 'pending')
+                @if($kp->status_kp === 'pending' && (!isset($isReadOnly) || !$isReadOnly))
                     <form method="POST" action="{{ route('koordinator.pendaftaran-kp.status', $kp->id) }}" class="inline-block">
                         @csrf
                         @method('PUT')

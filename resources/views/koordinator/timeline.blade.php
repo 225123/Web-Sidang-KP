@@ -8,6 +8,7 @@
     <div class="mt-8 px-4 w-full max-w-6xl mx-auto pb-12 font-inter" x-data="timelinePage()">
         
         <!-- Section 1: Buat Timeline Box -->
+        @if(!isset($isReadOnly) || !$isReadOnly)
         <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mb-8">
             <div class="mb-6 border-b border-gray-100 pb-4">
                 <h3 class="text-[18px] font-bold text-black tracking-tight" x-text="tab === 'mahasiswa' ? 'Buat Timeline Mahasiswa' : 'Buat Timeline Dosen'"></h3>
@@ -41,6 +42,7 @@
                 </form>
             </div>
         </div>
+        @endif
 
         @if(session('success'))
         <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg relative mb-6 shadow-sm flex items-center gap-3">
@@ -97,6 +99,7 @@
                             </div>
                         </div>
 
+                        @if(!isset($isReadOnly) || !$isReadOnly)
                         <div class="flex gap-2">
                             <button @click="toggleSelection()" 
                                     :class="isSelecting ? 'bg-[#4285F4] text-white border-[#4285F4]' : 'bg-white text-black border-gray-300 hover:bg-gray-100'"
@@ -109,6 +112,7 @@
                                 <span x-text="allSelected ? 'Batal Pilih Semua' : 'Pilih Semua'"></span>
                             </button>
                         </div>
+                        @endif
                     </div>
 
                     <div class="text-[11px] text-black/60 font-bold uppercase tracking-tight flex items-center gap-1 sm:w-auto w-full justify-end">
@@ -128,7 +132,9 @@
                                 <th class="border-r border-[#CAC0C0] px-4 py-3 text-left">Nama Kegiatan</th>
                                 <th class="border-r border-[#CAC0C0] px-4 py-3 w-[150px]">Tanggal</th>
                                 <th class="border-r border-[#CAC0C0] px-4 py-3 w-[120px]">Waktu</th>
+                                @if(!isset($isReadOnly) || !$isReadOnly)
                                 <th class="px-6 py-3 w-[100px]">Aksi</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-[#CAC0C0]">
@@ -145,6 +151,7 @@
                                     </td>
                                     <td class="border-r border-[#CAC0C0] px-4 py-3 text-black font-bold" x-text="formatDate(item.tanggal)"></td>
                                     <td class="border-r border-[#CAC0C0] px-4 py-3 text-black font-bold" x-text="formatTime(item.waktu)"></td>
+                                    @if(!isset($isReadOnly) || !$isReadOnly)
                                     <td class="px-6 py-3 text-center">
                                         <div class="flex items-center justify-center gap-2">
                                             <button @click="openEditModal(item)" class="text-gray-400 hover:text-blue-600 transition-colors">
@@ -155,6 +162,7 @@
                                             </button>
                                         </div>
                                     </td>
+                                    @endif
                                 </tr>
                             </template>
                             <template x-if="paginatedItems.length === 0">
@@ -167,12 +175,14 @@
                 </div>
 
                 <!-- Footer Actions: Delete Button -->
+                @if(!isset($isReadOnly) || !$isReadOnly)
                 <div x-show="isSelecting && selectedIds.length > 0" class="mt-4 flex justify-start">
                     <button @click="openBulkDelete()" class="bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[12px] px-8 py-2 rounded-[5px] shadow-sm transition-colors uppercase flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         Hapus Yang Terpilih (<span x-text="selectedIds.length"></span>)
                     </button>
                 </div>
+                @endif
 
                 <!-- Pagination Footer -->
                 <div class="pt-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 mt-6" x-show="totalPages > 1">

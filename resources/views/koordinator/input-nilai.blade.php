@@ -166,14 +166,19 @@
                                                  <div x-data="{ openExec: false }" class="relative w-full min-w-[115px]" @click.outside="openExec = false">
                                                      <button type="button" @click="openExec = !openExec"
                                                          :class="getStatusClass(sidang)"
-                                                         class="w-full text-[10px] font-bold px-3 py-1.5 rounded-[20px] shadow-sm cursor-pointer focus:outline-none transition-all border flex items-center justify-between gap-1">
+                                                         @if(isset($isReadOnly) && $isReadOnly) disabled @endif
+                                                         class="w-full text-[10px] font-bold px-3 py-1.5 rounded-[20px] shadow-sm cursor-pointer focus:outline-none transition-all border flex items-center justify-between gap-1 disabled:opacity-50 disabled:cursor-not-allowed">
                                                          <span class="truncate flex-1 text-center" x-text="getExecutionStatus(sidang)"></span>
+                                                         @if(!isset($isReadOnly) || !$isReadOnly)
                                                          <svg :class="openExec ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                                         @endif
                                                      </button>
+                                                     @if(!isset($isReadOnly) || !$isReadOnly)
                                                      <div x-show="openExec" x-transition x-cloak class="absolute left-0 right-0 bottom-full mb-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-[100] min-w-[115px]">
                                                          <button type="button" @click="confirmUpdateStatus(sidang.id, 'Selesai'); openExec = false" class="block w-full text-left px-3 py-1.5 text-[11px] font-medium hover:bg-gray-100 text-black">Selesai</button>
                                                          <button type="button" @click="confirmUpdateStatus(sidang.id, 'Dibatalkan'); openExec = false" class="block w-full text-left px-3 py-1.5 text-[11px] font-medium hover:bg-gray-100 text-black">Dibatalkan</button>
                                                      </div>
+                                                     @endif
                                                  </div>
                                              </template>
                                             
@@ -192,11 +197,17 @@
                                     <td class="py-3 px-4 text-center">
                                         <div class="flex flex-col gap-2">
                                             <template x-for="role in getSpecificRoles(sidang, ['PENGUJI 1', 'PENGUJI 2'])">
-                                                <a :href="'{{ url('koordinator/input-nilai') }}/' + sidang.id + '/' + role.toLowerCase().replace(' ', '')"
-                                                    class="w-full text-center bg-[#4CC098] hover:bg-[#3da681] text-white py-1.5 rounded-[4px] text-[10px] font-bold transition-all shadow-sm flex items-center justify-center gap-1">
-                                                    INPUT <span x-text="role"></span>
-                                                </a>
-                                            </template>
+                                                 @if(!isset($isReadOnly) || !$isReadOnly)
+                                                 <a :href="'{{ url('koordinator/input-nilai') }}/' + sidang.id + '/' + role.toLowerCase().replace(' ', '')"
+                                                     class="w-full text-center bg-[#4CC098] hover:bg-[#3da681] text-white py-1.5 rounded-[4px] text-[10px] font-bold transition-all shadow-sm flex items-center justify-center gap-1">
+                                                     INPUT <span x-text="role"></span>
+                                                 </a>
+                                                 @else
+                                                 <span class="w-full text-center bg-gray-300 text-white py-1.5 rounded-[4px] text-[10px] font-bold shadow-sm flex items-center justify-center gap-1 cursor-not-allowed">
+                                                     READ ONLY
+                                                 </span>
+                                                 @endif
+                                             </template>
                                         </div>
                                     </td>
                                 </tr>
@@ -316,10 +327,16 @@
                                         </template>
                                     </td>
                                     <td class="py-3 px-4 text-center">
+                                        @if(!isset($isReadOnly) || !$isReadOnly)
                                         <a :href="'{{ url('koordinator/input-nilai') }}/' + sidang.id + '/pembimbing'"
                                             class="w-full text-center bg-[#4CC098] hover:bg-[#3da681] text-white py-2 rounded-[4px] text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 uppercase">
                                             Input Nilai Pembimbing
                                         </a>
+                                        @else
+                                        <span class="w-full text-center bg-gray-300 text-white py-2 rounded-[4px] text-[11px] font-bold shadow-sm flex items-center justify-center gap-1 uppercase cursor-not-allowed">
+                                            Read Only
+                                        </span>
+                                        @endif
                                     </td>
                                 </tr>
                             </template>
@@ -438,10 +455,16 @@
                                         </template>
                                     </td>
                                     <td class="py-3 px-4 text-center">
+                                        @if(!isset($isReadOnly) || !$isReadOnly)
                                         <a :href="'{{ url('koordinator/input-nilai') }}/' + sidang.id + '/supervisior'"
                                             class="w-full text-center bg-[#4CC098] hover:bg-[#3da681] text-white py-2 rounded-[4px] text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 uppercase">
                                             Input Nilai Supervisior
                                         </a>
+                                        @else
+                                        <span class="w-full text-center bg-gray-300 text-white py-2 rounded-[4px] text-[11px] font-bold shadow-sm flex items-center justify-center gap-1 uppercase cursor-not-allowed">
+                                            Read Only
+                                        </span>
+                                        @endif
                                     </td>
                                 </tr>
                             </template>

@@ -188,8 +188,12 @@
                                 <td class="py-4 px-4 text-center" @click.stop>
                                     <template x-if="row.status === 'pending'">
                                         <div class="flex items-center justify-center gap-2">
+                                            @if(!$isReadOnly)
                                             <button @click="updateRowStatus(row.id, 'verified')" :disabled="isUpdating" class="bg-[#1A73E8] hover:bg-blue-700 text-white text-[10px] font-bold px-3.5 py-1.5 rounded-[6px] shadow-sm transition-colors uppercase tracking-wide">Sahkan</button>
                                             <button @click="openTolakModal(row.id)" :disabled="isUpdating" class="bg-white border border-gray-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-gray-700 text-[10px] font-bold px-3.5 py-1.5 rounded-[6px] shadow-sm transition-colors uppercase tracking-wide">Tolak</button>
+                                            @else
+                                            <span class="text-[10px] text-red-500 font-bold uppercase tracking-wide">Read Only</span>
+                                            @endif
                                         </div>
                                     </template>
                                     <template x-if="row.status === 'verified'">

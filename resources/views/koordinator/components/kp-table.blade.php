@@ -162,6 +162,9 @@
                             @elseif(($kp->status_kp ?? '') === 'approved')
                                 <span class="text-green-600 font-bold text-[12px] bg-green-50 px-2 py-0.5 rounded-[5px]">Disetujui</span>
                                 <div class="text-[12px] text-gray-500 mt-1">{{ $kp->updated_at ? $kp->updated_at->format('d M Y') : '-' }}</div>
+                            @elseif(isset($isReadOnly) && $isReadOnly)
+                                <span class="text-yellow-600 font-bold text-[12px] bg-yellow-50 px-2 py-0.5 rounded-[5px]">Menunggu</span>
+                                <div class="text-[10px] text-red-500 font-bold mt-1 uppercase tracking-tighter">Read Only</div>
                             @else
                                 <div class="flex items-center justify-center gap-2">
                                     <form action="{{ route('koordinator.pendaftaran-kp.status', $kp->id) }}" method="POST" @submit="sessionStorage.setItem('scrollPosition', window.scrollY)">

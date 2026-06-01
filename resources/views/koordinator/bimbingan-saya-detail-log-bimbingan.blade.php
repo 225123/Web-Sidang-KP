@@ -113,6 +113,7 @@
                                 </td>
                                 <td class="py-4 px-4 text-center">
                                     @if($log->status_approval == 'pending')
+                                        @if(!isset($isReadOnly) || !$isReadOnly)
                                         <div class="flex items-center justify-center gap-2">
                                             <form action="{{ route('koordinator.bimbingan-saya.updateStatus', $log->id) }}" method="POST">
                                                 @csrf @method('PUT')
@@ -125,6 +126,11 @@
                                                 <button type="submit" class="bg-[#EA3323] hover:bg-red-700 text-white text-[10px] font-bold px-4 py-1.5 rounded shadow-sm transition-colors uppercase">Tolak</button>
                                             </form>
                                         </div>
+                                        @else
+                                        <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 px-4 py-1.5 rounded-full font-bold text-[10px] uppercase shadow-sm">
+                                            Menunggu (Read Only)
+                                        </span>
+                                        @endif
                                     @elseif($log->status_approval == 'approved')
                                         <span class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-4 py-1.5 rounded-full font-bold text-[10px] uppercase shadow-sm">
                                             <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div> Selesai

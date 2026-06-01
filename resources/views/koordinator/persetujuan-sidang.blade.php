@@ -161,6 +161,7 @@
                                         <td class="py-4 px-4 text-center">
                                             <template x-if="p.status === 'pending'">
                                                 <div class="flex items-center justify-center gap-2">
+                                                    @if(!isset($isReadOnly) || !$isReadOnly)
                                                     <form :action="'{{ url('koordinator/persetujuan-sidang') }}/' + p.id + '/update'" method="POST" class="w-full">
                                                         @csrf @method('PUT')
                                                         <input type="hidden" name="status" value="verified">
@@ -171,6 +172,9 @@
                                                     <button type="button" @click="showTolakModal = true; selectedId = p.id" class="w-full bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[11px] px-3 py-1.5 rounded flex items-center justify-center shadow-sm uppercase transition-colors">
                                                         Tolak
                                                     </button>
+                                                    @else
+                                                    <span class="text-[10px] text-red-500 font-bold uppercase tracking-wide">Read Only</span>
+                                                    @endif
                                                 </div>
                                             </template>
                                             <template x-if="p.status === 'verified'">

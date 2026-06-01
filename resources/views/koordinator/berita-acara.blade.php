@@ -362,6 +362,7 @@
                             <p class="text-[11px] font-bold text-green-600 mt-2">Seluruh Berita Acara Mahasiswa berhasil
                                 dikunci.</p>
                         @else
+                            @if(!isset($isReadOnly) || !$isReadOnly)
                             <button type="button" @click="confirmSubmit()"
                                 class="bg-[#34A853] hover:bg-green-700 text-white font-bold py-3 px-12 rounded-[25px] flex items-center gap-3 transition-all shadow-md text-[14px]">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -372,6 +373,12 @@
                             </button>
                             <p class="text-[11px] font-bold text-[#E53935] mt-2 italic">* Terdapat Berita Acara yang belum
                                 disubmit.</p>
+                            @else
+                            <button type="button" disabled
+                                class="bg-gray-400 text-white font-bold py-3 px-12 rounded-[25px] flex items-center gap-3 shadow-md text-[14px] cursor-not-allowed">
+                                <span>READ ONLY</span>
+                            </button>
+                            @endif
                         @endif
                     </form>
 

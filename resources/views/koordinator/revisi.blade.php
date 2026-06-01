@@ -144,6 +144,7 @@
                                     <div class="flex items-center justify-center gap-2">
                                         <template x-if="sidang.status_revisi === 'Menunggu'">
                                             <div class="flex gap-2">
+                                                @if(!isset($isReadOnly) || !$isReadOnly)
                                                 <form :action="'{{ url('koordinator/revisi') }}/' + sidang.id + '/terima'" method="POST" @submit="return confirm('Sahkan revisi mahasiswa ini?')">
                                                     @csrf
                                                     <button type="submit" class="bg-[#34A853] hover:bg-green-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase">Sahkan</button>
@@ -152,6 +153,9 @@
                                                     @csrf
                                                     <button type="submit" class="bg-[#EA4335] hover:bg-red-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase">Tolak</button>
                                                 </form>
+                                                @else
+                                                <span class="text-[10px] text-red-500 font-bold uppercase tracking-wide">Read Only</span>
+                                                @endif
                                             </div>
                                         </template>
                                         <template x-if="sidang.status_revisi === 'Disahkan' || sidang.status_revisi === 'Diterima'">
