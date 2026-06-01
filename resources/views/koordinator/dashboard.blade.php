@@ -199,6 +199,101 @@
                 </div>
             </div>
         </div>
+
+        <!-- NEW ROW 3: Progress Bimbingan (col-1) & Persetujuan Menunggu (col-2) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            <!-- Progress Bimbingan -->
+            <div class="bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm overflow-hidden flex flex-col min-h-[302px]">
+                <div class="flex justify-between items-start mb-6">
+                    <h3 class="font-semibold text-[#1A1A1A] text-[18px] font-inter tracking-tight"> Progress Bimbingan</h3>
+                </div>
+                
+                <div class="flex flex-col items-center gap-6 flex-1">
+                    <!-- Circular Progress Chart -->
+                    <div class="relative flex-shrink-0">
+                        <svg class="w-40 h-40 transform -rotate-90">
+                            <circle cx="80" cy="80" r="70" stroke="#F3F4F6" stroke-width="12" fill="transparent" />
+                            <circle cx="80" cy="80" r="70" stroke="#3B82F6" stroke-width="12" fill="transparent"
+                                stroke-dasharray="440"
+                                :stroke-dashoffset="440 - (440 * progressBimbinganKoord) / 100"
+                                stroke-linecap="round"
+                                class="transition-all duration-1000 ease-out" />
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="text-[28px] font-bold text-black font-inter" x-text="progressBimbinganKoord + '%'"></span>
+                            <span class="text-[11px] font-medium text-gray-500 uppercase tracking-wider">Selesai</span>
+                        </div>
+                    </div>
+
+                    <!-- Student List -->
+                    <div class="w-full overflow-y-auto custom-scrollbar max-h-[220px] pr-2">
+                        <div class="space-y-3">
+                            @forelse($listBimbinganMahasiswa as $mhs)
+                            <div class="flex items-center justify-between p-3 bg-[#F9FAFB] rounded-[8px] hover:bg-[#F3F4F6] transition-colors border border-transparent hover:border-[#D1D5DB]">
+                                <div class="flex flex-col">
+                                    <span class="text-[13px] font-bold text-[#1A1A1A] leading-tight">{{ $mhs->nama }}</span>
+                                    <span class="text-[11px] text-gray-500 mt-0.5">{{ $mhs->nim }}</span>
+                                </div>
+                                <div class="flex flex-col items-end">
+                                    <span class="text-[12px] font-bold {{ $mhs->count >= 12 ? 'text-[#059669]' : 'text-[#3B82F6]' }}">
+                                        {{ $mhs->count }}/12
+                                    </span>
+                                    <div class="w-20 bg-gray-200 rounded-full h-1 mt-1.5">
+                                        <div class="bg-current h-1 rounded-full" 
+                                             style="width: {{ min(($mhs->count / 12) * 100, 100) }}%; color: {{ $mhs->count >= 12 ? '#059669' : '#3B82F6' }}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            @empty
+                            <div class="flex flex-col items-center justify-center h-full py-10 text-gray-400 italic text-[13px]">
+                                Belum ada mahasiswa bimbingan...
+                            </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Persetujuan Menunggu -->
+            <div class="lg:col-span-2 bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm overflow-hidden min-h-[302px]">
+                <div class="mb-6">
+                    <h3 class="font-semibold text-[#1A1A1A] text-[18px] font-inter tracking-tight">Persetujuan Menunggu</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[500px] text-left">
+                        <thead class="bg-[#F9F9F9] text-[13px] text-gray-500 font-bold border-b border-[#D9D9D9]">
+                        <tr>
+                            <th class="px-4 py-2 w-[40px]">No</th>
+                            <th class="px-4 py-2">Mahasiswa</th>
+                            <th class="px-4 py-2 text-center">Jenis Berkas</th>
+                            <th class="px-4 py-2 text-center w-[100px]">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#D9D9D9] text-[13px] font-medium text-black">
+                        @forelse($menungguPersetujuan as $index => $item)
+                        <tr class="hover:bg-gray-50 transition-colors h-[48px]">
+                            <td class="px-4 py-2">{{ $index + 1 }}</td>
+                            <td class="px-4 py-2">{{ $item->mahasiswa }}</td>
+                            <td class="px-4 py-2 text-center">
+                                <span class="px-3 py-1 rounded-[5px] text-[11px] font-bold border {{ $item->color }}">
+                                    {{ $item->jenis }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-2 text-center">
+                                <a href="{{ $item->route }}"
+                                    class="text-white bg-[#4285F4] hover:bg-blue-600 px-3 py-1.5 font-bold text-[11px] rounded-[5px] shadow-sm transition-colors inline-block">Review</a>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" class="px-4 py-8 text-center text-gray-400 italic">Tidak ada persetujuan tertunda.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -211,6 +306,8 @@
                 targetProgress: @json($progressSidang),
                 sudahSidangCount: @json($sudahSidangCount),
                 belumSidangCount: @json($belumSidangCount),
+                progressBimbinganKoord: 0,
+                targetProgressBimbinganKoord: @json($progressBimbinganKoordinator),
                 
                 get currentWeeklyStats() {
                     if (this.chartWeeks.length === 0) return [0,0,0,0,0,0,0];
@@ -235,6 +332,7 @@
                     setTimeout(() => {
                         this.progressSidang.sudah = this.targetProgress.sudah;
                         this.progressSidang.belum = this.targetProgress.belum;
+                        this.progressBimbinganKoord = this.targetProgressBimbinganKoord;
                     }, 500);
                 },
                 

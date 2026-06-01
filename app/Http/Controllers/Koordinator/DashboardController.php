@@ -111,8 +111,122 @@ class DashboardController extends Controller
                 'belum' => $totalApprovedKp > 0 ? round(($belumSidang / $totalApprovedKp) * 100) : 100,
             ];
 
-            // 5. Notifikasi
+            // Progress Bimbingan (Koordinator as Pembimbing)
+            $kpsQuery = PendaftaranKp::with(['logBimbingans', 'mahasiswa.user'])
+                ->where('pembimbing_id', auth()->id())
+                ->whereIn('status_kp', ['pending', 'approved', 'verified']);
+
+            if ($periodeId) {
+                $kpsQuery->where('tahun_ajaran_id', $periodeId);
+            }
+            $kps = $kpsQuery->get();
+
+            $mahasiswaBimbingan = 0;
+            $totalBimbinganSelesai = 0;
+            $listBimbinganMahasiswa = collect();
+            $processedUserIds = [];
+
+            foreach ($kps as $kp) {
+                $userIds = [$kp->mahasiswa_id];
+                if (in_array(strtolower($kp->pengerjaan_kp ?? ''), ['kelompok', 'berkelompok']) && !empty($kp->anggota_kelompok_ids)) {
+                    $decoded = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
+                    if (is_array($decoded)) {
+                        foreach ($decoded as $id) {
+                            if (!empty($id)) $userIds[] = $id;
+                        }
+                    }
+                }
+                $userIds = array_unique($userIds);
+
+                foreach ($userIds as $uid) {
+                    if (in_array($uid, $processedUserIds)) continue;
+                    $processedUserIds[] = $uid;
+
+                    $mhs = \App\Models\Mahasiswa::with('user')->where('user_id', $uid)->first();
+                    if ($mhs) {
+                        $mahasiswaBimbingan++;
+
+                        $myApprovedLogs = \App\Models\LogBimbingan::where('pendaftaran_kp_id', $kp->id)
+                            ->where('mahasiswa_id', $uid)
+                            ->where('is_supervisor', false)
+                            ->where('status_approval', 'approved')
+                            ->count();
+
+                        $totalBimbinganSelesai += min($myApprovedLogs, 12);
+
+                        $listBimbinganMahasiswa->push((object)[
+                            'nama' => $mhs->user->name ?? 'Unknown',
+                            'nim' => $mhs->nim ?? 'Unknown',
+                            'count' => $myApprovedLogs,
+                            'target' => 12
+                        ]);
+                    }
+                }
+            }
+            $totalBimbinganTarget = $mahasiswaBimbingan * 12;
+            $progressBimbinganKoordinator = $totalBimbinganTarget > 0 ? round(($totalBimbinganSelesai / $totalBimbinganTarget) * 100) : 0;
+
+            // Persetujuan Menunggu
+            $menungguPersetujuan = collect();
             $userId = auth()->id();
+            
+            // 1. Pendaftaran KP Baru (Role: Koordinator)
+            $kpMenungguQuery = PendaftaranKp::with(['mahasiswa.user'])
+                ->where('status_kp', 'pending')
+                ->latest();
+            if ($periodeId) $kpMenungguQuery->where('tahun_ajaran_id', $periodeId);
+            $kpMenunggu = $kpMenungguQuery->take(2)->get();
+            
+            foreach ($kpMenunggu as $kp) {
+                $menungguPersetujuan->push((object)[
+                    'mahasiswa' => $kp->mahasiswa->user->name ?? 'Unknown',
+                    'jenis' => 'Pendaftaran KP',
+                    'route' => route('koordinator.persetujuan-kp.index'),
+                    'color' => 'bg-[#E3F2FD] text-[#1565C0] border-[#2196F3]',
+                ]);
+            }
+
+            // 2. Log Bimbingan (Role: Pembimbing)
+            $logsMenungguQuery = \App\Models\LogBimbingan::with(['pendaftaranKp.mahasiswa.user'])
+                ->whereHas('pendaftaranKp', function ($q) use ($userId, $periodeId) {
+                    $q->where('pembimbing_id', $userId);
+                    if ($periodeId) $q->where('tahun_ajaran_id', $periodeId);
+                })
+                ->where('is_supervisor', false)
+                ->where('status_approval', 'pending')
+                ->latest();
+            $logsMenunggu = $logsMenungguQuery->take(2)->get();
+
+            foreach ($logsMenunggu as $log) {
+                $submitterName = \App\Models\User::find($log->mahasiswa_id)->name ?? 'Unknown';
+                $menungguPersetujuan->push((object)[
+                    'mahasiswa' => $submitterName,
+                    'jenis' => 'Log Bimbingan',
+                    'route' => route('dosen.daftar-mahasiswa.detail', $log->mahasiswa_id),
+                    'color' => 'bg-[#FFF9C4] text-[#827717] border-[#FBC02D]',
+                ]);
+            }
+
+            // 3. Pendaftaran Sidang (Role: Pembimbing)
+            $sidangMenungguQuery = PendaftaranSidang::with(['mahasiswa.user'])
+                ->whereHas('pendaftaranKp', function ($q) use ($userId, $periodeId) {
+                    $q->where('pembimbing_id', $userId);
+                    if ($periodeId) $q->where('tahun_ajaran_id', $periodeId);
+                })
+                ->where('status_verifikasi', 'pending')
+                ->latest('pendaftaran_kp_id');
+            $sidangMenunggu = $sidangMenungguQuery->take(2)->get();
+
+            foreach ($sidangMenunggu as $sidang) {
+                $menungguPersetujuan->push((object)[
+                    'mahasiswa' => $sidang->mahasiswa->user->name ?? 'Unknown',
+                    'jenis' => 'Verifikasi Sidang',
+                    'route' => route('dosen.persetujuan-sidang.index'),
+                    'color' => 'bg-[#C8E6C9] text-[#1B5E20] border-[#4CAF50]',
+                ]);
+            }
+
+            // 5. Notifikasi
             $notifikasi = \App\Models\NotifikasiLog::where(function ($query) use ($userId) {
                     $query->where('receiver_id', $userId)
                           ->orWhere('target_role', 'koordinator');
@@ -139,6 +253,9 @@ class DashboardController extends Controller
                 'belumSidangCount' => $belumSidang,
                 'notifikasi'      => $notifikasi,
                 'notifikasiCount' => $notifikasiCount,
+                'progressBimbinganKoordinator' => $progressBimbinganKoordinator,
+                'listBimbinganMahasiswa' => $listBimbinganMahasiswa,
+                'menungguPersetujuan' => $menungguPersetujuan,
             ]);
 
         } catch (\Throwable $e) {
