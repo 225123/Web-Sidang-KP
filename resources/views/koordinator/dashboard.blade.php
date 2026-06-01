@@ -143,9 +143,25 @@
 
                     <div class="flex flex-col gap-6 ml-8 w-full relative">
                         <div class="flex items-center gap-4 group">
-                            <span class="text-[16px] font-bold font-inter text-black w-[45px]" x-text="progressSidang.s
-
-
+                            <span class="text-[16px] font-bold font-inter text-black w-[45px]" x-text="progressSidang.sudah + '%'"></span>
+                            <span class="text-[11px] font-semibold text-[#666666]">Mahasiswa sudah melakukan Sidang (<span x-text="sudahSidangCount"></span>)</span>
+                        </div>
+                        <div class="flex items-center gap-4 group">
+                            <span class="text-[16px] font-bold font-inter text-black w-[45px]" x-text="progressSidang.belum + '%'"></span>
+                            <span class="text-[11px] font-semibold text-[#666666]">Mahasiswa belum melakukan Sidang (<span x-text="belumSidangCount"></span>)</span>
+                        </div>
+                        <div class="flex gap-8 mt-4 ml-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2.5 h-2.5 bg-[#3B82F6]"></div>
+                                <span class="text-[11px] text-[#666666]">Sudah Sidang</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-2.5 h-2.5 bg-[#E7DDDD]"></div>
+                                <span class="text-[11px] text-[#666666]">Belum Sidang</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="flex flex-col gap-6">
