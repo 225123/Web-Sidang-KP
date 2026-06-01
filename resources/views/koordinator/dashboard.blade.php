@@ -57,20 +57,28 @@
             <div class="lg:col-span-2 bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 h-[320px] relative shadow-sm flex flex-col">
                 <div class="flex justify-between items-start mb-6 w-full">
                     <h3 class="font-bold text-[#1A1A1A] text-[15px] font-inter uppercase tracking-tight">Statistik Jadwal Sidang</h3>
-                    <div class="flex items-center gap-2">
-                        <button @click="prevWeek()" :disabled="currentWeekIndex === 0" class="p-1 rounded bg-[#EDEBEB] border border-[#CAC0C0] hover:bg-gray-200 disabled:opacity-50 transition-colors">
+                    <div class="flex items-center gap-2" x-show="chartWeeks.length > 0" style="display: none;">
+                        <button x-show="chartWeeks.length > 1" @click="prevWeek()" :disabled="currentWeekIndex === 0" class="p-1 rounded bg-[#EDEBEB] border border-[#CAC0C0] hover:bg-gray-200 disabled:opacity-50 transition-colors">
                             <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                         </button>
                         <div class="bg-[#EDEBEB] border border-[#CAC0C0] rounded-[5px] px-3 py-1 text-center min-w-[120px]">
                             <span class="text-[12px] text-[#1A1A1A] font-medium" x-text="currentWeekLabel"></span>
                         </div>
-                        <button @click="nextWeek()" :disabled="currentWeekIndex === chartWeeks.length - 1" class="p-1 rounded bg-[#EDEBEB] border border-[#CAC0C0] hover:bg-gray-200 disabled:opacity-50 transition-colors">
+                        <button x-show="chartWeeks.length > 1" @click="nextWeek()" :disabled="currentWeekIndex === chartWeeks.length - 1" class="p-1 rounded bg-[#EDEBEB] border border-[#CAC0C0] hover:bg-gray-200 disabled:opacity-50 transition-colors">
                             <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                         </button>
                     </div>
                 </div>
 
-                <div class="flex-1 relative border-l border-b border-[#B5A6A6] mt-4 ml-8 pb-4">
+                <!-- Chart Wrapper -->
+                <div class="flex-1 relative mt-4 ml-8 pb-4" :class="chartWeeks.length > 0 ? 'border-l border-b border-[#B5A6A6]' : 'border-l border-b border-[#B5A6A6] flex items-center justify-center'">
+                    <!-- Empty State -->
+                    <div x-show="chartWeeks.length === 0" style="display: none;" class="text-[#B5A6A6] text-[14px] italic font-medium">
+                        Belum ada jadwal sidang
+                    </div>
+
+                    <!-- Chart Content -->
+                    <div x-show="chartWeeks.length > 0" class="w-full h-full relative" style="display: none;">
                     <!-- Grid Lines and Y-Axis -->
                     <template x-for="val in [100, 75, 50, 25, 0]">
                         <div class="absolute left-0 w-full border-t border-[#B5A6A6] opacity-20" :style="'bottom: ' + val + '%'">
@@ -91,6 +99,7 @@
                                 </div>
                             </div>
                         </template>
+                    </div>
                     </div>
                 </div>
 
@@ -190,12 +199,15 @@
                 belumSidangCount: @json($belumSidangCount),
                 
                 get currentWeeklyStats() {
+                    if (this.chartWeeks.length === 0) return [0,0,0,0,0,0,0];
                     return this.chartWeeks[this.currentWeekIndex].stats;
                 },
                 get currentWeekLabel() {
+                    if (this.chartWeeks.length === 0) return '';
                     return this.chartWeeks[this.currentWeekIndex].label;
                 },
                 get maxWeeklyValue() {
+                    if (this.chartWeeks.length === 0) return 5;
                     const statsArray = Array.from(this.chartWeeks[this.currentWeekIndex].stats || []);
                     let max = 5;
                     for (let i = 0; i < statsArray.length; i++) {

@@ -101,24 +101,6 @@ class DashboardController extends Controller
 
             $chartWeeks = array_values($weeksData);
             
-            // Fallback if empty
-            if (empty($chartWeeks)) {
-                $startOfWeek = now()->startOfWeek(\Carbon\Carbon::SUNDAY);
-                $endOfWeek = now()->endOfWeek(\Carbon\Carbon::SATURDAY);
-                
-                $startFormat = $startOfWeek->format('d');
-                if ($startOfWeek->month !== $endOfWeek->month) {
-                    $startFormat = $startOfWeek->translatedFormat('d M');
-                }
-                $endFormat = $endOfWeek->translatedFormat('d M Y');
-                
-                $chartWeeks[] = [
-                    'label' => $startFormat . ' - ' . $endFormat,
-                    'start' => $startOfWeek->format('Y-m-d'),
-                    'stats' => array_fill(0, 7, 0)
-                ];
-            }
-
             // 4. Progress Sidang
             $totalApprovedKp = PendaftaranKp::where('status_kp', 'approved')->count();
             $sudahSidang     = PendaftaranSidang::where('pelaksanaan', 'Selesai')->count();
