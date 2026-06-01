@@ -58,7 +58,7 @@
                 <div class="flex justify-between items-start mb-6 w-full">
                     <h3 class="font-bold text-[#1A1A1A] text-[15px] font-inter uppercase tracking-tight">Statistik Jadwal Sidang</h3>
                     <div class="bg-[#EDEBEB] border border-[#CAC0C0] rounded-[5px] px-3 py-1">
-                        <span class="text-[12px] text-[#1A1A1A] font-medium">Minggu Ini</span>
+                        <span class="text-[12px] text-[#1A1A1A] font-medium">Periode Ini</span>
                     </div>
                 </div>
 

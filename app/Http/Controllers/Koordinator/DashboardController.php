@@ -61,21 +61,26 @@ class DashboardController extends Controller
                 ->take(1)
                 ->first();
 
-            // 3. Chart Data: Weekly Sidang count per day (Carbon-based, DB-agnostic)
-            $sidangsThisWeek = PendaftaranSidang::whereNotNull('tanggal_sidang')
-                ->where('status_jadwal', 'submitted')
-                ->whereBetween('tanggal_sidang', [now()->startOfWeek(), now()->endOfWeek()])
-                ->pluck('tanggal_sidang');
+            // 3. Chart Data: Sidang count per day of week (Carbon-based, for the selected period)
+            $sidangQuery = PendaftaranSidang::whereNotNull('tanggal_sidang');
+            
+            if ($periodeId) {
+                $sidangQuery->whereHas('pendaftaranKp', function($q) use ($periodeId) {
+                    $q->where('tahun_ajaran_id', $periodeId);
+                });
+            }
+            
+            $sidangsThisPeriod = $sidangQuery->pluck('tanggal_sidang');
 
-            $currentWeekSidangs = [];
-            foreach ($sidangsThisWeek as $tanggal) {
+            $dayOfWeekSidangs = [];
+            foreach ($sidangsThisPeriod as $tanggal) {
                 $day = (int) \Carbon\Carbon::parse($tanggal)->dayOfWeek;
-                $currentWeekSidangs[$day] = ($currentWeekSidangs[$day] ?? 0) + 1;
+                $dayOfWeekSidangs[$day] = ($dayOfWeekSidangs[$day] ?? 0) + 1;
             }
 
             $weeklySidangStats = [];
             for ($i = 0; $i < 7; $i++) {
-                $weeklySidangStats[] = $currentWeekSidangs[$i] ?? 0;
+                $weeklySidangStats[] = $dayOfWeekSidangs[$i] ?? 0;
             }
 
             // 4. Progress Sidang
