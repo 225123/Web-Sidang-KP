@@ -173,6 +173,15 @@ class DashboardController extends Controller
             }
             $mahasiswasUmum = $mahasiswaQueryUmum->get();
 
+            // PRELOAD ALL KP for the period to avoid N+1 queries
+            $kpQuery = PendaftaranKp::with(['logBimbingans' => function($q) {
+                $q->where('status_approval', 'approved');
+            }]);
+            if ($periodeId) {
+                $kpQuery->where('tahun_ajaran_id', $periodeId);
+            }
+            $allKps = $kpQuery->get();
+
             $sumRatiosUmum = 0;
             $countBelumUmum = 0;
             $countDimulaiUmum = 0;
@@ -180,43 +189,39 @@ class DashboardController extends Controller
             $totalMhsUmum = $mahasiswasUmum->count();
 
             foreach ($mahasiswasUmum as $mhs) {
-                // Find KP for this student
-                $kpUmum = PendaftaranKp::where(function ($q) use ($mhs) {
-                        $q->where('mahasiswa_id', $mhs->user_id)
-                            ->orWhereJsonContains('anggota_kelompok_ids', $mhs->user_id)
-                            ->orWhereJsonContains('anggota_kelompok_ids', (string) $mhs->user_id);
-                    })
-                    ->orderByRaw("
-                        CASE 
-                            WHEN status_kp = 'approved' THEN 1
-                            WHEN status_kp = 'verified' THEN 2
-                            WHEN status_kp = 'pending' THEN 3
-                            WHEN status_kp IS NULL THEN 4
-                            WHEN status_kp = 'rejected' THEN 5
-                            ELSE 6
-                        END
-                    ")->latest()->first();
-                
-                $ownKpUmum = PendaftaranKp::where('mahasiswa_id', $mhs->user_id)
-                    ->orderByRaw("
-                        CASE 
-                            WHEN status_kp = 'approved' THEN 1
-                            WHEN status_kp = 'verified' THEN 2
-                            WHEN status_kp = 'pending' THEN 3
-                            WHEN status_kp IS NULL THEN 4
-                            WHEN status_kp = 'rejected' THEN 5
-                            ELSE 6
-                        END
-                    ")->latest()->first();
+                // Find KP for this student in memory
+                $mhsKps = $allKps->filter(function($kp) use ($mhs) {
+                    if ($kp->mahasiswa_id == $mhs->user_id) return true;
+                    
+                    $anggota = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
+                    if (is_array($anggota) && (in_array($mhs->user_id, $anggota) || in_array((string)$mhs->user_id, $anggota))) {
+                        return true;
+                    }
+                    return false;
+                });
 
-                $kpToUse = $ownKpUmum ?: $kpUmum;
+                $kpToUse = null;
+                if ($mhsKps->count() > 0) {
+                    // Sorting logic in memory (simulating the SQL CASE statement)
+                    $mhsKps = $mhsKps->sortBy(function($kp) {
+                        switch($kp->status_kp) {
+                            case 'approved': return 1;
+                            case 'verified': return 2;
+                            case 'pending': return 3;
+                            case null: return 4;
+                            case 'rejected': return 5;
+                            default: return 6;
+                        }
+                    });
+
+                    // Prefer own KP if exists
+                    $ownKps = $mhsKps->where('mahasiswa_id', $mhs->user_id);
+                    $kpToUse = $ownKps->first() ?? $mhsKps->first();
+                }
 
                 $totalLog = 0;
                 if ($kpToUse) {
-                    $totalLog = \App\Models\LogBimbingan::where('pendaftaran_kp_id', $kpToUse->id)
-                        ->where('mahasiswa_id', $mhs->user_id)
-                        ->where('status_approval', 'approved')
-                        ->count();
+                    $totalLog = $kpToUse->logBimbingans->where('mahasiswa_id', $mhs->user_id)->count();
                 }
 
                 if ($totalLog == 0) {

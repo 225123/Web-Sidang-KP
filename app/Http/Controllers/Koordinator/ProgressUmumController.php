@@ -20,46 +20,51 @@ class ProgressUmumController extends Controller
         }
         $mahasiswas = $mahasiswaQuery->get();
 
+        // PRELOAD ALL KP for the period to avoid N+1 queries
+        $kpQuery = PendaftaranKp::with(['supervisorInstansi', 'logBimbingans', 'pembimbing']);
+        if (session()->has('selected_periode_id')) {
+            $kpQuery->where('tahun_ajaran_id', session('selected_periode_id'));
+        }
+        $allKps = $kpQuery->get();
+
         $pendaftarans = collect();
 
         foreach ($mahasiswas as $mhs) {
-            // Cari pendaftaran KP di mana mahasiswa ini terlibat (sebagai ketua atau anggota)
-            $kp = PendaftaranKp::with(['supervisorInstansi', 'logBimbingans', 'pembimbing'])
-                ->where(function ($q) use ($mhs) {
-                    $q->where('mahasiswa_id', $mhs->user_id)
-                        ->orWhereJsonContains('anggota_kelompok_ids', $mhs->user_id)
-                        ->orWhereJsonContains('anggota_kelompok_ids', (string) $mhs->user_id);
-                })
-                ->orderByRaw("
-                    CASE 
-                        WHEN status_kp = 'approved' THEN 1
-                        WHEN status_kp = 'verified' THEN 2
-                        WHEN status_kp = 'pending' THEN 3
-                        WHEN status_kp IS NULL THEN 4
-                        WHEN status_kp = 'rejected' THEN 5
-                        ELSE 6
-                    END
-                ")->latest()->first();
+            // Find KP for this student in memory
+            $mhsKps = $allKps->filter(function($kp) use ($mhs) {
+                if ($kp->mahasiswa_id == $mhs->user_id) return true;
+                
+                $anggota = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
+                if (is_array($anggota) && (in_array($mhs->user_id, $anggota) || in_array((string)$mhs->user_id, $anggota))) {
+                    return true;
+                }
+                return false;
+            });
 
-            if ($kp) {
+            $kpToUse = null;
+            if ($mhsKps->count() > 0) {
+                // Sorting logic in memory
+                $mhsKps = $mhsKps->sortBy(function($kp) {
+                    switch($kp->status_kp) {
+                        case 'approved': return 1;
+                        case 'verified': return 2;
+                        case 'pending': return 3;
+                        case null: return 4;
+                        case 'rejected': return 5;
+                        default: return 6;
+                    }
+                });
+
+                // Prefer own KP if exists
+                $ownKps = $mhsKps->where('mahasiswa_id', $mhs->user_id);
+                $kpToUse = $ownKps->first() ?? $mhsKps->first();
+            }
+
+            if ($kpToUse) {
                 // Mahasiswa sudah terdaftar/terlibat KP
-                $myLogs = $kp->logBimbingans->where('mahasiswa_id', $mhs->user_id);
+                $myLogs = $kpToUse->logBimbingans->where('mahasiswa_id', $mhs->user_id);
                 $myApprovedLogs = $myLogs->where('status_approval', 'approved');
                 $adaPending = $myLogs->where('status_approval', 'pending')->count() > 0;
-
-                $ownKp = PendaftaranKp::where('mahasiswa_id', $mhs->user_id)
-                    ->orderByRaw("
-                        CASE 
-                            WHEN status_kp = 'approved' THEN 1
-                            WHEN status_kp = 'verified' THEN 2
-                            WHEN status_kp = 'pending' THEN 3
-                            WHEN status_kp IS NULL THEN 4
-                            WHEN status_kp = 'rejected' THEN 5
-                            ELSE 6
-                        END
-                    ")->latest()->first();
-
-                $kpToUse = $ownKp ?: $kp;
 
                 $pendaftarans->push([
                     'id' => $kpToUse->id,
