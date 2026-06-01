@@ -38,6 +38,7 @@ class ViewComposerServiceProvider extends ServiceProvider
                         $q->where('id', optional($mhs)->tahun_ajaran_id)
                           ->orWhereHas('pendaftaranKps', function($q2) use ($user) {
                               $q2->withoutGlobalScope('periode')
+                                 ->whereNotNull('status_kp')
                                  ->where(function ($q3) use ($user) {
                                      $q3->where('mahasiswa_id', $user->id)
                                         ->orWhereJsonContains('anggota_kelompok_ids', $user->id)
