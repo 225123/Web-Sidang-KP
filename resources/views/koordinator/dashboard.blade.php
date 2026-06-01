@@ -89,7 +89,7 @@
                     <div x-show="chartWeeks.length > 0" class="w-full h-full relative" style="display: none;">
                     <!-- Grid Lines and Y-Axis -->
                     <template x-for="val in [100, 75, 50, 25, 0]">
-                        <div class="absolute left-0 w-full border-t border-[#B5A6A6] opacity-20" :style="'bottom: ' + val + '%'">
+                        <div class="absolute left-0 w-full border-t border-[#B5A6A6]/20" :style="'bottom: ' + val + '%'">
                             <span class="absolute -left-10 -top-2.5 text-[#B5A6A6] text-[12px] font-bold w-8 text-right" x-text="Math.round((val/100) * maxWeeklyValue)"></span>
                         </div>
                     </template>
