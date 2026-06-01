@@ -169,7 +169,7 @@
                         <h3 class="font-bold text-black text-[17px] mb-8">
                             Status Sidang Kerja Praktik :
                             <span class="font-medium {{ $sidang ? 'text-green-600' : 'text-[#0E0E0B]' }}">
-                                {{ $sidang->status_jadwal ?? 'Belum Mendaftar' }}
+                                {{ $sidang->calculated_status ?? 'Belum Mendaftar' }}
                             </span>
                         </h3>
 

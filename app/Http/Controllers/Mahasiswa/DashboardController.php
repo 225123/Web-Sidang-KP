@@ -97,6 +97,23 @@ class DashboardController extends Controller
             
         $sidang = $sidangQuery->latest()->first();
 
+        // Calculate dynamic status for Sidang
+        if ($sidang) {
+            if ($sidang->pelaksanaan === 'Selesai' || $sidang->pelaksanaan === 'Dibatalkan') {
+                $sidang->calculated_status = $sidang->pelaksanaan;
+            } elseif (!empty($sidang->tanggal_sidang) && !empty($sidang->waktu_mulai_sidang)) {
+                $sidang->calculated_status = 'Terjadwal';
+            } else {
+                $sidang->calculated_status = $sidang->status_jadwal ?? 'Submitted';
+            }
+        }
+
+        // 1b. Override Status Kerja Praktik jika finalisasi nilai sudah dilakukan (nilai_dipublikasi = true)
+        if ($sidang && $sidang->nilai_dipublikasi) {
+            $kpStatus['status_teks'] = 'Selesai';
+            $kpStatus['status_raw'] = 'approved'; // Tetap hijau
+        }
+
         // 4. Notifikasi (Dynamic)
         $notifikasi = \App\Models\NotifikasiLog::where(function ($query) use ($userId) {
                 $query->where('receiver_id', $userId)
