@@ -72,9 +72,13 @@ class ViewComposerServiceProvider extends ServiceProvider
                     'koordinator.pengumuman.*',
                     'koordinator.audit-log.*',
                     'koordinator.backup.*',
+                    'koordinator.manajemen-akses.*',
+                    'profil.*',
+                    '*.notifikasi*',
+                    '*.panduan*',
                 ];
                 foreach ($excludedRoutes as $excluded) {
-                    if (request()->routeIs($excluded)) {
+                    if (request()->routeIs($excluded) || request()->is('*profil*') || request()->is('*notifikasi*') || request()->is('*panduan*')) {
                         $is_locked = false;
                         break;
                     }
