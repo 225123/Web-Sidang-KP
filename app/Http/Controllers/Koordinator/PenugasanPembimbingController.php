@@ -203,6 +203,9 @@ class PenugasanPembimbingController extends Controller
         }
         $endNumber = $countOnPage > 0 ? ($startNumber + $countOnPage - 1) : 0;
 
+        $latestPeriode = \App\Models\TahunAjaran::terbaru()->first();
+        $isReadOnly = (session('selected_periode_id') && $latestPeriode && session('selected_periode_id') != $latestPeriode->id);
+
         return view('koordinator.Penugasan-Pembimbing', [
             'dosenList' => $dosenList,
             'pendaftarans'           => $paginatedItems,
@@ -214,6 +217,7 @@ class PenugasanPembimbingController extends Controller
             'ditugaskanCount'        => $ditugaskanCount,
             'menungguCount'          => $menungguCount,
             'allGroupSizes'          => $allGroupSizes,
+            'isReadOnly'             => $isReadOnly,
         ]);
         } catch (\Throwable $e) {
             error_log('[PenugasanPembimbing ERROR] ' . $e->getMessage() . ' | File: ' . $e->getFile() . ':' . $e->getLine());

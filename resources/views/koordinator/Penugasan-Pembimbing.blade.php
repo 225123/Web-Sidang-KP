@@ -49,19 +49,27 @@
             <div class="flex-1 bg-[#E6F0FA] border border-[#D0E3F5] rounded-[10px] p-4 lg:p-5 flex items-start gap-4 shadow-sm w-full">
                 <div class="w-6 h-6 rounded-full bg-[#4285F4] text-white flex items-center justify-center font-bold flex-shrink-0 mt-0.5">i</div>
                 <div class="flex flex-col gap-1">
+                    @if($isReadOnly)
+                    <p class="text-[14px] text-[#1A1A1A] font-medium leading-relaxed m-0 text-red-600">
+                        Mode Read-Only. Anda sedang melihat data penugasan pada periode lampau dan tidak dapat melakukan perubahan.
+                    </p>
+                    @else
                     <p class="text-[14px] text-[#1A1A1A] font-medium leading-relaxed m-0">
                         Penugasan Dosen Pembimbing Mahasiswa KP. Silakan klik 'Submit' setelah data terisi.
                     </p>
                     <span class="text-red-600 font-bold uppercase text-[11px] tracking-tight">Dosen Pembimbing tidak boleh sama dengan Supervisor Internal.</span>
+                    @endif
                 </div>
             </div>
 
             <div class="flex items-center shrink-0 ml-auto w-full lg:w-auto">
+                @if(!$isReadOnly)
                 <button type="button" @click="autoPlot()" :disabled="isLoadingAuto" class="bg-[#4285F4] hover:bg-blue-600 font-bold text-white rounded-[5px] px-6 py-2.5 text-[13px] flex items-center justify-center gap-2 shadow-sm w-full lg:w-[140px] transition-colors disabled:opacity-50" title="Bagi rata beban dosen pada mahasiswa yang belum ditugaskan">
                     <svg x-show="!isLoadingAuto" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                     <div x-show="isLoadingAuto" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white" style="display: none;"></div>
                     <span x-text="isLoadingAuto ? 'Proses...' : 'Auto'"></span>
                 </button>
+                @endif
             </div>
         </div>
 
@@ -93,6 +101,7 @@
 
                 <!-- Submit Button -->
                 <div class="flex gap-3">
+                    @if(!$isReadOnly)
                     <button type="button" x-cloak x-show="isDirty" @click="cancelEdit()"
                         class="font-bold py-2 px-6 rounded-[5px] shadow-md flex items-center gap-2 transition-all h-[42px] text-[14px] whitespace-nowrap border bg-[#EA4335] hover:bg-[#D32F2F] border-[#EA4335] text-white">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -105,6 +114,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                         <span x-text="isDirty ? (hasOnlySubmitted ? 'SUBMIT PEMBARUAN' : 'SUBMIT') : (hasOnlySubmitted ? 'TELAH DISUBMIT' : 'KOSONG')"></span>
                     </button>
+                    @endif
                 </div>
             </div>
 
@@ -215,10 +225,12 @@
                             <button type="button" @click="$dispatch('clear-filters'); setTimeout(() => submitForm(), 50)" class="bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[12px] px-4 py-2.5 rounded-[5px] shadow-sm transition-colors whitespace-nowrap shrink-0 flex items-center justify-center">
                                 Clear Filter
                             </button>
+                            @if(!$isReadOnly)
                             <button @click="resetPlotting()" type="button" class="bg-white border border-red-500 text-red-600 hover:bg-red-50 font-bold py-2 px-4 rounded-[5px] shadow-sm flex items-center gap-2 transition-colors text-[12px] whitespace-nowrap">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                 Reset Penugasan
                             </button>
+                            @endif
                         </div>
                     </div>
                 </form>
@@ -293,6 +305,11 @@
                                                 <div class="relative w-full max-w-[200px] mx-auto" @click.outside="openDropdown === '{{ $p['id'] }}' ? closeDropdown('{{ $p['id'] }}') : null">
                                                     <input type="hidden" name="assignments[{{ $p['id'] }}]" :value="assignments['{{ $p['id'] }}']" form="form-assignment">
                                                     
+                                                    @if($isReadOnly)
+                                                    <div class="w-full py-2 px-3 border border-gray-200 bg-gray-50 rounded-[5px] text-[12px] flex items-center text-gray-500 font-medium cursor-not-allowed">
+                                                        <span class="truncate pr-2 text-left flex-1" x-text="getDosenName(assignments['{{ $p['id'] }}'])"></span>
+                                                    </div>
+                                                    @else
                                                     <button type="button" @click.stop="triggerDropdown('{{ $p['id'] }}', $event)" 
                                                             class="w-full py-2 px-3 border rounded-[5px] text-[12px] flex items-center justify-between transition-all shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white hover:border-gray-400"
                                                             :class="assignments['{{ $p['id'] }}'] !== '' ? 'text-black font-bold border-gray-300' : 'text-gray-500 font-medium border-gray-300 border-dashed'">
@@ -338,6 +355,7 @@
                                                             </template>
                                                         </ul>
                                                     </div>
+                                                    @endif
                                                 </div>
                                             </td>
 
