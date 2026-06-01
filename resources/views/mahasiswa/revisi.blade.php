@@ -121,6 +121,7 @@
                                 @endif
                                 
                                 @if(!in_array(strtolower($sidang->status_revisi), ['disetujui', 'verified', 'disahkan', 'diterima']))
+                                    @if(!isset($isReadOnly) || !$isReadOnly)
                                     <div class="h-4 border-l border-gray-300 mx-1 shrink-0"></div>
                                     <form id="form-delete-revisi-{{ $sidang->id }}" action="{{ route('mahasiswa.revisi.destroy', $sidang->id) }}" method="POST" class="inline m-0 p-0">
                                         @csrf
@@ -129,6 +130,7 @@
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                         </button>
                                     </form>
+                                    @endif
                                 @endif
                             </div>
                         </div>
@@ -160,11 +162,15 @@
 
             @if(!$sidang->status_revisi || !in_array(strtolower($sidang->status_revisi), ['menunggu', 'disahkan', 'diterima']))
                 <p class="text-[14px] text-gray-700 font-medium mb-8">Klik 'Submit Revisi' untuk mengirimkan berkas revisi Anda ke Dosen Penguji 1.</p>
-                @if(auth()->user()->mahasiswa->is_aktif)
+                @if(auth()->user()->mahasiswa->is_aktif && (!isset($isReadOnly) || !$isReadOnly))
                 <button type="submit" form="formAjukan" class="bg-[#008000] hover:bg-green-700 text-white font-bold text-[14px] px-8 py-2.5 rounded-full shadow-md flex items-center justify-center gap-2 mx-auto transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     SUBMIT REVISI
                 </button>
+                @elseif(isset($isReadOnly) && $isReadOnly)
+                <div class="bg-gray-200 text-gray-500 font-bold text-[14px] px-8 py-2.5 rounded-full shadow-sm flex items-center justify-center mx-auto w-max">
+                    Read Only - Periode Lampau
+                </div>
                 @else
                 <div class="bg-red-100 text-red-600 font-bold text-[14px] px-8 py-2.5 rounded-full shadow-sm flex items-center justify-center mx-auto w-max">
                     Status Anda Tidak Aktif (Mode Pelihat)

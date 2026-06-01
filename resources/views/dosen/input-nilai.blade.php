@@ -275,6 +275,7 @@
                                         <td class="py-3 px-4 text-center border-r border-gray-200">
                                             <div class="flex flex-col items-center gap-2">
                                                 <template x-if="sidang.is_penguji_1">
+                                                    @if(!isset($isReadOnly) || !$isReadOnly)
                                                     <div x-data="{ openExec: false }" class="relative w-full min-w-[115px]" @click.outside="openExec = false">
                                                         <button type="button" @click="openExec = !openExec"
                                                             :class="getStatusClass(sidang)"
@@ -287,6 +288,16 @@
                                                             <button type="button" @click="confirmUpdateStatus(sidang.id, 'Dibatalkan'); openExec = false" class="block w-full text-left px-3 py-1.5 text-[11px] font-medium hover:bg-gray-100 text-black">Dibatalkan</button>
                                                         </div>
                                                     </div>
+                                                    @else
+                                                    <div class="flex flex-col items-center gap-1">
+                                                        <div class="text-[10px] font-bold px-3 py-1.5 rounded-[20px] shadow-sm flex items-center justify-center gap-1.5 min-w-[115px] border"
+                                                            :class="getStatusClass(sidang)">
+                                                            <div class="w-1.5 h-1.5 rounded-full"
+                                                                :class="getStatusDotClass(sidang)"></div>
+                                                            <span x-text="getExecutionStatus(sidang)"></span>
+                                                        </div>
+                                                    </div>
+                                                    @endif
                                                 </template>
 
                                                 <template x-if="!sidang.is_penguji_1">
@@ -310,7 +321,7 @@
                                                     x-for="role in getSpecificRoles(sidang, ['PENGUJI 1', 'PENGUJI 2'])">
                                                     <a :href="'{{ url('dosen/input-nilai') }}/' + sidang.id + '/' + role.toLowerCase().replace(' ', '')"
                                                         class="w-full text-center bg-[#4CC098] hover:bg-[#3da681] text-white py-1.5 rounded-[4px] text-[10px] font-bold transition-all shadow-sm flex items-center justify-center gap-1">
-                                                        INPUT <span x-text="role"></span>
+                                                        @if(!isset($isReadOnly) || !$isReadOnly) INPUT @else LIHAT @endif <span x-text="role"></span>
                                                     </a>
                                                 </template>
                                             </div>
@@ -492,7 +503,7 @@
                                         <td class="py-3 px-4 text-center">
                                             <a :href="'{{ url('dosen/input-nilai') }}/' + sidang.id + '/pembimbing'"
                                                 class="w-full text-center bg-[#4CC098] hover:bg-[#3da681] text-white py-2 rounded-[4px] text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 uppercase">
-                                                Input Nilai Pembimbing
+                                                @if(!isset($isReadOnly) || !$isReadOnly) Input Nilai Pembimbing @else Lihat Nilai Pembimbing @endif
                                             </a>
                                         </td>
                                     </tr>
@@ -672,7 +683,7 @@
                                         <td class="py-3 px-4 text-center">
                                             <a :href="'{{ url('dosen/input-nilai') }}/' + sidang.id + '/supervisior'"
                                                 class="w-full text-center bg-[#4CC098] hover:bg-[#3da681] text-white py-2 rounded-[4px] text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 uppercase">
-                                                Input Nilai Supervisior
+                                                @if(!isset($isReadOnly) || !$isReadOnly) Input Nilai Supervisior @else Lihat Nilai Supervisior @endif
                                             </a>
                                         </td>
                                     </tr>

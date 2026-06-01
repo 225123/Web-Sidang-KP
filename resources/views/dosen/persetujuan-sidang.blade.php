@@ -159,6 +159,7 @@
                                     </td>
                                     <td class="py-4 px-4 text-center">
                                         <template x-if="p.status === 'pending'">
+                                            @if(!isset($isReadOnly) || !$isReadOnly)
                                             <div class="flex items-center justify-center gap-2">
                                                 <form :action="'{{ url('dosen/persetujuan-sidang') }}/' + p.id + '/update'" method="POST" class="w-full">
                                                     @csrf @method('PUT')
@@ -170,6 +171,11 @@
                                                     Tolak
                                                 </button>
                                             </div>
+                                            @else
+                                            <div class="bg-gray-200 text-gray-500 font-bold px-3 py-1.5 rounded text-[11px] uppercase flex items-center justify-center w-full">
+                                                Read Only
+                                            </div>
+                                            @endif
                                         </template>
                                         <template x-if="p.status === 'verified'">
                                             <span class="bg-[#86EFAC] text-[#166534] font-bold px-4 py-1.5 rounded-full text-[11px] uppercase flex items-center justify-center w-max mx-auto gap-1.5 shadow-sm">

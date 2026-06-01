@@ -48,13 +48,18 @@
                     </svg>
                     Export PDF
                 </a>
-                @if(auth()->user()->mahasiswa->is_aktif)
+                @if(auth()->user()->mahasiswa->is_aktif && (!isset($isReadOnly) || !$isReadOnly))
                 <button @click="isModalOpen = true"
                     class="bg-[#FFFF1A] hover:bg-yellow-400 text-black font-bold text-[11px] px-6 py-2.5 rounded-full shadow-md flex items-center gap-2 transition-all uppercase tracking-wide whitespace-nowrap">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path>
                     </svg>
                     Tambah Bimbingan
+                </button>
+                @elseif(isset($isReadOnly) && $isReadOnly)
+                <button disabled
+                    class="bg-gray-200 text-gray-500 font-bold text-[11px] px-6 py-2.5 rounded-full shadow-md flex items-center gap-2 uppercase tracking-wide whitespace-nowrap cursor-not-allowed">
+                    Read Only - Periode Lampau
                 </button>
                 @else
                 <button disabled

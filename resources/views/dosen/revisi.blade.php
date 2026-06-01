@@ -193,6 +193,7 @@
                                     <td class="py-3 px-4 text-center">
                                         <div class="flex items-center justify-center gap-2">
                                             <template x-if="sidang.status_revisi === 'Menunggu'">
+                                                @if(!isset($isReadOnly) || !$isReadOnly)
                                                 <div class="flex gap-2">
                                                     <form :action="'{{ url('dosen/revisi') }}/' + sidang.id + '/terima'"
                                                         method="POST"
@@ -209,6 +210,11 @@
                                                             class="bg-[#EA4335] hover:bg-red-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase">Tolak</button>
                                                     </form>
                                                 </div>
+                                                @else
+                                                <div class="bg-gray-200 text-gray-500 font-bold px-3 py-1.5 rounded text-[11px] uppercase flex items-center justify-center w-full">
+                                                    Read Only
+                                                </div>
+                                                @endif
                                             </template>
                                             <template
                                                 x-if="sidang.status_revisi === 'Disahkan' || sidang.status_revisi === 'Diterima'">

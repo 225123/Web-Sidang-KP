@@ -198,7 +198,7 @@
                                     </template>
                                     <template x-if="row.status === 'verified'">
                                         <span class="bg-[#E6F4EA] text-[#137333] border border-[#CEEAD6] font-bold px-5 py-1.5 rounded-full text-[10px] flex items-center justify-center w-max mx-auto gap-1.5 shadow-sm uppercase tracking-wide">
-                                            Selesai
+                                            Diterima
                                         </span>
                                     </template>
                                     <template x-if="row.status === 'rejected'">

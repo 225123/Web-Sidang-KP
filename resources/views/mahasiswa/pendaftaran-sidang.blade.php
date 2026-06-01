@@ -188,7 +188,7 @@
                     </div>
 
                     <div class="flex justify-center mt-6">
-                        @if(auth()->user()->mahasiswa->is_aktif)
+                        @if(auth()->user()->mahasiswa->is_aktif && (!isset($isReadOnly) || !$isReadOnly))
                         <button type="submit"
                             class="w-full sm:w-auto bg-[#008000] hover:bg-green-700 text-white font-bold h-[45px] px-10 rounded-full text-[14px] flex items-center justify-center shadow-md gap-3 transition-colors cursor-pointer border-none">
                             <svg class="w-4 h-4 transform -rotate-45 mb-1" fill="currentColor" viewBox="0 0 20 20">
@@ -198,6 +198,10 @@
                             </svg>
                             SUBMIT BERKAS
                         </button>
+                        @elseif(isset($isReadOnly) && $isReadOnly)
+                        <div class="w-full sm:w-auto bg-gray-200 text-gray-500 font-bold h-[45px] px-10 rounded-full text-[13px] flex items-center justify-center shadow-sm">
+                            Read Only - Periode Lampau
+                        </div>
                         @else
                         <div class="w-full sm:w-auto bg-red-100 text-red-600 font-bold h-[45px] px-10 rounded-full text-[13px] flex items-center justify-center shadow-sm">
                             Status Anda Tidak Aktif (Mode Pelihat)
