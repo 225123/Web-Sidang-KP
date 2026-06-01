@@ -57,7 +57,7 @@
             <div class="lg:col-span-2 bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 h-[320px] relative shadow-sm flex flex-col">
                 <div class="flex justify-between items-start mb-6 w-full">
                     <h3 class="font-bold text-[#1A1A1A] text-[15px] font-inter uppercase tracking-tight">Statistik Jadwal Sidang</h3>
-                    <div class="flex items-center gap-2" x-show="chartWeeks.length > 0" style="display: none;">
+                    <div class="flex items-center gap-2" x-show="chartWeeks.length > 0" style="display: none;" x-cloak>
                         <button x-show="chartWeeks.length > 1" @click="prevWeek()" :disabled="currentWeekIndex === 0" class="p-1 rounded bg-[#EDEBEB] border border-[#CAC0C0] hover:bg-gray-200 disabled:opacity-50 transition-colors">
                             <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                         </button>
@@ -67,6 +67,14 @@
                         <button x-show="chartWeeks.length > 1" @click="nextWeek()" :disabled="currentWeekIndex === chartWeeks.length - 1" class="p-1 rounded bg-[#EDEBEB] border border-[#CAC0C0] hover:bg-gray-200 disabled:opacity-50 transition-colors">
                             <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                         </button>
+                    </div>
+
+                    <!-- Empty State Button -->
+                    <div x-show="chartWeeks.length === 0" style="display: none;" x-cloak>
+                        <a href="{{ route('koordinator.penjadwalan.index') }}" class="inline-flex items-center gap-1.5 bg-[#EDEBEB] border border-[#CAC0C0] hover:bg-[#DFDFDF] text-[#1A1A1A] text-[12px] font-medium px-4 py-1 rounded-[5px] transition-colors">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Buat Jadwal
+                        </a>
                     </div>
                 </div>
 
