@@ -304,7 +304,7 @@
         <!-- NEW ROW 4: Notifikasi (paling bawah kiri) -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
             <!-- Notifications (Dynamic) -->
-            <div class="lg:col-span-1 w-full bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm flex flex-col h-[252px]">
+            <div class="lg:col-span-3 w-full bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm flex flex-col h-[252px]">
                 <h3 class="font-bold text-[#1A1A1A] text-[15px] mb-4 tracking-tight">Notifikasi ({{ $notifikasiCount }})</h3>
                 <div class="overflow-y-auto flex-1 pr-2 custom-scrollbar">
                     <div class="flex flex-col divide-y divide-[#D9D9D9]">
