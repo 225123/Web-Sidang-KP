@@ -81,13 +81,13 @@
                     <!-- Bars -->
                     <div class="w-full h-full flex justify-around items-end px-4">
                         <template x-for="(count, index) in currentWeeklyStats">
-                            <div class="flex flex-col items-center w-full group relative">
-                                <div class="w-6 bg-gradient-to-t from-[#3B82F6] to-[#60A5FA] rounded-t-sm transition-all duration-1000 ease-out shadow-sm"
+                            <div class="flex flex-col items-center justify-end w-full h-full group">
+                                <div class="w-6 bg-gradient-to-t from-[#3B82F6] to-[#60A5FA] rounded-t-sm transition-all duration-1000 ease-out shadow-sm relative"
                                      :style="'height: ' + (maxWeeklyValue > 0 ? (count / maxWeeklyValue * 100) : 0) + '%'">
-                                </div>
-                                <!-- Tooltip -->
-                                <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
-                                    <span x-text="count"></span> Sidang
+                                    <!-- Tooltip -->
+                                    <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
+                                        <span x-text="count"></span> Sidang
+                                    </div>
                                 </div>
                             </div>
                         </template>
@@ -196,7 +196,12 @@
                     return this.chartWeeks[this.currentWeekIndex].label;
                 },
                 get maxWeeklyValue() {
-                    return Math.max(...this.currentWeeklyStats, 5);
+                    const statsArray = Array.from(this.chartWeeks[this.currentWeekIndex].stats || []);
+                    let max = 5;
+                    for (let i = 0; i < statsArray.length; i++) {
+                        if (statsArray[i] > max) max = statsArray[i];
+                    }
+                    return max;
                 },
                 
                 init() {
