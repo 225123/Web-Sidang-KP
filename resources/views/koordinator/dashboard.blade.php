@@ -206,12 +206,12 @@
             </div>
         </div>
 
-        <!-- NEW ROW 3: Progress Bimbingan (col-1) & Persetujuan Menunggu (col-2) -->
+        <!-- NEW ROW 3: Progress Bimbingan Saya (col-1) & Progress Bimbingan Umum (col-2) -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-            <!-- Progress Bimbingan -->
+<!-- Progress Bimbingan -->
             <div class="bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm overflow-hidden flex flex-col min-h-[302px]">
                 <div class="flex justify-between items-start mb-6">
-                    <h3 class="font-semibold text-[#1A1A1A] text-[18px] font-inter tracking-tight"> Progress Bimbingan</h3>
+                    <h3 class="font-semibold text-[#1A1A1A] text-[18px] font-inter tracking-tight"> Progress Bimbingan Saya</h3>
                 </div>
                 
                 <div class="flex flex-col items-center gap-6 flex-1">
@@ -259,8 +259,57 @@
                     </div>
                 </div>
             </div>
+            <!-- Progress Bimbingan Umum -->
+            <div class="lg:col-span-2 bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm overflow-hidden flex flex-col min-h-[302px]" id="analyticsSection">
+                <div class="flex justify-between items-start mb-6">
+                    <h3 class="font-semibold text-[#1A1A1A] text-[18px] font-inter tracking-tight"> Progress Bimbingan Umum</h3>
+                </div>
 
-            <!-- Persetujuan Menunggu -->
+                <div class="flex flex-col md:flex-row items-center gap-12 flex-1 w-full max-w-2xl mx-auto">
+                    <!-- Left: Status Stats -->
+                    <div class="flex-1 w-full space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-[8px] border border-gray-100 shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 rounded-full bg-gray-400"></div>
+                                <span class="text-[13px] font-medium text-gray-600">Belum Mulai</span>
+                            </div>
+                            <span class="text-[16px] font-black text-gray-700">{{ $countBelumUmum }}</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-blue-50 rounded-[8px] border border-blue-100 shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                                <span class="text-[13px] font-medium text-blue-700">Dalam Proses (1-11)</span>
+                            </div>
+                            <span class="text-[16px] font-black text-blue-800">{{ $countDimulaiUmum }}</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-green-50 rounded-[8px] border border-green-100 shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                                <span class="text-[13px] font-medium text-green-700">Memenuhi (12)</span>
+                            </div>
+                            <span class="text-[16px] font-black text-green-800">{{ $countMemenuhiUmum }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Right: Circular Progress -->
+                    <div class="shrink-0 flex flex-col items-center">
+                        <div class="relative w-36 h-36">
+                            <canvas id="overallProgressChart"></canvas>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span class="text-[28px] font-black text-black leading-none">{{ $displayPercentUmum }}%</span>
+                                <span class="text-[10px] font-bold text-gray-400 uppercase mt-1">Total Progres</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW ROW 4: Persetujuan Menunggu (col-2) & Notifikasi (col-1) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+<!-- Persetujuan Menunggu -->
             <div class="lg:col-span-2 bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm overflow-hidden min-h-[302px]">
                 <div class="mb-6">
                     <h3 class="font-semibold text-[#1A1A1A] text-[18px] font-inter tracking-tight">Persetujuan Menunggu</h3>
@@ -298,13 +347,10 @@
                     </tbody>
                 </table>
                 </div>
+            
             </div>
-        </div>
-
-        <!-- NEW ROW 4: Notifikasi (paling bawah kiri) -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-            <!-- Notifications (Dynamic) -->
-            <div class="lg:col-span-3 w-full bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm flex flex-col h-[252px]">
+<!-- Notifications (Dynamic) -->
+            <div class="lg:col-span-1 w-full bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm flex flex-col h-[252px]">
                 <h3 class="font-bold text-[#1A1A1A] text-[15px] mb-4 tracking-tight">Notifikasi ({{ $notifikasiCount }})</h3>
                 <div class="overflow-y-auto flex-1 pr-2 custom-scrollbar">
                     <div class="flex flex-col divide-y divide-[#D9D9D9]">
@@ -324,6 +370,50 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function initChartUmum() {
+            const chartCanvas = document.getElementById('overallProgressChart');
+            if (!chartCanvas) return;
+
+            const ctx = chartCanvas.getContext('2d');
+            const overallPercent = {{ $overallPercentUmum }};
+
+            const config = {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [overallPercent, 100 - overallPercent],
+                        backgroundColor: ['#2563eb', '#f1f5f9'],
+                        borderWidth: 0,
+                        hoverOffset: 0,
+                        cutout: '85%',
+                        borderRadius: 20
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    },
+                    animation: {
+                        duration: 2500,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            };
+
+            if (window.umumChartInstance) {
+                window.umumChartInstance.destroy();
+            }
+            window.umumChartInstance = new Chart(ctx, config);
+        }
+
+        document.addEventListener('DOMContentLoaded', initChartUmum);
+        document.addEventListener('turbo:load', initChartUmum);
+    </script>
     <script>
         function dashboardData() {
             return {

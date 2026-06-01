@@ -166,6 +166,74 @@ class DashboardController extends Controller
             $totalBimbinganTarget = $mahasiswaBimbingan * 12;
             $progressBimbinganKoordinator = $totalBimbinganTarget > 0 ? round(($totalBimbinganSelesai / $totalBimbinganTarget) * 100) : 0;
 
+            // Progress Bimbingan Umum (Rekap Seluruh Mahasiswa)
+            $mahasiswaQueryUmum = \App\Models\Mahasiswa::query();
+            if ($periodeId) {
+                $mahasiswaQueryUmum->where('tahun_ajaran_id', $periodeId);
+            }
+            $mahasiswasUmum = $mahasiswaQueryUmum->get();
+
+            $sumRatiosUmum = 0;
+            $countBelumUmum = 0;
+            $countDimulaiUmum = 0;
+            $countMemenuhiUmum = 0;
+            $totalMhsUmum = $mahasiswasUmum->count();
+
+            foreach ($mahasiswasUmum as $mhs) {
+                // Find KP for this student
+                $kpUmum = PendaftaranKp::where(function ($q) use ($mhs) {
+                        $q->where('mahasiswa_id', $mhs->user_id)
+                            ->orWhereJsonContains('anggota_kelompok_ids', $mhs->user_id)
+                            ->orWhereJsonContains('anggota_kelompok_ids', (string) $mhs->user_id);
+                    })
+                    ->orderByRaw("
+                        CASE 
+                            WHEN status_kp = 'approved' THEN 1
+                            WHEN status_kp = 'verified' THEN 2
+                            WHEN status_kp = 'pending' THEN 3
+                            WHEN status_kp IS NULL THEN 4
+                            WHEN status_kp = 'rejected' THEN 5
+                            ELSE 6
+                        END
+                    ")->latest()->first();
+                
+                $ownKpUmum = PendaftaranKp::where('mahasiswa_id', $mhs->user_id)
+                    ->orderByRaw("
+                        CASE 
+                            WHEN status_kp = 'approved' THEN 1
+                            WHEN status_kp = 'verified' THEN 2
+                            WHEN status_kp = 'pending' THEN 3
+                            WHEN status_kp IS NULL THEN 4
+                            WHEN status_kp = 'rejected' THEN 5
+                            ELSE 6
+                        END
+                    ")->latest()->first();
+
+                $kpToUse = $ownKpUmum ?: $kpUmum;
+
+                $totalLog = 0;
+                if ($kpToUse) {
+                    $totalLog = \App\Models\LogBimbingan::where('pendaftaran_kp_id', $kpToUse->id)
+                        ->where('mahasiswa_id', $mhs->user_id)
+                        ->where('status_approval', 'approved')
+                        ->count();
+                }
+
+                if ($totalLog == 0) {
+                    $countBelumUmum++;
+                } elseif ($totalLog >= 12) {
+                    $countMemenuhiUmum++;
+                } else {
+                    $countDimulaiUmum++;
+                }
+
+                $ratio = min($totalLog / 12, 1.0);
+                $sumRatiosUmum += $ratio;
+            }
+
+            $overallPercentUmum = $totalMhsUmum > 0 ? ($sumRatiosUmum / $totalMhsUmum) * 100 : 0;
+            $displayPercentUmum = number_format($overallPercentUmum, 1);
+
             // Persetujuan Menunggu
             $menungguPersetujuan = collect();
             $userId = auth()->id();
@@ -292,6 +360,11 @@ class DashboardController extends Controller
                 'listBimbinganMahasiswa' => $listBimbinganMahasiswa,
                 'menungguPersetujuan' => $menungguPersetujuan,
                 'jadwalTerdekat' => $jadwalTerdekat,
+                'countBelumUmum' => $countBelumUmum,
+                'countDimulaiUmum' => $countDimulaiUmum,
+                'countMemenuhiUmum' => $countMemenuhiUmum,
+                'displayPercentUmum' => $displayPercentUmum,
+                'overallPercentUmum' => $overallPercentUmum,
             ]);
 
         } catch (\Throwable $e) {
