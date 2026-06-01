@@ -71,7 +71,7 @@
                 </div>
 
                 <!-- Chart Wrapper -->
-                <div class="flex-1 relative mt-4 ml-8 pb-4" :class="chartWeeks.length > 0 ? 'border-l border-b border-[#B5A6A6]' : 'border-l border-b border-[#B5A6A6] flex items-center justify-center'">
+                <div class="flex-1 relative mt-4 ml-8" :class="chartWeeks.length > 0 ? 'border-l border-b border-[#B5A6A6]' : 'border-l border-b border-[#B5A6A6] flex items-center justify-center'">
                     <!-- Empty State -->
                     <div x-show="chartWeeks.length === 0" style="display: none;" class="text-[#B5A6A6] text-[14px] italic font-medium">
                         Belum ada jadwal sidang
@@ -103,8 +103,14 @@
                     </div>
                 </div>
 
-                <div class="flex justify-around items-center w-[calc(100%-2rem)] ml-8 mt-2 text-[#B5A6A6] text-[11px] font-bold uppercase tracking-wider">
-                    <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                <div class="flex justify-around items-center w-[calc(100%-2rem)] ml-8 px-4 mt-2 text-[#B5A6A6] text-[11px] font-bold uppercase tracking-wider">
+                    <div class="w-full text-center">Sun</div>
+                    <div class="w-full text-center">Mon</div>
+                    <div class="w-full text-center">Tue</div>
+                    <div class="w-full text-center">Wed</div>
+                    <div class="w-full text-center">Thu</div>
+                    <div class="w-full text-center">Fri</div>
+                    <div class="w-full text-center">Sat</div>
                 </div>
             </div>
 
