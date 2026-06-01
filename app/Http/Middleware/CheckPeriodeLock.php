@@ -49,7 +49,7 @@ class CheckPeriodeLock
                 // Jika periode terpilih bukanlah periode terbaru, maka kunci akses modifikasi
                 if ($selected_period_id && $latest_all && $selected_period_id != $latest_all->id) {
                     if ($request->ajax() || $request->wantsJson()) {
-                        return response()->json(['message' => 'Aksi ditolak: Periode ini sudah dikunci karena bukan periode terbaru.'], 403);
+                        return response()->json(['message' => 'Aksi ditolak: Periode ini sudah dikunci karena bukan periode terbaru. Anda hanya dapat melihat data yang sudah ada saja.'], 403);
                     }
                     
                     return back()->with('error', 'Aksi ditolak: Periode ini sudah dikunci karena bukan periode terbaru. Anda hanya dapat melihat data.');

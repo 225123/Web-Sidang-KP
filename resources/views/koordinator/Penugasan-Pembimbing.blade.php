@@ -568,9 +568,23 @@
                                     }
                                     this.isDirty = true;
                                 } else {
-                                    alert('Error: ' + result.message);
+                                    this.triggerConfirm({
+                                        title: 'Aksi Ditolak',
+                                        message: result.message || 'Terjadi kesalahan sistem.',
+                                        type: 'danger',
+                                        confirmText: 'Tutup',
+                                        callback: null
+                                    });
                                 }
-                            } catch (e) { alert('Terjadi kesalahan sistem.'); }
+                            } catch (e) { 
+                                this.triggerConfirm({
+                                    title: 'Aksi Ditolak',
+                                    message: 'Aksi ditolak: Periode ini sudah dikunci karena bukan periode terbaru. Anda hanya dapat melihat data yang sudah ada saja.',
+                                    type: 'danger',
+                                    confirmText: 'Tutup',
+                                    callback: null
+                                });
+                            }
                             finally { this.isLoadingAuto = false; }
                         }
                     });
