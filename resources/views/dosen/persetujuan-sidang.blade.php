@@ -14,7 +14,7 @@
                 'id' => $p->id,
                 'nama' => $p->mahasiswa->user->name ?? 'User',
                 'nim' => $p->mahasiswa->nim ?? '-',
-                'judul' => $p->pendaftaranKp->display_judul_kp ?? '-',
+                'judul' => \App\Models\PendaftaranKp::where('mahasiswa_id', $p->mahasiswa_id)->latest()->value('judul_kp') ?? $p->pendaftaranKp->judul_kp ?? '-',
                 'file_laporan' => $p->file_laporan ? storage_url($p->file_laporan) : null,
                 'link_drive' => $p->link_drive ?? null,
                 'total_bimbingan' => $p->total_bimbingan_count ?? 0,
@@ -26,7 +26,7 @@
                 'id' => $r->id,
                 'nama' => $r->pendaftaranSidang->mahasiswa->user->name ?? 'User',
                 'nim' => $r->pendaftaranSidang->mahasiswa->nim ?? '-',
-                'judul' => $r->pendaftaranSidang->pendaftaranKp->display_judul_kp ?? '-',
+                'judul' => \App\Models\PendaftaranKp::where('mahasiswa_id', $r->pendaftaranSidang->mahasiswa_id)->latest()->value('judul_kp') ?? $r->pendaftaranSidang->pendaftaranKp->judul_kp ?? '-',
                 'file_laporan' => $r->pendaftaranSidang->file_laporan ? storage_url($r->pendaftaranSidang->file_laporan) : null,
                 'link_drive' => $r->pendaftaranSidang->link_drive ?? null,
                 'total_bimbingan' => $r->pendaftaranSidang->pendaftaranKp->logBimbingans->where('mahasiswa_id', $r->pendaftaranSidang->mahasiswa_id)->where('status_approval', 'approved')->count(),
@@ -134,8 +134,7 @@
                                 <th class="py-3.5 px-4 font-bold text-center">Judul KP</th>
                                 <th class="py-3.5 px-4 font-bold text-center">Laporan KP</th>
                                 <th class="py-3.5 px-4 font-bold text-center whitespace-nowrap">Total Bimbingan</th>
-                                <th class="py-3.5 px-4 font-bold text-center">Status Approval</th>
-                                <th class="py-3.5 px-4 font-bold text-center">Aksi</th>
+                                <th class="py-3.5 px-4 font-bold text-center w-[150px]">Status Approval</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
@@ -160,30 +159,22 @@
                                     </td>
                                     <td class="py-4 px-4 text-center">
                                         <template x-if="p.status === 'pending'">
-                                            <span class="bg-yellow-100 text-yellow-800 font-bold px-4 py-1.5 rounded-full text-[11px] uppercase flex items-center justify-center w-max mx-auto shadow-sm">Belum Disetujui</span>
-                                        </template>
-                                        <template x-if="p.status === 'verified'">
-                                            <span class="bg-[#86EFAC] text-[#166534] font-bold px-4 py-1.5 rounded-full text-[11px] uppercase flex items-center justify-center w-max mx-auto gap-1.5 shadow-sm">
-                                                <div class="w-2 h-2 rounded-full bg-green-600"></div> Selesai
-                                            </span>
-                                        </template>
-                                    </td>
-                                    <td class="py-4 px-4 text-center">
-                                        <template x-if="p.status === 'pending'">
                                             <div class="flex items-center justify-center gap-2">
-                                                <form :action="'{{ url('dosen/persetujuan-sidang') }}/' + p.id + '/update'" method="POST">
+                                                <form :action="'{{ url('dosen/persetujuan-sidang') }}/' + p.id + '/update'" method="POST" class="w-full">
                                                     @csrf @method('PUT')
-                                                    <button type="submit" class="bg-[#38913B] hover:bg-green-700 text-white font-bold text-[11px] px-3 py-1.5 rounded flex items-center justify-center shadow-sm uppercase transition-colors">
-                                                        Sahkan
+                                                    <button type="submit" class="w-full bg-[#38913B] hover:bg-green-700 text-white font-bold text-[11px] px-3 py-1.5 rounded flex items-center justify-center shadow-sm uppercase transition-colors">
+                                                        Terima
                                                     </button>
                                                 </form>
-                                                <button type="button" @click="showTolakModal = true; selectedId = p.id" class="bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[11px] px-3 py-1.5 rounded flex items-center justify-center shadow-sm uppercase transition-colors">
-                                                        Tolak
+                                                <button type="button" @click="showTolakModal = true; selectedId = p.id" class="w-full bg-[#EA3323] hover:bg-red-700 text-white font-bold text-[11px] px-3 py-1.5 rounded flex items-center justify-center shadow-sm uppercase transition-colors">
+                                                    Tolak
                                                 </button>
                                             </div>
                                         </template>
-                                        <template x-if="p.status !== 'pending'">
-                                            <span class="text-gray-400 font-bold">-</span>
+                                        <template x-if="p.status === 'verified'">
+                                            <span class="bg-[#86EFAC] text-[#166534] font-bold px-4 py-1.5 rounded-full text-[11px] uppercase flex items-center justify-center w-max mx-auto gap-1.5 shadow-sm">
+                                                Diterima
+                                            </span>
                                         </template>
                                     </td>
                                 </tr>
