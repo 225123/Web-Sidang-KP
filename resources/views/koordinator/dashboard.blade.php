@@ -123,93 +123,11 @@
             </div>
 
             <!-- Timeline Card -->
-            <div class="bg-[#9F9F9F] rounded-[10px] border border-[#D9D9D9] p-6 h-[135px] shadow-sm flex flex-col justify-center transition-all duration-300 hover:shadow-md">
-                <h3 class="font-bold text-[#1A1A1A] text-[15px] mb-4 uppercase tracking-tight">Timeline Terdekat</h3>
-                @if($timeline)
-                    <div class="grid grid-cols-[1fr_auto] gap-2 items-center">
-                        <span class="text-[14px] font-bold text-[#1A1A1A] truncate">{{ $timeline->nama_kegiatan }}</span>
-                        <span class="text-[14px] font-normal text-[#1A1A1A] whitespace-nowrap">: {{ \Carbon\Carbon::parse($timeline->tanggal)->format('d/m/Y') }}</span>
-                    </div>
-                @else
-                    <p class="text-[11px] text-black/60 italic font-medium">Belum ada agenda terdekat...</p>
-                @endif
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 min-h-[302px]">
-<div class="lg:col-span-2 bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 h-[320px] relative shadow-sm flex flex-col">
-                <div class="flex justify-between items-start mb-6 w-full">
-                    <h3 class="font-bold text-[#1A1A1A] text-[15px] font-inter uppercase tracking-tight">Statistik Jadwal Sidang</h3>
-                    <div class="flex items-center gap-2" x-show="chartWeeks.length > 0" style="display: none;" x-cloak>
-                        <button x-show="chartWeeks.length > 1" @click="prevWeek()" :disabled="currentWeekIndex === 0" class="p-1 rounded bg-[#EDEBEB] border border-[#CAC0C0] hover:bg-gray-200 disabled:opacity-50 transition-colors">
-                            <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                        </button>
-                        <div class="bg-[#EDEBEB] border border-[#CAC0C0] rounded-[5px] px-3 py-1 text-center min-w-[120px]">
-                            <span class="text-[12px] text-[#1A1A1A] font-medium" x-text="currentWeekLabel"></span>
-                        </div>
-                        <button x-show="chartWeeks.length > 1" @click="nextWeek()" :disabled="currentWeekIndex === chartWeeks.length - 1" class="p-1 rounded bg-[#EDEBEB] border border-[#CAC0C0] hover:bg-gray-200 disabled:opacity-50 transition-colors">
-                            <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                        </button>
-                    </div>
-
-                    <!-- Empty State Button -->
-                    <div x-show="chartWeeks.length === 0" style="display: none;" x-cloak>
-                        <a href="{{ route('koordinator.penjadwalan.index') }}" class="inline-flex items-center gap-1.5 bg-[#EDEBEB] border border-[#CAC0C0] hover:bg-[#DFDFDF] text-[#1A1A1A] text-[12px] font-medium px-4 py-1 rounded-[5px] transition-colors">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                            Buat Jadwal
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Chart Wrapper -->
-                <div class="flex-1 relative mt-4 ml-8" :class="chartWeeks.length > 0 ? 'border-l border-b border-[#B5A6A6]' : 'border-l border-b border-[#B5A6A6] flex items-center justify-center'">
-                    <!-- Empty State -->
-                    <div x-show="chartWeeks.length === 0" style="display: none;" class="text-[#B5A6A6] text-[14px] italic font-medium">
-                        Belum ada jadwal sidang
-                    </div>
-
-                    <!-- Chart Content -->
-                    <div x-show="chartWeeks.length > 0" class="w-full h-full relative" style="display: none;">
-                    <!-- Grid Lines and Y-Axis -->
-                    <template x-for="val in [100, 75, 50, 25, 0]">
-                        <div class="absolute left-0 w-full border-t border-[#B5A6A6] opacity-20" :style="'bottom: ' + val + '%'">
-                            <span class="absolute -left-10 -top-2.5 text-[#B5A6A6] text-[12px] font-bold w-8 text-right" x-text="Math.round((val/100) * maxWeeklyValue)"></span>
-                        </div>
-                    </template>
-
-                    <!-- Bars -->
-                    <div class="w-full h-full flex justify-around items-end px-4">
-                        <template x-for="(count, index) in currentWeeklyStats">
-                            <div class="flex flex-col items-center justify-end w-full h-full group">
-                                <div class="w-6 bg-gradient-to-t from-[#3B82F6] to-[#60A5FA] rounded-t-sm transition-all duration-1000 ease-out shadow-sm relative"
-                                     :style="'height: ' + (maxWeeklyValue > 0 ? (count / maxWeeklyValue * 100) : 0) + '%'">
-                                    <!-- Tooltip -->
-                                    <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
-                                        <span x-text="count"></span> Sidang
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-around items-center w-[calc(100%-2rem)] ml-8 px-4 mt-2 text-[#B5A6A6] text-[11px] font-bold uppercase tracking-wider">
-                    <div class="w-full text-center">Sun</div>
-                    <div class="w-full text-center">Mon</div>
-                    <div class="w-full text-center">Tue</div>
-                    <div class="w-full text-center">Wed</div>
-                    <div class="w-full text-center">Thu</div>
-                    <div class="w-full text-center">Fri</div>
-                    <div class="w-full text-center">Sat</div>
-                </div>
-            </div>
-            <!-- Timeline Terdekat (New) -->
             <div class="bg-[#ECECEC] rounded-[10px] p-6 shadow-sm border border-[#D9D9D9] h-[132px] flex flex-col justify-center transition-all hover:shadow-md">
                 <h3 class="font-bold text-[#1A1A1A] text-[15px] mb-3 tracking-tight">Timeline Terdekat</h3>
                 @if($timeline)
                     <p class="font-semibold text-[#1A1A1A] text-[14px]">
-                        {{$timeline->nama_kegiatan}} : <span class="font-normal">{{ \Carbon\Carbon::parse($timeline->tanggal)->format('d/m/Y') }}</span>
+                        {{ $timeline->nama_kegiatan }} : <span class="font-normal">{{ \Carbon\Carbon::parse($timeline->tanggal)->format('d/m/Y') }}</span>
                     </p>
                 @else
                     <p class="text-[13px] text-black/60 italic font-medium">Belum ada agenda terdekat...</p>
@@ -218,7 +136,7 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 min-h-[302px]">
-<!-- Progress Chart -->
+            <!-- Progress Chart -->
             <div class="lg:col-span-2 bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-8 shadow-sm flex flex-col justify-center">
                 <h3 class="font-bold text-[#1A1A1A] text-[15px] mb-8 uppercase tracking-tight">Progress Pelaksanaan Sidang</h3>
                 <div class="flex items-center gap-12 w-full h-[180px]">
@@ -260,10 +178,10 @@
                     </div>
                 </div>
             </div>
+
             <!-- Jadwal Sidang Terdekat -->
             <div class="bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm flex flex-col h-[302px]">
                 <h3 class="font-semibold text-[#1A1A1A] text-[18px] mb-4 font-inter tracking-tight">Jadwal Sidang Terdekat</h3>
-
                 <div class="flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-2">
                     @forelse($jadwalTerdekat as $jadwal)
                     <div class="flex flex-col border-l-4 border-[#3B82F6] pl-3 py-1 bg-gray-50/50 rounded-r-md">
@@ -288,9 +206,9 @@
             </div>
         </div>
 
-        <!-- ROW 3: Progress Bimbingan & Persetujuan Menunggu -->
+        <!-- NEW ROW 3: Progress Bimbingan (col-1) & Persetujuan Menunggu (col-2) -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-<!-- Progress Bimbingan -->
+            <!-- Progress Bimbingan -->
             <div class="bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm overflow-hidden flex flex-col min-h-[302px]">
                 <div class="flex justify-between items-start mb-6">
                     <h3 class="font-semibold text-[#1A1A1A] text-[18px] font-inter tracking-tight"> Progress Bimbingan</h3>
@@ -341,7 +259,8 @@
                     </div>
                 </div>
             </div>
-<!-- Persetujuan Menunggu -->
+
+            <!-- Persetujuan Menunggu -->
             <div class="lg:col-span-2 bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm overflow-hidden min-h-[302px]">
                 <div class="mb-6">
                     <h3 class="font-semibold text-[#1A1A1A] text-[18px] font-inter tracking-tight">Persetujuan Menunggu</h3>
@@ -379,13 +298,14 @@
                     </tbody>
                 </table>
                 </div>
+            </div>
         </div>
 
-        <!-- ROW 4: Notifikasi di paling bawah kiri -->
+        <!-- NEW ROW 4: Notifikasi (paling bawah kiri) -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-<!-- Notifications (Dynamic) -->
-            <div class="bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm flex flex-col h-[252px]">
-                <h3 class="font-bold text-[#1A1A1A] text-[15px] mb-4 uppercase tracking-tight">Notifikasi ({{ $notifikasiCount }})</h3>
+            <!-- Notifications (Dynamic) -->
+            <div class="lg:col-span-1 w-full bg-[#FEFEFF] rounded-[10px] border border-[#D9D9D9] p-6 shadow-sm flex flex-col h-[252px]">
+                <h3 class="font-bold text-[#1A1A1A] text-[15px] mb-4 tracking-tight">Notifikasi ({{ $notifikasiCount }})</h3>
                 <div class="overflow-y-auto flex-1 pr-2 custom-scrollbar">
                     <div class="flex flex-col divide-y divide-[#D9D9D9]">
                         @forelse($notifikasi as $notif)
@@ -400,8 +320,10 @@
                         @endforelse
                     </div>
                 </div>
+            </div>
         </div>
     </div>
+
     <script>
         function dashboardData() {
             return {
