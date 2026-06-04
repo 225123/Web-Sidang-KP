@@ -16,7 +16,7 @@
                         <p class="text-[11px] text-gray-500">Visualisasi beban kerja sistem secara real-time (Gunakan mouse untuk menggeser/zoom)</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <select id="timeframeSelector" class="w-full sm:w-auto text-[11px] font-bold border-gray-300 rounded-[5px] py-1.5 px-3 focus:ring-[#4CC098] focus:border-[#4CC098]">
+                        <select id="timeframeSelector" class="w-full sm:w-auto text-[11px] font-bold border-gray-300 rounded-[5px] py-1.5 pl-3 pr-8 focus:ring-[#4CC098] focus:border-[#4CC098]">
                             <option value="minute" {{ $timeframe == 'minute' ? 'selected' : '' }}>Menit</option>
                             <option value="hour" {{ $timeframe == 'hour' ? 'selected' : '' }}>Jam</option>
                             <option value="day" {{ $timeframe == 'day' ? 'selected' : '' }}>Hari</option>
@@ -168,7 +168,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Keep for donut if needed, or switch both -->
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        (function() {
             let activityChart;
             let donutChart;
             let currentTimeframe = '{{ $timeframe }}';
@@ -344,8 +344,15 @@
                 tfSelector.addEventListener('change', function() { currentTimeframe = this.value; refreshData(); });
             }
 
-            setInterval(() => refreshData(), 5000);
-        });
+            if (window.auditLogInterval) clearInterval(window.auditLogInterval);
+            window.auditLogInterval = setInterval(() => {
+                if (!document.getElementById('auditLogFilterForm')) {
+                    clearInterval(window.auditLogInterval);
+                    return;
+                }
+                refreshData();
+            }, 5000);
+        })();
     </script>
 
     <style>
