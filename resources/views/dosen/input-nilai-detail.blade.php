@@ -7,7 +7,7 @@
         default => 'Sidang'
     };
 @endphp
-<x-dashboard-layout header="Input Nilai {{ $roleTitle }}" userName="{{ auth()->user()->name }}" roleName="DOSEN">
+<x-dashboard-layout header="Input Nilai {{ $roleTitle }}" hidePeriodSelector="true" userName="{{ auth()->user()->name }}" roleName="DOSEN">
     <x-slot:sidebar>
         @include('dosen.components.sidebar', ['active' => 'input-nilai'])
     </x-slot>

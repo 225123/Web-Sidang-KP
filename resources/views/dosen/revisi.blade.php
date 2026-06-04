@@ -1,4 +1,4 @@
-<x-dashboard-layout header="Pemeriksaan Revisi Sidang" userName="{{ auth()->user()->name }}" roleName="DOSEN">
+<x-dashboard-layout header="Pemeriksaan Revisi Sidang" hidePeriodSelector="true" userName="{{ auth()->user()->name }}" roleName="DOSEN">
     <x-slot:sidebar>
         @include('dosen.components.sidebar', ['active' => 'revisi'])
         </x-slot>
