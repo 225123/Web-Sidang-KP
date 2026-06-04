@@ -38,7 +38,10 @@
                 </div>
                 
                 <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                    <button @click="showAddModal = true" class="w-full sm:w-auto bg-[#4CAF50] hover:bg-[#45a049] text-white font-bold text-[12px] px-4 py-2.5 rounded-[5px] shadow-sm transition-colors whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5">
+                    <button @click="{{ isset($isReadOnly) && $isReadOnly ? '' : 'showAddModal = true' }}" 
+                        {{ isset($isReadOnly) && $isReadOnly ? 'disabled' : '' }}
+                        title="{{ isset($isReadOnly) && $isReadOnly ? 'Tidak dapat menambah user di periode lampau' : '' }}"
+                        class="w-full sm:w-auto {{ isset($isReadOnly) && $isReadOnly ? 'bg-gray-400 cursor-not-allowed opacity-70' : 'bg-[#4CAF50] hover:bg-[#45a049]' }} text-white font-bold text-[12px] px-4 py-2.5 rounded-[5px] shadow-sm transition-colors whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5">
                         <span class="text-[14px] font-bold leading-none">+</span> Tambah
                     </button>
 
@@ -356,10 +359,13 @@
                                     Download template
                                 </a>
                                 
-                                <label class="w-full sm:w-[180px] h-[34px] bg-[#3A6FF7] hover:bg-blue-600 rounded-[5px] flex items-center justify-center gap-2 text-white font-bold text-[12px] shadow-sm transition-colors cursor-pointer ring-1 ring-black/20 mb-0">
+                                <label class="w-full sm:w-[180px] h-[34px] {{ isset($isReadOnly) && $isReadOnly ? 'bg-gray-400 cursor-not-allowed opacity-70' : 'bg-[#3A6FF7] hover:bg-blue-600 cursor-pointer' }} rounded-[5px] flex items-center justify-center gap-2 text-white font-bold text-[12px] shadow-sm transition-colors ring-1 ring-black/20 mb-0"
+                                       title="{{ isset($isReadOnly) && $isReadOnly ? 'Tidak dapat upload file di periode lampau' : '' }}">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></path></svg>
                                     Upload File Excel
+                                    @if(!isset($isReadOnly) || !$isReadOnly)
                                     <input type="file" form="importForm" name="file_import" class="hidden" onchange="document.getElementById('importForm').submit()" accept=".xlsx,.xls">
+                                    @endif
                                 </label>
                             </div>
 

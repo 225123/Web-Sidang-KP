@@ -175,7 +175,11 @@ class UserController extends Controller
 
         $users->withQueryString();
 
-        return view('koordinator.manajemen-user', compact('users', 'tab'));
+        $activePeriode = \App\Models\TahunAjaran::aktif();
+        $selectedPeriodeId = session('selected_periode_id') ?? $activePeriode?->id;
+        $isReadOnly = $activePeriode && $selectedPeriodeId != $activePeriode->id;
+
+        return view('koordinator.manajemen-user', compact('users', 'tab', 'isReadOnly'));
     }
 
     /**
