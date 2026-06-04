@@ -104,7 +104,8 @@ class PendaftaranKpController extends Controller
             }
         }
 
-        $query = PendaftaranKp::where('mahasiswa_id', auth()->id());
+        $query = PendaftaranKp::where('mahasiswa_id', auth()->id())
+            ->whereNotNull('status_kp');
 
         // Search by judul_kp or instansi_nama
         if ($request->filled('search')) {
