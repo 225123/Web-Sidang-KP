@@ -66,7 +66,7 @@
                     </div>
                 </div>
                 <div class="bg-gray-50 px-4 py-3 rounded-[10px] border border-gray-100 flex flex-col items-center justify-center min-w-[120px]">
-                    <span class="text-[10px] text-black/40 font-bold uppercase tracking-wider mb-1">Status Selesai</span>
+                    <span class="text-[10px] text-black/40 font-bold uppercase tracking-wider mb-1">Status Diterima</span>
                     <span class="text-[18px] font-black text-black">{{ $jumlahDiterima }}/12</span>
                     <div class="w-full h-1 bg-gray-200 rounded-full mt-2 overflow-hidden">
                         <div class="h-full bg-green-500 rounded-full" style="width: {{ min(100, ($jumlahDiterima / 12) * 100) }}%"></div>
@@ -133,7 +133,7 @@
                                         @endif
                                     @elseif($log->status_approval == 'approved')
                                         <span class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-4 py-1.5 rounded-full font-bold text-[10px] uppercase shadow-sm">
-                                            <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div> Selesai
+                                            <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div> Diterima
                                         </span>
                                     @elseif($log->status_approval == 'rejected')
                                         <span class="inline-flex items-center gap-1.5 bg-red-100 text-red-700 px-4 py-1.5 rounded-full font-bold text-[10px] uppercase shadow-sm">
