@@ -100,14 +100,6 @@
             </button>
         </div>
         
-        <!-- Registration Route (If available) -->
-        @if (Route::has('register'))
-        <div class="text-center mt-4">
-            <span class="text-sm text-gray-600">Belum memiliki akun?</span>
-            <a href="{{ route('register') }}" class="font-semibold text-sm text-emerald-600 hover:text-emerald-500 transition-colors ml-1">
-                Daftar sekarang
-            </a>
-        </div>
-        @endif
+
     </form>
 </x-guest-layout>
