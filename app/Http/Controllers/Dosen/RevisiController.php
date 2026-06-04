@@ -13,6 +13,8 @@ class RevisiController extends Controller
     {
         $dosenId = Auth::user()->id;
         $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id;
+        $activePeriode = \App\Models\TahunAjaran::aktif();
+        $isReadOnly = $activePeriode && $activePeriodId != $activePeriode->id;
 
         // Ambil mahasiswa yang sidang dan dosen ini adalah Penguji 1, dan status_kelulusan = 'Lulus Dengan Revisi'
         $sidangs = PendaftaranSidang::with(['mahasiswa.user'])
@@ -26,7 +28,7 @@ class RevisiController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-        return view('dosen.revisi', compact('sidangs'));
+        return view('dosen.revisi', compact('sidangs', 'isReadOnly'));
     }
 
     public function terima(Request $request, $id)

@@ -12,6 +12,8 @@ class RevisiController extends Controller
     public function index()
     {
         $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id;
+        $activePeriode = \App\Models\TahunAjaran::aktif();
+        $isReadOnly = $activePeriode && $activePeriodId != $activePeriode->id;
 
         $sidangs = PendaftaranSidang::with(['mahasiswa.user'])
             ->whereHas('pendaftaranKp', function($q) use ($activePeriodId) {
@@ -23,7 +25,7 @@ class RevisiController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-        return view('koordinator.revisi', compact('sidangs'));
+        return view('koordinator.revisi', compact('sidangs', 'isReadOnly'));
     }
 
     public function terima(Request $request, $id)

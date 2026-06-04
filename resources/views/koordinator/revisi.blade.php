@@ -169,21 +169,32 @@
                                     <div class="flex items-center justify-center gap-2">
                                         <template x-if="sidang.status_revisi === 'Menunggu'">
                                             <div class="flex gap-2">
+                                                @if(!isset($isReadOnly) || !$isReadOnly)
                                                 <template x-if="sidang.penguji_1_id == {{ auth()->id() }}">
-                                                    <div class="flex gap-2">
-                                                        <form :action="'{{ url('koordinator/revisi') }}/' + sidang.id + '/terima'" method="POST" @submit="return confirm('Sahkan revisi mahasiswa ini?')">
-                                                            @csrf
-                                                            <button type="submit" class="bg-[#34A853] hover:bg-green-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase">Sahkan</button>
-                                                        </form>
-                                                        <form :action="'{{ url('koordinator/revisi') }}/' + sidang.id + '/tolak'" method="POST" @submit="return confirm('Tolak revisi mahasiswa ini?')">
-                                                            @csrf
-                                                            <button type="submit" class="bg-[#EA4335] hover:bg-red-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase">Tolak</button>
-                                                        </form>
+                                                    <div class="flex flex-col gap-2 w-full">
+                                                        <div class="flex gap-2 justify-center">
+                                                            <form :action="'{{ url('koordinator/revisi') }}/' + sidang.id + '/terima'" method="POST" @submit="return confirm('Sahkan revisi mahasiswa ini?')">
+                                                                @csrf
+                                                                <button type="submit" class="bg-[#34A853] hover:bg-green-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase w-full">Sahkan</button>
+                                                            </form>
+                                                            <form :action="'{{ url('koordinator/revisi') }}/' + sidang.id + '/tolak'" method="POST" @submit="return confirm('Tolak revisi mahasiswa ini?')">
+                                                                @csrf
+                                                                <button type="submit" class="bg-[#EA4335] hover:bg-red-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase w-full">Tolak</button>
+                                                            </form>
+                                                        </div>
+                                                        <button type="button" @click="openEditModal(sidang)" class="bg-[#FBBC05] hover:bg-yellow-500 text-black font-bold text-[11px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase flex items-center justify-center gap-1">
+                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg> Edit Nilai
+                                                        </button>
                                                     </div>
                                                 </template>
                                                 <template x-if="sidang.penguji_1_id != {{ auth()->id() }}">
-                                                    <span class="text-[10px] text-red-500 font-bold uppercase tracking-wide bg-gray-100 px-3 py-1.5 rounded border border-gray-200">Read Only</span>
+                                                    <span class="text-[10px] text-red-500 font-bold uppercase tracking-wide bg-gray-100 px-3 py-1.5 rounded border border-gray-200 w-full text-center">Read Only</span>
                                                 </template>
+                                                @else
+                                                <div class="bg-gray-200 text-gray-500 font-bold px-3 py-1.5 rounded text-[11px] uppercase flex items-center justify-center w-full">
+                                                    Read Only
+                                                </div>
+                                                @endif
                                             </div>
                                         </template>
                                         <template x-if="sidang.status_revisi === 'Disahkan' || sidang.status_revisi === 'Diterima'">
@@ -356,6 +367,15 @@
                 statusCurrentPage: 1,
                 statusItemsPerPage: 10,
 
+                editModal: {
+                    show: false,
+                    id: null,
+                    mahasiswaName: '',
+                    n1_laporan: 0,
+                    n1_produk: 0,
+                    n1_presentasi: 0
+                },
+
                 init() {
                     this.$watch('search', () => this.currentPage = 1);
                     this.$watch('filterStatus', () => this.currentPage = 1);
@@ -407,6 +427,15 @@
                 get paginatedSidangs() {
                     const start = (this.currentPage - 1) * this.itemsPerPage;
                     return this.filteredSidangs.slice(start, start + this.itemsPerPage);
+                },
+
+                openEditModal(sidang) {
+                    this.editModal.id = sidang.id;
+                    this.editModal.mahasiswaName = sidang.mahasiswa.user.name;
+                    this.editModal.n1_laporan = sidang.n1_laporan;
+                    this.editModal.n1_produk = sidang.n1_produk;
+                    this.editModal.n1_presentasi = sidang.n1_presentasi;
+                    this.editModal.show = true;
                 },
 
                 get totalPages() {
