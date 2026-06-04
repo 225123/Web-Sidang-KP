@@ -10,21 +10,6 @@
         @csrf
         @method('put')
 
-        <!-- Password Saat Ini (Read Only Preview) -->
-        <div class="mb-4">
-            <x-input-label for="current_password_display" value="Password Saat Ini" />
-            <div class="mt-1 relative">
-                <x-text-input id="current_password_display" class="block mt-1 w-full bg-gray-50 text-gray-500 cursor-not-allowed" type="password" value="********" readonly />
-                <span class="text-[11px] text-gray-400 mt-1 block">Untuk keamanan, masukkan password lama Anda di bawah untuk mengonfirmasi perubahan.</span>
-            </div>
-        </div>
-
-        <!-- Konfirmasi Password Lama -->
-        <div class="mb-4">
-            <x-input-label for="current_password" value="Konfirmasi Password Lama" />
-            <x-text-input id="current_password" name="current_password" type="password" class="block mt-1 w-full" required autocomplete="current-password" placeholder="Masukkan password lama Anda" />
-            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
-        </div>
 
         <!-- Password Baru -->
         <div class="mb-4">
