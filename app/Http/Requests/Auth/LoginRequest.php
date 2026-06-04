@@ -67,7 +67,7 @@ class LoginRequest extends FormRequest
         if (! $user->password) {
             RateLimiter::hit($this->throttleKey());
             throw ValidationException::withMessages([
-                'login_id' => 'Akun Anda belum diaktifkan. Silakan <a href="'.route('register').'" class="underline font-semibold text-blue-600">daftar di sini</a> menggunakan email yang terdaftar.',
+                'login_id' => 'Akun Anda belum diaktifkan. Silakan hubungi Koordinator KP untuk mengaktifkan akun Anda.',
             ]);
         }
 
