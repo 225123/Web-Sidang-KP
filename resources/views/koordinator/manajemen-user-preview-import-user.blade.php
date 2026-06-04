@@ -1,4 +1,4 @@
-<x-dashboard-layout header="Preview Data Import" userName="{{ auth()->user()->name ?? 'Koordinator' }}" roleName="KOORDINATOR KP">
+<x-dashboard-layout header="Preview Data Import" hidePeriodSelector="true" userName="{{ auth()->user()->name ?? 'Koordinator' }}" roleName="KOORDINATOR KP">
     <x-slot:sidebar>
         @include('koordinator.components.sidebar', ['active' => 'manajemen-akses'])
     </x-slot>

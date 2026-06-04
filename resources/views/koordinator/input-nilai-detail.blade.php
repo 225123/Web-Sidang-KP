@@ -7,7 +7,7 @@
         default => 'Sidang'
     };
 @endphp
-<x-dashboard-layout header="Input Nilai {{ $roleTitle }}" :backUrl="route('koordinator.input-nilai.index')" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR KP">
+<x-dashboard-layout header="Input Nilai {{ $roleTitle }}" :backUrl="route('koordinator.input-nilai.index')" hidePeriodSelector="true" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR KP">
     <x-slot:sidebar>
         @include('koordinator.components.sidebar', ['active' => 'input-nilai'])
     </x-slot>

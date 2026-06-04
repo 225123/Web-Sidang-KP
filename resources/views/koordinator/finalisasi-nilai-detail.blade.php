@@ -1,4 +1,4 @@
-<x-dashboard-layout header="Detail Penilaian KP" :backUrl="route('koordinator.finalisasi-nilai.index')"
+<x-dashboard-layout header="Detail Penilaian KP" :backUrl="route('koordinator.finalisasi-nilai.index')" hidePeriodSelector="true"
     userName="{{ auth()->user()->name }}" roleName="KOORDINATOR KP">
     <x-slot:sidebar>
         @include('koordinator.components.sidebar', ['active' => 'finalisasi-nilai'])

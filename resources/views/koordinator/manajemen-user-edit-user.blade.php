@@ -1,4 +1,4 @@
-<x-dashboard-layout header="Edit User" userName="{{ auth()->user()->name ?? 'Koordinator' }}" roleName="KOORDINATOR KP">
+<x-dashboard-layout header="Edit User" hidePeriodSelector="true" userName="{{ auth()->user()->name ?? 'Koordinator' }}" roleName="KOORDINATOR KP">
     <x-slot:sidebar>
         @include('koordinator.components.sidebar', ['active' => 'manajemen-akses'])
     </x-slot>
