@@ -121,7 +121,7 @@
                                     </th>
                                     <th
                                         class="py-3 px-4 font-bold text-center w-[100px] border-b border-r border-gray-300">
-                                        Nilai Akhir</th>
+                                        Nilai Sidang</th>
                                     <th
                                         class="py-3 px-4 font-bold text-center w-[100px] border-b border-r border-gray-300">
                                         Grade</th>
@@ -245,8 +245,15 @@
                                                                         <span
                                                                             class="text-[11px] font-bold text-gray-700">Penguji
                                                                             1</span>
-                                                                        <span class="text-[14px] font-black text-black"
-                                                                            x-text="(sidang.nilai_penguji_1 !== null && sidang.nilai_penguji_1 !== '') ? sidang.nilai_penguji_1 : '-'"></span>
+                                                                        <span class="text-[14px] font-black text-black">
+                                                                            <span x-text="(sidang.nilai_penguji_1 !== null && sidang.nilai_penguji_1 !== '') ? sidang.nilai_penguji_1 : '-'"></span>
+                                                                            <template x-if="sidang.original_nilai_penguji_1 !== null && parseFloat(sidang.nilai_penguji_1) > parseFloat(sidang.original_nilai_penguji_1)">
+                                                                                <span class="text-[10px] text-green-600 ml-1 italic font-medium">(dinaikkan)</span>
+                                                                            </template>
+                                                                            <template x-if="sidang.original_nilai_penguji_1 !== null && parseFloat(sidang.nilai_penguji_1) < parseFloat(sidang.original_nilai_penguji_1)">
+                                                                                <span class="text-[10px] text-red-600 ml-1 italic font-medium">(diturunkan)</span>
+                                                                            </template>
+                                                                        </span>
                                                                     </div>
                                                                 </div>
                                                             </div>

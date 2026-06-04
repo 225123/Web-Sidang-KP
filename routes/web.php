@@ -345,6 +345,7 @@ Route::prefix('dosen')->name('dosen.')->middleware(['auth', 'role:dosen'])->grou
     Route::get('/revisi', [App\Http\Controllers\Dosen\RevisiController::class, 'index'])->name('revisi.index');
     Route::post('/revisi/{id}/terima', [App\Http\Controllers\Dosen\RevisiController::class, 'terima'])->name('revisi.terima');
     Route::post('/revisi/{id}/tolak', [App\Http\Controllers\Dosen\RevisiController::class, 'tolak'])->name('revisi.tolak');
+    Route::post('/revisi/{id}/update-nilai', [App\Http\Controllers\Dosen\RevisiController::class, 'updateNilai'])->name('revisi.update-nilai');
     Route::post('/input-nilai/{id}/status', [App\Http\Controllers\Dosen\InputNilaiController::class, 'updateStatus'])->name('input-nilai.status');
     Route::get('/input-nilai/{id}/{role}', [App\Http\Controllers\Dosen\InputNilaiController::class, 'detail'])->name('input-nilai.detail');
     Route::post('/input-nilai/{id}/{role}', [App\Http\Controllers\Dosen\InputNilaiController::class, 'store'])->name('input-nilai.store');

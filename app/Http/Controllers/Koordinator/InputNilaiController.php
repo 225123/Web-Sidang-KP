@@ -164,6 +164,13 @@ class InputNilaiController extends Controller
             $sidang->nb_sikap = $request->nb_sikap;
             $sidang->nilai_pembimbing = ($request->nb_laporan * 0.4) + ($request->nb_produk * 0.4) + ($request->nb_sikap * 0.2);
         } elseif ($role === 'penguji1') {
+            if ($sidang->original_nilai_penguji_1 === null) {
+                $sidang->original_n1_laporan = $request->n_laporan;
+                $sidang->original_n1_produk = $request->n_produk;
+                $sidang->original_n1_presentasi = $request->n_presentasi;
+                $sidang->original_nilai_penguji_1 = ($request->n_laporan * 0.4) + ($request->n_produk * 0.4) + ($request->n_presentasi * 0.2);
+            }
+
             $sidang->n1_laporan = $request->n_laporan;
             $sidang->n1_produk = $request->n_produk;
             $sidang->n1_presentasi = $request->n_presentasi;
@@ -278,23 +285,21 @@ class InputNilaiController extends Controller
             $avg = $pembimbing + $supervisor + $penguji1 + $penguji2;
             $sidang->nilai_akhir = round($avg, 3); // 3 decimals
 
-            $sidangScore = ((float) $sidang->nilai_penguji_1 * 0.50) + ((float) $sidang->nilai_penguji_2 * 0.50);
-
-            if ($sidangScore >= 86) {
+            if ($avg >= 86) {
                 $sidang->grade = 'A';
-            } elseif ($sidangScore >= 81) {
+            } elseif ($avg >= 81) {
                 $sidang->grade = 'A-';
-            } elseif ($sidangScore >= 76) {
+            } elseif ($avg >= 76) {
                 $sidang->grade = 'B+';
-            } elseif ($sidangScore >= 71) {
+            } elseif ($avg >= 71) {
                 $sidang->grade = 'B';
-            } elseif ($sidangScore >= 66) {
+            } elseif ($avg >= 66) {
                 $sidang->grade = 'B-';
-            } elseif ($sidangScore >= 61) {
+            } elseif ($avg >= 61) {
                 $sidang->grade = 'C+';
-            } elseif ($sidangScore >= 56) {
+            } elseif ($avg >= 56) {
                 $sidang->grade = 'C';
-            } elseif ($sidangScore >= 46) {
+            } elseif ($avg >= 46) {
                 $sidang->grade = 'D';
             } else {
                 $sidang->grade = 'E';

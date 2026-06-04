@@ -70,6 +70,26 @@
                             <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Menunggu" x-model="filterStatus" class="hidden" @change="openFilter = false">Menunggu</label>
                             <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Disahkan" x-model="filterStatus" class="hidden" @change="openFilter = false">Disetujui</label>
                             <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Ditolak" x-model="filterStatus" class="hidden" @change="openFilter = false">Ditolak</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Belum mengumpulkan" x-model="filterStatus" class="hidden" @change="openFilter = false">Belum Kumpul</label>
+                        </div>
+                    </div>
+
+                    <!-- Filter Ketepatan Waktu -->
+                    <div x-data="{ openWaktu: false }" class="relative w-full sm:w-[150px] z-[50]">
+                        <button type="button" @click="openWaktu = !openWaktu" @click.outside="openWaktu = false"
+                            class="w-full text-[12px] border border-gray-300 rounded-[5px] py-2 px-3 bg-white text-black font-medium focus:ring-[#4285F4] flex justify-between items-center text-left shadow-sm">
+                            <span x-text="filterWaktu === 'all' ? 'Semua Waktu' : filterWaktu"></span>
+                            <svg :class="openWaktu ? 'rotate-0' : 'rotate-90'"
+                                class="w-3.5 h-3.5 transition-all duration-200 text-gray-500 flex-shrink-0"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div x-show="openWaktu" x-transition x-cloak
+                            class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="all" x-model="filterWaktu" class="hidden" @change="openWaktu = false">Semua</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Tepat Waktu" x-model="filterWaktu" class="hidden" @change="openWaktu = false">Tepat Waktu</label>
+                            <label class="block px-3 py-2 text-[12px] hover:bg-gray-100 cursor-pointer text-black"><input type="radio" value="Terlambat" x-model="filterWaktu" class="hidden" @change="openWaktu = false">Terlambat</label>
                         </div>
                     </div>
 
@@ -115,12 +135,17 @@
                                 <td class="py-3 px-4 text-center border-r border-gray-200">
                                     <template x-if="sidang.tanggal_revisi">
                                         <div>
-                                            <div class="font-bold text-blue-600" x-text="formatDate(sidang.tanggal_revisi)"></div>
-                                            <div class="text-[12px] text-gray-400 font-medium uppercase mt-0.5" x-text="formatTime(sidang.tanggal_revisi) + ' WIB'"></div>
+                                            <div class="font-bold" :class="isLate(sidang) ? 'text-red-600' : 'text-blue-600'" x-text="formatDate(sidang.tanggal_revisi)"></div>
+                                            <div class="text-[12px] font-medium uppercase mt-0.5" :class="isLate(sidang) ? 'text-red-400' : 'text-gray-400'" x-text="formatTime(sidang.tanggal_revisi) + ' WIB'"></div>
+                                            <template x-if="isLate(sidang)">
+                                                <div class="text-[10px] text-red-500 font-bold uppercase mt-1">Terlambat</div>
+                                            </template>
                                         </div>
                                     </template>
                                     <template x-if="!sidang.tanggal_revisi">
-                                        <span class="text-gray-300 italic font-medium">-</span>
+                                        <div class="flex flex-col items-center">
+                                            <span class="italic font-medium" :class="isLate(sidang) ? 'text-red-500' : 'text-gray-300'" x-text="isLate(sidang) ? 'Terlambat' : '-'"></span>
+                                        </div>
                                     </template>
                                 </td>
                                 <td class="py-3 px-4 text-center border-r border-gray-200">
@@ -318,6 +343,7 @@
                 }),
                 search: '',
                 filterStatus: 'all',
+                filterWaktu: 'all',
                 currentPage: 1,
                 itemsPerPage: 10,
 
@@ -330,6 +356,7 @@
                 init() {
                     this.$watch('search', () => this.currentPage = 1);
                     this.$watch('filterStatus', () => this.currentPage = 1);
+                    this.$watch('filterWaktu', () => this.currentPage = 1);
                     this.$watch('searchStatus', () => this.statusCurrentPage = 1);
                     this.$watch('filterStatusUpload', () => this.statusCurrentPage = 1);
                 },
@@ -337,6 +364,7 @@
                 clearFilters() {
                     this.search = '';
                     this.filterStatus = 'all';
+                    this.filterWaktu = 'all';
                     this.currentPage = 1;
                 },
 
@@ -352,7 +380,7 @@
                 },
 
                 get filteredSidangs() {
-                    let res = this.sidangs.filter(s => s.status_revisi !== 'Belum mengumpulkan');
+                    let res = [...this.sidangs];
                     if (this.search) {
                         const q = this.search.toLowerCase();
                         res = res.filter(s => s.mahasiswa.nim.toLowerCase().includes(q) || s.mahasiswa.user.name.toLowerCase().includes(q));
@@ -361,6 +389,13 @@
                         res = res.filter(s => {
                             if (this.filterStatus === 'Disahkan') return s.status_revisi === 'Disahkan' || s.status_revisi === 'Diterima';
                             return s.status_revisi === this.filterStatus;
+                        });
+                    }
+                    if (this.filterWaktu !== 'all') {
+                        res = res.filter(s => {
+                            if (this.filterWaktu === 'Terlambat') return this.isLate(s);
+                            if (this.filterWaktu === 'Tepat Waktu') return !this.isLate(s);
+                            return true;
                         });
                     }
                     return res;
@@ -423,6 +458,16 @@
                     const d = new Date(dateString);
                     d.setDate(d.getDate() + 5);
                     return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                },
+
+                isLate(sidang) {
+                    if (!sidang.tanggal_sidang) return false;
+                    const deadline = new Date(sidang.tanggal_sidang);
+                    deadline.setDate(deadline.getDate() + 5);
+                    deadline.setHours(23, 59, 59, 999);
+                    
+                    const submitDate = sidang.tanggal_revisi ? new Date(sidang.tanggal_revisi) : new Date();
+                    return submitDate > deadline;
                 }
             }
         }

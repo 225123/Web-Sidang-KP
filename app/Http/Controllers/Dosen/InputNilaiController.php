@@ -230,6 +230,13 @@ class InputNilaiController extends Controller
             $sidang->nb_sikap = $request->nb_sikap;
             $sidang->nilai_pembimbing = ($request->nb_laporan * 0.4) + ($request->nb_produk * 0.4) + ($request->nb_sikap * 0.2);
         } elseif ($role === 'penguji1') {
+            if ($sidang->original_nilai_penguji_1 === null) {
+                $sidang->original_n1_laporan = $request->n_laporan;
+                $sidang->original_n1_produk = $request->n_produk;
+                $sidang->original_n1_presentasi = $request->n_presentasi;
+                $sidang->original_nilai_penguji_1 = ($request->n_laporan * 0.4) + ($request->n_produk * 0.4) + ($request->n_presentasi * 0.2);
+            }
+
             $sidang->n1_laporan = $request->n_laporan;
             $sidang->n1_produk = $request->n_produk;
             $sidang->n1_presentasi = $request->n_presentasi;

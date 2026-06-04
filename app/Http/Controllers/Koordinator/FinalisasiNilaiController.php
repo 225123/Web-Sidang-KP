@@ -258,8 +258,14 @@ class FinalisasiNilaiController extends Controller
 
         $sidangScore = ((float) ($sidang->nilai_penguji_1 ?? 0) * 0.5) + ((float) ($sidang->nilai_penguji_2 ?? 0) * 0.5);
 
+        $pembimbing = (float) ($sidang->nilai_pembimbing ?? 0) * 0.40;
+        $supervisor = (float) ($sidang->nilai_supervisor ?? 0) * 0.10;
+        $penguji1 = (float) ($sidang->nilai_penguji_1 ?? 0) * 0.25;
+        $penguji2 = (float) ($sidang->nilai_penguji_2 ?? 0) * 0.25;
+        $avg = $pembimbing + $supervisor + $penguji1 + $penguji2;
+
         $revisiVerified = ($sidang->status_revisi === 'Disahkan' || $sidang->status_revisi === 'Diterima');
-        $originalGrade = $this->getGradeFromScore($sidangScore);
+        $originalGrade = $this->getGradeFromScore($avg);
         $finalGrade = $originalGrade;
         $isPenalized = false;
 

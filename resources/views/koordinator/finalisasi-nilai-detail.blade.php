@@ -109,7 +109,13 @@
                                     <div class="flex justify-between"><span>Presentasi</span><span>:
                                             {{ $sidang->n1_presentasi ?? 0 }}</span></div>
                                     <div class="flex justify-between font-bold border-t border-gray-300 pt-1 mt-2">
-                                        <span>Total</span><span>: {{ $sidang->nilai_penguji_1 ?? 0 }}</span>
+                                        <span>Total</span><span>: {{ $sidang->nilai_penguji_1 ?? 0 }}
+                                            @if($sidang->original_nilai_penguji_1 !== null && $sidang->nilai_penguji_1 > $sidang->original_nilai_penguji_1)
+                                                <span class="text-[10px] text-green-600 ml-1 italic">(dinaikkan)</span>
+                                            @elseif($sidang->original_nilai_penguji_1 !== null && $sidang->nilai_penguji_1 < $sidang->original_nilai_penguji_1)
+                                                <span class="text-[10px] text-red-600 ml-1 italic">(diturunkan)</span>
+                                            @endif
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -138,10 +144,9 @@
                                 <div class="w-full">
                                     <div class="flex items-center gap-4">
                                         <span class="text-[13px] font-bold text-black uppercase w-[150px]">Nilai
-                                            Akhir</span>
+                                            Sidang</span>
                                         <span class="text-[15px] font-bold text-black">
                                             : {{ number_format($sidang->nilai_akhir_display, 2) }}
-                                            ({{ $sidang->grade_display }})
                                         </span>
                                     </div>
                                     <!-- Penalty Text Directly Under Nilai Akhir -->
