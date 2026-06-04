@@ -11,11 +11,14 @@ class RevisiController extends Controller
 {
     public function index()
     {
-        $dosenId = Auth::user()->id;
+        $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id;
 
-        // Ambil mahasiswa yang sidang dan koordinator ini adalah Penguji 1, dan status_kelulusan = 'Lulus Dengan Revisi'
         $sidangs = PendaftaranSidang::with(['mahasiswa.user'])
-            ->where('penguji_1_id', $dosenId)
+            ->whereHas('pendaftaranKp', function($q) use ($activePeriodId) {
+                if ($activePeriodId) {
+                    $q->where('tahun_ajaran_id', $activePeriodId);
+                }
+            })
             ->where('status_kelulusan', 'Lulus Dengan Revisi')
             ->orderBy('id', 'desc')
             ->get();

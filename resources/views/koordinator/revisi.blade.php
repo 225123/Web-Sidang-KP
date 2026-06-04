@@ -1,4 +1,4 @@
-<x-dashboard-layout header="Pemeriksaan Revisi Sidang" hidePeriodSelector="true" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR KP">
+<x-dashboard-layout header="Pemeriksaan Revisi Sidang" userName="{{ auth()->user()->name }}" roleName="KOORDINATOR KP">
     <x-slot:sidebar>
         @include('koordinator.components.sidebar', ['active' => 'revisi'])
     </x-slot>
@@ -169,18 +169,21 @@
                                     <div class="flex items-center justify-center gap-2">
                                         <template x-if="sidang.status_revisi === 'Menunggu'">
                                             <div class="flex gap-2">
-                                                @if(!isset($isReadOnly) || !$isReadOnly)
-                                                <form :action="'{{ url('koordinator/revisi') }}/' + sidang.id + '/terima'" method="POST" @submit="return confirm('Sahkan revisi mahasiswa ini?')">
-                                                    @csrf
-                                                    <button type="submit" class="bg-[#34A853] hover:bg-green-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase">Sahkan</button>
-                                                </form>
-                                                <form :action="'{{ url('koordinator/revisi') }}/' + sidang.id + '/tolak'" method="POST" @submit="return confirm('Tolak revisi mahasiswa ini?')">
-                                                    @csrf
-                                                    <button type="submit" class="bg-[#EA4335] hover:bg-red-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase">Tolak</button>
-                                                </form>
-                                                @else
-                                                <span class="text-[10px] text-red-500 font-bold uppercase tracking-wide">Read Only</span>
-                                                @endif
+                                                <template x-if="sidang.penguji_1_id == {{ auth()->id() }}">
+                                                    <div class="flex gap-2">
+                                                        <form :action="'{{ url('koordinator/revisi') }}/' + sidang.id + '/terima'" method="POST" @submit="return confirm('Sahkan revisi mahasiswa ini?')">
+                                                            @csrf
+                                                            <button type="submit" class="bg-[#34A853] hover:bg-green-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase">Sahkan</button>
+                                                        </form>
+                                                        <form :action="'{{ url('koordinator/revisi') }}/' + sidang.id + '/tolak'" method="POST" @submit="return confirm('Tolak revisi mahasiswa ini?')">
+                                                            @csrf
+                                                            <button type="submit" class="bg-[#EA4335] hover:bg-red-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase">Tolak</button>
+                                                        </form>
+                                                    </div>
+                                                </template>
+                                                <template x-if="sidang.penguji_1_id != {{ auth()->id() }}">
+                                                    <span class="text-[10px] text-red-500 font-bold uppercase tracking-wide bg-gray-100 px-3 py-1.5 rounded border border-gray-200">Read Only</span>
+                                                </template>
                                             </div>
                                         </template>
                                         <template x-if="sidang.status_revisi === 'Disahkan' || sidang.status_revisi === 'Diterima'">
