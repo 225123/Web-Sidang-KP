@@ -52,7 +52,7 @@
                 <h3 class="text-[20px] font-bold text-gray-900 mb-3 uppercase tracking-tight">Belum Mendaftar Sidang</h3>
                 <p class="text-[14px] text-gray-500 font-medium leading-relaxed">
                     @if(isset($isPastPeriod) && $isPastPeriod)
-                        Anda tidak terdaftar untuk mengikuti Sidang KP pada periode tersebut, sehingga Anda tidak memiliki Nilai Akhir Sidang KP.
+                        Anda tidak terdaftar untuk mengikuti Sidang KP pada periode ini, sehingga Anda tidak memiliki Nilai Akhir Sidang KP.
                     @else
                         Anda belum mendaftar sidang KP. Silakan lakukan pendaftaran sidang pada menu Pendaftaran Sidang, atau hubungi Koordinator KP jika ada kesalahan.
                     @endif

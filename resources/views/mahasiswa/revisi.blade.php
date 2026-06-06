@@ -203,7 +203,7 @@
                 <h3 class="text-[18px] font-bold text-gray-900 mb-2">Tidak Ada Revisi Aktif</h3>
                 <p class="text-[14px] text-gray-500 text-center max-w-md leading-relaxed">
                     @if(isset($isPastPeriod) && $isPastPeriod)
-                        Anda tidak memiliki jadwal revisi pada periode tersebut. Halaman ini hanya diperuntukkan bagi mahasiswa yang dinyatakan "Lulus Dengan Revisi".
+                        Anda tidak memiliki jadwal revisi pada periode ini. Halaman ini hanya diperuntukkan bagi mahasiswa yang dinyatakan "Lulus Dengan Revisi".
                     @else
                         Anda tidak memiliki jadwal revisi aktif saat ini. Halaman ini hanya diperuntukkan bagi mahasiswa yang dinyatakan "Lulus Dengan Revisi".
                     @endif

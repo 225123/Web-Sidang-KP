@@ -13,7 +13,7 @@
                 <i class="fas fa-calendar-times text-4xl text-gray-400 mb-4"></i>
                 <h2 class="text-xl font-bold text-gray-800 mb-2">Jadwal Belum Tersedia</h2>
                 @if(isset($isPastPeriod) && $isPastPeriod)
-                    <p class="text-gray-600">Anda tidak terdaftar untuk mengikuti Sidang KP pada periode tersebut, sehingga jadwal sidang tidak tersedia.</p>
+                    <p class="text-gray-600">Anda tidak terdaftar untuk mengikuti Sidang KP pada periode ini, sehingga jadwal sidang tidak tersedia.</p>
                 @else
                     <p class="text-gray-600">Anda belum mendaftar/mengupload berkas sidang, atau status berkas Anda belum disahkan oleh Koordinator KP.</p>
                 @endif
