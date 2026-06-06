@@ -20,7 +20,10 @@ class DashboardController extends Controller
             if (session()->has('selected_periode_id')) {
                 $periodeId = session('selected_periode_id');
                 $totalMahasiswaQuery->whereHas('mahasiswa', function($sq) use ($periodeId) {
-                    $sq->where('tahun_ajaran_id', $periodeId);
+                    $sq->where('tahun_ajaran_id', $periodeId)
+                       ->orWhereHas('pendaftaranKps', function($q) use ($periodeId) {
+                           $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+                       });
                 });
             }
             $totalMahasiswa = $totalMahasiswaQuery->count();
@@ -169,7 +172,12 @@ class DashboardController extends Controller
             // Progress Bimbingan Umum (Rekap Seluruh Mahasiswa)
             $mahasiswaQueryUmum = \App\Models\Mahasiswa::query();
             if ($periodeId) {
-                $mahasiswaQueryUmum->where('tahun_ajaran_id', $periodeId);
+                $mahasiswaQueryUmum->where(function($q) use ($periodeId) {
+                    $q->where('tahun_ajaran_id', $periodeId)
+                      ->orWhereHas('pendaftaranKps', function($sq) use ($periodeId) {
+                          $sq->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+                      });
+                });
             }
             $mahasiswasUmum = $mahasiswaQueryUmum->get();
 
