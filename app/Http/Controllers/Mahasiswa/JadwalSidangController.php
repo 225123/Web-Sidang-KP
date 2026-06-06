@@ -28,7 +28,9 @@ class JadwalSidangController extends Controller
 
         $sidang = $query->latest()->first();
 
-        return view('mahasiswa.jadwal-sidang', compact('sidang', 'user'));
+        $isPastPeriod = $periodeId && $periodeId != \App\Models\TahunAjaran::aktif()?->id;
+
+        return view('mahasiswa.jadwal-sidang', compact('sidang', 'user', 'isPastPeriod'));
     }
 
     public function kirimEmailKalender(Request $request)
