@@ -148,7 +148,10 @@ class UserController extends Controller
                               ->from('pendaftaran_kp')
                               ->whereColumn('pendaftaran_kp.mahasiswa_id', 'users.id')
                               ->where('pendaftaran_kp.tahun_ajaran_id', $periodeId)
-                              ->whereNotNull('pendaftaran_kp.status_kp');
+                              ->where(function($q) {
+                                  $q->whereNotNull('pendaftaran_kp.status_kp')
+                                    ->orWhereRaw('pendaftaran_kp.id = (SELECT MIN(id) FROM pendaftaran_kp AS pkp2 WHERE pkp2.mahasiswa_id = users.id)');
+                              });
                       });
                 });
             }

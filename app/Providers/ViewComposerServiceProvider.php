@@ -45,7 +45,10 @@ class ViewComposerServiceProvider extends ServiceProvider
                                          ->orWhereJsonContains('pendaftaran_kp.anggota_kelompok_ids', $user->id)
                                          ->orWhereJsonContains('pendaftaran_kp.anggota_kelompok_ids', (string) $user->id);
                                   })
-                                  ->whereNotNull('pendaftaran_kp.status_kp');
+                                  ->where(function($q) use ($user) {
+                                      $q->whereNotNull('pendaftaran_kp.status_kp')
+                                        ->orWhereRaw('pendaftaran_kp.id = (SELECT MIN(id) FROM pendaftaran_kp AS pkp2 WHERE pkp2.mahasiswa_id = ?)', [$user->id]);
+                                  });
                           });
                     })->terbaru()->get();
                     
