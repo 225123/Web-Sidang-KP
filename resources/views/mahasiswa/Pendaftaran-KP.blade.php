@@ -19,17 +19,27 @@
                             </svg>
                         </div>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest bg-black text-white border border-black mb-3">Mahasiswa Lanjut</span>
-                        <h3 class="text-[17px] font-bold text-black mb-2">KP Periode Ini Sudah Terdaftar (Lanjutan)</h3>
-                        <p class="text-[14px] text-[#1A1A1A] font-medium max-w-md leading-relaxed">
-                            Data KP kamu dari periode sebelumnya sudah otomatis dipindahkan ke periode ini oleh sistem.
-                            Kamu tidak perlu mendaftar ulang &mdash; judul, instansi, supervisor, dan dosen pembimbing tetap sama.
-                            Segala tahapan bimbingan dan sidang akan dimulai dari awal.
-                        </p>
-                        <div class="mt-6 bg-[#F5F5F5] rounded-[10px] border border-[#D9D9D9] px-8 py-5 text-left text-[13px] font-medium text-black max-w-sm w-full space-y-2">
-                            <div class="flex"><div class="w-[130px] text-black/50">Judul KP</div><div class="flex-1">: {{ $existingKp->judul_kp ?? '-' }}</div></div>
-                            <div class="flex"><div class="w-[130px] text-black/50">Instansi</div><div class="flex-1">: {{ $existingKp->instansi_nama ?? '-' }}</div></div>
-                            <div class="flex"><div class="w-[130px] text-black/50">Pengerjaan</div><div class="flex-1">: {{ ucfirst($existingKp->pengerjaan_kp ?? '-') }}</div></div>
-                        </div>
+                        @if(isset($existingKp->pendaftaran_asal_id))
+                            <h3 class="text-[17px] font-bold text-black mb-2">KP Periode Ini Sudah Terdaftar (Lanjutan)</h3>
+                            <p class="text-[14px] text-[#1A1A1A] font-medium max-w-md leading-relaxed">
+                                Data KP kamu dari periode sebelumnya sudah otomatis dipindahkan ke periode ini oleh sistem.
+                                Kamu tidak perlu mendaftar ulang &mdash; judul, instansi, supervisor, dan dosen pembimbing tetap sama.
+                                Segala tahapan bimbingan dan sidang akan dimulai dari awal.
+                            </p>
+                            <div class="mt-6 bg-[#F5F5F5] rounded-[10px] border border-[#D9D9D9] px-8 py-5 text-left text-[13px] font-medium text-black max-w-sm w-full space-y-2">
+                                <div class="flex"><div class="w-[130px] text-black/50">Judul KP</div><div class="flex-1">: {{ $existingKp->judul_kp ?? '-' }}</div></div>
+                                <div class="flex"><div class="w-[130px] text-black/50">Instansi</div><div class="flex-1">: {{ $existingKp->instansi_nama ?? '-' }}</div></div>
+                                <div class="flex"><div class="w-[130px] text-black/50">Pengerjaan</div><div class="flex-1">: {{ ucfirst($existingKp->pengerjaan_kp ?? '-') }}</div></div>
+                            </div>
+                        @else
+                            <h3 class="text-[17px] font-bold text-black mb-2">
+                                {{ $existingKp->status_kp === 'approved' ? 'Pendaftaran KP Baru Disetujui' : 'Kamu Telah Berhasil Mendaftar KP Baru' }}
+                            </h3>
+                            <p class="text-[14px] text-[#1A1A1A] font-medium max-w-md leading-relaxed">
+                                Kamu berstatus sebagai mahasiswa lanjutan dan telah berhasil mendaftarkan proyek KP baru untuk periode ini.
+                                Informasi selanjutnya akan diumumkan oleh koordinator KP melalui Email atau Notifikasi.
+                            </p>
+                        @endif
                     </div>
                 @else
                     {{-- Banner biasa untuk pendaftaran berhasil / sudah terdaftar --}}
