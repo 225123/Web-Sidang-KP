@@ -11,7 +11,7 @@
             <!-- Jika sama sekali belum mengupload berkas, tampilkan UI dummy kosong -->
             <div class="bg-white rounded-[10px] shadow-sm p-8 text-center max-w-2xl w-full border border-gray-200">
                 <i class="fas fa-calendar-times text-4xl text-gray-400 mb-4"></i>
-                <h2 class="text-xl font-bold text-gray-800 mb-2">Jadwal Belum Tersedia</h2>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Jadwal Tidak Tersedia</h2>
                 @if(isset($isPastPeriod) && $isPastPeriod)
                     <p class="text-gray-600">Anda tidak terdaftar untuk mengikuti Sidang KP pada periode ini, sehingga jadwal sidang tidak tersedia.</p>
                 @else
