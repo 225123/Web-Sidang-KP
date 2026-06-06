@@ -42,7 +42,11 @@ class DashboardController extends Controller
 
             // Berkas Sidang
             $sudahKumpulBerkas = PendaftaranSidang::where('status_koordinator', 'verified')->count();
-            $belumKumpulBerkas = PendaftaranSidang::where('status_koordinator', 'pending')->count();
+            // Belum kumpul berkas: KP yang sudah di-approve tapi belum memiliki berkas sidang yang tervalidasi
+            $belumKumpulBerkas = PendaftaranKp::where('status_kp', 'approved')
+                ->whereDoesntHave('pendaftaranSidang', function($q) {
+                    $q->where('status_koordinator', 'verified');
+                })->count();
 
             $stats = [
                 'total_mahasiswa' => $totalMahasiswa,
