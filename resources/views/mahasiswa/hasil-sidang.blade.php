@@ -148,6 +148,20 @@
         </div>
             </div>
         </div>
+        @elseif(!$sidang)
+            <div class="mt-6 max-w-6xl mx-auto flex items-center justify-center min-h-[400px]">
+                <div class="bg-white rounded-[15px] p-10 shadow-sm border border-gray-200 text-center max-w-lg">
+                    <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-[20px] font-bold text-gray-900 mb-3 uppercase tracking-tight">Belum Mendaftar Sidang</h3>
+                    <p class="text-[14px] text-gray-500 font-medium leading-relaxed">
+                        Anda tidak terdaftar untuk mengikuti Sidang KP pada periode ini, sehingga Anda tidak memiliki Hasil Sidang KP.
+                    </p>
+                </div>
+            </div>
         @else
             <!-- Empty state -->
             <div class="mt-6 max-w-6xl mx-auto flex items-center justify-center min-h-[400px]">
