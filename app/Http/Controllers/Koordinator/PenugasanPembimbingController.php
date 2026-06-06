@@ -286,12 +286,25 @@ class PenugasanPembimbingController extends Controller
                 ];
             }
 
+            $individualKp = PendaftaranKp::where('mahasiswa_id', $m->id)
+                ->orderByRaw("
+                    CASE 
+                        WHEN status_kp = 'approved' THEN 1
+                        WHEN status_kp = 'verified' THEN 2
+                        WHEN status_kp = 'pending' THEN 3
+                        WHEN status_kp IS NULL THEN 4
+                        WHEN status_kp = 'rejected' THEN 5
+                        ELSE 6
+                    END
+                ")->latest()->first();
+
             $clusters[$clusterId]['mahasiswas'][] = [
                 'user_id' => $m->id,
                 'nama' => $m->name,
                 'nim' => $m->mahasiswa->nim,
-                'judul_kp' => $latestKp ? ($latestKp->judul_kp ?? '-') : '-',
+                'judul_kp' => $individualKp ? ($individualKp->judul_kp ?? '-') : '-',
                 'dosen_id' => $latestKp ? $latestKp->pembimbing_id : null,
+                'slug' => $individualKp ? \Str::slug($individualKp->judul_kp ?? 'kp').'-'.$m->mahasiswa->nim : 'kp-'.$m->mahasiswa->nim,
             ];
         }
 

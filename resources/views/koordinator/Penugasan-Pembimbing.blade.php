@@ -371,13 +371,14 @@
                                                 </div>
                                             </td>
 
-                                            <!-- Aksi / Detail  -->
-                                            <td rowspan="{{ $rowspan }}" class="px-4 py-2 align-middle text-center">
-                                                <div class="flex justify-center w-full">
-                                                    <a href="{{ route('koordinator.penugasan-pembimbing.detail', ['slug' => $p['slug']]) }}" data-turbo-frame="_top" class="inline-block bg-[#4285F4] hover:bg-blue-600 text-white px-4 py-1.5 rounded-[20px] shadow-sm text-[11px] font-semibold transition-colors text-center w-[80px]">Detail</a>
-                                                </div>
-                                            </td>
                                         @endif
+
+                                        <!-- Aksi / Detail  -->
+                                        <td class="px-4 py-2 align-middle text-center border-l border-gray-200">
+                                            <div class="flex justify-center w-full">
+                                                <a href="{{ route('koordinator.penugasan-pembimbing.detail', ['slug' => $mhs['slug'] ?? ($p['slug'] ?? '')]) }}" data-turbo-frame="_top" class="inline-block bg-[#4285F4] hover:bg-blue-600 text-white px-4 py-1.5 rounded-[20px] shadow-sm text-[11px] font-semibold transition-colors text-center w-[80px]">Detail</a>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforeach
                             @empty
