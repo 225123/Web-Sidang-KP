@@ -116,9 +116,23 @@ class UserController extends Controller
 
         $tab = $request->input('tab', 'dosen');
 
+        $periodeIdForStatus = session('selected_periode_id') ? (int) session('selected_periode_id') : null;
+        $statusMahasiswaSql = $periodeIdForStatus 
+            ? "CASE 
+                 WHEN mahasiswa.tahun_ajaran_id = {$periodeIdForStatus} THEN mahasiswa.status_mahasiswa
+                 ELSE COALESCE((
+                     SELECT CASE WHEN is_lanjutan = true THEN 'lanjut' ELSE 'baru' END
+                     FROM pendaftaran_kp 
+                     WHERE pendaftaran_kp.mahasiswa_id = users.id 
+                       AND pendaftaran_kp.tahun_ajaran_id = {$periodeIdForStatus}
+                     LIMIT 1
+                 ), 'baru')
+               END"
+            : "mahasiswa.status_mahasiswa";
+
         $query = User::leftJoin('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
             ->leftJoin('dosen', 'users.id', '=', 'dosen.user_id')
-            ->select('users.*', DB::raw('COALESCE(mahasiswa.nim, dosen.nidn) as identifier_id'), DB::raw('COALESCE(dosen.is_aktif, mahasiswa.is_aktif) as is_aktif'), 'mahasiswa.status_mahasiswa');
+            ->select('users.*', DB::raw('COALESCE(mahasiswa.nim, dosen.nidn) as identifier_id'), DB::raw('COALESCE(dosen.is_aktif, mahasiswa.is_aktif) as is_aktif'), DB::raw("($statusMahasiswaSql) as status_mahasiswa"));
 
         if ($tab === 'dosen') {
             $query->whereIn('users.role', ['dosen', 'koordinator_kp']);
@@ -162,7 +176,7 @@ class UserController extends Controller
         }
 
         if ($tab === 'mahasiswa' && $request->filled('status_mahasiswa')) {
-            $query->where('mahasiswa.status_mahasiswa', $request->status_mahasiswa);
+            $query->whereRaw("($statusMahasiswaSql) = ?", [$request->status_mahasiswa]);
         }
 
         $users = $query->orderBy('users.created_at', 'desc')->paginate(10);
@@ -667,9 +681,23 @@ class UserController extends Controller
     {
         $type = $request->query('type', 'semua');
 
+        $periodeIdForStatus = session('selected_periode_id') ? (int) session('selected_periode_id') : null;
+        $statusMahasiswaSql = $periodeIdForStatus 
+            ? "CASE 
+                 WHEN mahasiswa.tahun_ajaran_id = {$periodeIdForStatus} THEN mahasiswa.status_mahasiswa
+                 ELSE COALESCE((
+                     SELECT CASE WHEN is_lanjutan = true THEN 'lanjut' ELSE 'baru' END
+                     FROM pendaftaran_kp 
+                     WHERE pendaftaran_kp.mahasiswa_id = users.id 
+                       AND pendaftaran_kp.tahun_ajaran_id = {$periodeIdForStatus}
+                     LIMIT 1
+                 ), 'baru')
+               END"
+            : "mahasiswa.status_mahasiswa";
+
         $query = User::leftJoin('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
             ->leftJoin('dosen', 'users.id', '=', 'dosen.user_id')
-            ->select('users.*', DB::raw('COALESCE(mahasiswa.nim, dosen.nidn) as identifier_id'), 'dosen.is_aktif', 'mahasiswa.status_mahasiswa');
+            ->select('users.*', DB::raw('COALESCE(mahasiswa.nim, dosen.nidn) as identifier_id'), 'dosen.is_aktif', DB::raw("($statusMahasiswaSql) as status_mahasiswa"));
 
         $title = 'DAFTAR SELURUH PENGGUNA SISTEM';
 
