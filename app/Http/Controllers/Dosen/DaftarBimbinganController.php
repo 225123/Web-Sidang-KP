@@ -21,7 +21,10 @@ class DaftarBimbinganController extends Controller
         // 1. Ambil pendaftaran KP. Jika koordinator, ambil SEMUA yang sudah mendaftar (untuk memantau).
         // Jika dosen, ambil yang dibimbing.
         $query = PendaftaranKp::with(['supervisorInstansi', 'logBimbingans', 'mahasiswa.user', 'pembimbing'])
-            ->whereIn('status_kp', ['pending', 'approved', 'verified']);
+            ->where(function($q) {
+                $q->whereIn('status_kp', ['pending', 'approved', 'verified'])
+                  ->orWhereNotNull('pembimbing_id');
+            });
 
         if (! $isKoordinator) {
             $query->where('pembimbing_id', $dosenId);

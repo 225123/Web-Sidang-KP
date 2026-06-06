@@ -35,7 +35,10 @@ class DashboardController extends Controller
 
         $kpsQuery = PendaftaranKp::with(['logBimbingans', 'mahasiswa.user', 'pembimbing'])
             ->where('pembimbing_id', $dosenId)
-            ->whereIn('status_kp', ['pending', 'approved', 'verified']);
+            ->where(function($q) {
+                $q->whereIn('status_kp', ['pending', 'approved', 'verified'])
+                  ->orWhereNotNull('pembimbing_id');
+            });
 
         if ($periodeId) {
             $kpsQuery->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
