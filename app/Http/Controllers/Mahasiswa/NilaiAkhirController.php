@@ -47,13 +47,13 @@ class NilaiAkhirController extends Controller
             // Jika sudah difinalisasi namun mahasiswa tidak mendaftar sidang, berikan nilai 0 otomatis
             $mhs = \App\Models\Mahasiswa::with('user')->where('user_id', $userId)->first();
             $kp = \App\Models\PendaftaranKp::withoutGlobalScope('periode')
-                ->where('mahasiswa_id', $mhs->id)
+                ->where('mahasiswa_id', $userId)
                 ->where('tahun_ajaran_id', $periodeId)
                 ->latest()
                 ->first();
 
             $sidang = new PendaftaranSidang([
-                'mahasiswa_id' => $mhs->id,
+                'mahasiswa_id' => $userId,
                 'pendaftaran_kp_id' => $kp ? $kp->id : null,
                 'status_kelulusan' => 'Lanjut',
                 'nilai_dipublikasi' => true,
@@ -127,13 +127,13 @@ class NilaiAkhirController extends Controller
         } elseif ($isFinalized) {
             $mhs = \App\Models\Mahasiswa::with('user')->where('user_id', $userId)->first();
             $kp = \App\Models\PendaftaranKp::withoutGlobalScope('periode')
-                ->where('mahasiswa_id', $mhs->id)
+                ->where('mahasiswa_id', $userId)
                 ->where('tahun_ajaran_id', $periodeId)
                 ->latest()
                 ->first();
 
             $sidang = new PendaftaranSidang([
-                'mahasiswa_id' => $mhs->id,
+                'mahasiswa_id' => $userId,
                 'pendaftaran_kp_id' => $kp ? $kp->id : null,
                 'status_kelulusan' => 'Lanjut',
                 'nilai_dipublikasi' => true,
