@@ -36,14 +36,15 @@ class ViewComposerServiceProvider extends ServiceProvider
                     $mhs = $user->mahasiswa;
                     $available_periods = TahunAjaran::with('koordinator')->where(function($q) use ($user, $mhs) {
                         $q->where('id', optional($mhs)->tahun_ajaran_id)
-                          ->orWhereHas('pendaftaranKps', function($q2) use ($user) {
-                              $q2->withoutGlobalScope('periode')
-                                 ->whereNotNull('status_kp')
-                                 ->where(function ($q3) use ($user) {
-                                     $q3->where('mahasiswa_id', $user->id)
-                                        ->orWhereJsonContains('anggota_kelompok_ids', $user->id)
-                                        ->orWhereJsonContains('anggota_kelompok_ids', (string) $user->id);
-                                 });
+                          ->orWhereExists(function ($sub) use ($user) {
+                              $sub->select(\Illuminate\Support\Facades\DB::raw(1))
+                                  ->from('pendaftaran_kp')
+                                  ->whereColumn('pendaftaran_kp.tahun_ajaran_id', 'tahun_ajaran.id')
+                                  ->where(function ($q3) use ($user) {
+                                      $q3->where('pendaftaran_kp.mahasiswa_id', $user->id)
+                                         ->orWhereJsonContains('pendaftaran_kp.anggota_kelompok_ids', $user->id)
+                                         ->orWhereJsonContains('pendaftaran_kp.anggota_kelompok_ids', (string) $user->id);
+                                  });
                           });
                     })->terbaru()->get();
                     
