@@ -28,9 +28,14 @@ class LaporanArsipController extends Controller
         // Kumpulkan user_id mahasiswa yang sudah ada data sidangnya
         $mahasiswaDenganSidang = $sidangRows->pluck('mahasiswa_id')->unique()->toArray();
 
-        // Ambil Mahasiswa di periode ini yang TIDAK punya sidang
+        // Ambil Mahasiswa di periode ini yang TIDAK punya sidang (termasuk yang pindah periode tapi punya draft/riwayat KP di sini)
         $mahasiswaTanpaSidang = Mahasiswa::with('user')
-            ->where('tahun_ajaran_id', $periodeId)
+            ->where(function($q) use ($periodeId) {
+                $q->where('tahun_ajaran_id', $periodeId)
+                  ->orWhereHas('pendaftaranKps', function($sq) use ($periodeId) {
+                      $sq->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+                  });
+            })
             ->whereNotIn('user_id', $mahasiswaDenganSidang)
             ->get();
 
@@ -98,7 +103,12 @@ class LaporanArsipController extends Controller
         $mahasiswaDenganSidang = $sidangRows->pluck('mahasiswa_id')->unique()->toArray();
 
         $mahasiswaTanpaSidang = Mahasiswa::with('user')
-            ->where('tahun_ajaran_id', $periodeId)
+            ->where(function($q) use ($periodeId) {
+                $q->where('tahun_ajaran_id', $periodeId)
+                  ->orWhereHas('pendaftaranKps', function($sq) use ($periodeId) {
+                      $sq->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+                  });
+            })
             ->whereNotIn('user_id', $mahasiswaDenganSidang)
             ->get();
 
