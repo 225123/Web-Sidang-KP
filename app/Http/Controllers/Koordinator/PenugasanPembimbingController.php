@@ -57,7 +57,15 @@ class PenugasanPembimbingController extends Controller
         // Ambil mahasiswas yang aktif di periode ini
         $mahasiswas = User::where('role', 'mahasiswa')
             ->whereHas('mahasiswa', function($q) use ($activeId) {
-                $q->where('tahun_ajaran_id', $activeId);
+                $q->where('tahun_ajaran_id', $activeId)
+                  ->orWhereHas('pendaftaranKps', function($sq) use ($activeId) {
+                      $sq->withoutGlobalScope('periode')
+                         ->where('tahun_ajaran_id', $activeId)
+                         ->where(function($q2) {
+                             $q2->whereNotNull('status_kp')
+                                ->orWhereRaw('id = (SELECT MIN(id) FROM pendaftaran_kp AS pkp2 WHERE pkp2.mahasiswa_id = pendaftaran_kp.mahasiswa_id)');
+                         });
+                  });
             })->get();
 
         foreach ($mahasiswas as $mhs) {
@@ -105,7 +113,15 @@ class PenugasanPembimbingController extends Controller
         if (session()->has('selected_periode_id')) {
             $periodeId = session('selected_periode_id');
             $query->whereHas('mahasiswa', function($sq) use ($periodeId) {
-                $sq->where('tahun_ajaran_id', $periodeId);
+                $sq->where('tahun_ajaran_id', $periodeId)
+                   ->orWhereHas('pendaftaranKps', function($q2) use ($periodeId) {
+                       $q2->withoutGlobalScope('periode')
+                          ->where('tahun_ajaran_id', $periodeId)
+                          ->where(function($q3) {
+                              $q3->whereNotNull('status_kp')
+                                 ->orWhereRaw('id = (SELECT MIN(id) FROM pendaftaran_kp AS pkp2 WHERE pkp2.mahasiswa_id = pendaftaran_kp.mahasiswa_id)');
+                          });
+                   });
             });
         }
 
@@ -174,7 +190,15 @@ class PenugasanPembimbingController extends Controller
         if (session()->has('selected_periode_id')) {
             $periodeId = session('selected_periode_id');
             $totalQuery->whereHas('mahasiswa', function($sq) use ($periodeId) {
-                $sq->where('tahun_ajaran_id', $periodeId);
+                $sq->where('tahun_ajaran_id', $periodeId)
+                   ->orWhereHas('pendaftaranKps', function($q2) use ($periodeId) {
+                       $q2->withoutGlobalScope('periode')
+                          ->where('tahun_ajaran_id', $periodeId)
+                          ->where(function($q3) {
+                              $q3->whereNotNull('status_kp')
+                                 ->orWhereRaw('id = (SELECT MIN(id) FROM pendaftaran_kp AS pkp2 WHERE pkp2.mahasiswa_id = pendaftaran_kp.mahasiswa_id)');
+                          });
+                   });
             });
         }
         $totalAllMahasiswa = $totalQuery->count();
@@ -471,7 +495,15 @@ class PenugasanPembimbingController extends Controller
             if (session()->has('selected_periode_id')) {
                 $periodeId = session('selected_periode_id');
                 $allMhsQuery->whereHas('mahasiswa', function($sq) use ($periodeId) {
-                    $sq->where('tahun_ajaran_id', $periodeId);
+                    $sq->where('tahun_ajaran_id', $periodeId)
+                       ->orWhereHas('pendaftaranKps', function($q2) use ($periodeId) {
+                           $q2->withoutGlobalScope('periode')
+                              ->where('tahun_ajaran_id', $periodeId)
+                              ->where(function($q3) {
+                                  $q3->whereNotNull('status_kp')
+                                     ->orWhereRaw('id = (SELECT MIN(id) FROM pendaftaran_kp AS pkp2 WHERE pkp2.mahasiswa_id = pendaftaran_kp.mahasiswa_id)');
+                              });
+                       });
                 });
             }
             $allMahasiswas = $allMhsQuery->get();

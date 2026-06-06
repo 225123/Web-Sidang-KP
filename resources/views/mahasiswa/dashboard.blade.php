@@ -105,7 +105,7 @@
                             </div>
                         </div>
 
-                        @if(!auth()->user()->mahasiswa->is_aktif || (isset($is_locked) && $is_locked))
+                        @if(isset($is_locked) && $is_locked)
                             <button disabled class="bg-gray-200 text-gray-500 font-bold text-[13px] px-6 h-[36px] rounded-[20px] flex items-center justify-center gap-2 cursor-not-allowed shrink-0">
                                 Mode Pelihat
                             </button>
@@ -207,7 +207,7 @@
                     </div>
 
                     <div class="mt-8 flex justify-end">
-                        @if(!auth()->user()->mahasiswa->is_aktif || (isset($is_locked) && $is_locked))
+                        @if(isset($is_locked) && $is_locked)
                             <button disabled class="bg-gray-200 text-gray-500 font-bold text-[13px] px-6 h-[36px] rounded-[20px] flex items-center justify-center gap-2 cursor-not-allowed">
                                 Mode Pelihat
                             </button>
