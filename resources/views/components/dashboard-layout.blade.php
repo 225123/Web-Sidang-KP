@@ -6,8 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <title>Sistem Sidang KP</title>
-    <!-- Menghilangkan Favicon Laravel bawaan dan menggunakan logo kustom -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=2">
+    <!-- Menghilangkan Favicon -->
+    <link rel="icon" href="data:,">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
