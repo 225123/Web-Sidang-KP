@@ -263,7 +263,7 @@
                             <div class="flex flex-col md:flex-row md:items-center">
                                 <label class="w-full md:w-[200px] text-[15px] text-black font-medium mb-1 md:mb-0">ID (NIM/NIDN/NIDK)</label>
                                 <span class="hidden md:inline text-black mx-4">:</span>
-                                <input type="text" name="id_user" x-model="formData.id_user" @blur="checkIdUser" required class="flex-1 w-full md:max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Input ID User">
+                                <input type="text" name="id_user" x-model="formData.id_user" @blur="checkIdUser" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required class="flex-1 w-full md:max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Input ID User">
                             </div>
                             <div x-show="isDosenDuplicate" class="text-red-600 text-[13px] md:ml-[230px] font-bold mt-1">ID ini sudah terdaftar sebagai Dosen/Koordinator. Duplikasi ditolak.</div>
                             <div x-show="isCheckingId" class="text-blue-500 text-[12px] md:ml-[230px] mt-1">Mengecek ID...</div>

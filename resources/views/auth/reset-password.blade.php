@@ -21,15 +21,37 @@
                 </div>
                 <input id="email" type="email" name="email"
                     value="{{ old('email', $request->email) }}"
-                    required autofocus autocomplete="username"
-                    class="block w-full pl-10 pt-3 pb-3 sm:text-sm border-gray-300 rounded-lg bg-gray-50 text-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                    required autofocus autocomplete="username" readonly
+                    class="block w-full pl-10 pt-3 pb-3 sm:text-sm border-gray-300 rounded-lg bg-gray-200 text-gray-500 cursor-not-allowed focus:ring-blue-500 focus:border-blue-500 pointer-events-none"
                     placeholder="Alamat email Anda">
             </div>
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <!-- New Password -->
-        <div x-data="{ show: false }">
+        <div x-data="{
+            show: false,
+            password: '',
+            get strengthText() {
+                if (this.password.length === 0) return '';
+                let hasUpper = /[A-Z]/.test(this.password);
+                let hasLower = /[a-z]/.test(this.password);
+                let hasNumber = /[0-9]/.test(this.password);
+                let hasSymbol = /[\W_]/.test(this.password);
+                let requirementsMet = hasUpper + hasLower + hasNumber + hasSymbol;
+                
+                if (this.password.length < 8) return 'Lemah (Minimal 8 Karakter)';
+                if (requirementsMet < 4) return 'Sedang (Butuh Kombinasi Huruf Besar, Kecil, Angka & Simbol)';
+                return 'Kuat';
+            },
+            get strengthClass() {
+                if (this.password.length === 0) return '';
+                if (this.password.length < 8) return 'text-red-500';
+                let requirementsMet = /[A-Z]/.test(this.password) + /[a-z]/.test(this.password) + /[0-9]/.test(this.password) + /[\W_]/.test(this.password);
+                if (requirementsMet < 4) return 'text-yellow-500';
+                return 'text-green-500';
+            }
+        }">
             <label for="password" class="block text-sm font-semibold text-gray-700">Password Baru</label>
             <div class="mt-2 relative rounded-md shadow-sm">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -37,7 +59,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                 </div>
-                <input id="password" :type="show ? 'text' : 'password'" name="password"
+                <input id="password" :type="show ? 'text' : 'password'" name="password" x-model="password"
                     required autocomplete="new-password"
                     class="block w-full pl-10 pr-10 pt-3 pb-3 sm:text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     placeholder="Minimal 8 karakter">
@@ -53,6 +75,7 @@
                     </button>
                 </div>
             </div>
+            <p x-show="password.length > 0" x-cloak class="mt-2 text-sm font-medium transition-all" :class="strengthClass" x-text="'Kekuatan Password: ' + strengthText"></p>
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
