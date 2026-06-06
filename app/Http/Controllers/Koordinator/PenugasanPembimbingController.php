@@ -275,6 +275,7 @@ class PenugasanPembimbingController extends Controller
                     END
                 ")->latest()->first();
 
+            // Cluster by KP ID if it exists, so group members are combined even if pending
             $clusterId = $latestKp ? 'kp_'.$latestKp->id : 'mhs_'.$m->id;
 
             if (! isset($clusters[$clusterId])) {
@@ -285,22 +286,11 @@ class PenugasanPembimbingController extends Controller
                 ];
             }
 
-            $individualKp = PendaftaranKp::where('mahasiswa_id', $m->id)
-                ->orderByRaw("
-                    CASE 
-                        WHEN status_kp = 'approved' THEN 1
-                        WHEN status_kp = 'verified' THEN 2
-                        WHEN status_kp = 'pending' THEN 3
-                        WHEN status_kp IS NULL THEN 4
-                        WHEN status_kp = 'rejected' THEN 5
-                        ELSE 6
-                    END
-                ")->latest()->first();
             $clusters[$clusterId]['mahasiswas'][] = [
                 'user_id' => $m->id,
                 'nama' => $m->name,
                 'nim' => $m->mahasiswa->nim,
-                'judul_kp' => $individualKp ? ($individualKp->judul_kp ?? '-') : '-',
+                'judul_kp' => $latestKp ? ($latestKp->judul_kp ?? '-') : '-',
                 'dosen_id' => $latestKp ? $latestKp->pembimbing_id : null,
             ];
         }
@@ -309,11 +299,10 @@ class PenugasanPembimbingController extends Controller
         foreach ($clusters as $cluster) {
             $kp = $cluster['kp'];
 
-            $isApproved = ! is_null($kp);
-            $maskedInstansi = $isApproved ? ($kp->instansi_nama ?? '-') : '-';
-            $maskedSupervisor = $isApproved && $kp->supervisorInstansi ? $kp->supervisorInstansi->nama_supervisor : '-';
-            $maskedJenisInstansi = $isApproved ? ucfirst($kp->jenis_instansi ?? 'Eksternal') : '-';
-            $pengerjaanFormat = $isApproved && in_array(strtolower($kp->pengerjaan_kp ?? ''), ['kelompok', 'berkelompok']) ? 'Kelompok' : '-';
+            $maskedInstansi = $kp ? ($kp->instansi_nama ?? '-') : '-';
+            $maskedSupervisor = ($kp && $kp->supervisorInstansi) ? $kp->supervisorInstansi->nama_supervisor : '-';
+            $maskedJenisInstansi = $kp ? ucfirst($kp->jenis_instansi ?? 'Eksternal') : '-';
+            $pengerjaanFormat = ($kp && in_array(strtolower($kp->pengerjaan_kp ?? ''), ['kelompok', 'berkelompok'])) ? 'Kelompok' : '-';
 
             $formattedPendaftarans[] = [
                 'id' => $cluster['id'],
@@ -540,14 +529,16 @@ class PenugasanPembimbingController extends Controller
                     continue;
                 }
 
-                $clusterId = $latestKp ? 'kp_'.$latestKp->id : 'mhs_'.$m->id;
+                $approvedKp = ($latestKp && $latestKp->status_kp === 'approved') ? $latestKp : null;
+
+                $clusterId = $approvedKp ? 'kp_'.$approvedKp->id : 'mhs_'.$m->id;
 
                 if (! isset($clusters[$clusterId])) {
                     $clusters[$clusterId] = [
                         'id' => $clusterId,
-                        'is_group' => $latestKp && in_array(strtolower($latestKp->pengerjaan_kp ?? ''), ['kelompok', 'berkelompok']),
+                        'is_group' => $approvedKp ? true : false,
                         'members' => [],
-                        'supervisor_id' => $latestKp ? $latestKp->supervisor_internal_id : null,
+                        'supervisor_id' => $approvedKp ? $approvedKp->supervisor_internal_id : null,
                     ];
                 }
 
