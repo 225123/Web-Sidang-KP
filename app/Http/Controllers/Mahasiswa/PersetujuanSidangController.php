@@ -52,7 +52,9 @@ class PersetujuanSidangController extends Controller
 
         $mahasiswaData = Auth::user()->mahasiswa;
 
-        return view('mahasiswa.persetujuan-sidang-kp', compact('pendaftaran', 'totalBimbingan', 'persetujuan', 'mahasiswaData', 'ownKp'));
+        $isReadOnly = $periodeId && $periodeId != \App\Models\TahunAjaran::aktif()?->id;
+
+        return view('mahasiswa.persetujuan-sidang-kp', compact('pendaftaran', 'totalBimbingan', 'persetujuan', 'mahasiswaData', 'ownKp', 'isReadOnly'));
     }
 
     // 2. Menyimpan/Mengajukan Laporan ke Dosen Pembimbing

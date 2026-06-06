@@ -100,9 +100,9 @@
                                                 uploadType = ''; 
                                             } 
                                         })"
-                                        x-ref="fileInput">
+                                        x-ref="fileInput" @if(isset($isReadOnly) && $isReadOnly) disabled @endif>
 
-                                    <button type="button" @click="$refs.fileInput.click()"
+                                    <button type="button" @if(isset($isReadOnly) && $isReadOnly) disabled style="opacity:0.6;cursor:not-allowed;" @else @click="$refs.fileInput.click()" @endif
                                         class="bg-[#F0F0F0] border border-gray-300 text-gray-600 text-[13px] px-4 py-1.5 rounded-[20px] flex items-center gap-2 hover:bg-gray-200 transition-colors">
                                         <svg class="w-4 h-4 text-[#8A9CFF]" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
@@ -122,7 +122,8 @@
 
                                 <div class="flex-1" x-show="uploadType === 'link' || uploadType === ''">
                                     <input type="url" name="link_drive" x-model="linkDrive" @input="uploadType = (linkDrive.trim() !== '') ? 'link' : ''; fileName = ''" placeholder="Link GDrive jika > 5MB..."
-                                        class="w-full bg-white border border-gray-300 text-[13px] px-3 py-1.5 rounded-[5px] focus:ring-1 focus:ring-blue-500 outline-none">
+                                        class="w-full bg-white border border-gray-300 text-[13px] px-3 py-1.5 rounded-[5px] focus:ring-1 focus:ring-blue-500 outline-none"
+                                        @if(isset($isReadOnly) && $isReadOnly) disabled style="opacity:0.6;cursor:not-allowed;" @endif>
                                 </div>
                             </form>
                         </div>
@@ -144,6 +145,7 @@
                                 @endif
                                 
                                 @if(!in_array(strtolower($persetujuan->status_verifikasi), ['verified', 'disetujui']))
+                                    @if(!isset($isReadOnly) || !$isReadOnly)
                                     <div class="h-4 border-l border-gray-300 mx-1 shrink-0"></div>
                                     <form id="form-delete-persetujuan-{{ $persetujuan->id }}" action="{{ route('mahasiswa.persetujuan-sidang.destroy', $persetujuan->id) }}" method="POST" class="inline m-0 p-0">
                                         @csrf
@@ -152,6 +154,7 @@
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                         </button>
                                     </form>
+                                    @endif
                                 @endif
                             </div>
                         </div>
@@ -166,15 +169,21 @@
                     <h2 class="text-[18px] font-bold text-black mb-4">Ajukan Sidang KP</h2>
                     <p class="text-[14px] text-black font-medium mb-8">Klik 'Ajukan' untuk mendapatkan Surat Persetujuan
                         Dosen Pembimbing sebagai syarat pendaftaran sidang KP</p>
-                    <button type="submit" form="formAjukan"
-                        class="bg-[#008000] hover:bg-green-700 text-white font-bold text-[14px] px-8 py-2.5 rounded-full shadow-md flex items-center justify-center gap-2 mx-auto transition-colors">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path
-                                d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z">
-                            </path>
-                        </svg>
-                        AJUKAN
-                    </button>
+                    @if(isset($isReadOnly) && $isReadOnly)
+                        <div class="bg-gray-200 text-gray-500 font-bold text-[14px] px-8 py-2.5 rounded-full shadow-sm flex items-center justify-center mx-auto w-max cursor-not-allowed">
+                            Read Only - Periode Lampau
+                        </div>
+                    @else
+                        <button type="submit" form="formAjukan"
+                            class="bg-[#008000] hover:bg-green-700 text-white font-bold text-[14px] px-8 py-2.5 rounded-full shadow-md flex items-center justify-center gap-2 mx-auto transition-colors">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z">
+                                </path>
+                            </svg>
+                            AJUKAN
+                        </button>
+                    @endif
 
                 @elseif($persetujuan->status_verifikasi == 'pending' || $persetujuan->status_verifikasi == 'Menunggu')
                     <h2 class="text-[18px] font-bold text-black mb-4">Ajukan Sidang KP</h2>
