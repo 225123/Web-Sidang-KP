@@ -219,6 +219,7 @@ class PendaftaranKpController extends Controller
                 'status_kp' => $status_kp,
                 'pengerjaan_kp' => $request->pengerjaan_kp,
                 'anggota_kelompok_ids' => empty($anggotaArray) ? null : $anggotaArray,
+                'is_lanjutan' => auth()->user()->mahasiswa->status_kp === 'Lanjut',
             ];
 
             if ($draftKp) {
