@@ -31,7 +31,7 @@
             'jenis_instansi' => $p->jenis_instansi ?? 'External',
             'supervisor' => $p->supervisorInstansi->nama_supervisor ?? '-',
             'email_supervisor' => $p->supervisorInstansi->email_supervisor ?? '-',
-            'is_lanjutan' => ($p->mahasiswa->is_lanjutan ?? false) ? true : false,
+            'is_lanjutan' => ($p->mahasiswa && strtolower($p->mahasiswa->status_mahasiswa) === 'lanjut'),
             'jenis_proyek' => $p->jenis_proyek ?? '-',
             'expanded' => false
         ])) }},

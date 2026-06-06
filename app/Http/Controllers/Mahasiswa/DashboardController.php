@@ -82,7 +82,7 @@ class DashboardController extends Controller
             'pembimbing' => ($isRegistered && $latestKp && $latestKp->pembimbing && $latestKp->pembimbing->name) ? $latestKp->pembimbing->name : '-',
             'status_teks' => $statusTeks,
             'status_raw' => $individualKp->status_kp ?? 'none',
-            'is_lanjutan' => (bool) (Auth::user()->mahasiswa->is_lanjutan ?? false),
+            'is_lanjutan' => (Auth::user()->mahasiswa && strtolower(Auth::user()->mahasiswa->status_mahasiswa) === 'lanjut'),
         ];
 
         $bimbinganDosenCount = 0;
