@@ -33,7 +33,12 @@ class LaporanArsipController extends Controller
             ->where(function($q) use ($periodeId) {
                 $q->where('tahun_ajaran_id', $periodeId)
                   ->orWhereHas('pendaftaranKps', function($sq) use ($periodeId) {
-                      $sq->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+                      $sq->withoutGlobalScope('periode')
+                         ->where('tahun_ajaran_id', $periodeId)
+                         ->where(function($q2) {
+                             $q2->whereNotNull('status_kp')
+                                ->orWhereRaw('id = (SELECT MIN(id) FROM pendaftaran_kp AS pkp2 WHERE pkp2.mahasiswa_id = pendaftaran_kp.mahasiswa_id)');
+                         });
                   });
             })
             ->whereNotIn('user_id', $mahasiswaDenganSidang)
@@ -106,7 +111,12 @@ class LaporanArsipController extends Controller
             ->where(function($q) use ($periodeId) {
                 $q->where('tahun_ajaran_id', $periodeId)
                   ->orWhereHas('pendaftaranKps', function($sq) use ($periodeId) {
-                      $sq->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+                      $sq->withoutGlobalScope('periode')
+                         ->where('tahun_ajaran_id', $periodeId)
+                         ->where(function($q2) {
+                             $q2->whereNotNull('status_kp')
+                                ->orWhereRaw('id = (SELECT MIN(id) FROM pendaftaran_kp AS pkp2 WHERE pkp2.mahasiswa_id = pendaftaran_kp.mahasiswa_id)');
+                         });
                   });
             })
             ->whereNotIn('user_id', $mahasiswaDenganSidang)

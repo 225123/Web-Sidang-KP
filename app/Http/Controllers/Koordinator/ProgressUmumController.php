@@ -16,12 +16,22 @@ class ProgressUmumController extends Controller
         $mahasiswaQuery = Mahasiswa::with('user');
         if (session()->has('selected_periode_id')) {
             $periodeId = session('selected_periode_id');
-            $mahasiswaQuery->where('tahun_ajaran_id', $periodeId);
+            $mahasiswaQuery->where(function($q) use ($periodeId) {
+                $q->where('tahun_ajaran_id', $periodeId)
+                  ->orWhereHas('pendaftaranKps', function($sq) use ($periodeId) {
+                      $sq->withoutGlobalScope('periode')
+                         ->where('tahun_ajaran_id', $periodeId)
+                         ->where(function($q2) {
+                             $q2->whereNotNull('status_kp')
+                                ->orWhereRaw('id = (SELECT MIN(id) FROM pendaftaran_kp AS pkp2 WHERE pkp2.mahasiswa_id = pendaftaran_kp.mahasiswa_id)');
+                         });
+                  });
+            });
         }
         $mahasiswas = $mahasiswaQuery->get();
 
         // PRELOAD ALL KP for the period to avoid N+1 queries
-        $kpQuery = PendaftaranKp::with(['supervisorInstansi', 'logBimbingans', 'pembimbing']);
+        $kpQuery = PendaftaranKp::withoutGlobalScope('periode')->with(['supervisorInstansi', 'logBimbingans', 'pembimbing']);
         if (session()->has('selected_periode_id')) {
             $kpQuery->where('tahun_ajaran_id', session('selected_periode_id'));
         }
