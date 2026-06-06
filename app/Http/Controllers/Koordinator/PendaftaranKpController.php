@@ -7,6 +7,7 @@ use App\Models\PendaftaranKp;
 use App\Models\User;
 use App\Models\NotifikasiLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PendaftaranKpController extends Controller
 {
