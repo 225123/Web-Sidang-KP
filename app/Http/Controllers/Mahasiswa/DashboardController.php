@@ -42,15 +42,47 @@ class DashboardController extends Controller
             END
         ")->latest()->first();
 
+        // Fetch individual KP specifically for the user to accurately check their own status
+        $individualKpQuery = PendaftaranKp::withoutGlobalScope('periode')
+            ->where('mahasiswa_id', $userId);
+        if ($periodeId) {
+            $individualKpQuery->where('tahun_ajaran_id', $periodeId);
+        }
+        $individualKp = (clone $individualKpQuery)->orderByRaw("
+            CASE 
+                WHEN status_kp = 'approved' THEN 1
+                WHEN status_kp = 'verified' THEN 2
+                WHEN status_kp = 'pending' THEN 3
+                WHEN status_kp IS NULL THEN 4
+                WHEN status_kp = 'rejected' THEN 5
+                ELSE 6
+            END
+        ")->latest()->first();
+
+        $isRegistered = $individualKp && $individualKp->status_kp !== 'rejected';
+        
+        $statusTeks = 'Belum Mendaftar';
+        if ($individualKp) {
+            if ($individualKp->status_kp === 'approved') {
+                $statusTeks = 'On Progress';
+            } elseif ($individualKp->status_kp === 'verified') {
+                $statusTeks = 'Verified';
+            } elseif ($individualKp->status_kp === 'pending') {
+                $statusTeks = 'Pending Approval';
+            } elseif ($individualKp->status_kp === 'rejected') {
+                $statusTeks = 'Belum Mendaftar';
+            }
+        }
+
         $kpStatus = [
-            'judul' => ($latestKp && $latestKp->judul_kp) ? $latestKp->judul_kp : '-',
-            'instansi' => ($latestKp && $latestKp->instansi_nama) ? $latestKp->instansi_nama : '-',
-            'jenis_instansi' => ($latestKp && $latestKp->jenis_instansi) ? $latestKp->jenis_instansi : '-',
-            'supervisor' => ($latestKp && $latestKp->supervisorInstansi && $latestKp->supervisorInstansi->nama_supervisor) ? $latestKp->supervisorInstansi->nama_supervisor : '-',
-            'pembimbing' => ($latestKp && $latestKp->pembimbing && $latestKp->pembimbing->name) ? $latestKp->pembimbing->name : '-',
-            'status_teks' => $latestKp ? ($latestKp->status_kp === 'approved' ? 'On Progress' : ($latestKp->status_kp === 'pending' ? 'Pending Approval' : 'Belum Mendaftar')) : 'Belum Mendaftar',
-            'status_raw' => $latestKp->status_kp ?? 'none',
-            'is_lanjutan' => $latestKp ? (bool) $latestKp->is_lanjutan : false,
+            'judul' => ($isRegistered && $individualKp->judul_kp) ? $individualKp->judul_kp : '-',
+            'instansi' => ($isRegistered && $latestKp && $latestKp->instansi_nama) ? $latestKp->instansi_nama : '-',
+            'jenis_instansi' => ($isRegistered && $latestKp && $latestKp->jenis_instansi) ? $latestKp->jenis_instansi : '-',
+            'supervisor' => ($isRegistered && $latestKp && $latestKp->supervisorInstansi && $latestKp->supervisorInstansi->nama_supervisor) ? $latestKp->supervisorInstansi->nama_supervisor : '-',
+            'pembimbing' => ($isRegistered && $latestKp && $latestKp->pembimbing && $latestKp->pembimbing->name) ? $latestKp->pembimbing->name : '-',
+            'status_teks' => $statusTeks,
+            'status_raw' => $individualKp->status_kp ?? 'none',
+            'is_lanjutan' => $individualKp ? (bool) $individualKp->is_lanjutan : false,
         ];
 
         $bimbinganDosenCount = 0;
