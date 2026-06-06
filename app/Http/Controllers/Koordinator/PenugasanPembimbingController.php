@@ -409,7 +409,10 @@ class PenugasanPembimbingController extends Controller
                         }
                         if (!empty($mhsIdsToSync)) {
                             PendaftaranKp::whereIn('mahasiswa_id', $mhsIdsToSync)
-                                ->whereIn('status_kp', ['pending', 'approved', 'verified'])
+                                ->where(function($q) {
+                                    $q->whereIn('status_kp', ['pending', 'approved', 'verified'])
+                                      ->orWhereNull('status_kp');
+                                })
                                 ->update(['pembimbing_id' => empty($dosenUserId) ? null : $dosenUserId]);
                         }
 
@@ -450,7 +453,10 @@ class PenugasanPembimbingController extends Controller
                         }
                         if (!empty($mhsIdsToSync)) {
                             PendaftaranKp::whereIn('mahasiswa_id', $mhsIdsToSync)
-                                ->whereIn('status_kp', ['pending', 'approved', 'verified'])
+                                ->where(function($q) {
+                                    $q->whereIn('status_kp', ['pending', 'approved', 'verified'])
+                                      ->orWhereNull('status_kp');
+                                })
                                 ->update(['pembimbing_id' => empty($dosenUserId) ? null : $dosenUserId]);
                         }
 
