@@ -127,7 +127,15 @@ class UserController extends Controller
             // Filter Mahasiswa by selected period
             if (session()->has('selected_periode_id')) {
                 $periodeId = session('selected_periode_id');
-                $query->where('mahasiswa.tahun_ajaran_id', $periodeId);
+                $query->where(function($q) use ($periodeId) {
+                    $q->where('mahasiswa.tahun_ajaran_id', $periodeId)
+                      ->orWhereExists(function ($sub) use ($periodeId) {
+                          $sub->select(DB::raw(1))
+                              ->from('pendaftaran_kp')
+                              ->whereColumn('pendaftaran_kp.mahasiswa_id', 'users.id')
+                              ->where('pendaftaran_kp.tahun_ajaran_id', $periodeId);
+                      });
+                });
             }
         }
 
@@ -672,7 +680,15 @@ class UserController extends Controller
             $query->where('users.role', 'mahasiswa');
             if (session()->has('selected_periode_id')) {
                 $periodeId = session('selected_periode_id');
-                $query->where('mahasiswa.tahun_ajaran_id', $periodeId);
+                $query->where(function($q) use ($periodeId) {
+                    $q->where('mahasiswa.tahun_ajaran_id', $periodeId)
+                      ->orWhereExists(function ($sub) use ($periodeId) {
+                          $sub->select(DB::raw(1))
+                              ->from('pendaftaran_kp')
+                              ->whereColumn('pendaftaran_kp.mahasiswa_id', 'users.id')
+                              ->where('pendaftaran_kp.tahun_ajaran_id', $periodeId);
+                      });
+                });
             }
             $title = 'DAFTAR DATA MAHASISWA';
         }
