@@ -312,9 +312,9 @@ class PenugasanPembimbingController extends Controller
         foreach ($clusters as $cluster) {
             $kp = $cluster['kp'];
 
-            $maskedInstansi = $kp ? ($kp->instansi_nama ?? '-') : '-';
-            $maskedSupervisor = ($kp && $kp->supervisorInstansi) ? $kp->supervisorInstansi->nama_supervisor : '-';
-            $maskedJenisInstansi = $kp ? ucfirst($kp->jenis_instansi ?? 'Eksternal') : '-';
+            $maskedInstansi = $kp && $kp->status_kp !== 'rejected' ? ($kp->instansi_nama ?? '-') : '-';
+            $maskedSupervisor = ($kp && $kp->status_kp !== 'rejected' && $kp->supervisorInstansi) ? $kp->supervisorInstansi->nama_supervisor : '-';
+            $maskedJenisInstansi = $kp && $kp->status_kp !== 'rejected' ? ucfirst($kp->jenis_instansi ?? 'Eksternal') : '-';
             $pengerjaanFormat = ($kp && in_array(strtolower($kp->pengerjaan_kp ?? ''), ['kelompok', 'berkelompok'])) ? 'Kelompok' : '-';
 
             $formattedPendaftarans[] = [

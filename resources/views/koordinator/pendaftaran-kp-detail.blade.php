@@ -75,29 +75,29 @@
                 <!-- Jenis KP -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Jenis KP</div>
                 <div class="hidden md:block">:</div>
-                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->jenis_instansi }}</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->status_kp !== 'rejected' ? $kp->jenis_instansi : '-' }}</div>
                 
                 <!-- Nama Instansi -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Nama Instansi</div>
                 <div class="hidden md:block">:</div>
-                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->instansi_nama }}</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->status_kp !== 'rejected' ? $kp->instansi_nama : '-' }}</div>
                 
                 <!-- Supervisor -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Supervisor</div>
                 <div class="hidden md:block">:</div>
-                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->supervisorInstansi->nama_supervisor ?? '-' }}</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->status_kp !== 'rejected' && $kp->supervisorInstansi ? $kp->supervisorInstansi->nama_supervisor : '-' }}</div>
 
                 @if($kp->jenis_instansi !== 'Internal')
                 <!-- Email Supervisor -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Email Supervisor</div>
                 <div class="hidden md:block">:</div>
-                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->supervisorInstansi->email_supervisor ?? '-' }}</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->status_kp !== 'rejected' && $kp->supervisorInstansi ? $kp->supervisorInstansi->email_supervisor : '-' }}</div>
                 @endif
                 
                 <!-- Judul KP -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Judul KP</div>
                 <div class="hidden md:block">:</div>
-                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->judul_kp }}</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->status_kp !== 'rejected' ? $kp->judul_kp : '-' }}</div>
                 
                 <!-- Status KP (Baru/Lanjut) -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Status KP</div>
