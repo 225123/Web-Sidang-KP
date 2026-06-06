@@ -275,13 +275,12 @@ class PenugasanPembimbingController extends Controller
                     END
                 ")->latest()->first();
 
-            $approvedKp = ($latestKp && $latestKp->status_kp === 'approved') ? $latestKp : null;
-            $clusterId = $approvedKp ? 'kp_'.$approvedKp->id : 'mhs_'.$m->id;
+            $clusterId = $latestKp ? 'kp_'.$latestKp->id : 'mhs_'.$m->id;
 
             if (! isset($clusters[$clusterId])) {
                 $clusters[$clusterId] = [
                     'id' => $clusterId,
-                    'kp' => $approvedKp,
+                    'kp' => $latestKp,
                     'mahasiswas' => [],
                 ];
             }
@@ -541,16 +540,14 @@ class PenugasanPembimbingController extends Controller
                     continue;
                 }
 
-                $approvedKp = ($latestKp && $latestKp->status_kp === 'approved') ? $latestKp : null;
-
-                $clusterId = $approvedKp ? 'kp_'.$approvedKp->id : 'mhs_'.$m->id;
+                $clusterId = $latestKp ? 'kp_'.$latestKp->id : 'mhs_'.$m->id;
 
                 if (! isset($clusters[$clusterId])) {
                     $clusters[$clusterId] = [
                         'id' => $clusterId,
-                        'is_group' => $approvedKp ? true : false,
+                        'is_group' => $latestKp && in_array(strtolower($latestKp->pengerjaan_kp ?? ''), ['kelompok', 'berkelompok']),
                         'members' => [],
-                        'supervisor_id' => $approvedKp ? $approvedKp->supervisor_internal_id : null,
+                        'supervisor_id' => $latestKp ? $latestKp->supervisor_internal_id : null,
                     ];
                 }
 
