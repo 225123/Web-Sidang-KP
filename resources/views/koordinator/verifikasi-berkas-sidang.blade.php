@@ -49,13 +49,13 @@
 
         $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()->id;
         
-        // Get students who have a KP registration in this period
+        // Get students who have a KP registration in this period OR are registered in this period
         $semuaMahasiswa = \App\Models\Mahasiswa::with('user')
-            ->whereIn('user_id', function($query) use ($activePeriodId) {
+            ->where('tahun_ajaran_id', $activePeriodId)
+            ->orWhereIn('user_id', function($query) use ($activePeriodId) {
                 $query->select('mahasiswa_id')
                       ->from('pendaftaran_kp')
-                      ->where('tahun_ajaran_id', $activePeriodId)
-                      ->where('status_kp', 'approved');
+                      ->where('tahun_ajaran_id', $activePeriodId);
             })->get();
 
         $allStatusRows = $semuaMahasiswa->map(function($mhs) use ($pengajuans) {

@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Sistem Sidang KP</title>
-    <link rel="icon" href="data:,">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=2">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
