@@ -298,11 +298,18 @@ class PenugasanPembimbingController extends Controller
                     END
                 ")->latest()->first();
 
+            $maskedInstansi = $individualKp && $individualKp->status_kp !== 'rejected' ? ($individualKp->instansi_nama ?? '-') : '-';
+            $maskedSupervisor = ($individualKp && $individualKp->status_kp !== 'rejected' && $individualKp->supervisorInstansi) ? $individualKp->supervisorInstansi->nama_supervisor : '-';
+            $maskedJenisInstansi = $individualKp && $individualKp->status_kp !== 'rejected' ? ucfirst($individualKp->jenis_instansi ?? 'Eksternal') : '-';
+
             $clusters[$clusterId]['mahasiswas'][] = [
                 'user_id' => $m->id,
                 'nama' => $m->name,
                 'nim' => $m->mahasiswa->nim,
-                'judul_kp' => $individualKp ? ($individualKp->judul_kp ?? '-') : '-',
+                'judul_kp' => ($individualKp && $individualKp->status_kp !== 'rejected') ? ($individualKp->judul_kp ?? '-') : '-',
+                'instansi' => $maskedInstansi,
+                'supervisor' => $maskedSupervisor,
+                'jenis_kp' => $maskedJenisInstansi,
                 'dosen_id' => $latestKp ? $latestKp->pembimbing_id : null,
                 'slug' => $individualKp ? \Str::slug($individualKp->judul_kp ?? 'kp').'-'.$m->mahasiswa->nim : 'kp-'.$m->mahasiswa->nim,
             ];
@@ -312,18 +319,13 @@ class PenugasanPembimbingController extends Controller
         foreach ($clusters as $cluster) {
             $kp = $cluster['kp'];
 
-            $maskedInstansi = $kp && $kp->status_kp !== 'rejected' ? ($kp->instansi_nama ?? '-') : '-';
-            $maskedSupervisor = ($kp && $kp->status_kp !== 'rejected' && $kp->supervisorInstansi) ? $kp->supervisorInstansi->nama_supervisor : '-';
-            $maskedJenisInstansi = $kp && $kp->status_kp !== 'rejected' ? ucfirst($kp->jenis_instansi ?? 'Eksternal') : '-';
+
             $pengerjaanFormat = ($kp && in_array(strtolower($kp->pengerjaan_kp ?? ''), ['kelompok', 'berkelompok'])) ? 'Kelompok' : '-';
 
             $formattedPendaftarans[] = [
                 'id' => $cluster['id'],
                 'slug' => \Str::slug($kp ? $kp->judul_kp : 'kp').'-'.($cluster['mahasiswas'][0]['nim'] ?? '12345'),
                 'mahasiswas' => $cluster['mahasiswas'],
-                'jenis_kp' => $maskedJenisInstansi,
-                'instansi' => $maskedInstansi,
-                'supervisor' => $maskedSupervisor,
                 'pengerjaan' => $pengerjaanFormat,
                 'dosen_id' => $cluster['mahasiswas'][0]['dosen_id'] ?? null,
                 'supervisor_id' => $kp ? $kp->supervisor_internal_id : null,

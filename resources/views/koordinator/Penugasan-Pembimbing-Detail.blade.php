@@ -145,7 +145,7 @@
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Pengerjaan KP</div>
                 <div class="hidden md:block">:</div>
                 <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px] capitalize">
-                    {{ in_array(strtolower($kp->pengerjaan_kp ?? ''), ['kelompok', 'berkelompok']) ? 'Kelompok' : 'Individu' }}
+                    {{ $individualKp && $individualKp->status_kp !== 'rejected' ? (in_array(strtolower($individualKp->pengerjaan_kp ?? ''), ['kelompok', 'berkelompok']) ? 'Kelompok' : 'Individu') : '-' }}
                 </div>
                 
                 @if($kp->pengerjaan_kp === 'kelompok' && !empty($kp->anggotaLainList))
@@ -165,18 +165,18 @@
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Jenis KP</div>
                 <div class="hidden md:block">:</div>
                 <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px] capitalize">
-                    {{ $kp->status_kp !== 'rejected' ? ($kp->jenis_instansi ?? 'External') : '-' }}
+                    {{ $individualKp && $individualKp->status_kp !== 'rejected' ? ($individualKp->jenis_instansi ?? 'External') : '-' }}
                 </div>
                 
                 <!-- Nama Instansi -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Nama Instansi</div>
                 <div class="hidden md:block">:</div>
-                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->status_kp !== 'rejected' ? ($kp->instansi_nama ?? '-') : '-' }}</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $individualKp && $individualKp->status_kp !== 'rejected' ? ($individualKp->instansi_nama ?? '-') : '-' }}</div>
                 
                 <!-- Supervisor -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Supervisor</div>
                 <div class="hidden md:block">:</div>
-                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->status_kp !== 'rejected' && $kp->supervisorInstansi ? $kp->supervisorInstansi->nama_supervisor : '-' }}</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $individualKp && $individualKp->status_kp !== 'rejected' && $individualKp->supervisorInstansi ? $individualKp->supervisorInstansi->nama_supervisor : '-' }}</div>
                 
                 <!-- Judul KP -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Judul KP</div>

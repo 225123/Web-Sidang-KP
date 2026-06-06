@@ -285,14 +285,14 @@
                                             <div class="text-[11px] text-gray-500">{{ $mhs['nim'] }}</div>
                                         </td>
 
-                                        <!-- The common Group Info -->
-                                        @if($mIndex === 0)
-                                            <td rowspan="{{ $rowspan }}" class="border-r border-gray-200 px-4 py-2 align-middle text-center">
-                                                <div class="font-bold text-[12px] text-gray-800 leading-snug">{{ $p['jenis_kp'] }}</div>
-                                                <div class="text-[11px] text-gray-500">{{ $p['instansi'] }}</div>
-                                            </td>
-                                            <td rowspan="{{ $rowspan }}" class="border-r border-gray-200 px-4 py-2 align-middle text-center">{{ $p['supervisor'] }}</td>
-                                        @endif
+                                        <!-- Jenis KP and Instansi for each Mahasiswa -->
+                                        <td class="border-r border-gray-200 px-4 py-2 align-middle text-center">
+                                            <div class="font-bold text-[12px] text-gray-800 leading-snug">{{ $mhs['jenis_kp'] }}</div>
+                                            <div class="text-[11px] text-gray-500">{{ $mhs['instansi'] }}</div>
+                                        </td>
+                                        
+                                        <!-- Supervisor for each Mahasiswa -->
+                                        <td class="border-r border-gray-200 px-4 py-2 align-middle text-center">{{ $mhs['supervisor'] }}</td>
                                         
                                         <!-- Judul KP for each Mahasiswa -->
                                         <td class="border-r border-gray-200 px-4 py-2 align-middle text-left max-w-[200px]" title="{{ $mhs['judul_kp'] }}">
