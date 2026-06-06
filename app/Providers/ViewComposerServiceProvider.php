@@ -44,7 +44,8 @@ class ViewComposerServiceProvider extends ServiceProvider
                                       $q3->where('pendaftaran_kp.mahasiswa_id', $user->id)
                                          ->orWhereJsonContains('pendaftaran_kp.anggota_kelompok_ids', $user->id)
                                          ->orWhereJsonContains('pendaftaran_kp.anggota_kelompok_ids', (string) $user->id);
-                                  });
+                                  })
+                                  ->whereNotNull('pendaftaran_kp.status_kp');
                           });
                     })->terbaru()->get();
                     

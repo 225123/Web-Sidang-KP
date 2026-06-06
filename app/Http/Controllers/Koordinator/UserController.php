@@ -147,7 +147,8 @@ class UserController extends Controller
                           $sub->select(DB::raw(1))
                               ->from('pendaftaran_kp')
                               ->whereColumn('pendaftaran_kp.mahasiswa_id', 'users.id')
-                              ->where('pendaftaran_kp.tahun_ajaran_id', $periodeId);
+                              ->where('pendaftaran_kp.tahun_ajaran_id', $periodeId)
+                              ->whereNotNull('pendaftaran_kp.status_kp');
                       });
                 });
             }

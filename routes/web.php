@@ -199,6 +199,10 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'role:ko
     Route::post('/backup/download', [App\Http\Controllers\Koordinator\BackupController::class, 'downloadZip'])->name('backup.download');
     Route::delete('/backup/purge', [App\Http\Controllers\Koordinator\BackupController::class, 'purgePeriode'])->name('backup.purge');
 
+    // 14. Pemulihan Data (Orphaned Records)
+    Route::get('/pemulihan-data', [App\Http\Controllers\Koordinator\DataRecoveryController::class, 'index'])->name('pemulihan-data.index');
+    Route::post('/pemulihan-data/recover-kp', [App\Http\Controllers\Koordinator\DataRecoveryController::class, 'recoverKp'])->name('pemulihan-data.recover-kp');
+
     // 12. Pengumuman (Koordinator)
     Route::get('/pengumuman', [PengumumanController::class, 'index'])->name('pengumuman.index');
     Route::post('/pengumuman', [PengumumanController::class, 'store'])->name('pengumuman.store');
