@@ -266,7 +266,7 @@ class DashboardController extends Controller
                 $menungguPersetujuan->push((object)[
                     'mahasiswa' => $kp->mahasiswa->user->name ?? 'Unknown',
                     'jenis' => 'Pendaftaran KP',
-                    'route' => route('koordinator.persetujuan-kp.index'),
+                    'route' => route('koordinator.pendaftaran-kp'),
                     'color' => 'bg-[#E3F2FD] text-[#1565C0] border-[#2196F3]',
                 ]);
             }
