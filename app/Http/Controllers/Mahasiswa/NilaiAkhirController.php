@@ -25,6 +25,11 @@ class NilaiAkhirController extends Controller
             });
         }
 
+        $isPastPeriod = $periodeId && $periodeId != \App\Models\TahunAjaran::aktif()?->id;
+        $isFinalized = $isPastPeriod || PendaftaranSidang::whereHas('pendaftaranKp', function($q) use ($periodeId) {
+            $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+        })->where('nilai_dipublikasi', true)->exists();
+
         $sidang = $query->latest()->first();
 
         if ($sidang) {
@@ -38,9 +43,52 @@ class NilaiAkhirController extends Controller
             $sidang->grade_display = $logic['grade'];
             $sidang->original_grade = $logic['original_grade'];
             $sidang->is_penalized = $logic['is_penalized'];
+        } elseif ($isFinalized) {
+            // Jika sudah difinalisasi namun mahasiswa tidak mendaftar sidang, berikan nilai 0 otomatis
+            $mhs = \App\Models\Mahasiswa::with('user')->where('user_id', $userId)->first();
+            $kp = \App\Models\PendaftaranKp::withoutGlobalScope('periode')
+                ->where('mahasiswa_id', $mhs->id)
+                ->where('tahun_ajaran_id', $periodeId)
+                ->latest()
+                ->first();
+
+            $sidang = new PendaftaranSidang([
+                'mahasiswa_id' => $mhs->id,
+                'pendaftaran_kp_id' => $kp ? $kp->id : null,
+                'status_kelulusan' => 'Lanjut',
+                'nilai_dipublikasi' => true,
+                'nilai_pembimbing' => 0,
+                'nilai_supervisor' => 0,
+                'nilai_penguji_1' => 0,
+                'nilai_penguji_2' => 0,
+                'nilai_akhir' => 0,
+                'n1_laporan' => 0,
+                'n1_produk' => 0,
+                'n1_presentasi' => 0,
+                'n2_laporan' => 0,
+                'n2_produk' => 0,
+                'n2_presentasi' => 0,
+                'nb_laporan' => 0,
+                'nb_produk' => 0,
+                'nb_sikap' => 0,
+                'ns_motivasi' => 0,
+                'ns_kualitas' => 0,
+                'ns_inisiatif' => 0,
+                'ns_sikap' => 0,
+            ]);
+
+            $sidang->setRelation('mahasiswa', $mhs);
+            if ($kp) {
+                $sidang->setRelation('pendaftaranKp', $kp->load('pembimbing', 'supervisorInstansi'));
+            }
+
+            $sidang->nilai_akhir_display = 0;
+            $sidang->grade_display = 'E';
+            $sidang->original_grade = 'E';
+            $sidang->is_penalized = false;
         }
 
-        return view('mahasiswa.nilai-akhir', compact('sidang'));
+        return view('mahasiswa.nilai-akhir', compact('sidang', 'isPastPeriod'));
     }
 
     public function hasilSidang()
@@ -60,6 +108,11 @@ class NilaiAkhirController extends Controller
             });
         }
 
+        $isPastPeriod = $periodeId && $periodeId != \App\Models\TahunAjaran::aktif()?->id;
+        $isFinalized = $isPastPeriod || PendaftaranSidang::whereHas('pendaftaranKp', function($q) use ($periodeId) {
+            $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+        })->where('nilai_dipublikasi', true)->exists();
+
         $sidang = $query->latest()->first();
 
         if ($sidang) {
@@ -71,9 +124,42 @@ class NilaiAkhirController extends Controller
             $logic = $this->calculateFinalLogic($sidang);
             $sidang->nilai_akhir_display = $logic['sidang_score'];
             $sidang->grade_display = $logic['grade'];
+        } elseif ($isFinalized) {
+            $mhs = \App\Models\Mahasiswa::with('user')->where('user_id', $userId)->first();
+            $kp = \App\Models\PendaftaranKp::withoutGlobalScope('periode')
+                ->where('mahasiswa_id', $mhs->id)
+                ->where('tahun_ajaran_id', $periodeId)
+                ->latest()
+                ->first();
+
+            $sidang = new PendaftaranSidang([
+                'mahasiswa_id' => $mhs->id,
+                'pendaftaran_kp_id' => $kp ? $kp->id : null,
+                'status_kelulusan' => 'Lanjut',
+                'nilai_dipublikasi' => true,
+                'nilai_pembimbing' => 0,
+                'nilai_supervisor' => 0,
+                'nilai_penguji_1' => 0,
+                'nilai_penguji_2' => 0,
+                'nilai_akhir' => 0,
+                'n1_laporan' => 0,
+                'n1_produk' => 0,
+                'n1_presentasi' => 0,
+                'n2_laporan' => 0,
+                'n2_produk' => 0,
+                'n2_presentasi' => 0,
+            ]);
+
+            $sidang->setRelation('mahasiswa', $mhs);
+            if ($kp) {
+                $sidang->setRelation('pendaftaranKp', $kp->load('pembimbing', 'supervisorInstansi'));
+            }
+
+            $sidang->nilai_akhir_display = 0;
+            $sidang->grade_display = 'E';
         }
 
-        return view('mahasiswa.hasil-sidang', compact('sidang'));
+        return view('mahasiswa.hasil-sidang', compact('sidang', 'isPastPeriod'));
     }
 
     public function downloadNilai()
