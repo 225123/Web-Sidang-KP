@@ -113,7 +113,7 @@
                     data-jenis="{{ $kp->jenis_instansi ?? '' }}"
                     data-status="{{ $kp->status_kp ?? '' }}"
                     data-pengerjaan="{{ $kp->pengerjaan_kp ?? 'individu' }}"
-                    data-barulanjut="{{ $kp->is_lanjutan ? 'lanjut' : 'baru' }}"
+                    data-barulanjut="{{ ($kp->user->mahasiswa->is_lanjutan ?? false) ? 'lanjut' : 'baru' }}"
                     data-nim="{{ $mhsList[0]['nim'] ?? '' }}"
                     data-nama="{{ ($mhsList[0]['nama'] ?? '') }}"
                     style="display: none;">

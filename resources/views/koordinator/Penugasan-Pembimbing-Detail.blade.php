@@ -186,8 +186,8 @@
                 <!-- Status KP -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Status KP</div>
                 <div class="hidden md:block">:</div>
-                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px] {{ $kp->is_lanjutan ? 'text-[#EA4335] font-bold' : 'text-[#34A853]' }}">
-                    {{ $kp->is_lanjutan ? 'Lanjutan' : 'Baru' }}
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px] {{ ($kp->user->mahasiswa->is_lanjutan ?? false) ? 'text-[#EA4335] font-bold' : 'text-[#34A853]' }}">
+                    {{ ($kp->user->mahasiswa->is_lanjutan ?? false) ? 'Lanjutan' : 'Baru' }}
                 </div>
                 
                 <!-- Detail KP -->
