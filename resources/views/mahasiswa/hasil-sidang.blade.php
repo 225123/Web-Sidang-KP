@@ -6,7 +6,7 @@
         
 
     @php
-        $mhsName = optional(optional(optional($sidang)->mahasiswa)->user)->name ? strtolower($sidang->mahasiswa->user->name) : '-';
+        $mhsName = optional(optional(optional($sidang)->mahasiswa)->user)->name ? $sidang->mahasiswa->user->name : '-';
         $mhsNim = optional(optional($sidang)->mahasiswa)->nim ?? '-';
         $tglSidang = optional($sidang)->tanggal_sidang ? \Carbon\Carbon::parse($sidang->tanggal_sidang)->locale('id')->isoFormat('dddd, D MMMM Y') : '-';
         $waktuSidang = optional($sidang)->waktu_mulai_sidang ? \Carbon\Carbon::parse($sidang->waktu_mulai_sidang)->format('H:i') . ' - ' . \Carbon\Carbon::parse($sidang->waktu_selesai_sidang)->format('H:i') . ' WIB' : '-';
@@ -44,7 +44,7 @@
             
             <div class="grid grid-cols-[200px_auto] gap-y-3 text-[14px] font-medium text-black">
                 <div>Nama</div>
-                <div class="sentence-case">: {{ $mhsName }}</div>
+                <div>: {{ $mhsName }}</div>
 
                 <div>NIM</div>
                 <div>: {{ $mhsNim }}</div>
@@ -59,7 +59,7 @@
                 <div>: {{ $ruangan }}</div>
 
                 <div>Judul KP</div>
-                <div class="sentence-case">: {{ $judul }}</div>
+                <div>: {{ $judul }}</div>
 
                 <div>Dosen Penguji 1</div>
                 <div>: {{ $penguji1Name }}</div>

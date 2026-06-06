@@ -4,12 +4,12 @@
     </x-slot>
 
     @php
-        $mhsName = optional(optional(optional($sidang)->mahasiswa)->user)->name ? strtolower($sidang->mahasiswa->user->name) : '-';
+        $mhsName = optional(optional(optional($sidang)->mahasiswa)->user)->name ? $sidang->mahasiswa->user->name : '-';
         $mhsNim = optional(optional($sidang)->mahasiswa)->nim ?? '-';
         $tglSidang = optional($sidang)->tanggal_sidang ? \Carbon\Carbon::parse($sidang->tanggal_sidang)->locale('id')->isoFormat('dddd, D MMMM Y') : '-';
         $waktuSidang = optional($sidang)->waktu_mulai_sidang ? \Carbon\Carbon::parse($sidang->waktu_mulai_sidang)->format('H:i') . ' - ' . \Carbon\Carbon::parse($sidang->waktu_selesai_sidang)->format('H:i') . ' WIB' : '-';
         $ruangan = optional($sidang)->ruang_sidang ?? '-';
-        $judul = optional(optional($sidang)->pendaftaranKp)->judul_kp ? strtolower($sidang->pendaftaranKp->judul_kp) : '-';
+        $judul = optional(optional($sidang)->pendaftaranKp)->judul_kp ? $sidang->pendaftaranKp->judul_kp : '-';
         $pembimbingName = optional(optional(optional($sidang)->pendaftaranKp)->pembimbing)->name ?? '-';
         $penguji1Name = optional(optional($sidang)->penguji1)->name ?? '-';
         $penguji2Name = optional(optional($sidang)->penguji2)->name ?? '-';
@@ -79,7 +79,7 @@
                 
                 <div class="grid grid-cols-[200px_auto] gap-y-3 text-[14px] font-medium text-black">
                     <div>Nama</div>
-                    <div class="sentence-case">: {{ $mhsName }}</div>
+                    <div>: {{ $mhsName }}</div>
 
                     <div>NIM</div>
                     <div>: {{ $mhsNim }}</div>
@@ -94,7 +94,7 @@
                     <div>: {{ $ruangan }}</div>
 
                     <div>Judul KP</div>
-                    <div class="sentence-case">: {{ $judul }}</div>
+                    <div>: {{ $judul }}</div>
 
                     <div>Dosen Pembimbing</div>
                     <div>: {{ $pembimbingName }}</div>
