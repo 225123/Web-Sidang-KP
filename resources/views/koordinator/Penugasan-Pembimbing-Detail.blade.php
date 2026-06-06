@@ -181,7 +181,7 @@
                 <!-- Judul KP -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Judul KP</div>
                 <div class="hidden md:block">:</div>
-                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $kp->status_kp !== 'rejected' ? ($kp->judul_kp ?? '-') : '-' }}</div>
+                <div class="mb-3 md:mb-0 font-medium text-[15px] md:text-[14px]">{{ $individualKp && $individualKp->status_kp !== 'rejected' ? ($individualKp->judul_kp ?? '-') : '-' }}</div>
                 
                 <!-- Status KP -->
                 <div class="font-bold md:font-medium text-gray-500 md:text-[#1A1A1A]">Status KP</div>
@@ -195,10 +195,10 @@
                 <div class="hidden md:block align-top md:pt-2">:</div>
                 <div class="md:pt-2 font-medium text-[15px] md:text-[14px] mb-6">
                     <div class="text-[13px] leading-[1.8]">
-                        @if($kp->jenis_proyek)
-                            {!! nl2br(e($kp->jenis_proyek)) !!}
+                        @if($individualKp && $individualKp->status_kp !== 'rejected' && $individualKp->jenis_proyek)
+                            {!! nl2br(e($individualKp->jenis_proyek)) !!}
                         @else
-                            <span class="text-gray-400 italic">Tidak ada deskripsi detail KP</span>
+                            -
                         @endif
                     </div>
                 </div>

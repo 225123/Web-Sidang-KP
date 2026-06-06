@@ -716,7 +716,22 @@ class PenugasanPembimbingController extends Controller
         // The ID of the item in the array that determines assignment is 'mhs_X' or 'kp_X'
         $clusterId = ($kp->status_kp === 'approved' && $kp->id) ? 'kp_'.$kp->id : 'mhs_'.$mhsUser->id;
 
-        return view('koordinator.Penugasan-Pembimbing-Detail', compact('kp', 'dosenList', 'clusterId'));
+        $individualKp = PendaftaranKp::where('mahasiswa_id', $mhsUser->id)
+            ->orderByRaw("
+                CASE 
+                    WHEN status_kp = 'approved' THEN 1
+                    WHEN status_kp = 'verified' THEN 2
+                    WHEN status_kp = 'pending' THEN 3
+                    WHEN status_kp IS NULL THEN 4
+                    WHEN status_kp = 'rejected' THEN 5
+                    ELSE 6
+                END
+            ")->latest()->first();
+            
+        $periodeId = session('selected_periode_id');
+        $isReadOnly = $periodeId && $periodeId != (\App\Models\TahunAjaran::aktif()?->id);
+
+        return view('koordinator.Penugasan-Pembimbing-Detail', compact('kp', 'individualKp', 'dosenList', 'clusterId', 'isReadOnly'));
     }
 
     private function sendAssignmentNotification($kp, $dosenUserId)
