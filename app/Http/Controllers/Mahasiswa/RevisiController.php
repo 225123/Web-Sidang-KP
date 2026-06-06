@@ -41,7 +41,9 @@ class RevisiController extends Controller
             $sidang->grade_display = $finalGrade;
         }
 
-        return view('mahasiswa.revisi', compact('sidang'));
+        $isPastPeriod = $periodeId && $periodeId != \App\Models\TahunAjaran::aktif()?->id;
+
+        return view('mahasiswa.revisi', compact('sidang', 'isPastPeriod'));
     }
 
     private function getGradeFromScore($nilai)
