@@ -30,6 +30,13 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/fix-lanjut', function () {
+    $updated = \App\Models\PendaftaranKp::whereHas('user.mahasiswa', function($q) {
+        $q->where('status_kp', 'Lanjut');
+    })->update(['is_lanjutan' => true]);
+    return "Retroactively updated {$updated} records to Lanjut. You can now go back to dashboard.";
+});
+
 Route::get('/', function () {
     if (auth()->check()) {
         $role = auth()->user()->role;
