@@ -436,7 +436,7 @@
                 },
 
                 get finishedCount() {
-                    return this.allSessions.filter(s => s.pelaksanaan === 'Selesai').length;
+                    return this.allSessions.filter(s => this.getExecutionStatus(s) === 'Selesai').length;
                 },
 
                 get percentage() {
