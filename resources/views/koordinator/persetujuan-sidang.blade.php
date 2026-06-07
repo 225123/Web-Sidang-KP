@@ -16,7 +16,7 @@
                 'nim' => $p->mahasiswa->nim ?? '-',
                 'judul' => \App\Models\PendaftaranKp::where('mahasiswa_id', $p->mahasiswa_id)->latest()->value('judul_kp') ?? $p->pendaftaranKp->judul_kp ?? '-',
                 'file_laporan' => $p->file_laporan ? storage_url($p->file_laporan) : null,
-                'link_github' => $p->link_github ?? null,
+                'link_drive' => $p->link_drive ?? null,
                 'total_bimbingan' => $p->total_bimbingan_count ?? 0,
                 'status' => $p->status_verifikasi,
                 'feedback' => $p->dosen_feedback ?? 'Tidak ada catatan.',
@@ -28,7 +28,7 @@
                 'nim' => $r->pendaftaranSidang->mahasiswa->nim ?? '-',
                 'judul' => \App\Models\PendaftaranKp::where('mahasiswa_id', $r->pendaftaranSidang->mahasiswa_id)->latest()->value('judul_kp') ?? $r->pendaftaranSidang->pendaftaranKp->judul_kp ?? '-',
                 'file_laporan' => $r->pendaftaranSidang->file_laporan ? storage_url($r->pendaftaranSidang->file_laporan) : null,
-                'link_github' => $r->pendaftaranSidang->link_github ?? null,
+                'link_drive' => $r->pendaftaranSidang->link_drive ?? null,
                 'total_bimbingan' => $r->pendaftaranSidang->pendaftaranKp->logBimbingans->where('mahasiswa_id', $r->pendaftaranSidang->mahasiswa_id)->where('status_approval', 'approved')->count(),
                 'status' => 'rejected',
                 'feedback' => $r->alasan_penolakan ?? 'Tidak ada catatan.',
@@ -151,8 +151,8 @@
                                             <template x-if="p.file_laporan">
                                                 <a :href="p.file_laporan" target="_blank" class="text-blue-600 hover:underline font-bold italic">Lihat Laporan</a>
                                             </template>
-                                            <template x-if="p.link_github && !p.file_laporan">
-                                                <a :href="p.link_github" target="_blank" class="text-blue-600 hover:underline font-bold italic">Link GDrive</a>
+                                            <template x-if="p.link_drive && !p.file_laporan">
+                                                <a :href="p.link_drive" target="_blank" class="text-blue-600 hover:underline font-bold italic">Link GDrive</a>
                                             </template>
                                         </td>
                                         <td class="py-4 px-4 text-center text-black font-bold">
@@ -233,10 +233,10 @@
                                             <template x-if="p.file_laporan">
                                                 <a :href="p.file_laporan" target="_blank" class="text-blue-600 hover:underline font-bold italic">Lihat Laporan</a>
                                             </template>
-                                            <template x-if="p.link_github && !p.file_laporan">
-                                                <a :href="p.link_github" target="_blank" class="text-blue-600 hover:underline font-bold italic">Link GDrive</a>
+                                            <template x-if="p.link_drive && !p.file_laporan">
+                                                <a :href="p.link_drive" target="_blank" class="text-blue-600 hover:underline font-bold italic">Link GDrive</a>
                                             </template>
-                                            <template x-if="!p.file_laporan && !p.link_github">
+                                            <template x-if="!p.file_laporan && !p.link_drive">
                                                 <span class="text-gray-400 italic">Dihapus</span>
                                             </template>
                                         </td>
