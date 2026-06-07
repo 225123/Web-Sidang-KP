@@ -232,7 +232,7 @@
                     </div>
 
                     <!-- Student List -->
-                    <div class="w-full overflow-y-auto custom-scrollbar max-h-[220px] pr-2">
+                    <div class="flex-1 w-full overflow-y-auto custom-scrollbar max-h-[220px] pr-2 min-h-0">
                         <div class="space-y-3">
                             @forelse($listBimbinganMahasiswa as $mhs)
                             <div class="flex items-center justify-between p-3 bg-[#F9FAFB] rounded-[8px] hover:bg-[#F3F4F6] transition-colors border border-transparent hover:border-[#D1D5DB]">
