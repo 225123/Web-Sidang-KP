@@ -141,13 +141,8 @@
                                     openGiver: false,
 
                                      get filteredDosenFromInput() {
-                                        const currentPembimbingId = '{{ $pembimbingId ?? '' }}';
-                                        let filtered = this.allDosen;
-                                        if (currentPembimbingId !== '') {
-                                            filtered = filtered.filter(d => d.id != currentPembimbingId);
-                                        }
-                                        if (this.searchDosen === '') return filtered;
-                                        return filtered.filter(d => d.name.toLowerCase().includes(this.searchDosen.toLowerCase()));
+                                        if (this.searchDosen === '') return this.allDosen;
+                                        return this.allDosen.filter(d => d.name.toLowerCase().includes(this.searchDosen.toLowerCase()));
                                     },
 
                                     selectDosen(dosen) {
@@ -158,13 +153,8 @@
                                     },
 
                                     get filteredGiver() {
-                                        const currentPembimbingId = '{{ $pembimbingId ?? '' }}';
-                                        let filtered = this.allDosen;
-                                        if (currentPembimbingId !== '') {
-                                            filtered = filtered.filter(d => d.id != currentPembimbingId);
-                                        }
-                                        if (this.searchGiver === '') return filtered;
-                                        return filtered.filter(d => d.name.toLowerCase().includes(this.searchGiver.toLowerCase()));
+                                        if (this.searchGiver === '') return this.allDosen;
+                                        return this.allDosen.filter(d => d.name.toLowerCase().includes(this.searchGiver.toLowerCase()));
                                     },
 
                                     selectGiver(dosen) {
@@ -291,10 +281,17 @@
                                             <ul class="py-1 text-[14px] max-h-48 overflow-y-auto">
                                                 <template x-for="dosen in filteredGiver" :key="dosen.id">
                                                     <li>
-                                                        <button type="button" @click="selectGiver(dosen)"
-                                                            class="block w-full text-left px-4 py-2 hover:bg-yellow-200 transition-colors"
-                                                            :class="selectedGiverId == dosen.id ? 'bg-yellow-100 font-bold' : ''">
-                                                            <span x-text="dosen.name"></span>
+                                                        <button type="button" 
+                                                            @click="dosen.id == '{{ $pembimbingId ?? '' }}' ? null : selectGiver(dosen)"
+                                                            class="block w-full text-left px-4 py-2 transition-colors relative"
+                                                            :class="[
+                                                                selectedGiverId == dosen.id ? 'bg-yellow-100 font-bold' : '',
+                                                                dosen.id == '{{ $pembimbingId ?? '' }}' ? 'text-red-500 cursor-not-allowed bg-red-50/50' : 'hover:bg-yellow-200'
+                                                            ]">
+                                                            <div class="flex items-center justify-between pointer-events-none">
+                                                                <span x-text="dosen.name"></span>
+                                                                <span x-show="dosen.id == '{{ $pembimbingId ?? '' }}'" class="text-[10px] font-bold text-red-500 bg-red-100 px-2 py-0.5 rounded border border-red-200">Pembimbing</span>
+                                                            </div>
                                                         </button>
                                                     </li>
                                                 </template>
@@ -459,10 +456,17 @@
                                         <ul class="py-1 text-[14px] max-h-48 overflow-y-auto">
                                             <template x-for="dosen in filteredDosenFromInput" :key="dosen.id + '-supervisor'">
                                                 <li>
-                                                    <button type="button" @click="selectDosen(dosen)"
-                                                        class="block w-full text-left px-4 py-2 hover:bg-yellow-200 transition-colors"
-                                                        :class="selectedDosenId == dosen.id ? 'bg-yellow-100 font-bold' : ''">
-                                                        <span x-text="dosen.name"></span>
+                                                    <button type="button" 
+                                                        @click="dosen.id == '{{ $pembimbingId ?? '' }}' ? null : selectDosen(dosen)"
+                                                        class="block w-full text-left px-4 py-2 transition-colors relative"
+                                                        :class="[
+                                                            selectedDosenId == dosen.id ? 'bg-yellow-100 font-bold' : '',
+                                                            dosen.id == '{{ $pembimbingId ?? '' }}' ? 'text-red-500 cursor-not-allowed bg-red-50/50' : 'hover:bg-yellow-200'
+                                                        ]">
+                                                        <div class="flex items-center justify-between pointer-events-none">
+                                                            <span x-text="dosen.name"></span>
+                                                            <span x-show="dosen.id == '{{ $pembimbingId ?? '' }}'" class="text-[10px] font-bold text-red-500 bg-red-100 px-2 py-0.5 rounded border border-red-200">Pembimbing</span>
+                                                        </div>
                                                     </button>
                                                 </li>
                                             </template>
