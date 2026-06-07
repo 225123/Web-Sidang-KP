@@ -137,8 +137,8 @@
                         @csrf
                         @method('PUT')
                         <input type="hidden" name="status" value="approved">
-                        <button type="button" class="bg-[#34A853] hover:bg-green-600 transition-colors text-white px-6 py-2 rounded-[5px] text-[13px] font-bold shadow-sm flex items-center justify-center gap-2 w-[110px]" 
-                            @click="openModalCatatan($el.closest('form'), 'Sahkan Pendaftaran KP?')">
+                        <button type="submit" class="bg-[#34A853] hover:bg-green-600 transition-colors text-white px-6 py-2 rounded-[5px] text-[13px] font-bold shadow-sm flex items-center justify-center gap-2 w-[110px]" 
+                            onclick="return confirm('Sahkan Pendaftaran KP ini?');">
                             Sahkan
                         </button>
                     </form>
