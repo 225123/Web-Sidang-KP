@@ -120,6 +120,7 @@
                                     Dikumpul Pada</th>
                                 <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[150px]">
                                     Berkas Revisi</th>
+                                <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[150px]">Edit</th>
                                 <th class="py-3 px-4 font-bold text-center border-b border-gray-300 w-[180px]">Aksi</th>
                             </tr>
                         </thead>
@@ -190,6 +191,21 @@
                                         </div>
                                     </td>
 
+                                    <td class="py-3 px-4 text-center border-r border-gray-200">
+                                        <template x-if="sidang.status_revisi === 'Menunggu'">
+                                            @if(!isset($isReadOnly) || !$isReadOnly)
+                                            <button type="button" @click="openEditModal(sidang)" class="w-full bg-[#FBBC05] hover:bg-yellow-500 text-black font-bold text-[11px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase flex items-center justify-center gap-1">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg> Edit Nilai
+                                            </button>
+                                            @else
+                                            <span class="text-gray-400 text-[11px] font-bold uppercase">Read Only</span>
+                                            @endif
+                                        </template>
+                                        <template x-if="sidang.status_revisi !== 'Menunggu' && sidang.status_revisi !== 'Belum mengumpulkan'">
+                                            <span class="text-gray-400 text-[11px] font-bold uppercase">-</span>
+                                        </template>
+                                    </td>
+
                                     <td class="py-3 px-4 text-center">
                                         <div class="flex items-center justify-center gap-2">
                                             <template x-if="sidang.status_revisi === 'Menunggu'">
@@ -198,22 +214,19 @@
                                                     <div class="flex gap-2 justify-center">
                                                         <form :action="'{{ url('dosen/revisi') }}/' + sidang.id + '/terima'"
                                                             method="POST"
-                                                            @submit="return confirm('Sahkan revisi mahasiswa ini?')">
+                                                            @submit="!confirm('Sahkan revisi mahasiswa ini?') && $event.preventDefault()">
                                                             @csrf
                                                             <button type="submit"
                                                                 class="bg-[#34A853] hover:bg-green-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase w-full">Sahkan</button>
                                                         </form>
                                                         <form :action="'{{ url('dosen/revisi') }}/' + sidang.id + '/tolak'"
                                                             method="POST"
-                                                            @submit="return confirm('Tolak revisi mahasiswa ini?')">
+                                                            @submit="!confirm('Tolak revisi mahasiswa ini?') && $event.preventDefault()">
                                                             @csrf
                                                             <button type="submit"
                                                                 class="bg-[#EA4335] hover:bg-red-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase w-full">Tolak</button>
                                                         </form>
                                                     </div>
-                                                    <button type="button" @click="openEditModal(sidang)" class="bg-[#FBBC05] hover:bg-yellow-500 text-black font-bold text-[11px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase flex items-center justify-center gap-1">
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg> Edit Nilai
-                                                    </button>
                                                 </div>
                                                 @else
                                                 <div class="bg-gray-200 text-gray-500 font-bold px-3 py-1.5 rounded text-[11px] uppercase flex items-center justify-center w-full">
@@ -240,7 +253,7 @@
                             </template>
                             <template x-if="filteredSidangs.length === 0">
                                 <tr>
-                                    <td colspan="7" class="py-12 text-center text-gray-500 italic text-[12px]">
+                                    <td colspan="8" class="py-12 text-center text-gray-500 italic text-[12px]">
                                         Tidak ada data mahasiswa revisi yang sesuai pencarian/filter.
                                     </td>
                                 </tr>
@@ -370,8 +383,8 @@
                         <button @click="if(statusCurrentPage < totalStatusPages) statusCurrentPage++" :disabled="statusCurrentPage === totalStatusPages" class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Next</button>
                     </div>
                 </div>
+                </div>
             </div>
-        </div>
 
         <!-- Edit Nilai Modal -->
         <div x-cloak x-show="editModal.show" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -416,6 +429,8 @@
                     </form>
                 </div>
             </div>
+        </div>
+
         </div>
 
         @php
