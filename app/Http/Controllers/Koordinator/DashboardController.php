@@ -121,7 +121,10 @@ class DashboardController extends Controller
             // Progress Bimbingan (Koordinator as Pembimbing)
             $kpsQuery = PendaftaranKp::with(['logBimbingans', 'mahasiswa.user'])
                 ->where('pembimbing_id', auth()->id())
-                ->whereIn('status_kp', ['pending', 'approved', 'verified']);
+                ->where(function($q) {
+                    $q->whereIn('status_kp', ['pending', 'approved', 'verified'])
+                      ->orWhereNotNull('pembimbing_id');
+                });
 
             if ($periodeId) {
                 $kpsQuery->where('tahun_ajaran_id', $periodeId);
