@@ -68,4 +68,63 @@ class RevisiController extends Controller
 
         return back()->with('success', 'Revisi mahasiswa berhasil DITOLAK.');
     }
+
+    public function updateNilai(Request $request, $id)
+    {
+        $dosenId = Auth::user()->id;
+        $sidang = PendaftaranSidang::where('id', $id)
+            ->where('penguji_1_id', $dosenId)
+            ->firstOrFail();
+
+        $request->validate([
+            'n1_laporan' => 'required|numeric|min:0|max:100',
+            'n1_produk' => 'required|numeric|min:0|max:100',
+            'n1_presentasi' => 'required|numeric|min:0|max:100',
+        ]);
+
+        if ($sidang->original_nilai_penguji_1 === null) {
+            $sidang->original_n1_laporan = $sidang->n1_laporan;
+            $sidang->original_n1_produk = $sidang->n1_produk;
+            $sidang->original_n1_presentasi = $sidang->n1_presentasi;
+            $sidang->original_nilai_penguji_1 = $sidang->nilai_penguji_1;
+        }
+
+        $sidang->n1_laporan = $request->n1_laporan;
+        $sidang->n1_produk = $request->n1_produk;
+        $sidang->n1_presentasi = $request->n1_presentasi;
+        $sidang->nilai_penguji_1 = ($request->n1_laporan * 0.4) + ($request->n1_produk * 0.4) + ($request->n1_presentasi * 0.2);
+        
+        $sidang->save();
+
+        // Recalculate Final Grade
+        $pembimbing = (float) $sidang->nilai_pembimbing * 0.40;
+        $supervisor = (float) $sidang->nilai_supervisor * 0.10;
+        $penguji1 = (float) $sidang->nilai_penguji_1 * 0.25;
+        $penguji2 = (float) $sidang->nilai_penguji_2 * 0.25;
+        $avg = $pembimbing + $supervisor + $penguji1 + $penguji2;
+        $sidang->nilai_akhir = round($avg, 3);
+        
+        if ($avg >= 86) {
+            $sidang->grade = 'A';
+        } elseif ($avg >= 81) {
+            $sidang->grade = 'A-';
+        } elseif ($avg >= 76) {
+            $sidang->grade = 'B+';
+        } elseif ($avg >= 71) {
+            $sidang->grade = 'B';
+        } elseif ($avg >= 66) {
+            $sidang->grade = 'B-';
+        } elseif ($avg >= 61) {
+            $sidang->grade = 'C+';
+        } elseif ($avg >= 56) {
+            $sidang->grade = 'C';
+        } elseif ($avg >= 46) {
+            $sidang->grade = 'D';
+        } else {
+            $sidang->grade = 'E';
+        }
+        $sidang->save();
+
+        return back()->with('success', 'Nilai penguji 1 berhasil diperbarui.');
+    }
 }

@@ -182,6 +182,7 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'role:ko
     Route::get('/revisi', [RevisiController::class, 'index'])->name('revisi.index');
     Route::post('/revisi/{id}/terima', [RevisiController::class, 'terima'])->name('revisi.terima');
     Route::post('/revisi/{id}/tolak', [RevisiController::class, 'tolak'])->name('revisi.tolak');
+    Route::post('/revisi/{id}/update-nilai', [RevisiController::class, 'updateNilai'])->name('revisi.update-nilai');
 
     // Rekap Revisi (Seluruh Mahasiswa Lulus Dengan Revisi)
     Route::get('/rekap-revisi', [RekapRevisiController::class, 'index'])->name('rekap-revisi');
