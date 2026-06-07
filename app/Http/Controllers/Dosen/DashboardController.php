@@ -182,7 +182,10 @@ class DashboardController extends Controller
                   ->orWhere('penguji_2_id', $dosenId);
             })
             ->where('status_jadwal', 'submitted')
-            ->where('pelaksanaan', '!=', 'Selesai')
+            ->where(function($q) {
+                $q->where('pelaksanaan', '!=', 'Selesai')
+                  ->orWhereNull('pelaksanaan');
+            })
             ->whereDate('tanggal_sidang', '>=', now())
             ->orderBy('tanggal_sidang', 'asc')
             ->orderBy('waktu_mulai_sidang', 'asc')

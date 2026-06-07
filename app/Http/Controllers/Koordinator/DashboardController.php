@@ -354,12 +354,20 @@ class DashboardController extends Controller
 
             // 6. Jadwal Sidang Terdekat (sebagai penguji)
             $jadwalTerdekat = PendaftaranSidang::with(['mahasiswa.user', 'mahasiswa'])
+                ->whereHas('pendaftaranKp', function ($q) use ($periodeId) {
+                    if ($periodeId) {
+                        $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+                    }
+                })
                 ->where(function ($q) use ($userId) {
                     $q->where('penguji_1_id', $userId)
                       ->orWhere('penguji_2_id', $userId);
                 })
                 ->where('status_jadwal', 'submitted')
-                ->where('pelaksanaan', '!=', 'Selesai')
+                ->where(function($q) {
+                    $q->where('pelaksanaan', '!=', 'Selesai')
+                      ->orWhereNull('pelaksanaan');
+                })
                 ->whereDate('tanggal_sidang', '>=', now())
                 ->orderBy('tanggal_sidang', 'asc')
                 ->orderBy('waktu_mulai_sidang', 'asc')
