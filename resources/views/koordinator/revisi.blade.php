@@ -288,7 +288,7 @@
                         <span class="text-[11px] font-medium uppercase tracking-wider">Belum Mengumpulkan</span>
                     </div>
                     <div class="bg-[#34A853] text-white rounded-[5px] px-3 py-1.5 flex items-center gap-2 shadow-sm border border-green-600/20">
-                        <span class="text-[16px] font-bold leading-none" x-text="stats.total - stats.belum"></span>
+                        <span class="text-[16px] font-bold leading-none" x-text="sidangs.length - stats.belum"></span>
                         <span class="text-[11px] font-medium uppercase tracking-wider">Sudah Mengumpulkan</span>
                     </div>
                 </div>
@@ -340,12 +340,12 @@
                                 <td class="py-3 px-4 text-left font-mono text-black border-r border-gray-200" x-text="stat.mahasiswa.nim"></td>
                                 <td class="py-3 px-4 text-left font-bold text-black uppercase border-r border-gray-200" x-text="stat.mahasiswa.user.name"></td>
                                 <td class="py-3 px-4 text-center">
-                                    <template x-if="stat.status_revisi !== 'Belum mengumpulkan'">
+                                    <template x-if="stat.status_revisi && stat.status_revisi !== 'Belum mengumpulkan'">
                                         <span class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-4 py-1 rounded-full font-bold text-[10px] uppercase">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> Sudah Mengumpulkan
                                         </span>
                                     </template>
-                                    <template x-if="stat.status_revisi === 'Belum mengumpulkan'">
+                                    <template x-if="!stat.status_revisi || stat.status_revisi === 'Belum mengumpulkan'">
                                         <span class="text-black/40 font-medium text-[11px] italic tracking-tight">Menunggu Pengumpulan ...</span>
                                     </template>
                                 </td>
@@ -479,10 +479,10 @@
                 },
 
                 get stats() {
-                    const submittedSidangs = this.sidangs.filter(s => s.status_revisi !== 'Belum mengumpulkan');
+                    const submittedSidangs = this.sidangs.filter(s => s.status_revisi && s.status_revisi !== 'Belum mengumpulkan');
                     return {
                         total: submittedSidangs.length,
-                        belum: this.sidangs.filter(s => s.status_revisi === 'Belum mengumpulkan').length,
+                        belum: this.sidangs.filter(s => !s.status_revisi || s.status_revisi === 'Belum mengumpulkan').length,
                         menunggu: this.sidangs.filter(s => s.status_revisi === 'Menunggu').length,
                         disahkan: this.sidangs.filter(s => s.status_revisi === 'Disahkan' || s.status_revisi === 'Diterima').length,
                         ditolak: this.sidangs.filter(s => s.status_revisi === 'Ditolak').length,
@@ -538,9 +538,9 @@
                     }
                     if (this.filterStatusUpload !== 'all') {
                         if (this.filterStatusUpload === 'sudah') {
-                            res = res.filter(s => s.status_revisi !== 'Belum mengumpulkan');
+                            res = res.filter(s => s.status_revisi && s.status_revisi !== 'Belum mengumpulkan');
                         } else {
-                            res = res.filter(s => s.status_revisi === 'Belum mengumpulkan');
+                            res = res.filter(s => !s.status_revisi || s.status_revisi === 'Belum mengumpulkan');
                         }
                     }
                     return res;
