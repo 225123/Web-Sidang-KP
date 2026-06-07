@@ -32,10 +32,15 @@ class VerifikasiBerkasController extends Controller
         // 1. Yang ada di tabel utama (Pending, Verified, Rejected) -> Semua yang sudah diajukan
         $pengajuans = $semuaPengajuan->values();
 
-        // 2. Riwayat Penolakan (semua history penolakan) - Filter by period
+        // 2. Riwayat Penolakan (khusus penolakan berkas verifikasi) - Filter by period
         $ditolaks = RiwayatPenolakanSidang::with(['pendaftaranSidang.mahasiswa.user'])
             ->whereHas('pendaftaranSidang.pendaftaranKp', function($query) use ($activePeriodId) {
                 $query->where('tahun_ajaran_id', $activePeriodId);
+            })
+            ->where(function($q) {
+                $q->whereRaw("BINARY ditolak_oleh = 'koordinator'")
+                  ->orWhere('ditolak_oleh', 'Verifikator Berkas')
+                  ->orWhere('ditolak_oleh', 'Koordinator (Verifikasi)');
             })
             ->orderBy('created_at', 'desc')
             ->get();
@@ -96,12 +101,13 @@ class VerifikasiBerkasController extends Controller
                 'file_log_bimbingan' => null,
                 'file_berkas_lainnya' => null,
                 'link_drive' => null,
+                'koordinator_feedback' => $request->feedback,
             ]);
 
             RiwayatPenolakanSidang::create([
                 'pendaftaran_sidang_id' => $pengajuan->id,
                 'alasan_penolakan' => $request->feedback,
-                'ditolak_oleh' => 'koordinator',
+                'ditolak_oleh' => 'Verifikator Berkas',
             ]);
 
             // --- Kirim Notifikasi Sistem ---

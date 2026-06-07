@@ -31,6 +31,10 @@ class PersetujuanSidangController extends Controller
                 $q->where('tahun_ajaran_id', $periodeId);
             }
         })
+        ->where(function($q) {
+            $q->whereRaw("BINARY ditolak_oleh != 'koordinator'")
+              ->where('ditolak_oleh', '!=', 'Verifikator Berkas');
+        })
         ->with(['pendaftaranSidang.mahasiswa.user', 'pendaftaranSidang.pendaftaranKp'])
         ->orderBy('created_at', 'desc')
         ->get();
@@ -92,7 +96,7 @@ class PersetujuanSidangController extends Controller
         \App\Models\RiwayatPenolakanSidang::create([
             'pendaftaran_sidang_id' => $pengajuan->id,
             'alasan_penolakan' => $request->feedback,
-            'ditolak_oleh' => 'Koordinator',
+            'ditolak_oleh' => 'Koordinator (Persetujuan Laporan)',
         ]);
 
         // --- Kirim Notifikasi Sistem ---

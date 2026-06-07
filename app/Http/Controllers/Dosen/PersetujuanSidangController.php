@@ -31,6 +31,10 @@ class PersetujuanSidangController extends Controller
                 $q->where('tahun_ajaran_id', $periodeId);
             }
         })
+        ->where(function($q) {
+            $q->whereRaw("BINARY ditolak_oleh != 'koordinator'")
+              ->where('ditolak_oleh', '!=', 'Verifikator Berkas');
+        })
         ->with(['pendaftaranSidang.mahasiswa.user', 'pendaftaranSidang.pendaftaranKp'])
         ->orderBy('created_at', 'desc')
         ->get();
