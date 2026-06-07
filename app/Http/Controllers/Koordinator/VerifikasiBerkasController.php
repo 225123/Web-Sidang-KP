@@ -38,7 +38,7 @@ class VerifikasiBerkasController extends Controller
                 $query->where('tahun_ajaran_id', $activePeriodId);
             })
             ->where(function($q) {
-                $q->whereRaw("BINARY ditolak_oleh = 'koordinator'")
+                $q->where('ditolak_oleh', 'koordinator')
                   ->orWhere('ditolak_oleh', 'Verifikator Berkas')
                   ->orWhere('ditolak_oleh', 'Koordinator (Verifikasi)');
             })

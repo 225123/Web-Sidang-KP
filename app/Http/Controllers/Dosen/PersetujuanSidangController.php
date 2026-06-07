@@ -32,7 +32,7 @@ class PersetujuanSidangController extends Controller
             }
         })
         ->where(function($q) {
-            $q->whereRaw("BINARY ditolak_oleh != 'koordinator'")
+            $q->where('ditolak_oleh', '!=', 'koordinator')
               ->where('ditolak_oleh', '!=', 'Verifikator Berkas');
         })
         ->with(['pendaftaranSidang.mahasiswa.user', 'pendaftaranSidang.pendaftaranKp'])
