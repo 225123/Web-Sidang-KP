@@ -471,7 +471,9 @@
             window.revisiPage = function() {
                 return {
                     sidangs: @json($mappedSidangs).map(s => {
-                        if (!s.status_revisi) s.status_revisi = 'Belum mengumpulkan';
+                        if (!s.status_revisi || s.status_revisi === 'Belum Reviu' || s.status_revisi.toLowerCase() === 'belum mengumpulkan') {
+                            s.status_revisi = 'Belum mengumpulkan';
+                        }
                         return s;
                     }),
                     search: '',
