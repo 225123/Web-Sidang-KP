@@ -7,18 +7,12 @@
         default => 'Sidang'
     };
 @endphp
-<x-dashboard-layout header="Input Nilai {{ $roleTitle }}" hidePeriodSelector="true" userName="{{ auth()->user()->name }}" roleName="DOSEN">
+<x-dashboard-layout header="Input Nilai {{ $roleTitle }}" :backUrl="route('dosen.input-nilai.index')" hidePeriodSelector="true" userName="{{ auth()->user()->name }}" roleName="DOSEN">
     <x-slot:sidebar>
         @include('dosen.components.sidebar', ['active' => 'input-nilai'])
     </x-slot>
 
     <div x-data="inputDetail()" class="p-6 max-w-5xl mx-auto">
-        <!-- Breadcrumbs -->
-        <div class="flex items-center gap-2 text-[12px] text-gray-500 mb-6">
-            <a href="{{ route('dosen.input-nilai.index') }}" class="hover:text-[#4CC098] transition-colors">Input Nilai</a>
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            <span class="text-black font-medium sentence-case">Input Nilai {{ $roleTitle }}</span>
-        </div>
 
 
 
@@ -50,7 +44,7 @@
                     <div class="flex items-start">
                         <span class="w-[180px] text-[14px] text-gray-700 font-bold">Tempat</span>
                         <span class="w-[20px] text-[14px] text-gray-700">:</span>
-                        <span class="text-[14px] font-medium text-black line-clamp-1 italic">{{ $sidang->ruang_sidang ?? '-' }}</span>
+                        <span class="text-[14px] font-medium text-black line-clamp-1 italic italic">{{ $sidang->ruang_sidang ?? '-' }}</span>
                     </div>
                     <div class="flex items-start">
                         <span class="w-[180px] text-[14px] text-gray-700 font-bold">Waktu</span>
@@ -65,7 +59,7 @@
         <form action="{{ route('dosen.input-nilai.store', ['id' => $sidang->id, 'role' => $role]) }}" method="POST" @submit.prevent="submitForm($event)">
             @csrf
             <div class="bg-[#D9D9D9] p-8 rounded-[15px] shadow-sm border border-gray-200">
-                <h2 class="text-[18px] font-bold text-black mb-6">Penilaian</h2>
+                <h2 class="text-[18px] font-bold text-black mb-6">Penilaian <span x-text="roleDisplay"></span></h2>
 
                 <div class="space-y-6 max-w-2xl">
                     <!-- Dynamic Component Rendering -->
@@ -117,6 +111,17 @@
 
                     <template x-if="role === 'supervisior'">
                         <div class="space-y-4">
+                            <!-- Helper for external -->
+                            @if($sidang->pendaftaranKp->jenis_instansi === 'Eksternal')
+                                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4 rounded shadow-sm">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-blue-400 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                                        <p class="text-[12px] text-blue-700 font-medium italic">
+                                            KP Eksternal: Bacalah berkas pendaftaran mahasiswa untuk melihat nilai dari Supervisor Instansi.
+                                        </p>
+                                    </div>
+                                </div>
+                            @endif
                             <div class="flex items-center gap-4">
                                 <label class="w-[240px] text-[14px] text-gray-700 font-bold">Kemampuan dan Motivasi Kerja</label>
                                 <span class="text-gray-700">:</span>
@@ -251,6 +256,12 @@
                     @if(isset($isReadOnly) && $isReadOnly)
                         this.isLocked = true;
                     @endif
+                },
+
+                get roleDisplay() {
+                    if (this.role === 'penguji1') return 'Penguji 1';
+                    if (this.role === 'penguji2') return 'Penguji 2';
+                    return this.role.charAt(0).toUpperCase() + this.role.slice(1);
                 },
 
                 get nilaiAkhir() {
