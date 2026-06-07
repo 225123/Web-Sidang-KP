@@ -217,14 +217,8 @@
                                                 <template x-if="sidang.penguji_1_id == {{ auth()->id() }}">
                                                     <div class="flex flex-col gap-2 w-full">
                                                         <div class="flex gap-2 justify-center">
-                                                            <form :action="'{{ url('koordinator/revisi') }}/' + sidang.id + '/terima'" method="POST" @submit="!confirm('Sahkan revisi mahasiswa ini?') && $event.preventDefault()">
-                                                                @csrf
-                                                                <button type="submit" class="bg-[#34A853] hover:bg-green-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase w-full">Sahkan</button>
-                                                            </form>
-                                                            <form :action="'{{ url('koordinator/revisi') }}/' + sidang.id + '/tolak'" method="POST" @submit="!confirm('Tolak revisi mahasiswa ini?') && $event.preventDefault()">
-                                                                @csrf
-                                                                <button type="submit" class="bg-[#EA4335] hover:bg-red-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase w-full">Tolak</button>
-                                                            </form>
+                                                            <button type="button" @click="openConfirmModal('terima', sidang.id, sidang.mahasiswa.user.name, 'koordinator')" class="bg-[#34A853] hover:bg-green-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase w-full">Sahkan</button>
+                                                            <button type="button" @click="openConfirmModal('tolak', sidang.id, sidang.mahasiswa.user.name, 'koordinator')" class="bg-[#EA4335] hover:bg-red-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase w-full">Tolak</button>
                                                         </div>
                                                     </div>
                                                 </template>
@@ -375,6 +369,32 @@
             </div>
         </div>
 
+        <!-- Confirm Action Modal -->
+        <div x-cloak x-show="confirmModal.show" style="display: none;" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div @click.away="confirmModal.show = false" class="bg-white rounded-[15px] w-full max-w-[400px] shadow-2xl flex flex-col overflow-hidden border border-gray-100">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm" :class="confirmModal.action === 'terima' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'">
+                        <svg x-show="confirmModal.action === 'terima'" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        <svg x-show="confirmModal.action === 'tolak'" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </div>
+                    <h3 class="text-[18px] font-bold text-gray-900 mb-2" x-text="confirmModal.title"></h3>
+                    <p class="text-[13px] text-gray-500 font-medium leading-relaxed" x-html="confirmModal.message"></p>
+                </div>
+                <div class="flex gap-3 p-6 pt-0">
+                    <button type="button" @click="confirmModal.show = false" class="flex-1 h-[40px] bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-[8px] text-[13px] font-bold transition-all border border-gray-200">
+                        Batal
+                    </button>
+                    <form :action="confirmModal.url" method="POST" class="flex-1">
+                        @csrf
+                        <button type="submit" class="w-full h-[40px] text-white rounded-[8px] text-[13px] font-bold transition-all shadow-md flex items-center justify-center gap-2"
+                                :class="confirmModal.action === 'terima' ? 'bg-[#34A853] hover:bg-green-600' : 'bg-[#EA4335] hover:bg-red-600'">
+                            <span x-text="confirmModal.action === 'terima' ? 'Sahkan' : 'Tolak'"></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- Edit Nilai Modal -->
         <div x-cloak x-show="editModal.show" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.away="editModal.show = false" class="bg-white rounded-[15px] w-full max-w-[500px] shadow-2xl flex flex-col overflow-hidden border border-gray-100">
@@ -463,6 +483,30 @@
                     n1_laporan: 0,
                     n1_produk: 0,
                     n1_presentasi: 0
+                },
+
+                confirmModal: {
+                    show: false,
+                    title: '',
+                    message: '',
+                    url: '',
+                    action: 'terima'
+                },
+
+                openConfirmModal(action, sidangId, mahasiswaName, prefix = 'koordinator') {
+                    this.confirmModal.action = action;
+                    const baseUrl = '{{ url("") }}';
+                    this.confirmModal.url = `${baseUrl}/${prefix}/revisi/${sidangId}/${action}`;
+                    
+                    if (action === 'terima') {
+                        this.confirmModal.title = 'Sahkan Berkas Revisi?';
+                        this.confirmModal.message = `Anda yakin ingin mengesahkan berkas revisi milik <br><span class="text-black font-bold uppercase">${mahasiswaName}</span>?`;
+                    } else {
+                        this.confirmModal.title = 'Tolak Berkas Revisi?';
+                        this.confirmModal.message = `Anda yakin ingin menolak berkas revisi milik <br><span class="text-black font-bold uppercase">${mahasiswaName}</span>?<br><br><span class="text-red-500 italic text-[11px]">Mahasiswa harus mengunggah ulang.</span>`;
+                    }
+                    
+                    this.confirmModal.show = true;
                 },
 
                 init() {
