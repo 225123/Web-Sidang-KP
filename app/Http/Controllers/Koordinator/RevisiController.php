@@ -21,6 +21,7 @@ class RevisiController extends Controller
                     $q->where('tahun_ajaran_id', $activePeriodId);
                 }
             })
+            ->where('penguji_1_id', Auth::user()->id)
             ->where('status_kelulusan', 'Lulus Dengan Revisi')
             ->orderBy('id', 'desc')
             ->get();
