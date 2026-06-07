@@ -290,7 +290,7 @@ class DashboardController extends Controller
                 $menungguPersetujuan->push((object)[
                     'mahasiswa' => $submitterName,
                     'jenis' => 'Log Bimbingan',
-                    'route' => route('dosen.daftar-mahasiswa.detail', $log->mahasiswa_id),
+                    'route' => route('koordinator.bimbingan-saya.detail', $log->mahasiswa_id),
                     'color' => 'bg-[#FFF9C4] text-[#827717] border-[#FBC02D]',
                 ]);
             }
@@ -309,7 +309,7 @@ class DashboardController extends Controller
                 $menungguPersetujuan->push((object)[
                     'mahasiswa' => $sidang->mahasiswa->user->name ?? 'Unknown',
                     'jenis' => 'Persetujuan Sidang',
-                    'route' => route('dosen.persetujuan-sidang.index'),
+                    'route' => route('koordinator.persetujuan-sidang.index'),
                     'color' => 'bg-[#C8E6C9] text-[#1B5E20] border-[#4CAF50]',
                 ]);
             }
