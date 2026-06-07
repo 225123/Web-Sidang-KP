@@ -16,29 +16,33 @@ class PenugasanPembimbingController extends Controller
 {
     private function getDosenWorkloadMap()
     {
-        // Get all active pendaftaran_kp clusters that have a supervisor
-        $pendaftarans = PendaftaranKp::whereNotNull('pembimbing_id')->get();
-        
+        $query = User::with(['mahasiswa'])->where('role', 'mahasiswa');
+        if (session()->has('selected_periode_id')) {
+            $periodeId = session('selected_periode_id');
+            $query->whereHas('mahasiswa', function($sq) use ($periodeId) {
+                $sq->where('tahun_ajaran_id', $periodeId)
+                   ->orWhereHas('pendaftaranKps', function($q2) use ($periodeId) {
+                       $q2->withoutGlobalScope('periode')
+                          ->where('tahun_ajaran_id', $periodeId)
+                          ->where(function($q3) {
+                              $q3->whereNotNull('status_kp')
+                                 ->orWhereRaw('id = (SELECT MIN(id) FROM pendaftaran_kp AS pkp2 WHERE pkp2.mahasiswa_id = pendaftaran_kp.mahasiswa_id)');
+                          });
+                   });
+            });
+        }
+        $allMahasiswas = $query->get();
+        $formattedPendaftarans = $this->formatClusters($allMahasiswas);
+
         $dosenBebanMap = [];
-        foreach ($pendaftarans as $kp) {
-            $dId = $kp->pembimbing_id;
-            
-            // Count unique students in this KP (handling groups)
-            $studentCount = 1;
-            if ($kp->pengerjaan_kp === 'kelompok' && !empty($kp->anggota_kelompok_ids)) {
-                $memberIds = is_string($kp->anggota_kelompok_ids) ? json_decode($kp->anggota_kelompok_ids, true) : $kp->anggota_kelompok_ids;
-                if (is_array($memberIds)) {
-                    $studentCount = count($memberIds);
-                    if (!in_array($kp->mahasiswa_id, $memberIds)) {
-                        $studentCount++;
-                    }
+        foreach ($formattedPendaftarans as $group) {
+            $dId = $group['dosen_id'];
+            if (! empty($dId)) {
+                if (! isset($dosenBebanMap[$dId])) {
+                    $dosenBebanMap[$dId] = 0;
                 }
+                $dosenBebanMap[$dId] += count($group['mahasiswas']);
             }
-            
-            if (! isset($dosenBebanMap[$dId])) {
-                $dosenBebanMap[$dId] = 0;
-            }
-            $dosenBebanMap[$dId] += $studentCount;
         }
 
         return $dosenBebanMap;
