@@ -12,10 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pendaftaran_sidang', function (Blueprint $table) {
-            $table->decimal('original_n1_laporan', 5, 2)->nullable()->after('nilai_penguji_1');
-            $table->decimal('original_n1_produk', 5, 2)->nullable()->after('original_n1_laporan');
-            $table->decimal('original_n1_presentasi', 5, 2)->nullable()->after('original_n1_produk');
-            $table->decimal('original_nilai_penguji_1', 5, 2)->nullable()->after('original_n1_presentasi');
+            if (!Schema::hasColumn('pendaftaran_sidang', 'original_n1_laporan')) {
+                $table->decimal('original_n1_laporan', 5, 2)->nullable()->after('nilai_penguji_1');
+            }
+            if (!Schema::hasColumn('pendaftaran_sidang', 'original_n1_produk')) {
+                $table->decimal('original_n1_produk', 5, 2)->nullable()->after('original_n1_laporan');
+            }
+            if (!Schema::hasColumn('pendaftaran_sidang', 'original_n1_presentasi')) {
+                $table->decimal('original_n1_presentasi', 5, 2)->nullable()->after('original_n1_produk');
+            }
+            if (!Schema::hasColumn('pendaftaran_sidang', 'original_nilai_penguji_1')) {
+                $table->decimal('original_nilai_penguji_1', 5, 2)->nullable()->after('original_n1_presentasi');
+            }
         });
     }
 

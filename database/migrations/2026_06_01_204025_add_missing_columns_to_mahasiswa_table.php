@@ -12,9 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('mahasiswa', function (Blueprint $table) {
-            $table->unsignedBigInteger('tahun_ajaran_id')->nullable();
-            $table->string('status_mahasiswa')->default('Aktif');
-            $table->boolean('is_aktif')->default(true);
+            if (!Schema::hasColumn('mahasiswa', 'tahun_ajaran_id')) {
+                $table->unsignedBigInteger('tahun_ajaran_id')->nullable();
+            }
+            if (!Schema::hasColumn('mahasiswa', 'status_mahasiswa')) {
+                $table->string('status_mahasiswa')->default('Aktif');
+            }
+            if (!Schema::hasColumn('mahasiswa', 'is_aktif')) {
+                $table->boolean('is_aktif')->default(true);
+            }
         });
     }
 
