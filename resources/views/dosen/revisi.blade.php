@@ -405,7 +405,6 @@
                         <button @click="if(statusCurrentPage < totalStatusPages) statusCurrentPage++" :disabled="statusCurrentPage === totalStatusPages" class="px-3 py-1 border border-gray-300 rounded text-[12px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Next</button>
                     </div>
                 </div>
-                </div>
             </div>
 
         <!-- Edit Nilai Modal -->
