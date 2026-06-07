@@ -603,9 +603,15 @@ class PenugasanPembimbingController extends Controller
                 }
             }
 
+            $groupSizesDraft = [];
+            foreach ($toProcess as $item) {
+                $groupSizesDraft[$item['id']] = $item['size'];
+            }
+
             return response()->json([
                 'success' => true,
                 'assignments' => $assignmentsDraft,
+                'groupSizes' => $groupSizesDraft,
                 'message' => 'Berhasil membuat draft auto-plotting.',
             ]);
         } catch (\Exception $e) {

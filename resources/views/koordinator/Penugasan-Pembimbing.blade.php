@@ -584,6 +584,9 @@
                                 if (result.success) {
                                     for (let key in result.assignments) {
                                         this.assignments[key] = result.assignments[key];
+                                        if (result.groupSizes && result.groupSizes[key] !== undefined) {
+                                            this.groupSizes[key] = result.groupSizes[key];
+                                        }
                                     }
                                     this.isDirty = true;
                                 } else {
