@@ -135,7 +135,6 @@
                             <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[180px] whitespace-nowrap">Batas Pengumpulan</th>
                             <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[150px]">Dikumpul Pada</th>
                             <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[150px]">Berkas Revisi</th>
-                            <th class="py-3 px-4 font-bold text-center border-b border-r border-gray-300 w-[150px]">Edit</th>
                             <th class="py-3 px-4 font-bold text-center border-b border-gray-300 w-[180px]">Aksi</th>
                         </tr>
                     </thead>
@@ -188,27 +187,6 @@
                                         </template>
                                     </div>
                                 </td>
-                                <td class="py-3 px-4 text-center border-r border-gray-200">
-                                    <template x-if="sidang.status_revisi === 'Menunggu'">
-                                        <div class="flex gap-2">
-                                            @if(!isset($isReadOnly) || !$isReadOnly)
-                                            <template x-if="sidang.penguji_1_id == {{ auth()->id() }}">
-                                                <button type="button" @click="openEditModal(sidang)" class="w-full bg-[#FBBC05] hover:bg-yellow-500 text-black font-bold text-[11px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase flex items-center justify-center gap-1">
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg> Edit Nilai
-                                                </button>
-                                            </template>
-                                            <template x-if="sidang.penguji_1_id != {{ auth()->id() }}">
-                                                <span class="text-gray-400 text-[11px] font-bold uppercase">Read Only</span>
-                                            </template>
-                                            @else
-                                            <span class="text-gray-400 text-[11px] font-bold uppercase">Read Only</span>
-                                            @endif
-                                        </div>
-                                    </template>
-                                    <template x-if="sidang.status_revisi !== 'Menunggu' && sidang.status_revisi !== 'Belum mengumpulkan'">
-                                        <span class="text-gray-400 text-[11px] font-bold uppercase">-</span>
-                                    </template>
-                                </td>
                                 <td class="py-3 px-4 text-center">
                                     <div class="flex items-center justify-center gap-2">
                                         <template x-if="sidang.status_revisi === 'Menunggu'">
@@ -217,8 +195,8 @@
                                                 <template x-if="sidang.penguji_1_id == {{ auth()->id() }}">
                                                     <div class="flex flex-col gap-2 w-full">
                                                         <div class="flex gap-2 justify-center">
-                                                            <button type="button" @click="openConfirmModal('terima', sidang.id, sidang.mahasiswa.user.name, 'koordinator')" class="bg-[#34A853] hover:bg-green-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase w-full">Sahkan</button>
-                                                            <button type="button" @click="openConfirmModal('tolak', sidang.id, sidang.mahasiswa.user.name, 'koordinator')" class="bg-[#EA4335] hover:bg-red-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase w-full">Tolak</button>
+                                                            <button type="button" @click="openConfirmModal('terima', sidang, 'koordinator')" class="bg-[#34A853] hover:bg-green-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase w-full">Sahkan</button>
+                                                            <button type="button" @click="openConfirmModal('tolak', sidang, 'koordinator')" class="bg-[#EA4335] hover:bg-red-700 text-white font-bold text-[12px] px-3 py-1.5 rounded-[4px] shadow-sm transition-colors uppercase w-full">Tolak</button>
                                                         </div>
                                                     </div>
                                                 </template>
@@ -370,9 +348,9 @@
         </div>
 
         <!-- Confirm Action Modal -->
-        <div x-cloak x-show="confirmModal.show" style="display: none;" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div @click.away="confirmModal.show = false" class="bg-white rounded-[15px] w-full max-w-[400px] shadow-2xl flex flex-col overflow-hidden border border-gray-100">
-                <div class="p-6 text-center">
+        <div x-cloak x-show="confirmModal.show" style="display: none;" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
+            <div @click.away="confirmModal.show = false" class="bg-white rounded-[15px] w-full max-w-[400px] shadow-2xl flex flex-col overflow-hidden border border-gray-100 my-auto">
+                <div class="p-6 text-center border-b border-gray-100">
                     <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm" :class="confirmModal.action === 'terima' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'">
                         <svg x-show="confirmModal.action === 'terima'" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                         <svg x-show="confirmModal.action === 'tolak'" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -380,65 +358,44 @@
                     <h3 class="text-[18px] font-bold text-gray-900 mb-2" x-text="confirmModal.title"></h3>
                     <p class="text-[13px] text-gray-500 font-medium leading-relaxed" x-html="confirmModal.message"></p>
                 </div>
-                <div class="flex gap-3 p-6 pt-0">
-                    <button type="button" @click="confirmModal.show = false" class="flex-1 h-[40px] bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-[8px] text-[13px] font-bold transition-all border border-gray-200">
-                        Batal
-                    </button>
-                    <form :action="confirmModal.url" method="POST" class="flex-1">
-                        @csrf
-                        <button type="submit" class="w-full h-[40px] text-white rounded-[8px] text-[13px] font-bold transition-all shadow-md flex items-center justify-center gap-2"
-                                :class="confirmModal.action === 'terima' ? 'bg-[#34A853] hover:bg-green-600' : 'bg-[#EA4335] hover:bg-red-600'">
-                            <span x-text="confirmModal.action === 'terima' ? 'Sahkan' : 'Tolak'"></span>
+                <form :action="confirmModal.url" method="POST" class="flex flex-col">
+                    @csrf
+                    <!-- Edit Nilai inputs (only shown when terima) -->
+                    <div x-show="confirmModal.action === 'terima'" class="p-6 bg-blue-50/50 flex flex-col gap-4 border-b border-gray-100">
+                        <div class="text-[12px] font-bold text-blue-800 uppercase tracking-wide mb-1 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            Evaluasi Nilai Sidang
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[11px] font-bold text-gray-700 uppercase">Nilai Laporan <span class="text-red-500">*</span></label>
+                            <input type="number" name="n1_laporan" x-model="confirmModal.n1_laporan" step="0.01" min="0" max="100" required
+                                class="w-full px-3 py-2 bg-white border border-gray-200 rounded-[6px] text-[13px] font-medium text-black focus:border-[#4285F4] focus:ring-1 focus:ring-[#4285F4] transition-all outline-none">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[11px] font-bold text-gray-700 uppercase">Nilai Produk <span class="text-red-500">*</span></label>
+                            <input type="number" name="n1_produk" x-model="confirmModal.n1_produk" step="0.01" min="0" max="100" required
+                                class="w-full px-3 py-2 bg-white border border-gray-200 rounded-[6px] text-[13px] font-medium text-black focus:border-[#4285F4] focus:ring-1 focus:ring-[#4285F4] transition-all outline-none">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[11px] font-bold text-gray-700 uppercase">Nilai Presentasi <span class="text-red-500">*</span></label>
+                            <input type="number" name="n1_presentasi" x-model="confirmModal.n1_presentasi" step="0.01" min="0" max="100" required
+                                class="w-full px-3 py-2 bg-white border border-gray-200 rounded-[6px] text-[13px] font-medium text-black focus:border-[#4285F4] focus:ring-1 focus:ring-[#4285F4] transition-all outline-none">
+                        </div>
+                    </div>
+                    <div class="flex gap-3 p-6">
+                        <button type="button" @click="confirmModal.show = false" class="flex-1 h-[40px] bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-[8px] text-[13px] font-bold transition-all border border-gray-200">
+                            Batal
                         </button>
-                    </form>
-                </div>
+                        <button type="submit" class="flex-1 h-[40px] text-white rounded-[8px] text-[13px] font-bold transition-all shadow-md flex items-center justify-center gap-2"
+                                :class="confirmModal.action === 'terima' ? 'bg-[#34A853] hover:bg-green-600' : 'bg-[#EA4335] hover:bg-red-600'">
+                            <span x-text="confirmModal.action === 'terima' ? 'Sahkan Penilaian' : 'Ya, Tolak'"></span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
-        <!-- Edit Nilai Modal -->
-        <div x-cloak x-show="editModal.show" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div @click.away="editModal.show = false" class="bg-white rounded-[15px] w-full max-w-[500px] shadow-2xl flex flex-col overflow-hidden border border-gray-100">
-                <div class="p-6 border-b border-gray-100">
-                    <h3 class="text-[18px] font-bold text-gray-900 uppercase">Edit Nilai Penguji 1</h3>
-                    <p class="text-[12px] text-gray-500 mt-1">Sesuaikan nilai untuk mahasiswa <span class="font-bold uppercase text-black" x-text="editModal.mahasiswaName"></span>.</p>
-                </div>
-                
-                <div class="p-6">
-                    <form id="editNilaiForm" :action="'{{ url('koordinator/revisi') }}/' + editModal.id + '/update-nilai'" method="POST">
-                        @csrf
-                        <div class="space-y-4">
-                            <!-- Laporan -->
-                            <div class="flex flex-col gap-1.5">
-                                <label class="text-[12px] font-bold text-gray-700 uppercase">Nilai Laporan <span class="text-red-500">*</span></label>
-                                <input type="number" name="n1_laporan" x-model="editModal.n1_laporan" step="0.01" min="0" max="100" required
-                                    class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-[8px] text-[13px] font-medium text-black focus:bg-white focus:border-[#4285F4] focus:ring-1 focus:ring-[#4285F4] transition-all outline-none">
-                            </div>
-                            <!-- Produk -->
-                            <div class="flex flex-col gap-1.5">
-                                <label class="text-[12px] font-bold text-gray-700 uppercase">Nilai Produk <span class="text-red-500">*</span></label>
-                                <input type="number" name="n1_produk" x-model="editModal.n1_produk" step="0.01" min="0" max="100" required
-                                    class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-[8px] text-[13px] font-medium text-black focus:bg-white focus:border-[#4285F4] focus:ring-1 focus:ring-[#4285F4] transition-all outline-none">
-                            </div>
-                            <!-- Presentasi -->
-                            <div class="flex flex-col gap-1.5">
-                                <label class="text-[12px] font-bold text-gray-700 uppercase">Nilai Presentasi <span class="text-red-500">*</span></label>
-                                <input type="number" name="n1_presentasi" x-model="editModal.n1_presentasi" step="0.01" min="0" max="100" required
-                                    class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-[8px] text-[13px] font-medium text-black focus:bg-white focus:border-[#4285F4] focus:ring-1 focus:ring-[#4285F4] transition-all outline-none">
-                            </div>
-                        </div>
 
-                        <div class="flex gap-4 mt-8">
-                            <button type="button" @click="editModal.show = false" class="flex-1 h-[45px] bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-[10px] text-[14px] font-bold transition-all border border-gray-200">
-                                Batal
-                            </button>
-                            <button type="submit" class="flex-1 h-[45px] bg-[#4285F4] hover:bg-blue-600 text-white rounded-[10px] text-[14px] font-bold transition-all shadow-md active:transform active:scale-95 flex items-center justify-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Simpan Perubahan
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
         
     </div>
 
@@ -476,34 +433,33 @@
                 statusCurrentPage: 1,
                 statusItemsPerPage: 10,
 
-                editModal: {
-                    show: false,
-                    id: null,
-                    mahasiswaName: '',
-                    n1_laporan: 0,
-                    n1_produk: 0,
-                    n1_presentasi: 0
-                },
+
 
                 confirmModal: {
                     show: false,
                     title: '',
                     message: '',
                     url: '',
-                    action: 'terima'
+                    action: 'terima',
+                    n1_laporan: 0,
+                    n1_produk: 0,
+                    n1_presentasi: 0
                 },
 
-                openConfirmModal(action, sidangId, mahasiswaName, prefix = 'koordinator') {
+                openConfirmModal(action, sidang, prefix = 'koordinator') {
                     this.confirmModal.action = action;
                     const baseUrl = '{{ url("") }}';
-                    this.confirmModal.url = `${baseUrl}/${prefix}/revisi/${sidangId}/${action}`;
+                    this.confirmModal.url = `${baseUrl}/${prefix}/revisi/${sidang.id}/${action}`;
                     
                     if (action === 'terima') {
-                        this.confirmModal.title = 'Sahkan Berkas Revisi?';
-                        this.confirmModal.message = `Anda yakin ingin mengesahkan berkas revisi milik <br><span class="text-black font-bold uppercase">${mahasiswaName}</span>?`;
+                        this.confirmModal.n1_laporan = sidang.n1_laporan;
+                        this.confirmModal.n1_produk = sidang.n1_produk;
+                        this.confirmModal.n1_presentasi = sidang.n1_presentasi;
+                        this.confirmModal.title = 'Sahkan Revisi & Nilai?';
+                        this.confirmModal.message = `Anda yakin ingin mengesahkan revisi milik <span class="text-black font-bold uppercase">${sidang.mahasiswa.user.name}</span>? Pastikan Anda telah meninjau dan menyesuaikan nilai akhir sidang.`;
                     } else {
                         this.confirmModal.title = 'Tolak Berkas Revisi?';
-                        this.confirmModal.message = `Anda yakin ingin menolak berkas revisi milik <br><span class="text-black font-bold uppercase">${mahasiswaName}</span>?<br><br><span class="text-red-500 italic text-[11px]">Mahasiswa harus mengunggah ulang.</span>`;
+                        this.confirmModal.message = `Anda yakin ingin menolak berkas revisi milik <br><span class="text-black font-bold uppercase">${sidang.mahasiswa.user.name}</span>?<br><br><span class="text-red-500 italic text-[11px]">Mahasiswa harus mengunggah ulang.</span>`;
                     }
                     
                     this.confirmModal.show = true;
@@ -560,15 +516,6 @@
                 get paginatedSidangs() {
                     const start = (this.currentPage - 1) * this.itemsPerPage;
                     return this.filteredSidangs.slice(start, start + this.itemsPerPage);
-                },
-
-                openEditModal(sidang) {
-                    this.editModal.id = sidang.id;
-                    this.editModal.mahasiswaName = sidang.mahasiswa.user.name;
-                    this.editModal.n1_laporan = sidang.n1_laporan;
-                    this.editModal.n1_produk = sidang.n1_produk;
-                    this.editModal.n1_presentasi = sidang.n1_presentasi;
-                    this.editModal.show = true;
                 },
 
                 get totalPages() {

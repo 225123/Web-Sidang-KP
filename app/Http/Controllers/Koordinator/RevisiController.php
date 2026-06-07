@@ -40,42 +40,6 @@ class RevisiController extends Controller
             return back()->with('error', 'Status revisi belum bisa diproses.');
         }
 
-        $sidang->status_revisi = 'Disahkan';
-        $sidang->save();
-
-        return back()->with('success', 'Revisi mahasiswa berhasil DISAHKAN.');
-    }
-
-    public function tolak(Request $request, $id)
-    {
-        $dosenId = Auth::user()->id;
-        $sidang = PendaftaranSidang::where('id', $id)
-            ->where('penguji_1_id', $dosenId)
-            ->firstOrFail();
-
-        if ($sidang->status_revisi !== 'Menunggu') {
-            return back()->with('error', 'Status revisi belum bisa diproses.');
-        }
-
-        if ($sidang->file_revisi) {
-            \Illuminate\Support\Facades\Storage::disk(upload_disk())->delete($sidang->file_revisi);
-        }
-
-        $sidang->status_revisi = 'Ditolak';
-        $sidang->file_revisi = null;
-        $sidang->link_revisi = null;
-        $sidang->save();
-
-        return back()->with('success', 'Revisi mahasiswa berhasil DITOLAK.');
-    }
-
-    public function updateNilai(Request $request, $id)
-    {
-        $dosenId = Auth::user()->id;
-        $sidang = PendaftaranSidang::where('id', $id)
-            ->where('penguji_1_id', $dosenId)
-            ->firstOrFail();
-
         $request->validate([
             'n1_laporan' => 'required|numeric|min:0|max:100',
             'n1_produk' => 'required|numeric|min:0|max:100',
@@ -94,6 +58,7 @@ class RevisiController extends Controller
         $sidang->n1_presentasi = $request->n1_presentasi;
         $sidang->nilai_penguji_1 = ($request->n1_laporan * 0.4) + ($request->n1_produk * 0.4) + ($request->n1_presentasi * 0.2);
         
+        $sidang->status_revisi = 'Disahkan';
         $sidang->save();
 
         // Recalculate Final Grade
@@ -125,6 +90,29 @@ class RevisiController extends Controller
         }
         $sidang->save();
 
-        return back()->with('success', 'Nilai penguji 1 berhasil diperbarui.');
+        return back()->with('success', 'Revisi berhasil DISAHKAN dan nilai telah diperbarui.');
+    }
+
+    public function tolak(Request $request, $id)
+    {
+        $dosenId = Auth::user()->id;
+        $sidang = PendaftaranSidang::where('id', $id)
+            ->where('penguji_1_id', $dosenId)
+            ->firstOrFail();
+
+        if ($sidang->status_revisi !== 'Menunggu') {
+            return back()->with('error', 'Status revisi belum bisa diproses.');
+        }
+
+        if ($sidang->file_revisi) {
+            \Illuminate\Support\Facades\Storage::disk(upload_disk())->delete($sidang->file_revisi);
+        }
+
+        $sidang->status_revisi = 'Ditolak';
+        $sidang->file_revisi = null;
+        $sidang->link_revisi = null;
+        $sidang->save();
+
+        return back()->with('success', 'Revisi mahasiswa berhasil DITOLAK.');
     }
 }
