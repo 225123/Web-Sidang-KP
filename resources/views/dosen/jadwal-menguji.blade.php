@@ -116,8 +116,11 @@
             <div class="bg-white rounded-[15px] border border-gray-200 shadow-sm overflow-hidden p-6 mt-8 mb-8">
                 <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
                     <div>
-                        <h3 class="text-[18px] font-bold text-black tracking-tight">
-                            Detail Jadwal Menguji: <span class="text-blue-600 font-bold" x-text="selectedDate ? formatReadableDate(selectedDate) : ''"></span>
+                        <h3 class="text-[18px] font-bold text-black tracking-tight" x-show="selectedDate">
+                            Detail Jadwal Menguji: <span class="text-blue-600 font-bold" x-text="formatReadableDate(selectedDate)"></span>
+                        </h3>
+                        <h3 class="text-[18px] font-bold text-black tracking-tight" x-show="!selectedDate">
+                            Detail Jadwal Menguji
                         </h3>
                         <p class="text-[12px] text-black/60 font-medium mt-1">Daftar jadwal menguji pada tanggal yang dipilih.</p>
                     </div>
@@ -213,9 +216,14 @@
                                     </td>
                                 </tr>
                             </template>
-                            <template x-if="filteredSessions.length === 0">
+                            <template x-if="!selectedDate">
                                 <tr>
-                                    <td colspan="4" class="py-12 text-center text-gray-500 italic font-medium">Tidak ada jadwal menguji yang sesuai...</td>
+                                    <td colspan="4" class="py-12 text-center text-gray-500 italic font-medium">Silakan pilih tanggal pada kalender untuk melihat detail jadwal menguji...</td>
+                                </tr>
+                            </template>
+                            <template x-if="selectedDate && filteredSessions.length === 0">
+                                <tr>
+                                    <td colspan="4" class="py-12 text-center text-gray-500 italic font-medium">Tidak ada jadwal menguji yang sesuai filter...</td>
                                 </tr>
                             </template>
                         </tbody>
@@ -512,8 +520,9 @@
                 },
 
                 get filteredSessions() {
+                    if (!this.selectedDate) return [];
                     return this.allSessions.filter(s => {
-                        const dateMatch = this.selectedDate ? s.tanggal === this.selectedDate : true;
+                        const dateMatch = s.tanggal === this.selectedDate;
                         
                         let timeMatch = true;
                         if (this.filters.waktu === 'pagi') {
