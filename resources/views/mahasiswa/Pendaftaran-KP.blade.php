@@ -141,8 +141,13 @@
                                     openGiver: false,
 
                                      get filteredDosenFromInput() {
-                                        if (this.searchDosen === '') return this.allDosen;
-                                        return this.allDosen.filter(d => d.name.toLowerCase().includes(this.searchDosen.toLowerCase()));
+                                        const currentPembimbingId = '{{ $pembimbingId ?? '' }}';
+                                        let filtered = this.allDosen;
+                                        if (currentPembimbingId !== '') {
+                                            filtered = filtered.filter(d => d.id != currentPembimbingId);
+                                        }
+                                        if (this.searchDosen === '') return filtered;
+                                        return filtered.filter(d => d.name.toLowerCase().includes(this.searchDosen.toLowerCase()));
                                     },
 
                                     selectDosen(dosen) {
@@ -153,8 +158,13 @@
                                     },
 
                                     get filteredGiver() {
-                                        if (this.searchGiver === '') return this.allDosen;
-                                        return this.allDosen.filter(d => d.name.toLowerCase().includes(this.searchGiver.toLowerCase()));
+                                        const currentPembimbingId = '{{ $pembimbingId ?? '' }}';
+                                        let filtered = this.allDosen;
+                                        if (currentPembimbingId !== '') {
+                                            filtered = filtered.filter(d => d.id != currentPembimbingId);
+                                        }
+                                        if (this.searchGiver === '') return filtered;
+                                        return filtered.filter(d => d.name.toLowerCase().includes(this.searchGiver.toLowerCase()));
                                     },
 
                                     selectGiver(dosen) {

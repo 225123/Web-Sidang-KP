@@ -81,8 +81,18 @@ class PendaftaranKpController extends Controller
             // Fetch names for display
             $anggotaTerpilih = User::whereIn('id', $anggotaIds)->get();
         }
+        $latestKpForPembimbing = PendaftaranKp::withoutGlobalScope('periode')
+            ->where(function($q) {
+                $q->where('mahasiswa_id', auth()->id())
+                  ->orWhereJsonContains('anggota_kelompok_ids', (string) auth()->id())
+                  ->orWhereJsonContains('anggota_kelompok_ids', auth()->id());
+            })
+            ->whereNotNull('pembimbing_id')
+            ->latest()
+            ->first();
+        $pembimbingId = $latestKpForPembimbing ? $latestKpForPembimbing->pembimbing_id : null;
 
-        return view('mahasiswa.Pendaftaran-KP', compact('existingKp', 'allMahasiswa', 'allDosen', 'invitation', 'anggotaTerpilih'));
+        return view('mahasiswa.Pendaftaran-KP', compact('existingKp', 'allMahasiswa', 'allDosen', 'invitation', 'anggotaTerpilih', 'pembimbingId'));
     }
 
     public function dataKpSaya(Request $request)
