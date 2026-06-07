@@ -199,8 +199,9 @@
                                             <template x-for="role in getSpecificRoles(sidang, ['PENGUJI 1', 'PENGUJI 2'])">
                                                  @if(!isset($isReadOnly) || !$isReadOnly)
                                                  <a :href="'{{ url('koordinator/input-nilai') }}/' + sidang.id + '/' + role.toLowerCase().replace(' ', '')"
-                                                     class="w-full text-center bg-[#4CC098] hover:bg-[#3da681] text-white py-1.5 rounded-[4px] text-[10px] font-bold transition-all shadow-sm flex items-center justify-center gap-1">
-                                                     INPUT <span x-text="role"></span>
+                                                     :class="(role === 'PENGUJI 1' && sidang.nilai_penguji_1 !== null) || (role === 'PENGUJI 2' && sidang.nilai_penguji_2 !== null) ? 'bg-[#34A853] hover:bg-[#2d9247]' : 'bg-[#4285F4] hover:bg-[#3367d6]'"
+                                                     class="w-full text-center text-white py-1.5 rounded-[4px] text-[10px] font-bold transition-all shadow-sm flex items-center justify-center gap-1">
+                                                     <span x-text="(role === 'PENGUJI 1' && sidang.nilai_penguji_1 !== null) || (role === 'PENGUJI 2' && sidang.nilai_penguji_2 !== null) ? 'EDIT' : 'INPUT'"></span> <span x-text="role"></span>
                                                  </a>
                                                  @else
                                                  <span class="w-full text-center bg-gray-300 text-white py-1.5 rounded-[4px] text-[10px] font-bold shadow-sm flex items-center justify-center gap-1 cursor-not-allowed">
@@ -329,8 +330,9 @@
                                     <td class="py-3 px-4 text-center">
                                         @if(!isset($isReadOnly) || !$isReadOnly)
                                         <a :href="'{{ url('koordinator/input-nilai') }}/' + sidang.id + '/pembimbing'"
-                                            class="w-full text-center bg-[#4CC098] hover:bg-[#3da681] text-white py-2 rounded-[4px] text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 uppercase">
-                                            Input Nilai Pembimbing
+                                            :class="sidang.nilai_pembimbing !== null ? 'bg-[#34A853] hover:bg-[#2d9247]' : 'bg-[#4285F4] hover:bg-[#3367d6]'"
+                                            class="w-full text-center text-white py-2 rounded-[4px] text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 uppercase">
+                                            <span x-text="sidang.nilai_pembimbing !== null ? 'Edit Nilai Pembimbing' : 'Input Nilai Pembimbing'"></span>
                                         </a>
                                         @else
                                         <span class="w-full text-center bg-gray-300 text-white py-2 rounded-[4px] text-[11px] font-bold shadow-sm flex items-center justify-center gap-1 uppercase cursor-not-allowed">

@@ -320,8 +320,11 @@
                                                 <template
                                                     x-for="role in getSpecificRoles(sidang, ['PENGUJI 1', 'PENGUJI 2'])">
                                                     <a :href="'{{ url('dosen/input-nilai') }}/' + sidang.id + '/' + role.toLowerCase().replace(' ', '')"
-                                                        class="w-full text-center bg-[#4CC098] hover:bg-[#3da681] text-white py-1.5 rounded-[4px] text-[10px] font-bold transition-all shadow-sm flex items-center justify-center gap-1">
-                                                        @if(!isset($isReadOnly) || !$isReadOnly) INPUT @else LIHAT @endif <span x-text="role"></span>
+                                                        :class="(role === 'PENGUJI 1' && sidang.nilai_penguji_1 !== null) || (role === 'PENGUJI 2' && sidang.nilai_penguji_2 !== null) ? 'bg-[#34A853] hover:bg-[#2d9247]' : 'bg-[#4285F4] hover:bg-[#3367d6]'"
+                                                        class="w-full text-center text-white py-1.5 rounded-[4px] text-[10px] font-bold transition-all shadow-sm flex items-center justify-center gap-1">
+                                                        @if(!isset($isReadOnly) || !$isReadOnly)
+                                                            <span x-text="(role === 'PENGUJI 1' && sidang.nilai_penguji_1 !== null) || (role === 'PENGUJI 2' && sidang.nilai_penguji_2 !== null) ? 'EDIT' : 'INPUT'"></span>
+                                                        @else LIHAT @endif <span x-text="role"></span>
                                                     </a>
                                                 </template>
                                             </div>
@@ -502,8 +505,11 @@
                                         </td>
                                         <td class="py-3 px-4 text-center">
                                             <a :href="'{{ url('dosen/input-nilai') }}/' + sidang.id + '/pembimbing'"
-                                                class="w-full text-center bg-[#4CC098] hover:bg-[#3da681] text-white py-2 rounded-[4px] text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 uppercase">
-                                                @if(!isset($isReadOnly) || !$isReadOnly) Input Nilai Pembimbing @else Lihat Nilai Pembimbing @endif
+                                                :class="sidang.nilai_pembimbing !== null ? 'bg-[#34A853] hover:bg-[#2d9247]' : 'bg-[#4285F4] hover:bg-[#3367d6]'"
+                                                class="w-full text-center text-white py-2 rounded-[4px] text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 uppercase">
+                                                @if(!isset($isReadOnly) || !$isReadOnly)
+                                                    <span x-text="sidang.nilai_pembimbing !== null ? 'Edit Nilai Pembimbing' : 'Input Nilai Pembimbing'"></span>
+                                                @else Lihat Nilai Pembimbing @endif
                                             </a>
                                         </td>
                                     </tr>
@@ -682,8 +688,11 @@
                                         </td>
                                         <td class="py-3 px-4 text-center">
                                             <a :href="'{{ url('dosen/input-nilai') }}/' + sidang.id + '/supervisior'"
-                                                class="w-full text-center bg-[#4CC098] hover:bg-[#3da681] text-white py-2 rounded-[4px] text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 uppercase">
-                                                @if(!isset($isReadOnly) || !$isReadOnly) Input Nilai Supervisior @else Lihat Nilai Supervisior @endif
+                                                :class="sidang.nilai_supervisor !== null ? 'bg-[#34A853] hover:bg-[#2d9247]' : 'bg-[#4285F4] hover:bg-[#3367d6]'"
+                                                class="w-full text-center text-white py-2 rounded-[4px] text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 uppercase">
+                                                @if(!isset($isReadOnly) || !$isReadOnly)
+                                                    <span x-text="sidang.nilai_supervisor !== null ? 'Edit Nilai Supervisor' : 'Input Nilai Supervisor'"></span>
+                                                @else Lihat Nilai Supervisor @endif
                                             </a>
                                         </td>
                                     </tr>
