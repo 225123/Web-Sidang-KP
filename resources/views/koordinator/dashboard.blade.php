@@ -214,7 +214,7 @@
                     <h3 class="font-semibold text-[#1A1A1A] text-[18px] font-inter tracking-tight"> Progress Bimbingan Saya</h3>
                 </div>
                 
-                <div class="flex flex-col items-center gap-6 flex-1 min-h-0">
+                <div class="flex flex-col items-center gap-6">
                     <!-- Circular Progress Chart -->
                     <div class="relative flex-shrink-0">
                         <svg class="w-40 h-40 transform -rotate-90">
@@ -232,7 +232,7 @@
                     </div>
 
                     <!-- Student List -->
-                    <div class="flex-1 w-full overflow-y-auto custom-scrollbar pr-2 min-h-0 h-[220px]">
+                    <div class="w-full overflow-y-auto custom-scrollbar pr-2 max-h-[135px]">
                         <div class="space-y-3">
                             @forelse($listBimbinganMahasiswa as $mhs)
                             <div class="flex items-center justify-between p-3 bg-[#F9FAFB] rounded-[8px] hover:bg-[#F3F4F6] transition-colors border border-transparent hover:border-[#D1D5DB]">
