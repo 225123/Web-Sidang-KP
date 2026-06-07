@@ -17,8 +17,11 @@ class JadwalMengujiController extends Controller
 
         // Ambil semua sidang yang dosen tsb menjadi penguji 1 atau 2,
         // dan filter secara eksplisit sesuai periode aktif.
-        $sidangs = PendaftaranSidang::withoutGlobalScope('periode')->with(['mahasiswa.user', 'penguji1', 'penguji2', 'pendaftaranKp.supervisorInternal'])
+        $sidangs = PendaftaranSidang::with(['mahasiswa.user', 'penguji1', 'penguji2', 'pendaftaranKp.supervisorInternal'])
             ->whereNotNull('tanggal_sidang')
+            ->whereHas('pendaftaranKp', function ($q) use ($periodeId) {
+                $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+            })
             ->where(function ($query) use ($userId) {
                 $query->where('penguji_1_id', $userId)
                       ->orWhere('penguji_2_id', $userId);

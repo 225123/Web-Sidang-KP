@@ -107,7 +107,12 @@ class DashboardController extends Controller
         }
 
         // Sidang Terjadwal: Sidang di mana dosen menjadi penguji yang BELUM selesai
-        $sidangTerjadwal = PendaftaranSidang::withoutGlobalScope('periode')->where(function ($q) use ($dosenId) {
+        $sidangTerjadwal = PendaftaranSidang::whereHas('pendaftaranKp', function ($q) use ($periodeId) {
+                if ($periodeId) {
+                    $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+                }
+            })
+            ->where(function ($q) use ($dosenId) {
                 $q->where('penguji_1_id', $dosenId)
                   ->orWhere('penguji_2_id', $dosenId);
             })
@@ -166,7 +171,12 @@ class DashboardController extends Controller
         }
 
         // 3. Jadwal Sidang Terdekat: Hanya yang BELUM selesai
-        $jadwalTerdekat = PendaftaranSidang::withoutGlobalScope('periode')->with(['mahasiswa.user', 'mahasiswa'])
+        $jadwalTerdekat = PendaftaranSidang::with(['mahasiswa.user', 'mahasiswa'])
+            ->whereHas('pendaftaranKp', function ($q) use ($periodeId) {
+                if ($periodeId) {
+                    $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId);
+                }
+            })
             ->where(function ($q) use ($dosenId) {
                 $q->where('penguji_1_id', $dosenId)
                   ->orWhere('penguji_2_id', $dosenId);
