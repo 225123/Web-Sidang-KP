@@ -204,6 +204,11 @@ class UserController extends Controller
         $activePeriode = \App\Models\TahunAjaran::aktif();
         $selectedPeriodeId = session('selected_periode_id') ?? $activePeriode?->id;
         $isReadOnly = $activePeriode && $selectedPeriodeId != $activePeriode->id;
+        
+        $user = auth()->user();
+        if (($user->hasRole('dosen') || $user->hasRole('koordinator')) && $user->dosen && !$user->dosen->is_aktif) {
+            $isReadOnly = true;
+        }
 
         return view('koordinator.manajemen-user', compact('users', 'tab', 'isReadOnly'));
     }

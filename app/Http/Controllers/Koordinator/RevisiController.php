@@ -16,6 +16,11 @@ class RevisiController extends Controller
         $activePeriode = \App\Models\TahunAjaran::aktif();
         $isReadOnly = $activePeriode && $activePeriodId != $activePeriode->id;
 
+        $user = Auth::user();
+        if (($user->hasRole('dosen') || $user->hasRole('koordinator')) && $user->dosen && !$user->dosen->is_aktif) {
+            $isReadOnly = true;
+        }
+
         $sidangs = PendaftaranSidang::with(['mahasiswa.user'])
             ->whereHas('pendaftaranKp', function($q) use ($activePeriodId) {
                 if ($activePeriodId) {

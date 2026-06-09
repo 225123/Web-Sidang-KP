@@ -233,6 +233,11 @@ class PenugasanPembimbingController extends Controller
 
         $latestPeriode = \App\Models\TahunAjaran::terbaru()->first();
         $isReadOnly = (session('selected_periode_id') && $latestPeriode && session('selected_periode_id') != $latestPeriode->id);
+        
+        $user = auth()->user();
+        if (($user->hasRole('dosen') || $user->hasRole('koordinator')) && $user->dosen && !$user->dosen->is_aktif) {
+            $isReadOnly = true;
+        }
 
         $dosenData = [];
         foreach ($dosenList as $dl) {
@@ -751,6 +756,11 @@ class PenugasanPembimbingController extends Controller
             
         $periodeId = session('selected_periode_id');
         $isReadOnly = $periodeId && $periodeId != (\App\Models\TahunAjaran::aktif()?->id);
+        
+        $user = auth()->user();
+        if (($user->hasRole('dosen') || $user->hasRole('koordinator')) && $user->dosen && !$user->dosen->is_aktif) {
+            $isReadOnly = true;
+        }
 
         return view('koordinator.Penugasan-Pembimbing-Detail', compact('kp', 'individualKp', 'dosenList', 'clusterId', 'isReadOnly'));
     }

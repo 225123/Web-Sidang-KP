@@ -39,6 +39,16 @@ class AppServiceProvider extends ServiceProvider
                 $latestPeriode = \App\Models\TahunAjaran::terbaru()->first();
                 $isReadOnly = (session('selected_periode_id') && $latestPeriode && session('selected_periode_id') != $latestPeriode->id);
                 
+                // Tambahan: Jika status user tidak aktif, jadikan mode pelihat
+                $user = auth()->user();
+                if (!$isReadOnly) {
+                    if ($user->hasRole('mahasiswa') && $user->mahasiswa && !$user->mahasiswa->is_aktif) {
+                        $isReadOnly = true;
+                    } elseif (($user->hasRole('dosen') || $user->hasRole('koordinator')) && $user->dosen && !$user->dosen->is_aktif) {
+                        $isReadOnly = true;
+                    }
+                }
+
                 if ($isReadOnly && request()->route()) {
                     $excludedRoutes = [
                         'koordinator.periode-kp.*',

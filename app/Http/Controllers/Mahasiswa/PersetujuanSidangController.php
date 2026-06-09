@@ -52,7 +52,9 @@ class PersetujuanSidangController extends Controller
 
         $mahasiswaData = Auth::user()->mahasiswa;
 
-        $isReadOnly = $periodeId && $periodeId != \App\Models\TahunAjaran::aktif()?->id;
+        $user = Auth::user();
+        $isUserInactive = $user->hasRole('mahasiswa') && $user->mahasiswa && !$user->mahasiswa->is_aktif;
+        $isReadOnly = ($periodeId && $periodeId != \App\Models\TahunAjaran::aktif()?->id) || $isUserInactive;
 
         return view('mahasiswa.persetujuan-sidang-kp', compact('pendaftaran', 'totalBimbingan', 'persetujuan', 'mahasiswaData', 'ownKp', 'isReadOnly'));
     }

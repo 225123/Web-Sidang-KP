@@ -45,14 +45,25 @@ class CheckPeriodeLock
 
                 $selected_period_id = session('selected_periode_id');
                 $latest_all = TahunAjaran::terbaru()->first();
+                $user = Auth::user();
 
-                // Jika periode terpilih bukanlah periode terbaru, maka kunci akses modifikasi
-                if ($selected_period_id && $latest_all && $selected_period_id != $latest_all->id) {
+                $isPeriodeLocked = ($selected_period_id && $latest_all && $selected_period_id != $latest_all->id);
+                
+                $isUserInactive = false;
+                if ($user->hasRole('mahasiswa') && $user->mahasiswa && !$user->mahasiswa->is_aktif) {
+                    $isUserInactive = true;
+                } elseif (($user->hasRole('dosen') || $user->hasRole('koordinator')) && $user->dosen && !$user->dosen->is_aktif) {
+                    $isUserInactive = true;
+                }
+
+                if ($isPeriodeLocked || $isUserInactive) {
+                    $reason = $isUserInactive ? 'akun Anda saat ini bersatus tidak aktif' : 'bukan periode terbaru';
+                    
                     if ($request->ajax() || $request->wantsJson()) {
-                        return response()->json(['message' => 'Aksi ditolak: Periode ini sudah dikunci karena bukan periode terbaru. Anda hanya dapat melihat data yang sudah ada saja.'], 403);
+                        return response()->json(['message' => "Aksi ditolak: Anda hanya dapat melihat data karena $reason."], 403);
                     }
                     
-                    return back()->with('error', 'Aksi ditolak: Periode ini sudah dikunci karena bukan periode terbaru. Anda hanya dapat melihat data.');
+                    return back()->with('error', "Aksi ditolak: Anda hanya dapat melihat data karena $reason.");
                 }
             }
         }
