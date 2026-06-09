@@ -40,6 +40,16 @@ Route::get('/fix-nilai', function () {
     return "Retroactively fixed {$updated} records. Original values reset for all sidangs.";
 });
 
+Route::get('/reset-all-nilai', function () {
+    $updated = \App\Models\PendaftaranSidang::query()->update([
+        'original_nilai_penguji_1' => null,
+        'original_n1_laporan' => null,
+        'original_n1_produk' => null,
+        'original_n1_presentasi' => null
+    ]);
+    return "SUCCESS: {$updated} records reset!";
+});
+
 Route::get('/', function () {
     if (auth()->check()) {
         $role = auth()->user()->role;
