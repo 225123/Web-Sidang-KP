@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Koordinator;
 
 use App\Http\Controllers\Controller;
+use App\Models\NotifikasiLog;
 use App\Models\PendaftaranSidang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -90,6 +91,17 @@ class RevisiController extends Controller
         }
         $sidang->save();
 
+        // Notifikasi ke mahasiswa
+        NotifikasiLog::create([
+            'sender_id' => Auth::user()->id,
+            'receiver_id' => $sidang->mahasiswa->user_id,
+            'target_role' => 'mahasiswa',
+            'judul' => 'Revisi Disahkan',
+            'pesan' => 'Berkas revisi sidang Anda telah disahkan oleh koordinator (penguji).',
+            'target_url' => '/mahasiswa/revisi',
+            'is_read' => false,
+        ]);
+
         return back()->with('success', 'Revisi berhasil DISAHKAN dan nilai telah diperbarui.');
     }
 
@@ -104,14 +116,24 @@ class RevisiController extends Controller
             return back()->with('error', 'Status revisi belum bisa diproses.');
         }
 
-        if ($sidang->file_revisi) {
-            \Illuminate\Support\Facades\Storage::disk(upload_disk())->delete($sidang->file_revisi);
-        }
+        $request->validate([
+            'catatan_revisi' => 'required|string',
+        ]);
 
         $sidang->status_revisi = 'Ditolak';
-        $sidang->file_revisi = null;
-        $sidang->link_revisi = null;
+        $sidang->catatan_revisi = $request->catatan_revisi;
         $sidang->save();
+
+        // Notifikasi ke mahasiswa
+        NotifikasiLog::create([
+            'sender_id' => Auth::user()->id,
+            'receiver_id' => $sidang->mahasiswa->user_id,
+            'target_role' => 'mahasiswa',
+            'judul' => 'Revisi Ditolak',
+            'pesan' => "Berkas revisi sidang Anda ditolak.\n\nCatatan: " . $request->catatan_revisi,
+            'target_url' => '/mahasiswa/revisi',
+            'is_read' => false,
+        ]);
 
         return back()->with('success', 'Revisi mahasiswa berhasil DITOLAK.');
     }

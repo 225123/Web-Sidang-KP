@@ -161,6 +161,20 @@
             <h2 class="text-[18px] font-bold text-black mb-4">Status Pemeriksaan Berkas Revisi</h2>
 
             @if(!$sidang->status_revisi || !in_array(strtolower($sidang->status_revisi), ['menunggu', 'disahkan', 'diterima']))
+                @if($sidang->status_revisi === 'Ditolak')
+                <div class="inline-flex flex-col items-center justify-center p-8 border-2 border-red-500 bg-red-50 rounded-lg mb-8 max-w-2xl mx-auto w-full">
+                    <svg class="w-12 h-12 text-red-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <h3 class="text-lg font-bold text-red-700 uppercase">REVISI DITOLAK</h3>
+                    <p class="text-sm text-red-600 mt-2 text-center">Berkas revisi Anda ditolak oleh Dosen Penguji 1. Silakan perbaiki sesuai catatan dan unggah kembali.</p>
+                    @if(!empty($sidang->catatan_revisi))
+                    <div class="mt-4 p-4 bg-white rounded border border-red-200 w-full text-left">
+                        <span class="block text-[12px] font-bold text-red-800 uppercase mb-1">Catatan Penolakan:</span>
+                        <div class="text-[13px] text-gray-700 whitespace-pre-line">{!! nl2br(e($sidang->catatan_revisi)) !!}</div>
+                    </div>
+                    @endif
+                </div>
+                @endif
+                
                 <p class="text-[14px] text-gray-700 font-medium mb-8">Klik 'Submit Revisi' untuk mengirimkan berkas revisi Anda ke Dosen Penguji 1.</p>
                 @if(auth()->user()->mahasiswa->is_aktif && (!isset($isReadOnly) || !$isReadOnly))
                 <button type="submit" form="formAjukan" class="bg-[#008000] hover:bg-green-700 text-white font-bold text-[14px] px-8 py-2.5 rounded-full shadow-md flex items-center justify-center gap-2 mx-auto transition-colors">

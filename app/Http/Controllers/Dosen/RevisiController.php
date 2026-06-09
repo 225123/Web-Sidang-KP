@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dosen;
 
 use App\Http\Controllers\Controller;
+use App\Models\NotifikasiLog;
 use App\Models\PendaftaranSidang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -63,6 +64,17 @@ class RevisiController extends Controller
         $sidang->status_revisi = 'Disahkan';
         $sidang->save();
 
+        // Notifikasi ke mahasiswa
+        NotifikasiLog::create([
+            'sender_id' => Auth::user()->id,
+            'receiver_id' => $sidang->mahasiswa->user_id,
+            'target_role' => 'mahasiswa',
+            'judul' => 'Revisi Disahkan',
+            'pesan' => 'Berkas revisi sidang Anda telah disahkan oleh dosen penguji.',
+            'target_url' => '/mahasiswa/revisi',
+            'is_read' => false,
+        ]);
+
         // Recalculate Final Grade
         $pembimbing = (float) $sidang->nilai_pembimbing * 0.40;
         $supervisor = (float) $sidang->nilai_supervisor * 0.10;
@@ -106,8 +118,24 @@ class RevisiController extends Controller
             return back()->with('error', 'Status revisi belum bisa diproses.');
         }
 
+        $request->validate([
+            'catatan_revisi' => 'required|string',
+        ]);
+
         $sidang->status_revisi = 'Ditolak';
+        $sidang->catatan_revisi = $request->catatan_revisi;
         $sidang->save();
+
+        // Notifikasi ke mahasiswa
+        NotifikasiLog::create([
+            'sender_id' => Auth::user()->id,
+            'receiver_id' => $sidang->mahasiswa->user_id,
+            'target_role' => 'mahasiswa',
+            'judul' => 'Revisi Ditolak',
+            'pesan' => "Berkas revisi sidang Anda ditolak.\n\nCatatan: " . $request->catatan_revisi,
+            'target_url' => '/mahasiswa/revisi',
+            'is_read' => false,
+        ]);
 
         return back()->with('success', 'Revisi mahasiswa berhasil DITOLAK.');
     }

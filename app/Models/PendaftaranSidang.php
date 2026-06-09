@@ -75,6 +75,7 @@ class PendaftaranSidang extends Model
         'link_revisi',
         'status_revisi',
         'tanggal_revisi',
+        'catatan_revisi',
         'berita_acara_disubmit',
         'nilai_dipublikasi',
         'token_penilaian_supervisor',

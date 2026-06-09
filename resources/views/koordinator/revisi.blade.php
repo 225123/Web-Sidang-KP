@@ -382,6 +382,18 @@
                                 class="w-full px-3 py-2 bg-white border border-gray-200 rounded-[6px] text-[13px] font-medium text-black focus:border-[#4285F4] focus:ring-1 focus:ring-[#4285F4] transition-all outline-none">
                         </div>
                     </div>
+                    <!-- Catatan Tolak (only shown when tolak) -->
+                    <div x-show="confirmModal.action === 'tolak'" class="p-6 bg-red-50/50 flex flex-col gap-4 border-b border-gray-100">
+                        <div class="text-[12px] font-bold text-red-800 uppercase tracking-wide mb-1 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            Catatan Penolakan
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[11px] font-bold text-gray-700 uppercase">Alasan / Catatan <span class="text-red-500">*</span></label>
+                            <textarea name="catatan_revisi" x-model="confirmModal.catatan_revisi" rows="3" :required="confirmModal.action === 'tolak'"
+                                class="w-full px-3 py-2 bg-white border border-gray-200 rounded-[6px] text-[13px] font-medium text-black focus:border-[#EA4335] focus:ring-1 focus:ring-[#EA4335] transition-all outline-none" placeholder="Masukkan alasan mengapa revisi ini ditolak..."></textarea>
+                        </div>
+                    </div>
                     <div class="flex gap-3 p-6">
                         <button type="button" @click="confirmModal.show = false" class="flex-1 h-[40px] bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-[8px] text-[13px] font-bold transition-all border border-gray-200">
                             Batal
@@ -443,13 +455,15 @@
                     action: 'terima',
                     n1_laporan: 0,
                     n1_produk: 0,
-                    n1_presentasi: 0
+                    n1_presentasi: 0,
+                    catatan_revisi: ''
                 },
 
                 openConfirmModal(action, sidang, prefix = 'koordinator') {
                     this.confirmModal.action = action;
                     const baseUrl = '{{ url("") }}';
                     this.confirmModal.url = `${baseUrl}/${prefix}/revisi/${sidang.id}/${action}`;
+                    this.confirmModal.catatan_revisi = '';
                     
                     if (action === 'terima') {
                         this.confirmModal.n1_laporan = sidang.n1_laporan;
