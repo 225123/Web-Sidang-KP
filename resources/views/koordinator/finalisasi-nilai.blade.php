@@ -120,11 +120,8 @@
                                     <th class="py-3 px-4 font-bold text-left border-b border-r border-gray-300">Judul KP
                                     </th>
                                     <th
-                                        class="py-3 px-4 font-bold text-center w-[100px] border-b border-r border-gray-300">
-                                        Nilai Sidang</th>
-                                    <th
-                                        class="py-3 px-4 font-bold text-center w-[100px] border-b border-r border-gray-300">
-                                        Grade</th>
+                                        class="py-3 px-4 font-bold text-center w-[120px] border-b border-r border-gray-300">
+                                        Nilai Akhir</th>
                                     <th
                                         class="py-3 px-4 font-bold text-center w-[150px] border-b border-r border-gray-300">
                                         Status Kelulusan</th>
@@ -148,22 +145,22 @@
                                             <div class="text-black font-medium sentence-case leading-tight text-[11px]"
                                                 x-text="sidang.judul_kp_display ? sidang.judul_kp_display.toLowerCase() : '-'"></div>
                                         </td>
-                                        <td class="py-4 px-4 text-center border-r border-gray-100 font-black text-[13px]"
-                                            :class="sidang.status_kelulusan === 'Lanjut' ? 'text-red-600' : 'text-black'"
-                                            x-text="parseFloat(sidang.nilai_akhir_display).toFixed(2)"></td>
                                         <td class="py-4 px-4 text-center border-r border-gray-100">
                                             <div class="flex flex-col items-center">
                                                 <span class="font-black text-[13px]"
                                                     :class="sidang.status_kelulusan === 'Lanjut' ? 'text-red-600' : 'text-black'">
-                                                    <span x-text="sidang.grade_display"></span>
+                                                    <span x-text="parseFloat(sidang.nilai_akhir_display).toFixed(2)"></span>
+                                                    <span x-text="' (' + sidang.grade_display + ')'"></span>
                                                     <template x-if="sidang.is_penalized">
-                                                        <span class="text-[10px] text-black/40 font-bold"
-                                                            x-text="' (' + sidang.original_grade + ')'"></span>
+                                                        <span class="text-[10px] text-black/40 font-bold ml-1"
+                                                            x-text="'(Asli: ' + sidang.original_grade + ')'"></span>
                                                     </template>
                                                 </span>
                                                 <template x-if="sidang.is_penalized">
                                                     <span
-                                                        class="text-[8px] text-red-500 font-bold leading-none mt-1">PENALTI</span>
+                                                        class="text-[9px] font-bold text-red-600 mt-1 bg-red-50 px-1.5 py-0.5 rounded border border-red-200">
+                                                        PENALTI
+                                                    </span>
                                                 </template>
                                             </div>
                                         </td>
@@ -200,7 +197,7 @@
                                     </tr>
                                     <!-- Expandable Row for Details (Animated Slide Down) -->
                                     <tr>
-                                        <td colspan="7" class="p-0 border-0">
+                                        <td colspan="6" class="p-0 border-0">
                                             <div class="grid transition-all duration-300 ease-in-out"
                                                 :class="sidang.expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'">
                                                 <div class="overflow-hidden">
@@ -282,7 +279,7 @@
                             <template x-if="filteredSidangs.length === 0">
                                 <tbody class="bg-white">
                                     <tr>
-                                        <td colspan="7"
+                                        <td colspan="6"
                                             class="py-12 text-center text-gray-400 italic font-medium bg-gray-50 tracking-widest border-t border-gray-200 uppercase">
                                             Tidak Ada Data Ditemukan</td>
                                     </tr>

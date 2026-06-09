@@ -100,7 +100,7 @@
                         <div class="grid grid-cols-2 gap-8 mb-6">
                             <!-- Penguji 1 -->
                             <div>
-                                <p class="font-bold text-[13px] mb-2">Penguji 1 (20%)</p>
+                                <p class="font-bold text-[13px] mb-2">Penguji 1 (25%)</p>
                                 <div class="space-y-2 text-[12px] font-medium text-black">
                                     <div class="flex justify-between"><span>Laporan</span><span>:
                                             {{ $sidang->n1_laporan ?? 0 }}</span></div>
@@ -143,10 +143,9 @@
                                 <!-- Nilai Akhir Row -->
                                 <div class="w-full">
                                     <div class="flex items-center gap-4">
-                                        <span class="text-[13px] font-bold text-black uppercase w-[150px]">Nilai
-                                            Sidang</span>
+                                        <span class="text-[13px] font-bold text-black uppercase w-[150px]">Nilai Akhir</span>
                                         <span class="text-[15px] font-bold text-black">
-                                            : {{ number_format($sidang->nilai_akhir_display, 2) }}
+                                            : {{ number_format($sidang->nilai_akhir_display, 2) }} ({{ $sidang->grade_display }})
                                         </span>
                                     </div>
                                     <!-- Penalty Text Directly Under Nilai Akhir -->
