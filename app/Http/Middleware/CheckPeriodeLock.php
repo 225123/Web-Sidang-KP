@@ -50,9 +50,9 @@ class CheckPeriodeLock
                 $isPeriodeLocked = ($selected_period_id && $latest_all && $selected_period_id != $latest_all->id);
                 
                 $isUserInactive = false;
-                if ($user->hasRole('mahasiswa') && $user->mahasiswa && !$user->mahasiswa->is_aktif) {
+                if ($user->role === 'mahasiswa' && $user->mahasiswa && !$user->mahasiswa->is_aktif) {
                     $isUserInactive = true;
-                } elseif (($user->hasRole('dosen') || $user->hasRole('koordinator')) && $user->dosen && !$user->dosen->is_aktif) {
+                } elseif (in_array($user->role, ['dosen', 'koordinator_kp']) && $user->dosen && !$user->dosen->is_aktif) {
                     $isUserInactive = true;
                 }
 

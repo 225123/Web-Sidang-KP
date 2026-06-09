@@ -17,7 +17,7 @@ class RevisiController extends Controller
         $isReadOnly = $activePeriode && $activePeriodId != $activePeriode->id;
 
         $user = Auth::user();
-        if (($user->hasRole('dosen') || $user->hasRole('koordinator')) && $user->dosen && !$user->dosen->is_aktif) {
+        if (in_array($user->role, ['dosen', 'koordinator_kp']) && $user->dosen && !$user->dosen->is_aktif) {
             $isReadOnly = true;
         }
 

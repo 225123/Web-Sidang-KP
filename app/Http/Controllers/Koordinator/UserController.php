@@ -206,7 +206,7 @@ class UserController extends Controller
         $isReadOnly = $activePeriode && $selectedPeriodeId != $activePeriode->id;
         
         $user = auth()->user();
-        if (($user->hasRole('dosen') || $user->hasRole('koordinator')) && $user->dosen && !$user->dosen->is_aktif) {
+        if (in_array($user->role, ['dosen', 'koordinator_kp']) && $user->dosen && !$user->dosen->is_aktif) {
             $isReadOnly = true;
         }
 

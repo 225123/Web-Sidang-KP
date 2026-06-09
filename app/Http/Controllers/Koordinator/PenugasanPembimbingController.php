@@ -235,7 +235,7 @@ class PenugasanPembimbingController extends Controller
         $isReadOnly = (session('selected_periode_id') && $latestPeriode && session('selected_periode_id') != $latestPeriode->id);
         
         $user = auth()->user();
-        if (($user->hasRole('dosen') || $user->hasRole('koordinator')) && $user->dosen && !$user->dosen->is_aktif) {
+        if (in_array($user->role, ['dosen', 'koordinator_kp']) && $user->dosen && !$user->dosen->is_aktif) {
             $isReadOnly = true;
         }
 
@@ -758,7 +758,7 @@ class PenugasanPembimbingController extends Controller
         $isReadOnly = $periodeId && $periodeId != (\App\Models\TahunAjaran::aktif()?->id);
         
         $user = auth()->user();
-        if (($user->hasRole('dosen') || $user->hasRole('koordinator')) && $user->dosen && !$user->dosen->is_aktif) {
+        if (in_array($user->role, ['dosen', 'koordinator_kp']) && $user->dosen && !$user->dosen->is_aktif) {
             $isReadOnly = true;
         }
 
