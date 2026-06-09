@@ -130,16 +130,28 @@
         </thead>
         <tbody>
             <tr>
+                <td>Dosen Pembimbing</td>
+                <td class="text-center">40%</td>
+                <td class="text-center">{{ number_format($sidang->nilai_pembimbing ?? 0, 2) }}</td>
+                <td class="text-center">{{ number_format(($sidang->nilai_pembimbing ?? 0) * 0.40, 2) }}</td>
+            </tr>
+            <tr>
+                <td>Supervisor</td>
+                <td class="text-center">10%</td>
+                <td class="text-center">{{ number_format($sidang->nilai_supervisor ?? 0, 2) }}</td>
+                <td class="text-center">{{ number_format(($sidang->nilai_supervisor ?? 0) * 0.10, 2) }}</td>
+            </tr>
+            <tr>
                 <td>Dosen Penguji 1 (Sidang)</td>
-                <td class="text-center">50%</td>
+                <td class="text-center">25%</td>
                 <td class="text-center">{{ number_format($sidang->nilai_penguji_1 ?? 0, 2) }}</td>
-                <td class="text-center">{{ number_format(($sidang->nilai_penguji_1 ?? 0) * 0.5, 2) }}</td>
+                <td class="text-center">{{ number_format(($sidang->nilai_penguji_1 ?? 0) * 0.25, 2) }}</td>
             </tr>
             <tr>
                 <td>Dosen Penguji 2 (Sidang)</td>
-                <td class="text-center">50%</td>
+                <td class="text-center">25%</td>
                 <td class="text-center">{{ number_format($sidang->nilai_penguji_2 ?? 0, 2) }}</td>
-                <td class="text-center">{{ number_format(($sidang->nilai_penguji_2 ?? 0) * 0.5, 2) }}</td>
+                <td class="text-center">{{ number_format(($sidang->nilai_penguji_2 ?? 0) * 0.25, 2) }}</td>
             </tr>
         </tbody>
         <tfoot>
