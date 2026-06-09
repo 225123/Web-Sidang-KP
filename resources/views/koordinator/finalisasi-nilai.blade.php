@@ -537,7 +537,7 @@
                             const isLengkap = s.nilai_pembimbing !== null && 
                                               s.nilai_penguji_1 !== null && 
                                               s.nilai_penguji_2 !== null &&
-                                              (s.pendaftaran_kp?.supervisor_instansi_id == null || s.nilai_supervisor !== null);
+                                              (s.pendaftaran_kp?.supervisor_instansi == null || s.nilai_supervisor !== null);
                             return {
                                 nim: s.mahasiswa.nim,
                                 name: s.mahasiswa.user.name,
