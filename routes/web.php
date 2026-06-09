@@ -30,11 +30,16 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/fix-lanjut', function () {
-    $updated = \App\Models\PendaftaranKp::whereHas('user.mahasiswa', function($q) {
-        $q->where('status_kp', 'Lanjut');
-    })->update(['is_lanjutan' => true]);
-    return "Retroactively updated {$updated} records to Lanjut. You can now go back to dashboard.";
+Route::get('/fix-nilai', function () {
+    $updated = \App\Models\PendaftaranSidang::whereNotIn('status_revisi', ['Disahkan', 'Diterima'])
+        ->orWhereNull('status_revisi')
+        ->update([
+            'original_nilai_penguji_1' => null,
+            'original_n1_laporan' => null,
+            'original_n1_produk' => null,
+            'original_n1_presentasi' => null
+        ]);
+    return "Retroactively fixed {$updated} records. Original values reset for non-revised sidangs.";
 });
 
 Route::get('/', function () {
