@@ -122,7 +122,7 @@ class NilaiAkhirController extends Controller
             }
 
             $logic = $this->calculateFinalLogic($sidang);
-            $sidang->nilai_akhir_display = $logic['sidang_score'];
+            $sidang->nilai_akhir_display = $logic['nilai'];
             $sidang->grade_display = $logic['grade'];
         } elseif ($isFinalized) {
             $mhs = \App\Models\Mahasiswa::with('user')->where('user_id', $userId)->first();

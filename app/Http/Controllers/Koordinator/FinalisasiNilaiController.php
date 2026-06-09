@@ -275,7 +275,8 @@ class FinalisasiNilaiController extends Controller
         }
 
         return [
-            'nilai' => $sidangScore,
+            'nilai' => $avg,
+            'sidang_score' => $sidangScore,
             'grade' => $finalGrade,
             'original_grade' => $originalGrade,
             'is_penalized' => $isPenalized,
