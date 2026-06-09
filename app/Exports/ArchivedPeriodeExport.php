@@ -50,13 +50,20 @@ class ArchivedPeriodeExport implements FromCollection, WithHeadings, WithMapping
             $statusKelulusan = $sidang->status_kelulusan === 'Tidak Lulus' ? 'Lanjut' : $sidang->status_kelulusan;
 
             $kp = $sidang->pendaftaranKp;
+            
+            $ownKp = \App\Models\PendaftaranKp::withoutGlobalScope('periode')
+                ->where('mahasiswa_id', $sidang->mahasiswa_id)
+                ->whereIn('status_kp', ['pending', 'approved'])
+                ->latest()
+                ->first();
+            $judulKp = $ownKp ? $ownKp->judul_kp : ($kp->judul_kp ?? '-');
 
             $hasil->push((object)[
                 'nim' => $sidang->mahasiswa->nim ?? '-',
                 'nama' => $sidang->mahasiswa->user->name ?? '-',
                 'email' => $sidang->mahasiswa->user->email ?? '-',
                 'is_aktif' => $sidang->mahasiswa->is_aktif ? 'Aktif' : 'Tidak Aktif',
-                'judul_kp' => $kp->judul_kp ?? '-',
+                'judul_kp' => $judulKp,
                 'instansi_nama' => $kp->instansi_nama ?? '-',
                 'dosen_pembimbing' => $kp->pembimbing->name ?? '-',
                 'status_kp' => $kp->status_kp ?? '-',
