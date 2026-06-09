@@ -27,7 +27,9 @@ class ArchivedPeriodeExport implements FromCollection, WithHeadings, WithMapping
     public function collection()
     {
         $sidangRows = PendaftaranSidang::withoutGlobalScope('periode')
-            ->with(['mahasiswa.user', 'pendaftaranKp.pembimbing'])
+            ->with(['mahasiswa.user', 'pendaftaranKp' => function($q) {
+                $q->withoutGlobalScope('periode')->with('pembimbing');
+            }])
             ->whereHas('pendaftaranKp', function($q) {
                 $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $this->periodeId);
             })
@@ -37,7 +39,7 @@ class ArchivedPeriodeExport implements FromCollection, WithHeadings, WithMapping
         $mahasiswaDenganSidang = $sidangRows->pluck('mahasiswa_id')->unique()->toArray();
 
         $mahasiswaTanpaSidang = Mahasiswa::with(['user', 'pendaftaranKps' => function($q) {
-            $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $this->periodeId)->latest();
+            $q->withoutGlobalScope('periode')->with('pembimbing')->where('tahun_ajaran_id', $this->periodeId)->latest();
         }])
             ->where('tahun_ajaran_id', $this->periodeId)
             ->whereNotIn('user_id', $mahasiswaDenganSidang)
