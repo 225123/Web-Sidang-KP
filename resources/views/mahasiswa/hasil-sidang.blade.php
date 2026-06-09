@@ -117,13 +117,6 @@
             <div class="mt-12 pt-8 border-t-2 border-dashed border-gray-400">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div class="flex flex-col gap-3">
-                        <!-- Nilai Akhir Row -->
-                        <div class="flex items-center gap-4">
-                            <span class="text-[15px] font-bold text-black uppercase w-[150px]">Nilai Akhir</span>
-                            <span class="text-[20px] font-black text-black">
-                                : {{ $nilaiAkhir }}
-                            </span>
-                        </div>
 
                         <!-- Status Lulus Row -->
                         <div class="flex items-center gap-4">
