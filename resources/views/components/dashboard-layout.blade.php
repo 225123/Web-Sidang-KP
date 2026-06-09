@@ -240,7 +240,19 @@ class="font-inter antialiased bg-[#F5F6F8] text-gray-900 flex flex-col h-screen 
                 @endif
 
                 <div class="mt-4 w-full relative z-0">
-                    @if(isset($is_locked) && $is_locked)
+                    @php
+                        $showBanner = (isset($is_locked) && $is_locked) || (isset($isReadOnly) && $isReadOnly);
+                        $isInactive = false;
+                        if (auth()->check()) {
+                            $user = auth()->user();
+                            if ($user->role === 'mahasiswa' && $user->mahasiswa && !$user->mahasiswa->is_aktif) {
+                                $isInactive = true;
+                            } elseif (in_array($user->role, ['dosen', 'koordinator_kp']) && $user->dosen && !$user->dosen->is_aktif) {
+                                $isInactive = true;
+                            }
+                        }
+                    @endphp
+                    @if($showBanner)
                         <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded shadow-sm">
                             <div class="flex">
                                 <div class="flex-shrink-0">
@@ -250,18 +262,25 @@ class="font-inter antialiased bg-[#F5F6F8] text-gray-900 flex flex-col h-screen 
                                 </div>
                                 <div class="ml-3">
                                     <p class="text-[13px] text-yellow-700 font-medium">
-                                        <strong>Mode Lihat Saja:</strong> Anda sedang melihat data dari periode akademik lama. Semua aksi perubahan data telah dikunci.
+                                        <strong>Mode Lihat Saja:</strong> 
+                                        @if($isInactive)
+                                            Akun Anda saat ini berstatus <strong>Tidak Aktif</strong>. Semua aksi perubahan data telah dikunci.
+                                        @else
+                                            Anda sedang melihat data dari periode akademik lama. Semua aksi perubahan data telah dikunci.
+                                        @endif
                                     </p>
                                 </div>
                             </div>
                         </div>
                     @endif
                     
-                    @if((isset($is_locked) && $is_locked) || false)
+                    @if($showBanner)
                         <script>
                             document.addEventListener('DOMContentLoaded', () => {
                                 const actionKeywords = ['simpan', 'tambah', 'update', 'sahkan', 'hapus', 'terima', 'tolak', 'setujui', 'generate', 'auto', 'reset', 'cancel', 'kirim', 'upload', 'buka', 'tutup'];
                                 const safeKeywords = ['download', 'export', 'detail', 'lihat', 'cari', 'clear', 'next', 'previous'];
+                                const isInactive = {{ $isInactive ? 'true' : 'false' }};
+                                const lockReason = isInactive ? 'akun tidak aktif' : 'periode lama';
 
                                 function lockElements() {
                                     // 1. Disable all forms except GET forms and specific exclusions like periode-form
@@ -270,7 +289,7 @@ class="font-inter antialiased bg-[#F5F6F8] text-gray-900 flex flex-col h-screen 
                                         form.dataset.locked = 'true';
                                         form.addEventListener('submit', e => {
                                             e.preventDefault();
-                                            alert('Aksi tidak diizinkan: Anda berada di mode lihat saja (periode lama).');
+                                            alert(`Aksi tidak diizinkan: Anda berada di mode lihat saja (${lockReason}).`);
                                         });
                                     });
 
