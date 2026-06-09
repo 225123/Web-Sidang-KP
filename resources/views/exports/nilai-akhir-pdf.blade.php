@@ -116,6 +116,17 @@
             <td class="separator">:</td>
             <td>{{ $sidang->penguji2->name ?? '-' }}</td>
         </tr>
+        <tr>
+            <td class="label">Supervisor Instansi</td>
+            <td class="separator">:</td>
+            <td>
+                @if(optional($sidang->pendaftaranKp)->jenis_instansi === 'Internal')
+                    {{ optional(optional($sidang->pendaftaranKp)->supervisorInternal)->name ?? '-' }}
+                @else
+                    {{ optional(optional($sidang->pendaftaranKp)->supervisorInstansi)->nama_supervisor ?? '-' }}
+                @endif
+            </td>
+        </tr>
     </table>
 
     <p class="font-bold" style="margin-bottom: 5px;">Rincian Penilaian:</p>
