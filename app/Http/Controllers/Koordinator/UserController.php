@@ -33,26 +33,40 @@ class UserController extends Controller
 
         if ($mhs) {
             $isAllowed = false;
-            $latestKp = DB::table('pendaftaran_kp')
-                ->where('mahasiswa_id', $mhs->user_id)
-                ->orderBy('id', 'desc')
-                ->first();
-
-            if (!$latestKp) {
-                $isAllowed = true;
+            $notAllowedMessage = '';
+            
+            $activePeriodId = \App\Models\TahunAjaran::where('is_active', true)->value('id');
+            
+            // Cek apakah mahasiswa MAHASISWA ini SEDANG AKTIF di periode saat ini
+            $mhsRecord = DB::table('mahasiswa')->where('user_id', $mhs->user_id)->first();
+            if ($mhsRecord && $mhsRecord->tahun_ajaran_id == $activePeriodId) {
+                $isAllowed = false;
+                $notAllowedMessage = 'Mahasiswa dengan NIM ini sudah terdaftar dan aktif di periode saat ini.';
             } else {
-                $latestSidang = DB::table('pendaftaran_sidang')
-                    ->where('pendaftaran_kp_id', $latestKp->id)
+                $latestKp = DB::table('pendaftaran_kp')
+                    ->where('mahasiswa_id', $mhs->user_id)
+                    ->orderBy('id', 'desc')
                     ->first();
 
-                if (!$latestSidang) {
+                if (!$latestKp) {
                     $isAllowed = true;
                 } else {
-                    if (in_array($latestSidang->status_kelulusan, ['Lanjut', 'Tidak Lulus'])) {
+                    $latestSidang = DB::table('pendaftaran_sidang')
+                        ->where('pendaftaran_kp_id', $latestKp->id)
+                        ->first();
+
+                    if (!$latestSidang) {
                         $isAllowed = true;
-                    } elseif (in_array($latestSidang->grade, ['D', 'E'])) {
-                        $isAllowed = true;
+                    } else {
+                        if (in_array($latestSidang->status_kelulusan, ['Lanjut', 'Tidak Lulus'])) {
+                            $isAllowed = true;
+                        } elseif (in_array($latestSidang->grade, ['D', 'E'])) {
+                            $isAllowed = true;
+                        }
                     }
+                }
+                if (!$isAllowed && !$notAllowedMessage) {
+                    $notAllowedMessage = 'Mahasiswa ini sudah dinyatakan Lulus di periode sebelumnya dan tidak bisa didaftarkan ulang.';
                 }
             }
 
@@ -63,7 +77,7 @@ class UserController extends Controller
                 'email' => $mhs->email,
                 'role' => $mhs->role == 'mahasiswa' ? 'Mahasiswa' : ucfirst($mhs->role),
                 'not_allowed' => !$isAllowed,
-                'not_allowed_message' => !$isAllowed ? 'Mahasiswa ini sudah dinyatakan Lulus di periode sebelumnya dan tidak bisa didaftarkan ulang.' : '',
+                'not_allowed_message' => $notAllowedMessage,
                 'user_id' => $mhs->user_id
             ]);
         }
@@ -455,32 +469,47 @@ class UserController extends Controller
                     }
 
                     // Cek kelayakan mahasiswa eksisting untuk mengulang
-                    $latestKp = DB::table('pendaftaran_kp')
-                        ->where('mahasiswa_id', $userRecord->id)
-                        ->orderBy('id', 'desc')
-                        ->first();
-
                     $isAllowed = false;
-                    if (!$latestKp) {
-                        $isAllowed = true;
+                    $notAllowedMessage = '';
+                    $activePeriodId = session('selected_periode_id') ?? \App\Models\TahunAjaran::aktif()?->id;
+                    $mhsRecord = DB::table('mahasiswa')->where('user_id', $userRecord->id)->first();
+                    
+                    $latestKp = null;
+                    $latestSidang = null;
+                    
+                    if ($mhsRecord && $mhsRecord->tahun_ajaran_id == $activePeriodId) {
+                        $isAllowed = false;
+                        $notAllowedMessage = 'Ditolak: Mahasiswa sudah terdaftar & aktif di periode saat ini';
                     } else {
-                        $latestSidang = DB::table('pendaftaran_sidang')
-                            ->where('pendaftaran_kp_id', $latestKp->id)
+                        $latestKp = DB::table('pendaftaran_kp')
+                            ->where('mahasiswa_id', $userRecord->id)
+                            ->orderBy('id', 'desc')
                             ->first();
 
-                        if (!$latestSidang) {
+                        if (!$latestKp) {
                             $isAllowed = true;
                         } else {
-                            if (in_array($latestSidang->status_kelulusan, ['Lanjut', 'Tidak Lulus'])) {
+                            $latestSidang = DB::table('pendaftaran_sidang')
+                                ->where('pendaftaran_kp_id', $latestKp->id)
+                                ->first();
+
+                            if (!$latestSidang) {
                                 $isAllowed = true;
-                            } elseif (in_array($latestSidang->grade, ['D', 'E'])) {
-                                $isAllowed = true;
+                            } else {
+                                if (in_array($latestSidang->status_kelulusan, ['Lanjut', 'Tidak Lulus'])) {
+                                    $isAllowed = true;
+                                } elseif (in_array($latestSidang->grade, ['D', 'E'])) {
+                                    $isAllowed = true;
+                                }
                             }
+                        }
+                        if (!$isAllowed) {
+                            $notAllowedMessage = 'Ditolak: Mahasiswa sudah Lulus';
                         }
                     }
 
                     $statusLama = 'Belum KP';
-                    if ($latestKp && $latestSidang) {
+                    if ($latestKp && isset($latestSidang) && $latestSidang) {
                         $statusLama = $latestSidang->status_kelulusan;
                         if (!$statusLama) $statusLama = 'Sedang KP';
                     } elseif ($latestKp) {
@@ -499,7 +528,7 @@ class UserController extends Controller
                             'id' => $rowId,
                             'email' => $rowEmail,
                             'role' => $role,
-                            'keterangan' => 'Ditolak: Mahasiswa sudah Lulus',
+                            'keterangan' => $notAllowedMessage,
                             'existing' => $existingData
                         ];
                         continue;

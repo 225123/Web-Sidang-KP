@@ -98,11 +98,13 @@
                                     </td>
                                     <td class="border-r border-gray-100 py-1 px-1">
                                         <input type="text" :name="`users[${index}][nama]`" x-model="row.nama"
-                                            :readonly="row.is_update"
+                                            :readonly="row.is_update" @keydown.enter.prevent
                                             class="table-input" :class="{'bg-gray-200 text-gray-500 cursor-not-allowed select-none': row.is_update}" required placeholder="Nama lengkap…">
                                     </td>
                                     <td class="border-r border-gray-100 py-1 px-1 relative">
-                                        <input type="text" :name="`users[${index}][id]`" x-model="row.id" @input.debounce.600ms="checkId(index)"
+                                        <input type="text" :name="`users[${index}][id]`" x-model="row.id" 
+                                            @input.debounce.600ms="checkId(index)"
+                                            @keydown.enter.prevent="checkId(index)"
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                             class="table-input text-center font-mono text-[12px]" required placeholder="NIM/NIDN…">
                                         
@@ -120,7 +122,7 @@
                                     </td>
                                     <td class="border-r border-gray-100 py-1 px-1">
                                         <input type="email" :name="`users[${index}][email]`" x-model="row.email"
-                                            :readonly="row.is_update"
+                                            :readonly="row.is_update" @keydown.enter.prevent
                                             class="table-input" :class="{'bg-gray-200 text-gray-500 cursor-not-allowed select-none': row.is_update}" required placeholder="email@contoh.com…">
                                     </td>
                                     <td class="border-r border-gray-100 py-1 px-2">
