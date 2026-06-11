@@ -41,7 +41,7 @@ class UserController extends Controller
             $mhsRecord = DB::table('mahasiswa')->where('user_id', $mhs->user_id)->first();
             if ($mhsRecord && $mhsRecord->tahun_ajaran_id == $activePeriodId) {
                 $isAllowed = false;
-                $notAllowedMessage = 'Mahasiswa dengan NIM ini sudah terdaftar dan aktif di periode saat ini.';
+                $notAllowedMessage = 'Mahasiswa dengan NIM ini sudah terdaftar dan aktif di periode saat ini. Penambahan pengguna diblokir.';
             } else {
                 $latestKp = DB::table('pendaftaran_kp')
                     ->where('mahasiswa_id', $mhs->user_id)
@@ -66,7 +66,7 @@ class UserController extends Controller
                     }
                 }
                 if (!$isAllowed && !$notAllowedMessage) {
-                    $notAllowedMessage = 'Mahasiswa ini sudah dinyatakan Lulus di periode sebelumnya dan tidak bisa didaftarkan ulang.';
+                    $notAllowedMessage = 'Mahasiswa ini sudah dinyatakan Lulus di periode sebelumnya dan tidak bisa didaftarkan ulang. Penambahan pengguna diblokir.';
                 }
             }
 
@@ -479,7 +479,7 @@ class UserController extends Controller
                     
                     if ($mhsRecord && $mhsRecord->tahun_ajaran_id == $activePeriodId) {
                         $isAllowed = false;
-                        $notAllowedMessage = 'Ditolak: Mahasiswa sudah terdaftar & aktif di periode saat ini';
+                        $notAllowedMessage = 'Ditolak: Mahasiswa dengan NIM ini sudah terdaftar dan aktif di periode saat ini. Penambahan pengguna diblokir.';
                     } else {
                         $latestKp = DB::table('pendaftaran_kp')
                             ->where('mahasiswa_id', $userRecord->id)
@@ -503,8 +503,8 @@ class UserController extends Controller
                                 }
                             }
                         }
-                        if (!$isAllowed) {
-                            $notAllowedMessage = 'Ditolak: Mahasiswa sudah Lulus';
+                        if (!$isAllowed && !$notAllowedMessage) {
+                            $notAllowedMessage = 'Ditolak: Mahasiswa sudah Lulus. Penambahan pengguna diblokir.';
                         }
                     }
 

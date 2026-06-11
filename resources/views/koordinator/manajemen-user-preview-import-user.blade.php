@@ -349,7 +349,9 @@
                                     id: row.id,
                                     email: row.email,
                                     role: row.role,
-                                    keterangan: 'Ditolak: ' + (data.not_allowed ? 'Mahasiswa sudah Lulus' : 'Duplikat ID/Email'),
+                                    keterangan: data.not_allowed 
+                                        ? ('Ditolak: ' + (data.not_allowed_message || 'Mahasiswa sudah Lulus')) 
+                                        : 'Ditolak: Duplikat ID/Email',
                                     existing: {
                                         nama: data.name,
                                         email: data.email,
