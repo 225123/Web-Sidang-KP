@@ -192,7 +192,7 @@
                     let res = [...this.sidangs];
                     if (this.search) {
                         const q = this.search.toLowerCase();
-                        res = res.filter(s => s.nim.toLowerCase().includes(q) || s.user.name.toLowerCase().includes(q));
+                        res = res.filter(s => (s.nim || '').toLowerCase().includes(q) || (s.nama || '').toLowerCase().includes(q));
                     }
                     if (this.filterStatus !== 'all') {
                         res = res.filter(s => {
