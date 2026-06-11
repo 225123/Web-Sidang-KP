@@ -63,7 +63,8 @@ class UserController extends Controller
                 'email' => $mhs->email,
                 'role' => $mhs->role == 'mahasiswa' ? 'Mahasiswa' : ucfirst($mhs->role),
                 'not_allowed' => !$isAllowed,
-                'not_allowed_message' => !$isAllowed ? 'Mahasiswa ini sudah dinyatakan Lulus di periode sebelumnya dan tidak bisa didaftarkan ulang.' : ''
+                'not_allowed_message' => !$isAllowed ? 'Mahasiswa ini sudah dinyatakan Lulus di periode sebelumnya dan tidak bisa didaftarkan ulang.' : '',
+                'user_id' => $mhs->user_id
             ]);
         }
 

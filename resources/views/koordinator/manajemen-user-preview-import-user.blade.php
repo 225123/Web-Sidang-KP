@@ -93,29 +93,41 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
                             @forelse($validRows as $index => $row)
-                            <tr class="hover:bg-blue-50/40 transition-colors duration-100 group">
+                            <tr class="hover:bg-blue-50/40 transition-colors duration-100 group" x-data="rowValidator('{{ $row['id'] }}', {{ isset($row['is_update']) && $row['is_update'] ? 'true' : 'false' }}, '{{ $row['user_id'] ?? '' }}', false, '{{ strtolower($row['role']) }}', '{{ $row['nama'] }}', '{{ $row['email'] }}')">
                                 <td class="py-2.5 px-3 text-center text-[13px] text-gray-400 font-medium border-r border-gray-100 bg-gray-50 w-10">
                                     {{ $index + 1 }}
                                 </td>
                                 <td class="border-r border-gray-100 py-1 px-1">
-                                    <input type="text" name="users[{{ $index }}][nama]" value="{{ $row['nama'] }}"
+                                    <input type="text" name="users[{{ $index }}][nama]" x-model="nama" :readonly="isExistingUser"
+                                           :class="isExistingUser ? 'bg-gray-200 text-gray-500 cursor-not-allowed select-none' : ''"
                                            required class="table-input" placeholder="Nama lengkap…">
                                 </td>
-                                <td class="border-r border-gray-100 py-1 px-1">
-                                    <input type="text" name="users[{{ $index }}][id]" value="{{ $row['id'] }}"
+                                <td class="border-r border-gray-100 py-1 px-1 align-top relative">
+                                    <input type="text" name="users[{{ $index }}][id]" x-model="id" @blur="checkId" @input.debounce.500ms="checkId" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                           :class="(status === 'duplicate' || status === 'rejected') ? 'dup-input text-red-600 font-bold' : ''"
                                            required class="table-input text-center font-mono text-[12px]" placeholder="NIM/NIDN…">
+                                    <input type="hidden" name="users[{{ $index }}][is_update]" :value="isUpdate ? 1 : 0">
+                                    <input type="hidden" name="users[{{ $index }}][user_id]" :value="userId">
+                                    
+                                    <div x-show="isChecking" class="text-[10px] text-blue-500 text-center mt-1 px-1 leading-tight">Mengecek...</div>
+                                    <div x-show="status === 'duplicate' || status === 'rejected'" class="text-[10px] text-red-600 font-bold text-center mt-1 leading-tight px-1" x-text="message"></div>
+                                    <div x-show="status === 'lanjut'" class="text-[10px] text-amber-600 font-bold text-center mt-1 leading-tight px-1" x-text="message"></div>
+                                    <div x-show="status === 'ok'" class="text-[10px] text-emerald-600 font-bold text-center mt-1 leading-tight px-1" x-text="message"></div>
+                                    <div x-show="!status && !isChecking && isUpdate" class="text-[10px] text-amber-600 font-bold text-center mt-1 leading-tight px-1">User Lanjut.</div>
                                 </td>
-                                <td class="border-r border-gray-100 py-1 px-1">
-                                    <input type="email" name="users[{{ $index }}][email]" value="{{ $row['email'] }}"
+                                <td class="border-r border-gray-100 py-1 px-1 align-top">
+                                    <input type="email" name="users[{{ $index }}][email]" x-model="email" :readonly="isExistingUser"
+                                           :class="isExistingUser ? 'bg-gray-200 text-gray-500 cursor-not-allowed select-none' : ''"
                                            required class="table-input" placeholder="email@contoh.com…">
                                 </td>
-                                <td class="border-r border-gray-100 py-1 px-2">
+                                <td class="border-r border-gray-100 py-1 px-2 align-top">
                                     <div class="relative">
-                                        <select name="users[{{ $index }}][role]" required
+                                        <select name="users[{{ $index }}][role]" x-model="role" required
+                                                :class="isExistingUser ? 'bg-gray-200 text-gray-500 cursor-not-allowed pointer-events-none' : ''"
                                                 class="table-input role-select pr-6 text-[13px]">
-                                            <option value="koordinator_kp" {{ str_contains(strtolower($row['role']), 'koordinator') ? 'selected' : '' }}>Koordinator KP</option>
-                                            <option value="dosen"          {{ strtolower($row['role']) === 'dosen' ? 'selected' : '' }}>Dosen</option>
-                                            <option value="mahasiswa"      {{ strtolower($row['role']) === 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
+                                            <option value="koordinator_kp">Koordinator KP</option>
+                                            <option value="dosen">Dosen</option>
+                                            <option value="mahasiswa">Mahasiswa</option>
                                         </select>
                                         <svg class="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -190,31 +202,41 @@
                         <tbody class="divide-y divide-red-100 bg-white">
                             @foreach(session('duplicateRows') as $dupIndex => $dup)
                             @php $i = count($validRows) + $dupIndex; @endphp
-                            <tr class="hover:bg-red-50/50 transition-colors duration-100">
+                            <tr class="hover:bg-red-50/50 transition-colors duration-100" x-data="rowValidator('{{ $dup['id'] }}', false, '', true, '{{ strtolower($dup['role']) }}', '{{ $dup['nama'] }}', '{{ $dup['email'] }}')">
                                 <td class="py-2.5 px-3 text-center text-[13px] text-red-400 font-medium border-r border-red-100 bg-red-50/30 w-10">
                                     {{ $dupIndex + 1 }}
                                 </td>
-                                <td class="border-r border-red-100 py-1 px-1">
-                                    <input type="text" name="users[{{ $i }}][nama]" value="{{ $dup['nama'] }}"
-                                           required class="table-input dup-input">
+                                <td class="border-r border-red-100 py-1 px-1 align-top">
+                                    <input type="text" name="users[{{ $i }}][nama]" x-model="nama" :readonly="isExistingUser"
+                                           :class="isExistingUser ? 'bg-gray-200 text-gray-500 cursor-not-allowed select-none' : 'dup-input'"
+                                           required class="table-input">
                                 </td>
-                                <td class="border-r border-red-100 py-1 px-1">
-                                    <input type="text" name="users[{{ $i }}][id]" value="{{ $dup['id'] }}"
-                                           required class="table-input dup-input text-center font-mono text-[12px]
-                                           {{ $dup['is_duplicate_id'] ? 'text-red-600 font-bold underline decoration-dashed underline-offset-4' : '' }}">
+                                <td class="border-r border-red-100 py-1 px-1 align-top relative">
+                                    <input type="text" name="users[{{ $i }}][id]" x-model="id" @blur="checkId" @input.debounce.500ms="checkId" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                           :class="(status === 'duplicate' || status === 'rejected' || hasInitialConflict) ? 'dup-input text-red-600 font-bold underline decoration-dashed underline-offset-4' : ''"
+                                           required class="table-input text-center font-mono text-[12px]">
+                                    <input type="hidden" name="users[{{ $i }}][is_update]" :value="isUpdate ? 1 : 0">
+                                    <input type="hidden" name="users[{{ $i }}][user_id]" :value="userId">
+                                    
+                                    <div x-show="isChecking" class="text-[10px] text-blue-500 text-center mt-1 px-1 leading-tight">Mengecek...</div>
+                                    <div x-show="status === 'duplicate' || status === 'rejected'" class="text-[10px] text-red-600 font-bold text-center mt-1 leading-tight px-1" x-text="message"></div>
+                                    <div x-show="status === 'lanjut'" class="text-[10px] text-amber-600 font-bold text-center mt-1 leading-tight px-1" x-text="message"></div>
+                                    <div x-show="status === 'ok'" class="text-[10px] text-emerald-600 font-bold text-center mt-1 leading-tight px-1" x-text="message"></div>
+                                    <div x-show="!status && !isChecking && hasInitialConflict" class="text-[10px] text-red-600 font-bold text-center mt-1 leading-tight px-1">{{ $dup['keterangan'] ?? 'Duplikat ID dengan pengguna lain.' }}</div>
                                 </td>
-                                <td class="border-r border-red-100 py-1 px-1">
-                                    <input type="email" name="users[{{ $i }}][email]" value="{{ $dup['email'] }}"
-                                           required class="table-input dup-input
-                                           {{ $dup['is_duplicate_email'] ? 'text-red-600 font-bold underline decoration-dashed underline-offset-4' : '' }}">
+                                <td class="border-r border-red-100 py-1 px-1 align-top">
+                                    <input type="email" name="users[{{ $i }}][email]" x-model="email" :readonly="isExistingUser"
+                                           :class="isExistingUser ? 'bg-gray-200 text-gray-500 cursor-not-allowed select-none' : 'dup-input'"
+                                           required class="table-input">
                                 </td>
-                                <td class="border-r border-red-100 py-1 px-2">
+                                <td class="border-r border-red-100 py-1 px-2 align-top">
                                     <div class="relative">
-                                        <select name="users[{{ $i }}][role]" required
-                                                class="table-input dup-input role-select pr-6 text-[13px]">
-                                            <option value="koordinator_kp" {{ str_contains(strtolower($dup['role']), 'koordinator') ? 'selected' : '' }}>Koordinator KP</option>
-                                            <option value="dosen"          {{ strtolower($dup['role']) === 'dosen' ? 'selected' : '' }}>Dosen</option>
-                                            <option value="mahasiswa"      {{ strtolower($dup['role']) === 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
+                                        <select name="users[{{ $i }}][role]" x-model="role" required
+                                                :class="isExistingUser ? 'bg-gray-200 text-gray-500 cursor-not-allowed pointer-events-none' : 'dup-input'"
+                                                class="table-input role-select pr-6 text-[13px]">
+                                            <option value="koordinator_kp">Koordinator KP</option>
+                                            <option value="dosen">Dosen</option>
+                                            <option value="mahasiswa">Mahasiswa</option>
                                         </select>
                                         <svg class="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -273,6 +295,84 @@
     </div>
 
     <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('rowValidator', (initialId, initialIsUpdate, initialUserId, isDuplicateMode, initialRole, initialNama, initialEmail) => ({
+                id: initialId,
+                nama: initialNama,
+                email: initialEmail,
+                role: initialRole === 'koordinator kp' || initialRole === 'koordinator_kp' ? 'koordinator_kp' : (initialRole === 'dosen' ? 'dosen' : 'mahasiswa'),
+                
+                isUpdate: initialIsUpdate,
+                userId: initialUserId,
+                
+                isChecking: false,
+                status: null, // 'duplicate', 'rejected', 'lanjut', 'ok'
+                message: '',
+                
+                isExistingUser: initialIsUpdate, 
+                hasInitialConflict: isDuplicateMode,
+
+                async checkId() {
+                    if (!this.id) {
+                        this.resetState();
+                        return;
+                    }
+                    
+                    this.isChecking = true;
+                    try {
+                        const response = await fetch(`{{ route('koordinator.user.check-id') }}?id_user=${this.id}`);
+                        const data = await response.json();
+                        
+                        if (data.exists) {
+                            this.nama = data.name;
+                            this.email = data.email;
+                            
+                            if (data.role_type === 'dosen') {
+                                this.status = 'duplicate';
+                                this.message = 'ID terdaftar sebagai Dosen. Ditolak.';
+                                this.isExistingUser = false;
+                                this.isUpdate = false;
+                                this.userId = '';
+                            } else {
+                                if (data.not_allowed) {
+                                    this.status = 'rejected';
+                                    this.message = 'Mahasiswa Lulus. Ditolak.';
+                                    this.isExistingUser = true;
+                                    this.isUpdate = false;
+                                    this.userId = '';
+                                } else {
+                                    this.status = 'lanjut';
+                                    this.message = 'User Mengulang (Lanjut).';
+                                    this.isExistingUser = true;
+                                    this.isUpdate = true;
+                                    this.userId = data.user_id;
+                                    this.role = 'mahasiswa';
+                                }
+                            }
+                        } else {
+                            this.resetState();
+                            this.status = 'ok';
+                            this.message = 'ID tersedia.';
+                        }
+                        
+                        this.hasInitialConflict = false;
+                    } catch (error) {
+                        console.error('Error checking ID:', error);
+                    } finally {
+                        this.isChecking = false;
+                    }
+                },
+                
+                resetState() {
+                    this.status = null;
+                    this.message = '';
+                    this.isExistingUser = false;
+                    this.isUpdate = false;
+                    this.userId = '';
+                }
+            }));
+        });
+
         function removeRow(btn) {
             const row = btn.closest('tr');
             row.style.transition = 'all 0.2s ease';
