@@ -479,16 +479,40 @@ class UserController extends Controller
                         }
                     }
 
+                    $statusLama = 'Belum KP';
+                    if ($latestKp && $latestSidang) {
+                        $statusLama = $latestSidang->status_kelulusan;
+                        if (!$statusLama) $statusLama = 'Sedang KP';
+                    } elseif ($latestKp) {
+                        $statusLama = 'Sedang KP';
+                    }
+
+                    $existingData = [
+                        'nama' => $userRecord->name,
+                        'email' => $userRecord->email,
+                        'status' => $statusLama
+                    ];
+
                     if (!$isAllowed) {
                         $duplikatAtauDitolak[] = [
                             'nama' => $row['nama'],
                             'id' => $rowId,
                             'email' => $rowEmail,
                             'role' => $role,
-                            'keterangan' => 'Ditolak: Mahasiswa ini sudah dinyatakan Lulus di periode sebelumnya.'
+                            'keterangan' => 'Ditolak: Mahasiswa sudah Lulus',
+                            'existing' => $existingData
                         ];
                         continue;
                     }
+
+                    $duplikatAtauDitolak[] = [
+                        'nama' => $row['nama'],
+                        'id' => $rowId,
+                        'email' => $rowEmail,
+                        'role' => $role,
+                        'keterangan' => 'Diterima: Lanjut',
+                        'existing' => $existingData
+                    ];
 
                     // Jika diizinkan mengulang, masukkan ke validRows tapi dengan tanda 'is_update'
                     $validRows[] = [
@@ -507,12 +531,33 @@ class UserController extends Controller
                 $isDuplicateId = in_array($rowId, $eksisIds);
 
                 if ($isDuplicateEmail || $isDuplicateId) {
+                    $existingDosen = null;
+                    if ($isDuplicateId) {
+                        $existingMhs = DB::table('mahasiswa')->where('nim', $rowId)->first();
+                        if ($existingMhs) {
+                            $u = DB::table('users')->where('id', $existingMhs->user_id)->first();
+                            $existingDosen = ['nama' => $u->name, 'email' => $u->email, 'status' => 'Mahasiswa'];
+                        } else {
+                            $existingDsn = DB::table('dosen')->where('nidn', $rowId)->first();
+                            if ($existingDsn) {
+                                $u = DB::table('users')->where('id', $existingDsn->user_id)->first();
+                                $existingDosen = ['nama' => $u->name, 'email' => $u->email, 'status' => 'Dosen/Koordinator'];
+                            }
+                        }
+                    } else {
+                        $u = DB::table('users')->where('email', $rowEmail)->first();
+                        if ($u) {
+                            $existingDosen = ['nama' => $u->name, 'email' => $u->email, 'status' => ucfirst($u->role)];
+                        }
+                    }
+
                     $duplikatAtauDitolak[] = [
                         'nama' => $row['nama'],
                         'id' => $rowId,
                         'email' => $rowEmail,
                         'role' => $role,
-                        'keterangan' => 'Duplikat ID atau Email dengan pengguna lain.'
+                        'keterangan' => 'Ditolak: Duplikat ID/Email',
+                        'existing' => $existingDosen ?? ['nama' => '-', 'email' => '-', 'status' => '-']
                     ];
                     continue;
                 }
