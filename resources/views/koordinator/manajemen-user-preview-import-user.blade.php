@@ -106,6 +106,7 @@
                                             @input.debounce.600ms="checkId(index)"
                                             @keydown.enter.prevent="checkId(index)"
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                            minlength="9"
                                             class="table-input text-center font-mono text-[12px]" required placeholder="NIM/NIDN…">
                                         
                                         <template x-if="row.is_update">
@@ -329,14 +330,32 @@
 
                 async checkId(index) {
                     const row = this.validRows[index];
-                    if (!row.id || row.id.length < 3) return;
+                    this.duplicateRows = this.duplicateRows.filter(d => d.sourceIndex !== index);
+
+                    if (!row.id || row.id.length < 9) {
+                        row.is_invalid = true;
+                        row.is_update = false;
+                        
+                        this.duplicateRows.push({
+                            sourceIndex: index,
+                            nama: row.nama,
+                            id: row.id || '-',
+                            email: row.email,
+                            role: row.role,
+                            keterangan: 'Ditolak: ID kurang dari 9 karakter',
+                            existing: {
+                                nama: '-',
+                                email: '-',
+                                status: '-'
+                            }
+                        });
+                        return;
+                    }
 
                     row.is_checking = true;
                     try {
                         const response = await fetch(`{{ route('koordinator.user.check-id') }}?id_user=${row.id}`);
                         const data = await response.json();
-                        
-                        this.duplicateRows = this.duplicateRows.filter(d => d.sourceIndex !== index);
                         
                         if (data.exists) {
                             if (data.role_type === 'dosen' || data.not_allowed) {

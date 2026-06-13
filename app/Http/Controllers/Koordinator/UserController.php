@@ -235,9 +235,11 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'id_user' => 'required|string',
+            'id_user' => 'required|string|min:9',
             'email' => 'required|email',
             'role' => 'required|in:mahasiswa,dosen,koordinator_kp',
+        ], [
+            'id_user.min' => 'ID (NIM/NIDN/NIDK) minimal harus 9 digit/karakter.',
         ]);
 
         // Pastikan pendaftaran manual selalu masuk ke periode AKTIF secara global, bukan bergantung pada filter dropdown
@@ -459,6 +461,18 @@ class UserController extends Controller
                 $rowId = (string)$row['id'];
                 $rowEmail = strtolower($row['email']);
 
+                if (strlen($rowId) < 9) {
+                    $duplikatAtauDitolak[] = [
+                        'nama' => $row['nama'],
+                        'id' => $rowId,
+                        'email' => $rowEmail,
+                        'role' => $role,
+                        'keterangan' => 'Ditolak: ID kurang dari 9 karakter',
+                        'existing' => ['nama' => '-', 'email' => '-', 'status' => '-']
+                    ];
+                    continue;
+                }
+
                 // Cek apakah mahasiswa ini sudah ada
                 if ($role === 'mahasiswa' && in_array($rowId, $eksisNims)) {
                     $userRecord = $existingUsers->where('email', $rowEmail)->first();
@@ -633,6 +647,10 @@ class UserController extends Controller
         DB::transaction(function () use ($rows, $activePeriodId) {
             foreach ($rows as $row) {
                 if (empty($row['nama']) || empty($row['email'])) {
+                    continue;
+                }
+
+                if (empty($row['id']) || strlen((string)$row['id']) < 9) {
                     continue;
                 }
 

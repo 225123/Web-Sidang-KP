@@ -266,8 +266,9 @@
                             <div class="flex flex-col md:flex-row md:items-center">
                                 <label class="w-full md:w-[200px] text-[15px] text-black font-medium mb-1 md:mb-0">ID (NIM/NIDN/NIDK)</label>
                                 <span class="hidden md:inline text-black mx-4">:</span>
-                                <input type="text" name="id_user" x-model="formData.id_user" @blur="checkIdUser" @keydown.enter.prevent="checkIdUser" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required class="flex-1 w-full md:max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Input ID User">
+                                <input type="text" name="id_user" x-model="formData.id_user" minlength="9" @blur="checkIdUser" @keydown.enter.prevent="checkIdUser" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required class="flex-1 w-full md:max-w-[300px] h-[32px] bg-[#D9D9D9] px-3 font-italic text-[14px] text-black outline-none focus:ring-1 focus:ring-blue-500" placeholder="Input ID User (Min. 9 Angka)">
                             </div>
+                            <div x-show="formData.id_user && formData.id_user.length < 9" class="text-red-600 text-[13px] md:ml-[230px] font-bold mt-1">ID (NIM/NIDN/NIDK) minimal harus 9 angka.</div>
                             <div x-show="isDosenDuplicate" class="text-red-600 text-[13px] md:ml-[230px] font-bold mt-1">ID ini sudah terdaftar sebagai Dosen/Koordinator. Duplikasi ditolak.</div>
                             <div x-show="isCheckingId" class="text-blue-500 text-[12px] md:ml-[230px] mt-1">Mengecek ID...</div>
 
@@ -460,7 +461,7 @@
                 notAllowedMessage: '',
 
                 async checkIdUser() {
-                    if (!this.formData.id_user) {
+                    if (!this.formData.id_user || this.formData.id_user.length < 9) {
                         this.isDosenDuplicate = false;
                         this.isExistingUser = false;
                         this.isNotAllowed = false;
@@ -639,6 +640,11 @@
                 },
 
                 openAddConfirm() {
+                    if (this.formData.id_user && this.formData.id_user.length < 9) {
+                        this.showNotification('ID (NIM/NIDN/NIDK) minimal harus 9 angka.', 'error');
+                        return;
+                    }
+                    
                     const form = document.getElementById('formManual');
                     if (form.checkValidity()) {
                         this.confirmType = 'add';
