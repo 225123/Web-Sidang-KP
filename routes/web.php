@@ -122,7 +122,7 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'role:ko
     Route::put('/manajemen-akses/{id}/update', [UserController::class, 'update'])->name('user.update');
     Route::put('/manajemen-akses/{id}/status', [UserController::class, 'updateStatus'])->name('user.update-status');
     Route::delete('/manajemen-akses/{id}/destroy', [UserController::class, 'destroy'])->name('user.destroy');
-    Route::post('/manajemen-akses/import', [UserController::class, 'import'])->name('user.import');
+    Route::match(['get', 'post'], '/manajemen-akses/import', [UserController::class, 'import'])->name('user.import');
     Route::post('/manajemen-akses/import/confirm', [UserController::class, 'confirmImport'])->name('user.import.confirm');
     Route::get('/manajemen-akses/template/download', [UserController::class, 'downloadTemplate'])->name('user.template.download');
 

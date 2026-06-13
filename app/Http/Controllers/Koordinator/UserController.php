@@ -434,6 +434,15 @@ class UserController extends Controller
 
     public function import(Request $request)
     {
+        if ($request->isMethod('get')) {
+            $validRows = session('import_users_preview', []);
+            $duplicateRows = session('duplicateRows', []);
+            if (empty($validRows) && empty($duplicateRows)) {
+                return redirect()->route('koordinator.manajemen-akses')->with('error', 'Sesi pratinjau tidak ditemukan atau sudah kadaluarsa. Silakan unggah ulang file Excel Anda.');
+            }
+            return view('koordinator.manajemen-user-preview-import-user', compact('validRows'));
+        }
+
         $request->validate([
             'file_import' => 'required|mimes:xlsx,xls',
         ], [
@@ -623,7 +632,9 @@ class UserController extends Controller
         }
 
         if (count($duplikatAtauDitolak) > 0) {
-            session()->now('duplicateRows', $duplikatAtauDitolak);
+            session(['duplicateRows' => $duplikatAtauDitolak]);
+        } else {
+            session()->forget('duplicateRows');
         }
 
         session(['import_users_preview' => $validRows]);
@@ -696,7 +707,7 @@ class UserController extends Controller
             }
         });
 
-        session()->forget('import_users_preview');
+        session()->forget(['import_users_preview', 'duplicateRows']);
 
         return redirect()->route('koordinator.manajemen-akses')->with('success', 'Pendaftaran dan pembaruan '.count($rows).' data user berhasil dieksekusi secara penuh!');
     }
