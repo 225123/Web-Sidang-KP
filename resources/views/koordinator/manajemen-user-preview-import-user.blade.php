@@ -118,7 +118,7 @@
                                         </template>
 
                                         <template x-if="row.is_invalid">
-                                            <div class="text-[10px] text-red-600 font-bold text-center mt-1 leading-tight px-1 pb-1">Duplikat. Periksa tabel di bawah.</div>
+                                            <div class="text-[10px] text-red-600 font-bold text-center mt-1 leading-tight px-1 pb-1" x-text="(!row.id || String(row.id).length < 9) ? 'ID minimal 9 karakter.' : 'Duplikat. Periksa tabel di bawah.'"></div>
                                         </template>
                                     </td>
                                     <td class="border-r border-gray-100 py-1 px-1">
