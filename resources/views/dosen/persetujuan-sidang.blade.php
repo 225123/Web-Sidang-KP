@@ -26,11 +26,7 @@
                 'id' => $r->id,
                 'nama' => $r->pendaftaranSidang->mahasiswa->user->name ?? 'User',
                 'nim' => $r->pendaftaranSidang->mahasiswa->nim ?? '-',
-                'judul' => \App\Models\PendaftaranKp::where('mahasiswa_id', $r->pendaftaranSidang->mahasiswa_id)->latest()->value('judul_kp') ?? $r->pendaftaranSidang->pendaftaranKp->judul_kp ?? '-',
-                'file_laporan' => $r->pendaftaranSidang->file_laporan ? storage_url($r->pendaftaranSidang->file_laporan) : null,
-                'link_drive' => $r->pendaftaranSidang->link_drive ?? null,
-                'total_bimbingan' => $r->pendaftaranSidang->pendaftaranKp->logBimbingans->where('mahasiswa_id', $r->pendaftaranSidang->mahasiswa_id)->where('status_approval', 'approved')->count(),
-                'status' => 'rejected',
+                'tanggal_upload' => $r->pendaftaranSidang->created_at ? $r->pendaftaranSidang->created_at->format('d M Y, H:i') : '-',
                 'feedback' => $r->alasan_penolakan ?? 'Tidak ada catatan.',
                 'ditolak_oleh' => $r->ditolak_oleh
             ])) }},
@@ -214,10 +210,8 @@
                                 <tr class="bg-[#EBEBEB] text-black">
                                     <th class="py-3.5 px-4 font-bold text-center w-[5%]">No</th>
                                     <th class="py-3.5 px-4 font-bold text-left">Mahasiswa</th>
-                                    <th class="py-3.5 px-4 font-bold text-center">Judul KP</th>
-                                    <th class="py-3.5 px-4 font-bold text-center">Laporan KP</th>
-                                    <th class="py-3.5 px-4 font-bold text-center whitespace-nowrap">Total Bimbingan</th>
-                                    <th class="py-3.5 px-4 font-bold text-center">Status & Feedback</th>
+                                    <th class="py-3.5 px-4 font-bold text-center">Tanggal Upload</th>
+                                    <th class="py-3.5 px-4 font-bold text-center">Alasan penolakan</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
@@ -228,25 +222,10 @@
                                             <div class="font-bold text-black" x-text="p.nama"></div>
                                             <div class="text-black/60 text-[11px]" x-text="p.nim"></div>
                                         </td>
-                                        <td class="py-4 px-4 text-center text-black font-normal" x-text="p.judul"></td>
-                                        <td class="py-4 px-4 text-center">
-                                            <template x-if="p.file_laporan">
-                                                <a :href="p.file_laporan" target="_blank" class="text-blue-600 hover:underline font-bold italic">Lihat Laporan</a>
-                                            </template>
-                                            <template x-if="p.link_drive && !p.file_laporan">
-                                                <a :href="p.link_drive" target="_blank" class="text-blue-600 hover:underline font-bold italic">Link GDrive</a>
-                                            </template>
-                                            <template x-if="!p.file_laporan && !p.link_drive">
-                                                <span class="text-gray-400 italic">Dihapus</span>
-                                            </template>
-                                        </td>
-                                        <td class="py-4 px-4 text-center text-black font-bold">
-                                            <span x-text="p.total_bimbingan"></span>/12
-                                        </td>
+                                        <td class="py-4 px-4 text-center text-black font-normal" x-text="p.tanggal_upload"></td>
                                         <td class="py-4 px-4 text-center">
                                             <div class="flex flex-col items-center gap-1">
-                                                <span class="bg-red-100 text-red-700 font-bold px-4 py-1.5 rounded-full text-[11px] uppercase shadow-sm">Ditolak</span>
-                                                <span class="text-[10px] text-red-500 italic max-w-[200px] text-center" x-text="'Feedback: ' + p.feedback"></span>
+                                                <span class="text-[12px] text-red-600 font-medium max-w-[250px] text-center" x-text="p.feedback"></span>
                                                 <span class="text-[9px] text-gray-500 max-w-[200px] text-center mt-1" x-text="'Oleh: ' + p.ditolak_oleh"></span>
                                             </div>
                                         </td>
