@@ -137,6 +137,31 @@
                     return this.form.pembimbingId == dosenId;
                 },
 
+                isOverlapping(dosenId) {
+                    if (!this.form.tanggal || !this.form.mulai || !this.form.selesai) return false;
+                    
+                    const allSessions = [...this.sidangList, ...this.tungguList];
+                    
+                    for (let i = 0; i < allSessions.length; i++) {
+                        let s = allSessions[i];
+                        if (s.id == this.form.id) continue;
+                        
+                        if (s.penguji_1_id == dosenId || s.penguji_2_id == dosenId) {
+                            if (s.tanggal == this.form.tanggal && s.mulai && s.selesai) {
+                                let start1 = this.form.mulai;
+                                let end1 = this.form.selesai;
+                                let start2 = s.mulai;
+                                let end2 = s.selesai;
+                                
+                                if (start1 < end2 && start2 < end1) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                },
+
                 hasWarning(mhs) {
                     return this.warnings.some(w => w.includes(mhs.name));
                 },
@@ -497,16 +522,23 @@
                                         <li @click="form.p1 = null; open = false" class="px-4 py-2 text-[12px] text-red-600 font-bold hover:bg-red-50 cursor-pointer border-b border-gray-100">--- Batalkan Pilihan ---</li>
                                         <template x-for="d in dosenList" :key="d.id">
                                             <li x-show="d.nama.toLowerCase().includes(search.toLowerCase())"
-                                                @click="!isPembimbing(d.id) && form.p2 != d.id && (form.p1 = d.id, open = false)"
+                                                @click="!isPembimbing(d.id) && !isOverlapping(d.id) && form.p2 != d.id && (form.p1 = d.id, open = false)"
                                                 class="px-4 py-2.5 text-[12px] flex justify-between items-center transition-colors border-b border-gray-100/50"
                                                 :class="[
-                                                    isPembimbing(d.id) ? 'bg-red-50 text-red-500 cursor-not-allowed opacity-80' : (form.p2 == d.id ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-blue-50 cursor-pointer text-black font-bold'),
+                                                    isPembimbing(d.id) ? 'bg-red-50 text-red-500 cursor-not-allowed opacity-80' : 
+                                                    (isOverlapping(d.id) ? 'bg-red-50 text-red-500 cursor-not-allowed opacity-80' :
+                                                    (form.p2 == d.id ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-blue-50 cursor-pointer text-black font-bold')),
                                                     form.p1 == d.id ? 'bg-[#E6F0FA] font-bold' : ''
                                                 ]">
-                                                <div class="flex items-center gap-2">
-                                                    <span x-text="d.nama" class="font-bold"></span>
-                                                    <template x-if="isPembimbing(d.id)">
-                                                        <span class="text-[9px] bg-red-100 px-1 rounded uppercase font-bold">PEMBIMBING</span>
+                                                <div class="flex flex-col gap-1">
+                                                    <div class="flex items-center gap-2">
+                                                        <span x-text="d.nama" class="font-bold"></span>
+                                                        <template x-if="isPembimbing(d.id)">
+                                                            <span class="text-[9px] bg-red-100 px-1 rounded uppercase font-bold">PEMBIMBING</span>
+                                                        </template>
+                                                    </div>
+                                                    <template x-if="isOverlapping(d.id)">
+                                                        <span class="text-[10px] text-red-500 italic font-medium">Berada dalam sidang lain</span>
                                                     </template>
                                                 </div>
                                                 <span class="font-bold text-[#4285F4]" x-text="d.beban"></span>
@@ -535,16 +567,23 @@
                                         <li @click="form.p2 = null; open = false" class="px-4 py-2 text-[12px] text-red-600 font-bold hover:bg-red-50 cursor-pointer border-b border-gray-100">--- Batalkan Pilihan ---</li>
                                         <template x-for="d in dosenList" :key="d.id">
                                             <li x-show="d.nama.toLowerCase().includes(search.toLowerCase())"
-                                                @click="!isPembimbing(d.id) && form.p1 != d.id && (form.p2 = d.id, open = false)"
+                                                @click="!isPembimbing(d.id) && !isOverlapping(d.id) && form.p1 != d.id && (form.p2 = d.id, open = false)"
                                                 class="px-4 py-2.5 text-[12px] flex justify-between items-center transition-colors border-b border-gray-100/50"
                                                 :class="[
-                                                    isPembimbing(d.id) ? 'bg-red-50 text-red-500 cursor-not-allowed opacity-80' : (form.p1 == d.id ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-blue-50 cursor-pointer text-black font-bold'),
+                                                    isPembimbing(d.id) ? 'bg-red-50 text-red-500 cursor-not-allowed opacity-80' : 
+                                                    (isOverlapping(d.id) ? 'bg-red-50 text-red-500 cursor-not-allowed opacity-80' :
+                                                    (form.p1 == d.id ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-blue-50 cursor-pointer text-black font-bold')),
                                                     form.p2 == d.id ? 'bg-[#E6F0FA] font-bold' : ''
                                                 ]">
-                                                <div class="flex items-center gap-2">
-                                                    <span x-text="d.nama" class="font-bold"></span>
-                                                    <template x-if="isPembimbing(d.id)">
-                                                        <span class="text-[9px] bg-red-100 px-1 rounded uppercase font-bold">PEMBIMBING</span>
+                                                <div class="flex flex-col gap-1">
+                                                    <div class="flex items-center gap-2">
+                                                        <span x-text="d.nama" class="font-bold"></span>
+                                                        <template x-if="isPembimbing(d.id)">
+                                                            <span class="text-[9px] bg-red-100 px-1 rounded uppercase font-bold">PEMBIMBING</span>
+                                                        </template>
+                                                    </div>
+                                                    <template x-if="isOverlapping(d.id)">
+                                                        <span class="text-[10px] text-red-500 italic font-medium">Berada dalam sidang lain</span>
                                                     </template>
                                                 </div>
                                                 <span class="font-bold text-[#4285F4]" x-text="d.beban"></span>
