@@ -22,6 +22,7 @@ class PersetujuanSidangController extends Controller
                 $q->where('tahun_ajaran_id', $periodeId);
             }
         })
+            ->where('status_verifikasi', '!=', 'unsubmitted')
             ->with(['mahasiswa.user', 'pendaftaranKp.logBimbingans'])
             ->get();
 
