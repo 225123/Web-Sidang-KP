@@ -477,3 +477,24 @@ Route::get('/file-manager/{path}', function ($path) {
 
     return $response;
 })->where('path', '.*')->name('serve.file');
+
+// Route untuk melayani file Google Drive secara proxy (bypass mode private/viewer Google)
+Route::get('/google-file/{path}', function ($path) {
+    if (!auth()->check()) {
+        abort(403, 'Unauthorized');
+    }
+    
+    $path = ltrim(str_replace('\\', '/', $path), '/');
+    
+    try {
+        if (!\Illuminate\Support\Facades\Storage::disk('google')->exists($path)) {
+            return response()->json(['error' => 'File not found on Google Drive'], 404);
+        }
+        
+        return \Illuminate\Support\Facades\Storage::disk('google')->response($path, null, [
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+})->where('path', '.*')->name('serve.google.file');

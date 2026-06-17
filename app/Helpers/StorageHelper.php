@@ -29,20 +29,9 @@ if (! function_exists('storage_url')) {
             return route('serve.file', ['path' => $path]);
         }
 
-        // Jika driver google, ubah URL download menjadi URL view agar bisa di-embed di tag <img>
+        // Jika driver google, gunakan route proxy agar gambar tidak terkena block CORS / auth dari Google
         if ($driver === 'google') {
-            try {
-                $url = Storage::disk($activeDisk)->url($path);
-                if (preg_match('/id=([a-zA-Z0-9_-]+)/', $url, $matches)) {
-                    $fileId = $matches[1];
-                    // Menggunakan endpoint uc?export=view agar gambar langsung ter-render (tidak di-download paksa)
-                    return 'https://drive.google.com/uc?export=view&id=' . $fileId;
-                }
-                return $url;
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Google Drive URL Error: ' . $e->getMessage());
-                return 'error-generating-url?msg=' . urlencode($e->getMessage());
-            }
+            return route('serve.google.file', ['path' => $path]);
         }
 
         // Untuk disk cloud (r2, s3, storj), gunakan presigned URL agar bisa bypass 
