@@ -27,8 +27,7 @@
                 'nama' => $r->pendaftaranSidang->mahasiswa->user->name ?? 'User',
                 'nim' => $r->pendaftaranSidang->mahasiswa->nim ?? '-',
                 'tanggal_upload' => $r->pendaftaranSidang->created_at ? $r->pendaftaranSidang->created_at->format('d M Y, H:i') : '-',
-                'feedback' => $r->alasan_penolakan ?? 'Tidak ada catatan.',
-                'ditolak_oleh' => $r->ditolak_oleh
+                'feedback' => $r->alasan_penolakan ?? 'Tidak ada catatan.'
             ])) }},
             get filteredList() {
                 return this.pengajuans.filter(p => {
@@ -226,7 +225,6 @@
                                         <td class="py-4 px-4 text-center">
                                             <div class="flex flex-col items-center gap-1">
                                                 <span class="text-[12px] text-red-600 font-medium max-w-[250px] text-center" x-text="p.feedback"></span>
-                                                <span class="text-[9px] text-gray-500 max-w-[200px] text-center mt-1" x-text="'Oleh: ' + p.ditolak_oleh"></span>
                                             </div>
                                         </td>
                                     </tr>
