@@ -35,12 +35,13 @@ class BackupController extends Controller
         }
         
         // Hitung estimasi berkas di Cloud
-        $cloudFilesCount = PendaftaranSidang::whereNotNull('file_laporan')->count() +
-                           PendaftaranSidang::whereNotNull('file_log_bimbingan')->count() +
-                           PendaftaranSidang::whereNotNull('file_persetujuan_pembimbing')->count() +
-                           PendaftaranSidang::whereNotNull('file_nilai_supervisor')->count() +
-                           PendaftaranSidang::whereNotNull('file_berkas_lainnya')->count() +
-                           PendaftaranSidang::whereNotNull('file_revisi')->count();
+        $cloudFilesCount = PendaftaranSidang::withoutGlobalScope('periode')->whereNotNull('file_laporan')->count() +
+                           PendaftaranSidang::withoutGlobalScope('periode')->whereNotNull('file_log_bimbingan')->count() +
+                           PendaftaranSidang::withoutGlobalScope('periode')->whereNotNull('file_persetujuan_pembimbing')->count() +
+                           PendaftaranSidang::withoutGlobalScope('periode')->whereNotNull('file_nilai_supervisor')->count() +
+                           PendaftaranSidang::withoutGlobalScope('periode')->whereNotNull('file_berkas_lainnya')->count() +
+                           PendaftaranSidang::withoutGlobalScope('periode')->whereNotNull('file_revisi')->count() +
+                           \App\Models\LogBimbingan::whereNotNull('file_progress')->count();
         
         $uploadDisk = upload_disk();
         $cloudStorageName = strtoupper($uploadDisk) . ' Storage';
