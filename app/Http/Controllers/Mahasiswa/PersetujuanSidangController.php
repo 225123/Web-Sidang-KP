@@ -171,7 +171,7 @@ class PersetujuanSidangController extends Controller
         }
 
         $persetujuan->link_drive = null;
-        $persetujuan->status_verifikasi = null; 
+        $persetujuan->status_verifikasi = 'unsubmitted'; 
         $persetujuan->save();
 
         return back()->with('success', 'Pengajuan berhasil dibatalkan. Silakan unggah kembali berkas yang baru.');
