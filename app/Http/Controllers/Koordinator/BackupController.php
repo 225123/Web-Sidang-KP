@@ -34,16 +34,30 @@ class BackupController extends Controller
             // Abaikan jika query tidak kompatibel
         }
         
-        // Hitung estimasi berkas di Storj
-        $storjFilesCount = PendaftaranSidang::whereNotNull('file_laporan')->count() +
+        // Hitung estimasi berkas di Cloud
+        $cloudFilesCount = PendaftaranSidang::whereNotNull('file_laporan')->count() +
                            PendaftaranSidang::whereNotNull('file_log_bimbingan')->count() +
+                           PendaftaranSidang::whereNotNull('file_persetujuan_pembimbing')->count() +
+                           PendaftaranSidang::whereNotNull('file_nilai_supervisor')->count() +
+                           PendaftaranSidang::whereNotNull('file_berkas_lainnya')->count() +
                            PendaftaranSidang::whereNotNull('file_revisi')->count();
-        $storjMax = '25 GB'; // Storj Free Tier Limit
+        
+        $uploadDisk = upload_disk();
+        $cloudStorageName = strtoupper($uploadDisk) . ' Storage';
+        if ($uploadDisk == 'google') {
+            $cloudStorageName = 'Google Drive';
+            $cloudMax = '15 GB';
+        } elseif ($uploadDisk == 'storj') {
+            $cloudStorageName = 'S3 Storage (Storj)';
+            $cloudMax = '25 GB';
+        } else {
+            $cloudMax = '10 GB';
+        }
         $neonMax = '500 MB'; // Neon Free Tier Limit
 
         $histories = BackupHistory::with('tahunAjaran', 'koordinator')->latest()->get();
 
-        return view('koordinator.backup', compact('periodes', 'dbSize', 'neonMax', 'storjFilesCount', 'storjMax', 'histories'));
+        return view('koordinator.backup', compact('periodes', 'dbSize', 'neonMax', 'cloudFilesCount', 'cloudMax', 'cloudStorageName', 'histories'));
     }
 
     public function downloadZip(Request $request)

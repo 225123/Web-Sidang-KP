@@ -57,13 +57,13 @@
 
                 <div class="mb-6">
                     <div class="flex justify-between text-[12px] mb-1">
-                        <span class="text-gray-500 font-medium">S3 Storage (Storj)</span>
-                        <span class="text-gray-900 font-bold">~{{ $storjFilesCount }} Berkas Terunggah</span>
+                        <span class="text-gray-500 font-medium">{{ $cloudStorageName }}</span>
+                        <span class="text-gray-900 font-bold">~{{ $cloudFilesCount }} Berkas Terunggah</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-emerald-500 h-2 rounded-full" style="width: {{ min(100, max(1, ($storjFilesCount / 1000) * 100)) }}%"></div>
+                        <div class="bg-emerald-500 h-2 rounded-full" style="width: {{ min(100, max(1, ($cloudFilesCount / 1000) * 100)) }}%"></div>
                     </div>
-                    <p class="text-[12px] text-gray-400 mt-1">Batas Kuota Gratis: {{ $storjMax }}</p>
+                    <p class="text-[12px] text-gray-400 mt-1">Batas Kuota Gratis: {{ $cloudMax }}</p>
                 </div>
 
                 <div class="bg-blue-50 rounded-lg p-4 text-[12px] text-blue-800">
@@ -152,9 +152,9 @@
                                             <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                         </div>
                                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                                            <h3 class="text-lg leading-6 font-bold text-gray-900">Hapus Permanen Data & File Storj</h3>
+                                            <h3 class="text-lg leading-6 font-bold text-gray-900">Hapus Permanen Data & File Cloud</h3>
                                             <div class="mt-2 text-[12px] text-gray-500">
-                                                <p class="mb-2">Tindakan ini akan memusnahkan <strong>SELURUH</strong> data mahasiswa, pendaftaran KP, nilai, dan juga menghapus semua file PDF lampirannya dari Cloud Storj untuk periode ini.</p>
+                                                <p class="mb-2">Tindakan ini akan memusnahkan <strong>SELURUH</strong> data mahasiswa, pendaftaran KP, nilai, dan juga menghapus semua file PDF lampirannya dari Cloud Storage ({{ $cloudStorageName }}) untuk periode ini.</p>
                                                 <p class="font-bold text-red-600 mb-4">Pastikan Anda telah sukses mengunduh Backup (.ZIP) terlebih dahulu!</p>
                                                 
                                                 <label class="block text-gray-700 font-medium mb-1">Ketik "HAPUS" untuk konfirmasi:</label>
