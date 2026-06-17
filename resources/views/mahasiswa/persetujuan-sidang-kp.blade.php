@@ -81,7 +81,13 @@
 
 
 
-                    @if(!$persetujuan || in_array($persetujuan->status_verifikasi, ['Ditolak', 'rejected']) || empty($persetujuan->status_verifikasi))
+                    @if(!$pendaftaran || $pendaftaran->status_kp !== 'approved')
+                        <div class="pt-2">Pemberitahuan</div>
+                        <div class="pt-2 flex items-center gap-2 text-red-600 font-bold">
+                            <span class="mr-2 text-black font-medium">:</span>
+                            Pendaftaran KP Anda belum disetujui oleh Koordinator.
+                        </div>
+                    @elseif(!$persetujuan || in_array($persetujuan->status_verifikasi, ['Ditolak', 'rejected']) || empty($persetujuan->status_verifikasi))
                         <div class="pt-2">Upload Laporan KP</div>
                         <div class="pt-2 flex items-center gap-2">
                             <span class="mr-2">:</span>
@@ -165,7 +171,10 @@
             <hr class="border-t-2 border-[#D9D9D9] mb-12">
 
             <div class="text-center pb-12">
-                @if(!$persetujuan || in_array($persetujuan->status_verifikasi, ['Ditolak', 'rejected']) || empty($persetujuan->status_verifikasi))
+                @if(!$pendaftaran || $pendaftaran->status_kp !== 'approved')
+                    <h2 class="text-[18px] font-bold text-black mb-4">Pengajuan Terkunci</h2>
+                    <p class="text-[14px] text-black font-medium mb-8">Pendaftaran KP Anda belum disetujui oleh Koordinator, sehingga Anda belum dapat mengajukan Persetujuan Sidang.</p>
+                @elseif(!$persetujuan || in_array($persetujuan->status_verifikasi, ['Ditolak', 'rejected']) || empty($persetujuan->status_verifikasi))
                     <h2 class="text-[18px] font-bold text-black mb-4">Ajukan Sidang KP</h2>
                     <p class="text-[14px] text-black font-medium mb-8">Klik 'Ajukan' untuk mendapatkan Surat Persetujuan
                         Dosen Pembimbing sebagai syarat pendaftaran sidang KP</p>

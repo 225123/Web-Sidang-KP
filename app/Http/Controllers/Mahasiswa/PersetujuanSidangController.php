@@ -26,8 +26,8 @@ class PersetujuanSidangController extends Controller
                 $q->where('mahasiswa_id', $mahasiswaId)
                     ->orWhereJsonContains('anggota_kelompok_ids', $mahasiswaId)
                     ->orWhereJsonContains('anggota_kelompok_ids', (string) $mahasiswaId);
-            })
-            ->where('status_kp', 'approved'); // Pastikan hanya KP yang disetujui
+            });
+            // Tidak perlu dibatasi 'approved' di sini agar nama pembimbing tetap muncul walaupun KP masih pending
             
         if ($periodeId) {
             $query->where('tahun_ajaran_id', $periodeId);
