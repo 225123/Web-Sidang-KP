@@ -2,7 +2,36 @@
     "version": 2,
     "functions": {
         "api/index.php": {
-            "runtime": "vercel-php@0.9.0"
+            "runtime": "vercel-php@0.9.0",
+            "excludeFiles": [
+                "vendor/google/apiclient-services/src/A**",
+                "vendor/google/apiclient-services/src/B**",
+                "vendor/google/apiclient-services/src/C**",
+                "vendor/google/apiclient-services/src/D[a-q]**",
+                "vendor/google/apiclient-services/src/D[s-z]**",
+                "vendor/google/apiclient-services/src/E**",
+                "vendor/google/apiclient-services/src/F**",
+                "vendor/google/apiclient-services/src/G**",
+                "vendor/google/apiclient-services/src/H**",
+                "vendor/google/apiclient-services/src/I**",
+                "vendor/google/apiclient-services/src/J**",
+                "vendor/google/apiclient-services/src/K**",
+                "vendor/google/apiclient-services/src/L**",
+                "vendor/google/apiclient-services/src/M**",
+                "vendor/google/apiclient-services/src/N**",
+                "vendor/google/apiclient-services/src/O**",
+                "vendor/google/apiclient-services/src/P**",
+                "vendor/google/apiclient-services/src/Q**",
+                "vendor/google/apiclient-services/src/R**",
+                "vendor/google/apiclient-services/src/S**",
+                "vendor/google/apiclient-services/src/T**",
+                "vendor/google/apiclient-services/src/U**",
+                "vendor/google/apiclient-services/src/V**",
+                "vendor/google/apiclient-services/src/W**",
+                "vendor/google/apiclient-services/src/X**",
+                "vendor/google/apiclient-services/src/Y**",
+                "vendor/google/apiclient-services/src/Z**"
+            ]
         }
     },
     "routes": [
