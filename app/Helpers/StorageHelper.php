@@ -29,6 +29,16 @@ if (! function_exists('storage_url')) {
             return route('serve.file', ['path' => $path]);
         }
 
+        // Jika driver google, gunakan url() biasa karena temporaryUrl tidak didukung
+        if ($driver === 'google') {
+            try {
+                return Storage::disk($activeDisk)->url($path);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Google Drive URL Error: ' . $e->getMessage());
+                return 'error-generating-url?msg=' . urlencode($e->getMessage());
+            }
+        }
+
         // Untuk disk cloud (r2, s3, storj), gunakan presigned URL agar bisa bypass 
         // batasan akses publik (seperti limitasi 10 menit pada Storj Free Tier)
         try {
