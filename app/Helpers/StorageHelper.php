@@ -29,10 +29,16 @@ if (! function_exists('storage_url')) {
             return route('serve.file', ['path' => $path]);
         }
 
-        // Jika driver google, gunakan url() biasa karena temporaryUrl tidak didukung
+        // Jika driver google, ubah URL download menjadi URL view agar bisa di-embed di tag <img>
         if ($driver === 'google') {
             try {
-                return Storage::disk($activeDisk)->url($path);
+                $url = Storage::disk($activeDisk)->url($path);
+                if (preg_match('/id=([a-zA-Z0-9_-]+)/', $url, $matches)) {
+                    $fileId = $matches[1];
+                    // Menggunakan endpoint uc?export=view agar gambar langsung ter-render (tidak di-download paksa)
+                    return 'https://drive.google.com/uc?export=view&id=' . $fileId;
+                }
+                return $url;
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Google Drive URL Error: ' . $e->getMessage());
                 return 'error-generating-url?msg=' . urlencode($e->getMessage());
