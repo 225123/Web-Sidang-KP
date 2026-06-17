@@ -115,6 +115,11 @@ class UserProfileController extends Controller
         $user = Auth::user();
 
         if ($request->hasFile('signature_file')) {
+            // Hapus file tanda tangan lama jika itu adalah path file (bukan base64)
+            if ($user->signature_path && !str_starts_with($user->signature_path, 'data:')) {
+                Storage::disk(upload_disk())->delete($user->signature_path);
+            }
+
             $file = $request->file('signature_file');
             $binaryData = file_get_contents($file->getRealPath());
             $base64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode($binaryData);
@@ -133,6 +138,11 @@ class UserProfileController extends Controller
         ]);
 
         $user = Auth::user();
+
+        // Hapus file tanda tangan lama jika itu adalah path file (bukan base64)
+        if ($user->signature_path && !str_starts_with($user->signature_path, 'data:')) {
+            Storage::disk(upload_disk())->delete($user->signature_path);
+        }
 
         // Simpan langsung sebagai Base64 di database (Permanen di Vercel)
         $user->signature_path = $request->signature_base64;
