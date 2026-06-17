@@ -530,15 +530,13 @@
                                                     (form.p2 == d.id ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-blue-50 cursor-pointer text-black font-bold')),
                                                     form.p1 == d.id ? 'bg-[#E6F0FA] font-bold' : ''
                                                 ]">
-                                                <div class="flex flex-col gap-1">
-                                                    <div class="flex items-center gap-2">
-                                                        <span x-text="d.nama" class="font-bold"></span>
-                                                        <template x-if="isPembimbing(d.id)">
-                                                            <span class="text-[9px] bg-red-100 px-1 rounded uppercase font-bold">PEMBIMBING</span>
-                                                        </template>
-                                                    </div>
+                                                <div class="flex items-center gap-2">
+                                                    <span x-text="d.nama" class="font-bold"></span>
+                                                    <template x-if="isPembimbing(d.id)">
+                                                        <span class="text-[9px] bg-red-100 px-1 rounded uppercase font-bold">PEMBIMBING</span>
+                                                    </template>
                                                     <template x-if="isOverlapping(d.id)">
-                                                        <span class="text-[10px] text-red-500 italic font-medium">Berada dalam sidang lain</span>
+                                                        <span class="text-[9px] bg-red-100 px-1 rounded uppercase font-bold">BENTROK</span>
                                                     </template>
                                                 </div>
                                                 <span class="font-bold text-[#4285F4]" x-text="d.beban"></span>
@@ -575,15 +573,13 @@
                                                     (form.p1 == d.id ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-blue-50 cursor-pointer text-black font-bold')),
                                                     form.p2 == d.id ? 'bg-[#E6F0FA] font-bold' : ''
                                                 ]">
-                                                <div class="flex flex-col gap-1">
-                                                    <div class="flex items-center gap-2">
-                                                        <span x-text="d.nama" class="font-bold"></span>
-                                                        <template x-if="isPembimbing(d.id)">
-                                                            <span class="text-[9px] bg-red-100 px-1 rounded uppercase font-bold">PEMBIMBING</span>
-                                                        </template>
-                                                    </div>
+                                                <div class="flex items-center gap-2">
+                                                    <span x-text="d.nama" class="font-bold"></span>
+                                                    <template x-if="isPembimbing(d.id)">
+                                                        <span class="text-[9px] bg-red-100 px-1 rounded uppercase font-bold">PEMBIMBING</span>
+                                                    </template>
                                                     <template x-if="isOverlapping(d.id)">
-                                                        <span class="text-[10px] text-red-500 italic font-medium">Berada dalam sidang lain</span>
+                                                        <span class="text-[9px] bg-red-100 px-1 rounded uppercase font-bold">BENTROK</span>
                                                     </template>
                                                 </div>
                                                 <span class="font-bold text-[#4285F4]" x-text="d.beban"></span>
