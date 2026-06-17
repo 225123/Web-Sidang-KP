@@ -41,7 +41,7 @@ class BackupController extends Controller
                            PendaftaranSidang::withoutGlobalScope('periode')->whereNotNull('file_nilai_supervisor')->count() +
                            PendaftaranSidang::withoutGlobalScope('periode')->whereNotNull('file_berkas_lainnya')->count() +
                            PendaftaranSidang::withoutGlobalScope('periode')->whereNotNull('file_revisi')->count() +
-                           \App\Models\LogBimbingan::whereNotNull('file_progress')->count();
+                           \App\Models\LogBimbingan::withoutGlobalScope('periode')->whereNotNull('file_progress')->count();
         
         $uploadDisk = upload_disk();
         $cloudStorageName = strtoupper($uploadDisk) . ' Storage';
