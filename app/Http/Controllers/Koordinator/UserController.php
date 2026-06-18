@@ -43,30 +43,24 @@ class UserController extends Controller
                 $isAllowed = false;
                 $notAllowedMessage = 'Mahasiswa dengan NIM ini sudah terdaftar dan aktif di periode saat ini. Penambahan pengguna diblokir.';
             } else {
-                $latestKp = DB::table('pendaftaran_kp')
-                    ->where('mahasiswa_id', $mhs->user_id)
-                    ->orderBy('id', 'desc')
+                $latestSidang = DB::table('pendaftaran_sidang')
+                    ->join('pendaftaran_kp', 'pendaftaran_sidang.pendaftaran_kp_id', '=', 'pendaftaran_kp.id')
+                    ->where('pendaftaran_kp.mahasiswa_id', $mhs->user_id)
+                    ->orderBy('pendaftaran_sidang.id', 'desc')
+                    ->select('pendaftaran_sidang.*')
                     ->first();
 
-                if (!$latestKp) {
+                if (!$latestSidang) {
                     $isAllowed = true;
                 } else {
-                    $latestSidang = DB::table('pendaftaran_sidang')
-                        ->where('pendaftaran_kp_id', $latestKp->id)
-                        ->first();
-
-                    if (!$latestSidang) {
-                        $isAllowed = true;
+                    if (in_array($latestSidang->status_kelulusan, ['Lulus', 'Lulus Dengan Revisi']) && !in_array($latestSidang->grade, ['D', 'E'])) {
+                        $isAllowed = false;
                     } else {
-                        if (in_array($latestSidang->status_kelulusan, ['Lanjut', 'Tidak Lulus'])) {
-                            $isAllowed = true;
-                        } elseif (in_array($latestSidang->grade, ['D', 'E'])) {
-                            $isAllowed = true;
-                        }
+                        $isAllowed = true;
                     }
                 }
                 if (!$isAllowed && !$notAllowedMessage) {
-                    $notAllowedMessage = 'Mahasiswa ini sudah dinyatakan Lulus di periode sebelumnya dan tidak bisa didaftarkan ulang. Penambahan pengguna diblokir.';
+                    $notAllowedMessage = 'Mahasiswa ini sudah dinyatakan Lulus / Lulus Dengan Revisi di periode sebelumnya dan tidak bisa didaftarkan ulang. Penambahan pengguna diblokir.';
                 }
             }
 
@@ -255,34 +249,27 @@ class UserController extends Controller
                     return back()->withErrors(['id_user' => 'Mahasiswa dengan NIM ini sudah terdaftar di periode saat ini.'])->withInput();
                 }
 
-                // Cek data KP terakhir
-                $latestKp = DB::table('pendaftaran_kp')
-                    ->where('mahasiswa_id', $existingMahasiswa->user_id)
-                    ->orderBy('id', 'desc')
+                $latestSidang = DB::table('pendaftaran_sidang')
+                    ->join('pendaftaran_kp', 'pendaftaran_sidang.pendaftaran_kp_id', '=', 'pendaftaran_kp.id')
+                    ->where('pendaftaran_kp.mahasiswa_id', $existingMahasiswa->user_id)
+                    ->orderBy('pendaftaran_sidang.id', 'desc')
+                    ->select('pendaftaran_sidang.*')
                     ->first();
 
                 $isAllowed = false;
 
-                if (!$latestKp) {
-                    $isAllowed = true; // Belum pernah mendaftar KP sama sekali
+                if (!$latestSidang) {
+                    $isAllowed = true;
                 } else {
-                    $latestSidang = DB::table('pendaftaran_sidang')
-                        ->where('pendaftaran_kp_id', $latestKp->id)
-                        ->first();
-
-                    if (!$latestSidang) {
-                        $isAllowed = true; // Tidak mengikuti sidang
+                    if (in_array($latestSidang->status_kelulusan, ['Lulus', 'Lulus Dengan Revisi']) && !in_array($latestSidang->grade, ['D', 'E'])) {
+                        $isAllowed = false;
                     } else {
-                        if (in_array($latestSidang->status_kelulusan, ['Lanjut', 'Tidak Lulus'])) {
-                            $isAllowed = true;
-                        } elseif (in_array($latestSidang->grade, ['D', 'E'])) {
-                            $isAllowed = true;
-                        }
+                        $isAllowed = true;
                     }
                 }
 
                 if (!$isAllowed) {
-                    return back()->withErrors(['id_user' => 'Penambahan ditolak: Mahasiswa ini sudah dinyatakan Lulus di periode sebelumnya dan tidak memenuhi syarat mengulang (Lanjut/Tidak ikut sidang/Nilai D/E).'])->withInput();
+                    return back()->withErrors(['id_user' => 'Penambahan ditolak: Mahasiswa ini sudah dinyatakan Lulus / Lulus Dengan Revisi di periode sebelumnya dan tidak memenuhi syarat mengulang (Lanjut/Tidak ikut sidang/Nilai D/E).'])->withInput();
                 }
 
                 // Cek apakah email baru ini bentrok dengan user LAIN
@@ -504,30 +491,29 @@ class UserController extends Controller
                         $isAllowed = false;
                         $notAllowedMessage = 'Ditolak: Mahasiswa dengan NIM ini sudah terdaftar dan aktif di periode saat ini. Penambahan pengguna diblokir.';
                     } else {
+                        $latestSidang = DB::table('pendaftaran_sidang')
+                            ->join('pendaftaran_kp', 'pendaftaran_sidang.pendaftaran_kp_id', '=', 'pendaftaran_kp.id')
+                            ->where('pendaftaran_kp.mahasiswa_id', $userRecord->id)
+                            ->orderBy('pendaftaran_sidang.id', 'desc')
+                            ->select('pendaftaran_sidang.*')
+                            ->first();
+
+                        if (!$latestSidang) {
+                            $isAllowed = true;
+                        } else {
+                            if (in_array($latestSidang->status_kelulusan, ['Lulus', 'Lulus Dengan Revisi']) && !in_array($latestSidang->grade, ['D', 'E'])) {
+                                $isAllowed = false;
+                            } else {
+                                $isAllowed = true;
+                            }
+                        }
+                        
                         $latestKp = DB::table('pendaftaran_kp')
                             ->where('mahasiswa_id', $userRecord->id)
                             ->orderBy('id', 'desc')
                             ->first();
-
-                        if (!$latestKp) {
-                            $isAllowed = true;
-                        } else {
-                            $latestSidang = DB::table('pendaftaran_sidang')
-                                ->where('pendaftaran_kp_id', $latestKp->id)
-                                ->first();
-
-                            if (!$latestSidang) {
-                                $isAllowed = true;
-                            } else {
-                                if (in_array($latestSidang->status_kelulusan, ['Lanjut', 'Tidak Lulus'])) {
-                                    $isAllowed = true;
-                                } elseif (in_array($latestSidang->grade, ['D', 'E'])) {
-                                    $isAllowed = true;
-                                }
-                            }
-                        }
                         if (!$isAllowed && !$notAllowedMessage) {
-                            $notAllowedMessage = 'Ditolak: Mahasiswa sudah Lulus. Penambahan pengguna diblokir.';
+                            $notAllowedMessage = 'Ditolak: Mahasiswa sudah Lulus / Lulus Dengan Revisi. Penambahan pengguna diblokir.';
                         }
                     }
 
