@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Koordinator;
 
 use App\Exports\UsersTemplateExport;
+use App\Exports\UsersExport;
 use App\Http\Controllers\Controller;
 use App\Imports\UsersImport;
 use App\Models\User;
@@ -830,5 +831,68 @@ class UserController extends Controller
         $filename = 'Laporan_Data_User_'.ucfirst($type).'_'.date('Ymd_His').'.pdf';
 
         return $pdf->stream($filename);
+    }
+
+    /**
+     * Export Data User ke Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $type = $request->query('type', 'semua');
+
+        $periodeIdForStatus = session('selected_periode_id') ? (int) session('selected_periode_id') : null;
+        $statusMahasiswaSql = $periodeIdForStatus 
+            ? "CASE 
+                 WHEN mahasiswa.tahun_ajaran_id = {$periodeIdForStatus} THEN mahasiswa.status_mahasiswa
+                 ELSE COALESCE((
+                     SELECT CASE WHEN is_lanjutan = true THEN 'lanjut' ELSE 'baru' END
+                     FROM pendaftaran_kp 
+                     WHERE pendaftaran_kp.mahasiswa_id = users.id 
+                       AND pendaftaran_kp.tahun_ajaran_id = {$periodeIdForStatus}
+                     LIMIT 1
+                 ), 'baru')
+               END"
+            : "mahasiswa.status_mahasiswa";
+
+        $query = User::leftJoin('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
+            ->leftJoin('dosen', 'users.id', '=', 'dosen.user_id')
+            ->select('users.name', DB::raw('COALESCE(mahasiswa.nim, dosen.nidn) as identifier_id'), 'users.email', 'users.role');
+
+        if ($type === 'dosen') {
+            $query->whereIn('users.role', ['dosen', 'koordinator_kp']);
+        } elseif ($type === 'mahasiswa') {
+            $query->where('users.role', 'mahasiswa');
+            if (session()->has('selected_periode_id')) {
+                $periodeId = session('selected_periode_id');
+                $query->where(function($q) use ($periodeId) {
+                    $q->where('mahasiswa.tahun_ajaran_id', $periodeId)
+                      ->orWhereExists(function ($sub) use ($periodeId) {
+                          $sub->select(DB::raw(1))
+                              ->from('pendaftaran_kp')
+                              ->whereColumn('pendaftaran_kp.mahasiswa_id', 'users.id')
+                              ->where('pendaftaran_kp.tahun_ajaran_id', $periodeId);
+                      });
+                });
+            }
+        }
+
+        $users = $query->orderBy('users.role', 'desc')
+            ->orderBy('users.name', 'asc')
+            ->get();
+
+        // Format array to match exactly the required excel template (nama, id, email, role)
+        $exportData = [];
+        foreach ($users as $user) {
+            $exportData[] = [
+                $user->name,
+                $user->identifier_id,
+                $user->email,
+                ucwords(str_replace('_', ' ', $user->role)),
+            ];
+        }
+
+        $filename = 'Data_User_'.ucfirst($type).'_'.date('Ymd_His').'.xlsx';
+
+        return Excel::download(new UsersExport($exportData), $filename);
     }
 }

@@ -118,6 +118,7 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'role:ko
     Route::get('/manajemen-akses/check-id', [UserController::class, 'checkId'])->name('user.check-id');
     Route::post('/manajemen-akses/store', [UserController::class, 'store'])->name('user.store');
     Route::get('/manajemen-akses/export-pdf', [UserController::class, 'exportPdf'])->name('user.export-pdf');
+    Route::get('/manajemen-akses/export-excel', [UserController::class, 'exportExcel'])->name('user.export-excel');
     Route::get('/manajemen-akses/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
     Route::put('/manajemen-akses/{id}/update', [UserController::class, 'update'])->name('user.update');
     Route::put('/manajemen-akses/{id}/status', [UserController::class, 'updateStatus'])->name('user.update-status');
