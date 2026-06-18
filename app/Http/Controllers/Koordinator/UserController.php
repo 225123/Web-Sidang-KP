@@ -44,10 +44,8 @@ class UserController extends Controller
                 $notAllowedMessage = 'Mahasiswa dengan NIM ini sudah terdaftar dan aktif di periode saat ini. Penambahan pengguna diblokir.';
             } else {
                 $latestSidang = DB::table('pendaftaran_sidang')
-                    ->join('pendaftaran_kp', 'pendaftaran_sidang.pendaftaran_kp_id', '=', 'pendaftaran_kp.id')
-                    ->where('pendaftaran_kp.mahasiswa_id', $mhs->user_id)
-                    ->orderBy('pendaftaran_sidang.id', 'desc')
-                    ->select('pendaftaran_sidang.*')
+                    ->where('mahasiswa_id', $mhs->user_id)
+                    ->orderBy('id', 'desc')
                     ->first();
 
                 if (!$latestSidang) {
@@ -250,10 +248,8 @@ class UserController extends Controller
                 }
 
                 $latestSidang = DB::table('pendaftaran_sidang')
-                    ->join('pendaftaran_kp', 'pendaftaran_sidang.pendaftaran_kp_id', '=', 'pendaftaran_kp.id')
-                    ->where('pendaftaran_kp.mahasiswa_id', $existingMahasiswa->user_id)
-                    ->orderBy('pendaftaran_sidang.id', 'desc')
-                    ->select('pendaftaran_sidang.*')
+                    ->where('mahasiswa_id', $existingMahasiswa->user_id)
+                    ->orderBy('id', 'desc')
                     ->first();
 
                 $isAllowed = false;
@@ -492,10 +488,8 @@ class UserController extends Controller
                         $notAllowedMessage = 'Ditolak: Mahasiswa dengan NIM ini sudah terdaftar dan aktif di periode saat ini. Penambahan pengguna diblokir.';
                     } else {
                         $latestSidang = DB::table('pendaftaran_sidang')
-                            ->join('pendaftaran_kp', 'pendaftaran_sidang.pendaftaran_kp_id', '=', 'pendaftaran_kp.id')
-                            ->where('pendaftaran_kp.mahasiswa_id', $userRecord->id)
-                            ->orderBy('pendaftaran_sidang.id', 'desc')
-                            ->select('pendaftaran_sidang.*')
+                            ->where('mahasiswa_id', $userRecord->id)
+                            ->orderBy('id', 'desc')
                             ->first();
 
                         if (!$latestSidang) {
@@ -509,7 +503,11 @@ class UserController extends Controller
                         }
                         
                         $latestKp = DB::table('pendaftaran_kp')
-                            ->where('mahasiswa_id', $userRecord->id)
+                            ->where(function($query) use ($userRecord) {
+                                $query->where('mahasiswa_id', $userRecord->id)
+                                      ->orWhereJsonContains('anggota_kelompok_ids', (string) $userRecord->id)
+                                      ->orWhereJsonContains('anggota_kelompok_ids', $userRecord->id);
+                            })
                             ->orderBy('id', 'desc')
                             ->first();
                         if (!$isAllowed && !$notAllowedMessage) {
