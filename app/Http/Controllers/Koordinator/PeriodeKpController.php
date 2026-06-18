@@ -59,14 +59,27 @@ class PeriodeKpController extends Controller
             'tahun'    => 'required|regex:/^\d{4}\/\d{4}$/',
         ]);
 
-        $label = $request->semester . ' ' . $request->tahun;
+        $isSisipan = $request->input('is_sisipan') == '1';
+        $oldActive = TahunAjaran::where('is_active', true)->first();
+
+        if ($isSisipan) {
+            if (!$oldActive) {
+                return back()->with('error', "Tidak ada periode aktif untuk dijadikan periode sisipan.");
+            }
+            $label = $oldActive->label_tahun_ajaran . ' - Sisipan';
+            $semester = $oldActive->semester;
+            $tahun = $oldActive->tahun;
+        } else {
+            $label = $request->semester . ' ' . $request->tahun;
+            $semester = $request->semester;
+            $tahun = $request->tahun;
+        }
 
         if (TahunAjaran::where('label_tahun_ajaran', $label)->exists()) {
             return back()->with('error', "Periode \"$label\" sudah ada.");
         }
 
         // Auto-close current active period and freeze its stats
-        $oldActive = TahunAjaran::where('is_active', true)->first();
         if ($oldActive) {
             $mhsCount = Mahasiswa::where('tahun_ajaran_id', $oldActive->id)->count();
 
@@ -81,8 +94,8 @@ class PeriodeKpController extends Controller
         }
 
         $newPeriod = TahunAjaran::create([
-            'semester'           => $request->semester,
-            'tahun'              => $request->tahun,
+            'semester'           => $semester,
+            'tahun'              => $tahun,
             'label_tahun_ajaran' => $label,
             'is_active'          => true,
             'koordinator_id'     => auth()->id(),
@@ -92,7 +105,11 @@ class PeriodeKpController extends Controller
         session(['selected_periode_id' => $newPeriod->id]);
 
         if ($oldActive) {
-            $this->carryOverLanjutStudents($oldActive->id, $newPeriod->id);
+            if ($isSisipan) {
+                $this->carryOverSisipanStudents($oldActive->id, $newPeriod->id);
+            } else {
+                $this->carryOverLanjutStudents($oldActive->id, $newPeriod->id);
+            }
         }
 
         return back()->with('success', "Periode KP \"$label\" berhasil dibuka dan kini menjadi periode aktif.");
@@ -152,6 +169,160 @@ class PeriodeKpController extends Controller
                         'jabatan_supervisor' => $oldKp->supervisorInstansi->jabatan_supervisor,
                     ]);
                 }
+            }
+        }
+    }
+
+    private function carryOverSisipanStudents($oldPeriodeId, $newPeriodeId)
+    {
+        // 1. Fetch all PendaftaranSidang from old period where status_kelulusan == 'Lanjut'
+        $sidangs = \App\Models\PendaftaranSidang::withoutGlobalScope('periode')
+            ->with(['pendaftaranKp' => function ($q) {
+                $q->withoutGlobalScope('periode')->with(['supervisorInstansi', 'logBimbingans']);
+            }])
+            ->whereHas('pendaftaranKp', function ($q) use ($oldPeriodeId) {
+                $q->withoutGlobalScope('periode')->where('tahun_ajaran_id', $oldPeriodeId);
+            })
+            ->where('status_kelulusan', 'Lanjut')
+            ->get();
+
+        foreach ($sidangs as $sidang) {
+            $oldKp = $sidang->pendaftaranKp;
+            if (!$oldKp) continue;
+
+            // 2. Update Mahasiswa table so they automatically appear in the new period
+            \App\Models\Mahasiswa::where('user_id', $sidang->mahasiswa_id)->update(['tahun_ajaran_id' => $newPeriodeId]);
+
+            // 3. Duplicate PendaftaranKp if not already done for this group
+            $newKp = \App\Models\PendaftaranKp::withoutGlobalScope('periode')
+                ->where('pendaftaran_asal_id', $oldKp->id)
+                ->where('tahun_ajaran_id', $newPeriodeId)
+                ->where('is_lanjutan', true)
+                ->first();
+
+            if (!$newKp) {
+                $newKp = \App\Models\PendaftaranKp::create([
+                    'mahasiswa_id' => $oldKp->mahasiswa_id,
+                    'tahun_ajaran_id' => $newPeriodeId,
+                    'judul_kp' => $oldKp->judul_kp,
+                    'jenis_proyek' => $oldKp->jenis_proyek,
+                    'instansi_nama' => $oldKp->instansi_nama,
+                    'instansi_alamat' => $oldKp->instansi_alamat,
+                    'jenis_instansi' => $oldKp->jenis_instansi,
+                    'pembimbing_id' => $oldKp->pembimbing_id,
+                    'supervisor_internal_id' => $oldKp->supervisor_internal_id,
+                    'tipe_kp' => $oldKp->tipe_kp,
+                    'pengerjaan_kp' => $oldKp->pengerjaan_kp,
+                    'anggota_kelompok_ids' => $oldKp->anggota_kelompok_ids,
+                    'status_kp' => 'approved', // Automatically approved
+                    'is_lanjutan' => true,
+                    'pendaftaran_asal_id' => $oldKp->id,
+                ]);
+
+                // 4. Duplicate SupervisorInstansi
+                if ($oldKp->supervisorInstansi) {
+                    \App\Models\SupervisorInstansi::create([
+                        'pendaftaran_kp_id' => $newKp->id,
+                        'nama_supervisor' => $oldKp->supervisorInstansi->nama_supervisor,
+                        'kontak_supervisor' => $oldKp->supervisorInstansi->kontak_supervisor,
+                        'no_hp_supervisor' => $oldKp->supervisorInstansi->no_hp_supervisor,
+                        'email_supervisor' => $oldKp->supervisorInstansi->email_supervisor,
+                        'jabatan_supervisor' => $oldKp->supervisorInstansi->jabatan_supervisor,
+                    ]);
+                }
+
+                // 5. Duplicate LogBimbingan
+                foreach ($oldKp->logBimbingans as $log) {
+                    \App\Models\LogBimbingan::create([
+                        'pendaftaran_kp_id' => $newKp->id,
+                        'mahasiswa_id' => $log->mahasiswa_id,
+                        'tanggal' => $log->tanggal,
+                        'materi_bahasan' => $log->materi_bahasan,
+                        'file_progress' => $log->file_progress,
+                        'status_approval' => $log->status_approval,
+                        'komentar_dosen' => $log->komentar_dosen,
+                        'is_supervisor' => $log->is_supervisor,
+                    ]);
+                }
+            }
+
+            // 6. Duplicate PendaftaranSidang for this specific member
+            $existsSidang = \App\Models\PendaftaranSidang::withoutGlobalScope('periode')
+                ->where('pendaftaran_kp_id', $newKp->id)
+                ->where('mahasiswa_id', $sidang->mahasiswa_id)
+                ->exists();
+
+            if (!$existsSidang) {
+                \App\Models\PendaftaranSidang::create([
+                    'pendaftaran_kp_id' => $newKp->id,
+                    'mahasiswa_id' => $sidang->mahasiswa_id,
+                    
+                    // Retain files and verification
+                    'file_laporan' => $sidang->file_laporan,
+                    'file_log_bimbingan' => $sidang->file_log_bimbingan,
+                    'file_persetujuan_pembimbing' => $sidang->file_persetujuan_pembimbing,
+                    'file_nilai_supervisor' => $sidang->file_nilai_supervisor,
+                    'file_berkas_lainnya' => $sidang->file_berkas_lainnya,
+                    'link_github' => $sidang->link_github,
+                    'link_drive' => $sidang->link_drive,
+                    'link_deploy' => $sidang->link_deploy,
+                    
+                    'status_verifikasi' => $sidang->status_verifikasi, // retain verified status
+                    'status_koordinator' => $sidang->status_koordinator, // retain approved by koor
+                    'koordinator_feedback' => $sidang->koordinator_feedback,
+                    'dosen_feedback' => $sidang->dosen_feedback,
+                    'pelaksanaan' => $sidang->pelaksanaan,
+
+                    // Retain Scores from Supervisor and Pembimbing
+                    'nilai_pembimbing' => $sidang->nilai_pembimbing,
+                    'nilai_supervisor' => $sidang->nilai_supervisor,
+                    'nb_laporan' => $sidang->nb_laporan,
+                    'nb_produk' => $sidang->nb_produk,
+                    'nb_sikap' => $sidang->nb_sikap,
+                    'ns_motivasi' => $sidang->ns_motivasi,
+                    'ns_kualitas' => $sidang->ns_kualitas,
+                    'ns_inisiatif' => $sidang->ns_inisiatif,
+                    'ns_sikap' => $sidang->ns_sikap,
+                    
+                    'token_penilaian_supervisor' => $sidang->token_penilaian_supervisor,
+                    'is_penilaian_supervisor_submitted' => $sidang->is_penilaian_supervisor_submitted,
+
+                    // Reset Penguji, Schedule, Nilai Akhir, and Revision
+                    'tanggal_sidang' => null,
+                    'waktu_mulai_sidang' => null,
+                    'waktu_selesai_sidang' => null,
+                    'ruang_sidang' => null,
+                    'status_jadwal' => 'pending',
+                    'penguji_1_id' => null,
+                    'penguji_2_id' => null,
+                    'nilai_penguji_1' => null,
+                    'nilai_penguji_2' => null,
+                    'nilai_akhir' => null,
+                    'grade' => null,
+                    'catatan_sidang' => null,
+                    'status_kelulusan' => null,
+                    
+                    'n1_laporan' => null,
+                    'n1_produk' => null,
+                    'n1_presentasi' => null,
+                    'n2_laporan' => null,
+                    'n2_produk' => null,
+                    'n2_presentasi' => null,
+                    
+                    'original_n1_laporan' => null,
+                    'original_n1_produk' => null,
+                    'original_n1_presentasi' => null,
+                    'original_nilai_penguji_1' => null,
+                    
+                    'status_revisi' => null,
+                    'file_revisi' => null,
+                    'link_revisi' => null,
+                    'tanggal_revisi' => null,
+                    'catatan_revisi' => null,
+                    
+                    'berita_acara_disubmit' => false,
+                    'nilai_dipublikasi' => false,
+                ]);
             }
         }
     }

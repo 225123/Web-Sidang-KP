@@ -69,6 +69,7 @@
 
                 <form action="{{ route('koordinator.periode-kp.store') }}" method="POST" id="formBukaPeriode" class="space-y-4">
                     @csrf
+                    <input type="hidden" name="is_sisipan" :value="isSisipan ? '1' : '0'">
                     <input type="hidden" name="semester" :value="mode === 'auto' ? '{{ $nextPeriod['semester'] }}' : manualSemester">
                     <input type="hidden" name="tahun" :value="mode === 'auto' ? '{{ $nextPeriod['tahun'] }}' : (manualTahun ? manualTahun + '/' + (parseInt(manualTahun) + 1) : '')">
                     
@@ -99,11 +100,19 @@
                         </div>
                     </div>
 
-                    <button type="button" @click="bukaPeriode()"
-                        class="w-full bg-[#4285F4] hover:bg-blue-600 text-white font-bold text-[13px] py-2.5 rounded-[10px] transition-colors shadow-sm flex items-center justify-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        Buka Periode KP Baru
-                    </button>
+                    <div class="flex gap-2 w-full mt-4">
+                        <button type="button" @click="bukaPeriode()"
+                            class="flex-1 bg-[#4285F4] hover:bg-blue-600 text-white font-bold text-[13px] py-2.5 rounded-[10px] transition-colors shadow-sm flex items-center justify-center gap-2">
+                            Buka Baru
+                        </button>
+                        
+                        @if($aktif && !str_ends_with($aktif->label_tahun_ajaran, '- Sisipan'))
+                        <button type="button" @click="bukaPeriodeSisipan()"
+                            class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[13px] py-2.5 rounded-[10px] transition-colors shadow-sm flex items-center justify-center gap-2">
+                            Buka Sisipan
+                        </button>
+                        @endif
+                    </div>
                 </form>
             </div>
         </div>
@@ -225,6 +234,7 @@
         function periodeController() {
             return {
                 mode: 'auto',
+                isSisipan: false,
                 manualSemester: 'Ganjil',
                 manualTahun: new Date().getFullYear(),
                 confirmDialog: { show: false, title: '', message: '', type: 'info', confirmText: 'Iya, Lanjutkan', callback: null },
@@ -253,6 +263,7 @@
                 },
 
                 bukaPeriode() {
+                    this.isSisipan = false;
                     let label = this.mode === 'auto' ? '{{ $nextPeriod["label"] }}' : this.manualLabel;
                     
                     if (this.mode === 'manual' && (!this.manualTahun || this.manualTahun.toString().length !== 4)) {
@@ -265,6 +276,21 @@
                         message: `Apakah Anda Koordinator KP yang resmi ditunjuk untuk periode ${label}? Membuka periode ini akan mengaitkan akun Anda sebagai penanggung jawab (termasuk cetak tanda tangan dokumen PDF) dan otomatis menutup periode berjalan.`,
                         type: 'info',
                         confirmText: 'Ya, Saya Koordinator Resmi',
+                        callback: () => {
+                            document.getElementById('formBukaPeriode').submit();
+                        }
+                    });
+                },
+
+                bukaPeriodeSisipan() {
+                    this.isSisipan = true;
+                    let label = '{{ $aktif ? $aktif->label_tahun_ajaran : '' }}';
+                    
+                    this.triggerConfirm({
+                        title: 'Buka Periode Sisipan',
+                        message: `Buka periode sisipan untuk ${label}? Mahasiswa berstatus Lanjut akan otomatis ditarik ke dalam periode sisipan ini dengan mempertahankan nilai Pembimbing dan Supervisor. Periode berjalan akan ditutup.`,
+                        type: 'info',
+                        confirmText: 'Ya, Buka Sisipan',
                         callback: () => {
                             document.getElementById('formBukaPeriode').submit();
                         }
