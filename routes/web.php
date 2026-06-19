@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Dosen\DaftarBimbinganController;
 use App\Http\Controllers\Dosen\PersetujuanSidangController as DosenPersetujuanSidangController;
-use App\Http\Controllers\Koordinator\BeritaAcaraController;
+
 use App\Http\Controllers\Koordinator\BimbinganSayaController;
 use App\Http\Controllers\Koordinator\DashboardController;
 use App\Http\Controllers\Koordinator\DosenPengujiController;
@@ -118,7 +118,6 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'role:ko
     Route::get('/manajemen-akses/check-id', [UserController::class, 'checkId'])->name('user.check-id');
     Route::post('/manajemen-akses/store', [UserController::class, 'store'])->name('user.store');
     Route::get('/manajemen-akses/export-pdf', [UserController::class, 'exportPdf'])->name('user.export-pdf');
-    Route::get('/manajemen-akses/export-excel', [UserController::class, 'exportExcel'])->name('user.export-excel');
     Route::get('/manajemen-akses/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
     Route::put('/manajemen-akses/{id}/update', [UserController::class, 'update'])->name('user.update');
     Route::put('/manajemen-akses/{id}/status', [UserController::class, 'updateStatus'])->name('user.update-status');
@@ -187,10 +186,7 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'role:ko
     Route::post('/input-nilai/{id}/{role}', [InputNilaiController::class, 'store'])->name('input-nilai.store');
     Route::get('/input-nilai/{id}/{role}/download', [InputNilaiController::class, 'downloadPdf'])->name('input-nilai.download');
 
-    // 9. Berita Acara (Koordinator) - REMOVED AS REQUESTED
-    // Route::get('/berita-acara', [BeritaAcaraController::class, 'index'])->name('berita-acara.index');
-    // Route::post('/berita-acara/submit', [BeritaAcaraController::class, 'submit'])->name('berita-acara.submit');
-    // Route::get('/berita-acara/preview-pdf', [BeritaAcaraController::class, 'previewPdf'])->name('berita-acara.preview-pdf');
+
 
     // Revisi (Jika Koordinator bertindak sebagai Penguji 1)
     Route::get('/revisi', [RevisiController::class, 'index'])->name('revisi.index');
@@ -221,7 +217,7 @@ Route::prefix('koordinator')->name('koordinator.')->middleware(['auth', 'role:ko
     Route::post('/backup/download', [App\Http\Controllers\Koordinator\BackupController::class, 'downloadZip'])->name('backup.download');
     Route::delete('/backup/purge', [App\Http\Controllers\Koordinator\BackupController::class, 'purgePeriode'])->name('backup.purge');
 
-    // 14. Pemulihan Data (Orphaned Records) - REMOVED AS REQUESTED
+
 
     // 12. Pengumuman (Koordinator)
     Route::get('/pengumuman', [PengumumanController::class, 'index'])->name('pengumuman.index');

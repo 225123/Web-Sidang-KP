@@ -92,19 +92,6 @@
                             <a href="{{ route('koordinator.user.export-pdf', ['type' => 'mahasiswa']) }}" target="_blank" class="block px-3 py-2 text-[12px] hover:bg-gray-100 text-black">Export Data Mahasiswa</a>
                         </div>
                     </div>
-
-                    <!-- Export Excel Dropdown -->
-                    <div x-data="{ openExportExcel: false }" class="relative w-full sm:w-[150px] z-[40]" @click.outside="openExportExcel = false">
-                        <button type="button" @click="openExportExcel = !openExportExcel" class="w-full text-[12px] border border-green-600 bg-[#107C41] text-white rounded-[5px] py-2 px-3 font-medium flex justify-between items-center text-left shadow-sm hover:bg-green-700 transition-colors">
-                            <span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> Export Excel</span>
-                            <svg :class="openExportExcel ? 'rotate-0' : 'rotate-90'" class="w-3.5 h-3.5 transition-all duration-200 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                        </button>
-                        <div x-show="openExportExcel" x-transition x-cloak class="absolute w-full mt-1 bg-white border border-gray-300 rounded-[5px] shadow-lg overflow-hidden py-1 z-50">
-                            <a href="{{ route('koordinator.user.export-excel', ['type' => 'semua']) }}" target="_blank" class="block px-3 py-2 text-[12px] hover:bg-gray-100 text-black">Export Semua User</a>
-                            <a href="{{ route('koordinator.user.export-excel', ['type' => 'dosen']) }}" target="_blank" class="block px-3 py-2 text-[12px] hover:bg-gray-100 text-black">Export Data Dosen</a>
-                            <a href="{{ route('koordinator.user.export-excel', ['type' => 'mahasiswa']) }}" target="_blank" class="block px-3 py-2 text-[12px] hover:bg-gray-100 text-black">Export Data Mahasiswa</a>
-                        </div>
-                    </div>
                 </div>
             </div>
 

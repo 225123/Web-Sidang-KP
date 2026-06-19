@@ -1,1 +1,0 @@
-<?php $m = \App\Models\Mahasiswa::where("nim", "412023004")->first(); if($m) { dump("Nama: " . $m->user->name); dump("Is Aktif (DB Mahasiswa): " . $m->is_aktif); dump("Is Aktif (DB User): " . $m->user->is_aktif); } else { dump("Not found"); }
