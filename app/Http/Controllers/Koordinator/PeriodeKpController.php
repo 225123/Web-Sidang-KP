@@ -375,14 +375,18 @@ class PeriodeKpController extends Controller
             return back()->with('error', 'Tidak dapat menghapus periode yang sedang aktif.');
         }
 
-        if (PendaftaranKp::where('tahun_ajaran_id', $id)->exists()) {
-            return back()->with('error', 'Tidak dapat menghapus periode yang sudah memiliki data pendaftaran.');
+        // Get all user IDs of students currently tracked in this period
+        $mahasiswaUserIds = \App\Models\Mahasiswa::where('tahun_ajaran_id', $id)->pluck('user_id');
+
+        // Delete the users (this will cascade delete their mahasiswa, pendaftaran_kp, and pendaftaran_sidang records)
+        if ($mahasiswaUserIds->isNotEmpty()) {
+            \App\Models\User::whereIn('id', $mahasiswaUserIds)->delete();
         }
 
         $label = $periode->label_tahun_ajaran;
         $periode->delete();
 
-        return back()->with('success', "Periode \"$label\" berhasil dihapus.");
+        return back()->with('success', "Periode \"$label\" beserta seluruh data mahasiswa di dalamnya berhasil dihapus bersih.");
     }
 
     /**
