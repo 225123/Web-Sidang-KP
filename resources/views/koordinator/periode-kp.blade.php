@@ -56,6 +56,9 @@
                         <div class="flex bg-gray-100 p-1 rounded-lg">
                             <button @click="mode = 'auto'" :class="mode === 'auto' ? 'bg-white shadow text-[#4285F4]' : 'text-gray-500 hover:text-gray-700'" class="px-3 py-1 text-xs font-bold rounded-md transition-all">Otomatis</button>
                             <button @click="mode = 'manual'" :class="mode === 'manual' ? 'bg-white shadow text-[#4285F4]' : 'text-gray-500 hover:text-gray-700'" class="px-3 py-1 text-xs font-bold rounded-md transition-all">Manual</button>
+                            @if($aktif && !str_ends_with($aktif->label_tahun_ajaran, '- Sisipan'))
+                            <button @click="mode = 'sisipan'" :class="mode === 'sisipan' ? 'bg-white shadow text-amber-500' : 'text-gray-500 hover:text-gray-700'" class="px-3 py-1 text-xs font-bold rounded-md transition-all">Sisipan</button>
+                            @endif
                         </div>
                     </h3>
                     
@@ -64,6 +67,9 @@
                     </p>
                     <p x-show="mode === 'manual'" style="display: none;" class="text-[12px] text-gray-500 italic mb-5 leading-relaxed">
                         Gunakan mode manual jika terjadi kesalahan input di masa lalu. Masukkan tahun awal dan sistem akan membentuknya.
+                    </p>
+                    <p x-show="mode === 'sisipan'" style="display: none;" class="text-[12px] text-amber-600 italic mb-5 leading-relaxed">
+                        Buka periode lanjutan (sisipan) dari periode aktif saat ini khusus untuk mahasiswa berstatus Lanjut.
                     </p>
                 </div>
 
@@ -100,18 +106,19 @@
                         </div>
                     </div>
 
+                    <!-- Mode Sisipan -->
+                    <div x-show="mode === 'sisipan'" style="display: none;" class="bg-amber-50 border border-amber-200 rounded-[10px] px-4 py-4 text-center">
+                        <p class="text-[12px] text-amber-600 font-medium mb-1">Pratinjau Periode Sisipan</p>
+                        <p class="text-[18px] font-black text-amber-800">{{ $aktif ? $aktif->label_tahun_ajaran . ' - Sisipan' : '' }}</p>
+                        <p class="text-[11px] text-amber-600 mt-2">Mahasiswa Lanjut otomatis ditarik dengan nilai Pembimbing & Supervisor yang utuh.</p>
+                    </div>
+
                     <div class="flex gap-2 w-full mt-4">
-                        <button type="button" @click="bukaPeriode()"
-                            class="flex-1 bg-[#4285F4] hover:bg-blue-600 text-white font-bold text-[13px] py-2.5 rounded-[10px] transition-colors shadow-sm flex items-center justify-center gap-2">
-                            Buka Baru
+                        <button type="button" @click="mode === 'sisipan' ? bukaPeriodeSisipan() : bukaPeriode()"
+                            class="w-full text-white font-bold text-[13px] py-2.5 rounded-[10px] transition-colors shadow-sm flex items-center justify-center gap-2"
+                            :class="mode === 'sisipan' ? 'bg-amber-500 hover:bg-amber-600' : 'bg-[#4285F4] hover:bg-blue-600'">
+                            <span x-text="mode === 'sisipan' ? 'Buka Periode Sisipan' : 'Buka Periode KP Baru'"></span>
                         </button>
-                        
-                        @if($aktif && !str_ends_with($aktif->label_tahun_ajaran, '- Sisipan'))
-                        <button type="button" @click="bukaPeriodeSisipan()"
-                            class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[13px] py-2.5 rounded-[10px] transition-colors shadow-sm flex items-center justify-center gap-2">
-                            Buka Sisipan
-                        </button>
-                        @endif
                     </div>
                 </form>
             </div>

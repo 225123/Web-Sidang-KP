@@ -62,6 +62,19 @@ class PeriodeKpController extends Controller
         $isSisipan = $request->input('is_sisipan') == '1';
         $oldActive = TahunAjaran::where('is_active', true)->first();
 
+        // Check for unfinalized grades in the currently active period
+        if ($oldActive) {
+            $unfinalizedExists = \App\Models\PendaftaranSidang::whereHas('pendaftaranKp', function($q) use ($oldActive) {
+                $q->where('tahun_ajaran_id', $oldActive->id);
+            })->where('nilai_dipublikasi', false)
+              ->whereNotNull('status_kelulusan') // Make sure they have finished sidang and have a status
+              ->exists();
+
+            if ($unfinalizedExists) {
+                return back()->with('error', "Tidak dapat membuka periode baru. Terdapat mahasiswa di periode aktif saat ini yang nilainya belum difinalisasi dan diterbitkan.");
+            }
+        }
+
         if ($isSisipan) {
             if (!$oldActive) {
                 return back()->with('error', "Tidak ada periode aktif untuk dijadikan periode sisipan.");
