@@ -138,7 +138,16 @@
     <div class="signature">
         <p class="date-title">Jakarta, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}<br>
         Mengetahui,<br><br>Koordinator Kerja Praktik</p>
-        <p class="name">{{ auth()->user()->name ?? 'Koordinator KP' }}</p>
+        <div style="margin: 10px 0;">
+            @if(isset($signatureSrc) && $signatureSrc)
+                <img src="{{ $signatureSrc }}" style="width: 150px; height: 80px; object-fit: contain;">
+            @else
+                <div style="height: 80px; color: #ccc; font-style: italic; font-size: 10px; padding-top: 30px;">
+                    (Tanda tangan tidak ditemukan)
+                </div>
+            @endif
+        </div>
+        <p class="name">{{ $koordinator->name ?? auth()->user()->name ?? 'Koordinator KP' }}</p>
     </div>
 
 </body>
