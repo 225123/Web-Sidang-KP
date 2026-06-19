@@ -84,6 +84,35 @@
     </style>
 </head>
 <body>
+    @php
+        if (!function_exists('getAbsoluteImagePath')) {
+            function getAbsoluteImagePath($pathAsset) {
+                if(!$pathAsset) return null;
+                
+                if(str_starts_with($pathAsset, 'data:image')) return $pathAsset;
+
+                if (!extension_loaded('gd') && !str_ends_with(strtolower($pathAsset), '.jpg') && !str_ends_with(strtolower($pathAsset), '.jpeg')) {
+                    return null;
+                }
+
+                $disk = upload_disk();
+                try {
+                    if (\Illuminate\Support\Facades\Storage::disk($disk)->exists($pathAsset)) {
+                        $type = pathinfo($pathAsset, PATHINFO_EXTENSION);
+                        if (!$type) $type = 'png';
+                        $data = \Illuminate\Support\Facades\Storage::disk($disk)->get($pathAsset);
+                        return 'data:image/' . $type . ';base64,' . base64_encode($data);
+                    }
+                } catch (\Exception $e) {
+                    // ignore error
+                }
+                
+                return null;
+            }
+        }
+
+        $base64_koordinator = getAbsoluteImagePath($koordinator?->signature_path ?? null) ?? $koordinator?->signature ?? null;
+    @endphp
 
     <!-- KOP SURAT RESMI -->
     <div class="kop-surat">
@@ -139,8 +168,8 @@
         <p class="date-title">Jakarta, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}<br>
         Mengetahui,<br><br>Koordinator Kerja Praktik</p>
         <div style="margin: 10px 0;">
-            @if(isset($signatureSrc) && $signatureSrc)
-                <img src="{{ $signatureSrc }}" style="width: 150px; height: 80px; object-fit: contain;">
+            @if($base64_koordinator)
+                <img src="{{ $base64_koordinator }}" style="width: 150px; height: 80px; object-fit: contain;">
             @else
                 <div style="height: 80px; color: #ccc; font-style: italic; font-size: 10px; padding-top: 30px;">
                     (Tanda tangan tidak ditemukan)
