@@ -199,8 +199,12 @@ class BackupController extends Controller
             PendaftaranSidang::withoutGlobalScope('periode')->whereIn('pendaftaran_kp_id', $kps->pluck('id'))->delete();
             // Hapus Pendaftaran KP
             PendaftaranKp::withoutGlobalScope('periode')->where('tahun_ajaran_id', $periodeId)->delete();
-            // Hapus Mahasiswa yang terkait periode ini
-            Mahasiswa::where('tahun_ajaran_id', $periodeId)->delete();
+            
+            // Hapus User mahasiswa (yang akan cascade delete tabel Mahasiswa)
+            $mahasiswaUserIds = Mahasiswa::where('tahun_ajaran_id', $periodeId)->pluck('user_id');
+            if ($mahasiswaUserIds->isNotEmpty()) {
+                \App\Models\User::whereIn('id', $mahasiswaUserIds)->delete();
+            }
 
             // Hapus Tahun Ajaran (Periode) agar tidak muncul lagi di dropdown user lain
             $periode->delete();
