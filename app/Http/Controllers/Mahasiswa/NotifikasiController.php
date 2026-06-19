@@ -16,8 +16,10 @@ class NotifikasiController extends Controller
         $query = NotifikasiLog::with('sender')
             ->where(function ($q) use ($user) {
                 $q->where('receiver_id', $user->id)
-                    ->orWhere('target_role', 'mahasiswa')
-                    ->orWhere('target_role', 'semua');
+                    ->orWhere(function ($sq) {
+                        $sq->whereIn('target_role', ['mahasiswa', 'semua'])
+                           ->whereNull('receiver_id');
+                    });
             });
 
         // Search Filter

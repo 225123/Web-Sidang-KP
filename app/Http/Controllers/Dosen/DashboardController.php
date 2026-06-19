@@ -208,7 +208,9 @@ class DashboardController extends Controller
         // 7. Notifikasi (Unread)
         $notifikasi = NotifikasiLog::where(function ($query) use ($dosenId) {
                 $query->where('receiver_id', $dosenId)
-                    ->orWhere('target_role', 'dosen');
+                    ->orWhere(function($q) {
+                        $q->whereIn('target_role', ['dosen', 'semua'])->whereNull('receiver_id');
+                    });
             })
             ->where('is_read', false)
             ->orderBy('created_at', 'desc')
@@ -217,7 +219,9 @@ class DashboardController extends Controller
             
         $notifikasiCount = NotifikasiLog::where(function ($query) use ($dosenId) {
                 $query->where('receiver_id', $dosenId)
-                    ->orWhere('target_role', 'dosen');
+                    ->orWhere(function($q) {
+                        $q->whereIn('target_role', ['dosen', 'semua'])->whereNull('receiver_id');
+                    });
             })
             ->where('is_read', false)
             ->count();

@@ -149,7 +149,9 @@ class DashboardController extends Controller
         // 4. Notifikasi (Dynamic)
         $notifikasi = \App\Models\NotifikasiLog::where(function ($query) use ($userId) {
                 $query->where('receiver_id', $userId)
-                    ->orWhere('target_role', 'mahasiswa');
+                    ->orWhere(function($q) {
+                        $q->whereIn('target_role', ['mahasiswa', 'semua'])->whereNull('receiver_id');
+                    });
             })
             ->where('is_read', false)
             ->orderBy('created_at', 'desc')
@@ -158,7 +160,9 @@ class DashboardController extends Controller
             
         $notifikasiCount = \App\Models\NotifikasiLog::where(function ($query) use ($userId) {
                 $query->where('receiver_id', $userId)
-                    ->orWhere('target_role', 'mahasiswa');
+                    ->orWhere(function($q) {
+                        $q->whereIn('target_role', ['mahasiswa', 'semua'])->whereNull('receiver_id');
+                    });
             })
             ->where('is_read', false)
             ->count();

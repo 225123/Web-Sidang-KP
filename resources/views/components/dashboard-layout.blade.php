@@ -69,8 +69,9 @@ class="font-inter antialiased bg-[#F5F6F8] text-gray-900 flex flex-col h-screen 
                             ->where(function($q) use ($user, $roleToken) {
                                 $q->where('receiver_id', $user->id);
                                 if ($roleToken) {
-                                    $q->orWhere('target_role', $roleToken)
-                                      ->orWhere('target_role', 'semua');
+                                    $q->orWhere(function($sq) use ($roleToken) {
+                                        $sq->whereIn('target_role', [$roleToken, 'semua'])->whereNull('receiver_id');
+                                    });
                                 }
                             })
                             ->count();
