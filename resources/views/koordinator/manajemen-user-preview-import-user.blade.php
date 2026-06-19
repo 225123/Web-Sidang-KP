@@ -98,6 +98,7 @@
                                     </td>
                                     <td class="border-r border-gray-100 py-1 px-1">
                                         <input type="text" :name="`users[${index}][nama]`" x-model="row.nama"
+                                            @input="row.nama = toTitleCase(row.nama)"
                                             :readonly="row.is_update" @keydown.enter.prevent
                                             class="table-input" :class="{'bg-gray-200 text-gray-500 cursor-not-allowed select-none': row.is_update}" required placeholder="Nama lengkap…">
                                     </td>
@@ -303,14 +304,21 @@
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('importPreview', () => ({
+                toTitleCase(str) {
+                    if (!str) return '';
+                    return str.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+                },
+
                 validRows: @json($validRows).map(row => ({
                     ...row, 
+                    nama: row.nama ? row.nama.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); }) : '',
                     internal_id: Math.random().toString(36).substr(2, 9),
                     is_checking: false,
                     is_invalid: false
                 })),
                 duplicateRows: @json(session('duplicateRows', [])).map(row => ({
                     ...row,
+                    nama: row.nama ? row.nama.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); }) : '',
                     sourceIndex: -1 // Original duplicates from server
                 })),
 
