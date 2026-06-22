@@ -43,8 +43,8 @@
                     <strong>{{ $expireMinutes }} menit</strong>.
                 </p>
 
-                <div class="btn-wrap">
-                    <a href="{{ $resetUrl }}" class="btn">Reset Password Saya</a>
+                <div class="btn-wrap" style="text-align: center; margin: 32px 0;">
+                    <a href="{{ $resetUrl }}" target="_blank" style="display: inline-block; background-color: #2563EB; color: #ffffff; font-size: 15px; font-weight: bold; padding: 16px 40px; border-radius: 10px; text-decoration: none;">Reset Password Saya</a>
                 </div>
 
                 <div class="note">
@@ -54,9 +54,9 @@
 
                 <hr class="divider">
 
-                <p class="link-fallback">
+                <p class="link-fallback" style="font-size: 12px; color: #9CA3AF; line-height: 1.6;">
                     Jika tombol di atas tidak berfungsi, salin dan tempel tautan berikut ke browser Anda:<br>
-                    <a href="{{ $resetUrl }}">{{ $resetUrl }}</a>
+                    <a href="{{ $resetUrl }}" target="_blank" style="color: #4285F4; word-break: break-all;">{{ $resetUrl }}</a>
                 </p>
             </div>
 
