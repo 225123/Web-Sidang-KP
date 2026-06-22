@@ -48,7 +48,7 @@
                     <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin: 0 auto;">
                         <tr>
                             <td align="center" style="border-radius: 10px; background-color: #2563EB;">
-                                <a href="{{ $resetUrl }}" target="_blank" style="display: block; padding: 16px 40px; font-family: 'Inter', Arial, sans-serif; font-size: 15px; font-weight: bold; color: #ffffff; text-decoration: none; border-radius: 10px; background-color: #2563EB; border: 1px solid #2563EB;">Reset Password Saya</a>
+                                <a href="{{ $resetUrl }}" target="_blank" style="cursor: pointer; display: block; padding: 16px 40px; font-family: 'Inter', Arial, sans-serif; font-size: 15px; font-weight: bold; color: #ffffff; text-decoration: none; border-radius: 10px; background-color: #2563EB; border: 1px solid #2563EB;">Reset Password Saya</a>
                             </td>
                         </tr>
                     </table>
