@@ -1,59 +1,59 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Informasi Sidang Kerja Praktek (KP)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem Informasi Sidang Kerja Praktek (KP) adalah aplikasi berbasis web yang dirancang khusus untuk memanajemen seluruh siklus hidup kegiatan Kerja Praktek mahasiswa, mulai dari pendaftaran, proses bimbingan, hingga penjadwalan dan penilaian sidang akhir.
 
-## About Laravel
+Aplikasi ini memfasilitasi tiga peran (role) utama dalam proses akademik:
+1. **Koordinator KP**: Mengelola data master (mahasiswa, dosen, periode), memverifikasi pendaftaran, memploting pembimbing dan penguji, menjadwalkan sidang, serta merekap nilai akhir.
+2. **Dosen (Pembimbing & Penguji)**: Melakukan persetujuan bimbingan, menyetujui mahasiswa untuk sidang, dan memberikan penilaian (baik sebagai pembimbing maupun penguji).
+3. **Mahasiswa**: Mendaftar KP, mengisi log bimbingan, mendaftar sidang, mengunggah revisi, dan melihat hasil akhir kelulusan.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Fitur Utama
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Manajemen Pengguna (Role-Based Access Control)**: Memisahkan hak akses dan dashboard sesuai dengan role masing-masing.
+- **Siklus Kerja Praktek End-to-End**: Meliputi Pendaftaran KP -> Bimbingan -> Persetujuan Sidang -> Penjadwalan -> Sidang -> Revisi -> Nilai Akhir.
+- **Notifikasi Sistem**: Memberikan pemberitahuan secara *real-time* atau *in-app* untuk event-event penting (misal: jadwal sidang rilis, bimbingan ditolak/disetujui).
+- **Penilaian Eksternal (Supervisor Instansi)**: Supervisor dari tempat KP dapat memberikan nilai secara langsung melalui tautan unik yang dikirimkan via email tanpa perlu login ke sistem.
+- **Export PDF**: Pembuatan laporan secara otomatis (Berita Acara Sidang, Log Bimbingan, Transkrip Nilai) menggunakan PDF generation.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Panduan Teknis & Arsitektur
+Untuk memahami lebih dalam mengenai teknologi yang digunakan, struktur kode, dan cara melakukan *deployment* (Docker/Vercel), silakan membaca [ARCHITECTURE.md](./ARCHITECTURE.md).
 
-## Learning Laravel
+## Struktur Database
+Dokumentasi lengkap mengenai skema tabel, relasi, dan *Entity Relationship Diagram* (ERD) dapat dilihat di [DATABASE.md](./DATABASE.md).
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Instalasi Lokal (Getting Started)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1. **Kloning Repository**
+   ```bash
+   git clone https://github.com/225123/Web-Sidang-KP.git
+   cd Web-Sidang-KP
+   ```
 
-## Laravel Sponsors
+2. **Install Dependensi**
+   ```bash
+   composer install
+   npm install
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+3. **Konfigurasi Environment**
+   Salin file konfigurasi bawaan dan sesuaikan (terutama untuk koneksi database).
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-### Premium Partners
+4. **Migrasi Database**
+   ```bash
+   php artisan migrate --seed
+   ```
+   *(Catatan: Gunakan opsi `--seed` jika Anda memiliki data awal/dummy)*
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+5. **Kompilasi Aset Frontend**
+   ```bash
+   npm run build
+   ```
 
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+6. **Jalankan Server Lokal**
+   ```bash
+   php artisan serve
+   ```
