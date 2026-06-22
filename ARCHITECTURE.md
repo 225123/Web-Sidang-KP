@@ -1,55 +1,67 @@
-# Panduan Arsitektur & Teknologi
+# Panduan Arsitektur & Teknologi (Sistem Sidang KP)
 
-Dokumen ini menjelaskan struktur arsitektur sistem, teknologi yang digunakan, serta fungsinya masing-masing dalam membangun aplikasi **Sistem Informasi Sidang KP**.
-
-## Stack Teknologi (The Tech Stack)
-
-Aplikasi ini dibangun menggunakan arsitektur **TALL Stack** yang dimodifikasi (Tailwind, Alpine, Laravel), namun tidak menggunakan Livewire, melainkan menggunakan Blade biasa dikombinasikan dengan Vanilla JS / AlpineJS untuk reaktivitas ringan.
-
-### 1. Backend & Framework Inti
-- **[Laravel 12.0](https://laravel.com/)**: Merupakan kerangka kerja (*framework*) utama di sisi server (PHP 8.2+). Digunakan untuk menangani *routing*, *business logic* (Controllers), ORM database (Eloquent), autentikasi, serta interaksi sistem secara keseluruhan.
-- **[Spatie Permission](https://spatie.be/docs/laravel-permission/)**: Library Laravel yang sangat kuat untuk menangani *Role-Based Access Control* (RBAC). Digunakan untuk memisahkan hak akses antara Koordinator, Dosen, dan Mahasiswa.
-- **[Spatie Activitylog](https://spatie.be/docs/laravel-activitylog/)**: Digunakan untuk mencatat riwayat aktivitas (*Audit Log*), melacak siapa yang mengubah data apa (contoh: koordinator memvalidasi data).
-
-### 2. Frontend & Styling
-- **[Tailwind CSS (v3.4)](https://tailwindcss.com/)**: *Utility-first CSS framework* yang digunakan untuk merancang antarmuka pengguna (UI) secara cepat dan responsif tanpa menulis file CSS eksternal.
-- **[Alpine.js (v3.4)](https://alpinejs.dev/)**: Framework JavaScript minimalis. Digunakan untuk membuat elemen UI yang interaktif (seperti *dropdown*, *modal*, *tabs*, peringatan/notifikasi) langsung di dalam file HTML/Blade tanpa perlu jQuery atau framework berat seperti React/Vue.
-- **[Vite](https://vitejs.dev/)**: *Build tool* modern yang menggantikan Laravel Mix (Webpack). Digunakan untuk melakukan kompilasi file aset (Tailwind CSS & JavaScript) secara instan saat *development* dan meminifikasinya untuk produksi.
-- **Blade Templates**: Mesin *templating* bawaan Laravel yang digunakan untuk merender tampilan (HTML) dari sisi server.
-
-### 3. Utilitas Tambahan
-- **[DomPDF (barryvdh/laravel-dompdf)](https://github.com/barryvdh/laravel-dompdf)**: Digunakan untuk men-generate (mencetak) file PDF langsung dari tampilan HTML (Blade). Sangat vital untuk fitur pencetakan **Berita Acara Sidang**, **Lembar Persetujuan**, dan **Daftar Log Bimbingan**.
-- **[Laravel Excel (maatwebsite/excel)](https://laravel-excel.com/)**: Digunakan untuk fitur *Import* (unggah data masal, contoh: import daftar mahasiswa baru) dan *Export* laporan ke format Excel/CSV.
-- **[Flysystem (AWS S3 & Google Drive Ext)](https://laravel.com/docs/filesystem)**: Digunakan untuk menyimpan file yang diunggah pengguna (seperti file laporan KP, file revisi). Dengan ekstensi ini, aplikasi bisa menyimpan file tidak hanya di lokal, tetapi juga langsung *push* ke Google Drive atau AWS S3 Bucket.
+Dokumen ini membedah keputusan teknologi (Tech Stack) yang dipilih secara khusus untuk membangun **Sistem Informasi Sidang KP**, beserta alasan spesifik mengapa teknologi tersebut digunakan dan bagaimana penerapannya dalam konteks proyek ini.
 
 ---
 
-## Arsitektur Deployment & Infrastruktur
+## 1. Backend & Framework Inti
 
-Aplikasi ini sangat fleksibel dan siap untuk di-*deploy* di dua lingkungan yang sangat berbeda:
+### Laravel 12 (PHP 8.2+)
+- **Kenapa digunakan?** Proyek ini memiliki alur logika akademik yang rumit dan tumpang tindih (Pendaftaran KP -> Validasi Koordinator -> Proses Bimbingan -> Penjadwalan -> Eksekusi Sidang -> Penilaian Multi-aktor). Laravel dipilih karena memiliki ekosistem MVC (Model-View-Controller) dan ORM (Eloquent) yang sangat matang untuk menangani relasi database kompleks ini tanpa membuat kode menjadi berantakan (*spaghetti code*).
+- **Fungsi spesifik dalam web ini:** Menjadi "otak" utama sistem yang mengatur *routing* (navigasi halaman), memproses logika formulir (seperti kalkulasi Nilai Akhir dari persentase berbagai penguji), mengirimkan notifikasi/email otomatis, dan memastikan integritas data akademik di database.
 
-### A. Serverless (Vercel)
-Aplikasi dikonfigurasi untuk dapat di-*hosting* secara gratis (atau berbayar) di Vercel menggunakan PHP serverless.
-- **Fungsi `vercel.json`**: File ini menginstruksikan Vercel untuk menggunakan *runtime* `vercel-php@0.9.0` (kompilator PHP untuk lingkungan *serverless*). Ini juga mengatur *routing* statis seperti `/assets/` agar langsung dilayani Vercel, sedangkan request lainnya diarahkan ke `/api/index.php` (titik masuk Laravel).
+### Spatie Permission
+- **Kenapa digunakan?** Sistem ini diakses oleh 3 aktor dengan hak dan batasan privasi yang sangat berbeda: Koordinator KP, Dosen (sebagai pembimbing/penguji), dan Mahasiswa. Mengkoding logika *Role-Based Access Control* (RBAC) secara manual sangat berisiko fatal jika terjadi celah keamanan.
+- **Fungsi spesifik dalam web ini:** Melindungi *route* dan tombol aksi. Memastikan secara mutlak bahwa mahasiswa tidak bisa menembus halaman penjadwalan koordinator, dan seorang dosen hanya bisa memasukkan nilai untuk mahasiswa yang secara sah dibimbing/diujinya.
 
-### B. Containerization (Docker)
-Jika proyek ingin dipasang di VPS biasa (DigitalOcean, AWS EC2, dll), disediakan konfigurasi berbasis Docker.
-- **Fungsi `Dockerfile`**: File ini adalah "resep" untuk membuat sistem operasi mini terisolasi yang sudah terpasang Nginx (Web Server) dan PHP-FPM 8.4.
-  - Secara otomatis meng-install *dependencies* OS dan ekstensi PHP (`pdo_pgsql`, `pdo_mysql`, `gd`, `zip`).
-  - Menjalankan `composer install` dan `npm run build` di dalam kontainer saat *build time*.
-  - Mengatur kepemilikan file (permissions) agar aman.
-  - Memanggil `supervisord` untuk menjaga agar Nginx dan PHP-FPM terus hidup dan *restart* jika *crash*.
+### Spatie Activitylog
+- **Kenapa digunakan?** Dalam sistem akademik, transparansi rekam jejak (*audit trail*) sangat krusial untuk akuntabilitas. Jika ada perubahan status kelulusan atau revisi jadwal secara tiba-tiba, harus ada bukti forensik sistem.
+- **Fungsi spesifik dalam web ini:** Berjalan secara *silent* di latar belakang untuk mencatat setiap kali tabel penting (seperti nilai atau jadwal sidang) di-update, lengkap dengan riwayat "siapa yang mengubah", "jam berapa", dan "apa nilai sebelumnya".
 
 ---
 
-## Struktur Direktori Utama
+## 2. Frontend & Antarmuka (TALL Stack)
 
-Berikut adalah direktori penting dalam *codebase* ini:
+### Tailwind CSS (v3.4)
+- **Kenapa digunakan?** Proyek ini memerlukan *dashboard* yang terlihat profesional, modern, dan harus **100% responsif di perangkat mobile** (karena dosen/mahasiswa sering memantau status atau membalas notifikasi via *smartphone*, seperti iPhone). Tailwind memungkinkan pembuatan desain unik ini dengan cepat tanpa konflik CSS.
+- **Fungsi spesifik dalam web ini:** Mengatur *layout*, *grid*, warna, *typography*, dan tampilan responsif (seperti mengubah tata letak form nilai menjadi vertikal jika dibuka di HP) langsung melalui penulisan *class* di dalam file `.blade.php`.
 
-- `app/Http/Controllers/` - Berisi *logic* inti, dipisah berdasarkan role (`Koordinator/`, `Dosen/`, `Mahasiswa/`).
-- `app/Models/` - Model Eloquent untuk representasi tabel database.
-- `database/migrations/` - *Blueprint* untuk membuat tabel-tabel di database (Lihat `DATABASE.md`).
-- `resources/views/` - File antarmuka pengguna (`.blade.php`). Dipisahkan juga per role (`koordinator/`, `dosen/`, `mahasiswa/`) dan tampilan umum seperti email (`emails/`).
-- `resources/css/` & `resources/js/` - Aset Tailwind dan AlpineJS yang belum dikompilasi.
-- `routes/web.php` - File konfigurasi utama di mana URL (rute) aplikasi didefinisikan dan disambungkan dengan *Controllers*.
-- `docker/` - File pendukung untuk *Docker deployment* (konfigurasi Nginx, Supervisor, script startup).
+### Alpine.js (v3.4)
+- **Kenapa digunakan?** Aplikasi ini adalah aplikasi *server-rendered* klasik, bukan *Single Page Application* seperti React/Vue. Namun, UI modern butuh sedikit reaktivitas (seperti *dropdown*, *modal popup* konfirmasi hapus jadwal, peringatan, atau transisi *tab*). Alpine.js memberikan reaktivitas tersebut dengan ukuran file yang sangat kecil.
+- **Fungsi spesifik dalam web ini:** Menangani interaktivitas UI murni di sisi *client-side* tanpa perlu jQuery.
+
+### Vite
+- **Kenapa digunakan?** Merupakan standar industri modern yang menggantikan Webpack (Laravel Mix) karena kemampuannya me-*rebuild* aset secara instan.
+- **Fungsi spesifik dalam web ini:** Melakukan kompilasi (*bundling*) dan minifikasi file Tailwind CSS dan JavaScript agar ukuran halamannya menjadi sangat kecil dan *website* memuat dengan sangat cepat saat *production*.
+
+---
+
+## 3. Utilitas Fungsional Khusus
+
+### barryvdh/laravel-dompdf
+- **Kenapa digunakan?** Hasil akhir dari seluruh proses administrasi KP adalah dokumen cetak yang sah secara hukum/akademik.
+- **Fungsi spesifik dalam web ini:** Secara instan mengubah tampilan HTML yang berisi rekapitulasi nilai akhir, tabel *log* bimbingan, dan injeksi *tanda tangan digital* (dari Dosen/Koordinator) menjadi file PDF rapi yang siap diunduh atau dicetak (Berita Acara Sidang, Lembar Persetujuan).
+
+### maatwebsite/excel (Laravel Excel)
+- **Kenapa digunakan?** Koordinator KP harus menangani data puluhan/ratusan pengguna baru setiap pergantian tahun ajaran. Menginput data satu per satu dari antarmuka web sangat tidak masuk akal secara efisiensi waktu.
+- **Fungsi spesifik dalam web ini:** Menjalankan fitur **Import Data** (membaca file `.xlsx`/`.csv` dari *device* koordinator dan secara otomatis membuatkan akun user) serta fitur **Export Data** (menyimpan rekap data mahasiswa ke bentuk Excel).
+
+### Flysystem (AWS S3 & Google Drive Ext)
+- **Kenapa digunakan?** File laporan Kerja Praktek (PDF/Word), bukti revisi, dan berkas persyaratan memiliki ukuran yang cukup besar. Jika disimpan langsung di *local disk* server, kapasitas penyimpanan *server* utama akan cepat penuh.
+- **Fungsi spesifik dalam web ini:** Memberikan kemampuan pada sistem untuk secara otomatis "melempar" file yang diunggah mahasiswa ke layanan penyimpanan *Cloud* (seperti Google Drive kampus atau AWS S3 Bucket), menjaga *server* aplikasi tetap ringan.
+
+---
+
+## 4. Arsitektur Infrastruktur & Deployment
+
+Aplikasi ini didesain secara fleksibel (*environment-agnostic*) sehingga bisa di-*deploy* di lingkungan mana pun, didukung oleh dua strategi khusus:
+
+### Deployment Serverless (Vercel)
+- **Teknologi: `vercel.json`**
+- **Kenapa digunakan?** Vercel aslinya adalah *platform* untuk React/Next.js. Namun, dengan *config* ini, proyek Laravel dapat berjalan di lingkungan *serverless* Vercel (yang sering digunakan mahasiswa untuk *hosting* gratis yang cepat dan aman tanpa perlu memikirkan konfigurasi *server*).
+- **Fungsinya:** File konfigurasi ini memaksa *runtime* Vercel untuk membaca PHP (`vercel-php@0.9.0`), menyajikan aset statis secara independen, dan mem-_bypass_ rute API utama ke file `index.php` Laravel.
+
+### Deployment Container (Docker)
+- **Teknologi: `Dockerfile` & Nginx**
+- **Kenapa digunakan?** Jika pihak kampus memutuskan untuk me-*hosting* sistem ini secara tertutup di *server* lokal (On-Premise) atau VPS berbayar murni, Docker adalah cara teraman untuk memastikan aplikasi berjalan tanpa error versi (*it works on my machine* problem).
+- **Fungsinya:** File `Dockerfile` bertindak sebagai resep otomatis untuk membuat "sistem operasi mini" (Container) yang sudah dikonfigurasi sempurna dengan sistem Linux Alpine, Nginx Web Server, PHP 8.4-FPM, dan semua ekstensi yang diperlukan (seperti `zip`, `gd`, `pdo`). Ini menjamin aplikasi langsung hidup dengan satu perintah standar Docker.
