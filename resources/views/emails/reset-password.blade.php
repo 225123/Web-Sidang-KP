@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
     <title>Reset Password – Sistem KP Ukrida</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -44,7 +45,13 @@
                 </p>
 
                 <div class="btn-wrap" style="text-align: center; margin: 32px 0;">
-                    <a href="{{ $resetUrl }}" target="_blank" style="display: inline-block; background-color: #2563EB; color: #ffffff; font-size: 15px; font-weight: bold; padding: 16px 40px; border-radius: 10px; text-decoration: none;">Reset Password Saya</a>
+                    <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin: 0 auto;">
+                        <tr>
+                            <td align="center" style="border-radius: 10px; background-color: #2563EB;">
+                                <a href="{{ $resetUrl }}" target="_blank" style="display: block; padding: 16px 40px; font-family: 'Inter', Arial, sans-serif; font-size: 15px; font-weight: bold; color: #ffffff; text-decoration: none; border-radius: 10px; background-color: #2563EB; border: 1px solid #2563EB;">Reset Password Saya</a>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
 
                 <div class="note">
