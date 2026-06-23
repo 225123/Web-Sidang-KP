@@ -130,3 +130,90 @@ erDiagram
 - **`notifikasi_logs`**: Menyimpan pesan pemberitahuan dalam aplikasi dari satu entitas ke entitas lain (misalnya: Koordinator mengirim jadwal ke Mahasiswa).
 - **`audit_logs`**: Merekam jejak sistem secara teknis (URL, aksi, IP Address, HTTP Method) untuk keamanan (*security traceback*).
 - **`backup_histories`**: Mencatat *snapshot* backup database periodik yang ditarik oleh Koordinator.
+
+---
+
+## Pemetaan Lengkap Foreign Key (FK)
+
+Tabel berikut adalah referensi seluruh FK berdasarkan constraint `ALTER TABLE` yang ada di skema database. Perhatikan bahwa beberapa nama field tidak mencerminkan nama tabel tujuannya secara langsung (karena satu tabel `users` dipakai untuk semua role).
+
+### Tabel `audit_logs`
+| Field (FK) | Merujuk ke Tabel | Merujuk ke Kolom | Aksi jika dihapus |
+|---|---|---|---|
+| `user_id` | `users` | `id` | SET NULL |
+
+### Tabel `backup_histories`
+| Field (FK) | Merujuk ke Tabel | Merujuk ke Kolom | Aksi jika dihapus |
+|---|---|---|---|
+| `koordinator_id` | `users` | `id` | SET NULL |
+| `tahun_ajaran_id` | `tahun_ajaran` | `id` | SET NULL |
+
+### Tabel `dosen`
+| Field (FK) | Merujuk ke Tabel | Merujuk ke Kolom | Aksi jika dihapus |
+|---|---|---|---|
+| `user_id` | `users` | `id` | CASCADE |
+
+### Tabel `log_bimbingan`
+| Field (FK) | Merujuk ke Tabel | Merujuk ke Kolom | Aksi jika dihapus |
+|---|---|---|---|
+| `mahasiswa_id` | `users` | `id` | CASCADE |
+| `pendaftaran_kp_id` | `pendaftaran_kp` | `id` | CASCADE |
+
+### Tabel `mahasiswa`
+| Field (FK) | Merujuk ke Tabel | Merujuk ke Kolom | Aksi jika dihapus |
+|---|---|---|---|
+| `user_id` | `users` | `id` | CASCADE |
+| `pembimbing_id` | `users` | `id` | SET NULL |
+
+> **Catatan:** `pembimbing_id` di tabel `mahasiswa` merujuk ke `users.id` (bukan ke tabel `dosen`), karena dosen disimpan di tabel `users` dengan role `dosen`.
+
+### Tabel `notifikasi_logs`
+| Field (FK) | Merujuk ke Tabel | Merujuk ke Kolom | Aksi jika dihapus |
+|---|---|---|---|
+| `sender_id` | `users` | `id` | SET NULL |
+| `receiver_id` | `users` | `id` | SET NULL |
+| `periode_id` | `tahun_ajaran` | `id` | SET NULL |
+
+### Tabel `pendaftaran_kp`
+| Field (FK) | Merujuk ke Tabel | Merujuk ke Kolom | Aksi jika dihapus |
+|---|---|---|---|
+| `mahasiswa_id` | `users` | `id` | CASCADE |
+| `tahun_ajaran_id` | `tahun_ajaran` | `id` | CASCADE |
+| `pembimbing_id` | `users` | `id` | SET NULL |
+| `supervisor_internal_id` | `users` | `id` | SET NULL |
+| `pendaftaran_asal_id` | `pendaftaran_kp` | `id` | SET NULL (self-referential, untuk data lanjutan) |
+
+### Tabel `pendaftaran_sidang`
+| Field (FK) | Merujuk ke Tabel | Merujuk ke Kolom | Aksi jika dihapus |
+|---|---|---|---|
+| `pendaftaran_kp_id` | `pendaftaran_kp` | `id` | CASCADE |
+| `mahasiswa_id` | `users` | `id` | CASCADE |
+| `penguji_1_id` | `users` | `id` | SET NULL |
+| `penguji_2_id` | `users` | `id` | SET NULL |
+
+### Tabel `riwayat_penolakan_sidang`
+| Field (FK) | Merujuk ke Tabel | Merujuk ke Kolom | Aksi jika dihapus |
+|---|---|---|---|
+| `pendaftaran_sidang_id` | `pendaftaran_sidang` | `id` | CASCADE |
+
+### Tabel `supervisor_instansi`
+| Field (FK) | Merujuk ke Tabel | Merujuk ke Kolom | Aksi jika dihapus |
+|---|---|---|---|
+| `pendaftaran_kp_id` | `pendaftaran_kp` | `id` | CASCADE |
+
+### Tabel `tahun_ajaran`
+| Field (FK) | Merujuk ke Tabel | Merujuk ke Kolom | Aksi jika dihapus |
+|---|---|---|---|
+| `koordinator_id` | `users` | `id` | SET NULL |
+
+### Tabel `timeline_kegiatan`
+| Field (FK) | Merujuk ke Tabel | Merujuk ke Kolom | Aksi jika dihapus |
+|---|---|---|---|
+| `periode_id` | `tahun_ajaran` | `id` | CASCADE |
+
+---
+
+> **Keterangan Aksi FK:**
+> - **CASCADE** → Jika data induk dihapus, data turunan ikut dihapus otomatis.
+> - **SET NULL** → Jika data induk dihapus, kolom FK di tabel turunan diisi `NULL` (data turunan tetap ada).
+
