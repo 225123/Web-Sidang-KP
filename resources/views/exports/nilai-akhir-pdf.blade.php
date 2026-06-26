@@ -68,6 +68,37 @@
     </style>
 </head>
 <body>
+    @php
+        if (!function_exists('getAbsoluteImagePath')) {
+            function getAbsoluteImagePath($pathAsset) {
+                if(!$pathAsset) return null;
+                
+                if(str_starts_with($pathAsset, 'data:image')) return $pathAsset;
+
+                if (!extension_loaded('gd') && !str_ends_with(strtolower($pathAsset), '.jpg') && !str_ends_with(strtolower($pathAsset), '.jpeg')) {
+                    return null;
+                }
+
+                $disk = upload_disk();
+                try {
+                    if (\Illuminate\Support\Facades\Storage::disk($disk)->exists($pathAsset)) {
+                        $type = pathinfo($pathAsset, PATHINFO_EXTENSION);
+                        if (!$type) $type = 'png';
+                        $data = \Illuminate\Support\Facades\Storage::disk($disk)->get($pathAsset);
+                        return 'data:image/' . $type . ';base64,' . base64_encode($data);
+                    }
+                } catch (\Exception $e) {
+                    // ignore error
+                }
+                
+                return null;
+            }
+        }
+
+        $base64_penguji1 = getAbsoluteImagePath($sidang->penguji1?->signature_path ?? null) ?? $sidang->penguji1?->signature ?? null;
+        $base64_penguji2 = getAbsoluteImagePath($sidang->penguji2?->signature_path ?? null) ?? $sidang->penguji2?->signature ?? null;
+    @endphp
+
     <table class="header-table">
         <tr>
             <td width="100" style="text-align: center;">
@@ -186,7 +217,36 @@
         </div>
     </div>
 
-
+    <div class="signature-area">
+        <table style="width: 100%; text-align: center; margin-top: 30px;">
+            <tr>
+                <td style="width: 50%; padding-top: 15px;">
+                    <p class="font-bold">Dosen Penguji 1</p>
+                    @if($base64_penguji1)
+                        <img src="{{ $base64_penguji1 }}" style="width: 150px; height: 80px; margin: 10px auto; object-fit: contain; display: block;">
+                    @else
+                        <div style="height: 80px; color: red; font-style: italic; font-size: 10px; padding-top: 30px;">
+                            (Tanda tangan digital belum tersedia)
+                        </div>
+                    @endif
+                    <p class="font-bold underline">{{ $sidang->penguji1?->name ?? 'Belum Diplot' }}</p>
+                    <p>NIDK/NIDN : {{ $sidang->penguji1?->dosen?->nidn ?? '-' }}</p>
+                </td>
+                <td style="width: 50%; padding-top: 15px;">
+                    <p class="font-bold">Dosen Penguji 2</p>
+                    @if($base64_penguji2)
+                        <img src="{{ $base64_penguji2 }}" style="width: 150px; height: 80px; margin: 10px auto; object-fit: contain; display: block;">
+                    @else
+                        <div style="height: 80px; color: red; font-style: italic; font-size: 10px; padding-top: 30px;">
+                            (Tanda tangan digital belum tersedia)
+                        </div>
+                    @endif
+                    <p class="font-bold underline">{{ $sidang->penguji2?->name ?? 'Belum Diplot' }}</p>
+                    <p>NIDK/NIDN : {{ $sidang->penguji2?->dosen?->nidn ?? '-' }}</p>
+                </td>
+            </tr>
+        </table>
+    </div>
 
     <div class="footer">
         <table width="100%">
