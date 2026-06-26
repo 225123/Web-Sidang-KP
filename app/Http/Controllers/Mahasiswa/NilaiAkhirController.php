@@ -241,7 +241,15 @@ class NilaiAkhirController extends Controller
         // Get Koordinator
         $koordinator = \App\Models\User::where('role', 'koordinator_kp')->with('dosen')->first();
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('koordinator.berita-acara-pdf-template', compact('sidang', 'koordinator'));
+        // Encode logo as base64 to ensure it loads in DomPDF on Vercel
+        $logoSrc = '';
+        if (file_exists(public_path('images/logo.png'))) {
+            $logoData = base64_encode(file_get_contents(public_path('images/logo.png')));
+            $logoSrc = 'data:image/png;base64,' . $logoData;
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::setOptions(['isRemoteEnabled' => true])
+            ->loadView('koordinator.berita-acara-pdf-template', compact('sidang', 'koordinator', 'logoSrc'));
         return $pdf->download('Berita_Acara_' . ($sidang->mahasiswa->nim ?? 'Mahasiswa') . '.pdf');
     }
 
